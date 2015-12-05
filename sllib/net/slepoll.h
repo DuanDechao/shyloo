@@ -1,10 +1,19 @@
 ///Epoll封装类
-
+/********************************************************************
+	created:	2015/11/27
+	created:	27:11:2015   17:17
+	filename: 	e:\myproject\shyloo\sllib\net\slepoll.h
+	file path:	e:\myproject\shyloo\sllib\net
+	file base:	slepoll
+	file ext:	h
+	author:		ddc
+	
+	purpose:	Epoll封装类
+*********************************************************************/
 #ifndef _SL_EPOLL_H_
 #define _SL_EPOLL_H_
 #include "slsocket.h"
 #include "../slconfig.h"
-#include "../sltype.h"
 
 #ifdef SL_OS_WINDOWS
 	//为了在windows下编译
@@ -94,14 +103,18 @@ namespace sl
 			m_astEvents = new TSocketEvent[m_iWaitSize];
 			if(!m_astEvents)
 			{
+				SL_ERROR("new TSocketEvent[%d] failed: %d", m_iWaitSize, SL_ERRNO);
 				return -1;
 			}
 
 			m_kdpfd = epoll_create(m_size);
 			if(m_kdpfd < 0)
 			{
+				SL_ERROR("epoll_create failed: %d", SL_ERRNO);
 				return -2;
 			}
+
+			SL_TRACE("init epoll ok, epoll = %d", m_kdpfd);
 			return 0;
 		}
 
@@ -127,7 +140,7 @@ namespace sl
 			{
 				return iEventCount;
 			}
-			else if(iEventCount == 0)
+			else if(iEventCount == 0)  ///< 超时了
 			{
 				return 0;
 			}
@@ -149,6 +162,7 @@ namespace sl
 				//判断对象是否合法
 				if(pstObjectPos == NULL || pstObjectPos->m_pstEpoll != this)
 				{
+					SL_WARNING("Epoll.Data(%p) invalid, event=%u", pstObjectPos, uiEvent);
 					continue;
 				}
 				pstObjectPos->OnEpollEvent(uiEvent);
@@ -191,7 +205,7 @@ namespace sl
 			int iRet = epoll_ctl(m_kdpfd. EPOLL_CTL_ADD, s, &m_stEvent); //监听某个socket fd
 			if(iRet)
 			{
-
+				SL_WARNING("epoll_ctl(add) failed: %d, epoll = %d, socket = %d", SL_ERRNO, m_kdpfd, s);
 			}
 			return iRet;
 		}
@@ -203,7 +217,7 @@ namespace sl
 			int iRet = epoll_ctl(m_kdpfd, EPOLL_CTL_DEL, s, &m_stEvent);
 			if(iRet)
 			{
-
+				SL_WARNING("epoll_ctl(del) failed: %d, epoll = %d, socket = %d", SL_ERRNO, m_kdpfd, s);
 			}
 			return iRet;
 		}
@@ -215,7 +229,7 @@ namespace sl
 			int iRet = epoll_ctl(m_kdpfd, EPOLL_CTL_MOD, s, &m_stEvent);
 			if(iRet)
 			{
-
+				SL_WARNING("epoll_ctl(mod) failed: %d, epoll = %d, socket = %d", SL_ERRNO, m_kdpfd, s);
 			}
 			return iRet;
 		}
@@ -316,6 +330,7 @@ namespace sl
 			int iRet = 0;
 			if(m_pstEpoll)
 			{
+				SL_TRACE("del %d from epoll", m_iSocket);
 				iRet = m_pstEpoll->Del(m_iSocket);
 				m_pstEpoll = NULL;
 			}

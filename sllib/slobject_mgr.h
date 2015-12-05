@@ -1,10 +1,19 @@
 ///Object和Buffer管理器（对象池）
-
+/********************************************************************
+	created:	2015/12/05
+	created:	5:12:2015   15:03
+	filename: 	e:\myproject\shyloo\sllib\slobject_mgr.h
+	file path:	e:\myproject\shyloo\sllib
+	file base:	slobject_mgr
+	file ext:	h
+	author:		ddc
+	
+	purpose:	Object和Buffer管理器
+*********************************************************************/
 #ifndef _SL_OBJECT_MGR_H_
 #define _SL_OBJECT_MGR_H_
 #include <new>
-#include <string>
-#include "slassert.h"
+#include "slbase.h"
 namespace sl
 {
 	///Object和Buffer管理器的基类，核心逻辑
@@ -63,13 +72,13 @@ namespace sl
 			:m_iObjectCount(0),
 			 m_iObjectSize(0),
 			 m_iListCount(0),
+			 m_iIndexCount(0),
 			 m_pstInfo(0),
 			 m_pstList(0),
 			 m_pDataBuffer(0)
 		{}
 
-		virtual ~CObjectMgrBase()
-		{}
+		virtual ~CObjectMgrBase(){}
 
 	protected:
 		/*
@@ -87,6 +96,7 @@ namespace sl
 		*/
 		virtual int Init(const char* pBuffer, int iObjectCount, int iObjectSize, int iListCount = 2, int iIndexCount = 1, bool bResetShm = true)
 		{
+			SL_ASSERT( !(!pBuffer || iObjectCount <= 0 || iObjectSize <= 0 || iListCount <= 1 || iIndexCount <= 0));
 			if(!pBuffer || iObjectCount <= 0 || iObjectSize <=0 || iListCount < 2 || iIndexCount <= 0)
 			{
 				return -1;
@@ -175,6 +185,7 @@ namespace sl
 		{
 			if(iIndexID < 0 || iIndexID >= m_iIndexCount || iNewListID < 0 || iNewListID >= m_iListCount)
 			{
+				SL_ERROR("InfoListAlloc error: invalid index id(%d) or new list id(%d)", iIndexID, iNewListID);
 				return -1;
 			}
 			return InfoListAlloc(iIndexID, iNewListID, ListInfo(0, iIndexID), ListInfo(iNewListID, iIndexID));
@@ -189,6 +200,7 @@ namespace sl
 		{
 			if(iIndexID < 0 || iIndexID >= m_iIndexCount || iNewListID < 0 || iNewListID >= m_iListCount || i < 0 || i >= m_iObjectCount)
 			{
+				SL_ERROR("InfoListMove error: invalid index id(%d) or new list id(%d)", iIndexID, iNewListID);
 				return -1;
 			}
 			return InfoListMove(i, iIndexID, iNewListID, ListInfo(Flag(i, iIndexID), iIndexID), ListInfo(iNewListID, iIndexID));
@@ -227,7 +239,9 @@ namespace sl
 					Next(Prev(i, iIndexID), iIndexID) = Next(i, iIndexID);
 				}
 			}
+
 			stListInfo.iSize--;
+
 			if(stListInfo.iSize > 0)
 			{
 				SL_ASSERT(stListInfo.iHead > -1);
@@ -259,6 +273,7 @@ namespace sl
 				Prev(i, iIndexID) = stListInfo.iTail;
 				stListInfo.iTail = i;
 			}
+
 			++stListInfo.iSize;
 			if(stListInfo.iSize > 0)
 			{
@@ -272,6 +287,11 @@ namespace sl
 		*/
 		int InfoListMove(int i, int iIndexID, int iNewListID, CListInfo& stOldList, CListInfo& stNewList)
 		{
+			if(iIndexID == 0 && iNewListID == 1)
+			{
+				SL_TRACE("InfoListMove i(hashkey) %d indexID %d newListId %d oldList(head %d, tail %d, size %d) newList(head %d, tail %d, size %d)",
+					i, iIndexID, iNewListID, stOldList.iHead, stOldList.iTail, stOldList.iSize, stNewList.iHead, stNewList.iTail, stNewList.iSize);
+			}
 			if(stOldList.iSize <= 0)
 			{
 				return -1;
@@ -297,24 +317,24 @@ namespace sl
 			///检查操作后是否有错误出现
 			if(Flag(i, iIndexID) != iNewListID)
 			{
-
+				SL_ERROR("InfoListMove error, flag changed");
 			}
 			if(Next(i, iIndexID) != -1)
 			{
-
+				SL_ERROR("InfoListMove error, next is not -1");
 			}
 			if(Prev(i, iIndexID) == -1)  //头结点
 			{
 				if(Head(iNewListID, iIndexID) != i)
 				{
-
+					SL_ERROR("InfoListMove error, head error");
 				}
 			}
 			else
 			{
 				if(Flag(Prev(i, iIndexID), iIndexID) != iNewListID)
 				{
-
+					SL_ERROR("InfoListMove error, prev is not in this list");
 				}
 			}
 			return 0;
@@ -331,6 +351,8 @@ namespace sl
 		{
 			if(stOldList.iSize <= 0)
 			{
+				SL_ERROR("InfoListAlloc failed %d iIndexID %d iNewListID %d stOldList(%d %d %d), stNewList(%d %d %d)",
+					stOldList.iSize, iIndexID, iNewListID, stOldList.iHead, stOldList.iTail, stOldList.iSize, stNewList.iHead, stNewList.iTail, stNewList.iSize);
 				return -1;
 			}
 			int i = stOldList.iHead;
@@ -474,7 +496,9 @@ namespace sl
 			}
 			else
 			{
+				OBJ_STAT->SetNotReset();
 				m_astObject = new (m_pDataBuffer) T[iObjectCount];
+				OBJ_STAT->SetReset();
 			}
 			return 0;
 		}
@@ -530,17 +554,6 @@ namespace sl
 		{
 			return m_pDataBuffer + i * m_iObjectSize;
 		}
-	};
-
-	///独立的对象链表区 不要派生
-	/*
-		这个类对CObjectMgr做了一次封装，将Buffer变成其内部的一部分，简化
-		使用CObjectMgr不必要的麻烦
-	*/
-	template<class E, int MAX_COUNT, int LIST_COUNT = 2, int INDEX_COUNT = 1>
-	class CObjectMgrAlone
-	{
-
 	};
 
 }// namespace sl

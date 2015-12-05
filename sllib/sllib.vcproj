@@ -209,6 +209,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sllog.h"
+				>
+			</File>
+			<File
 				RelativePath=".\slmsg_base.h"
 				>
 			</File>
@@ -217,11 +221,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\slobj_reload_check.h"
+				>
+			</File>
+			<File
 				RelativePath=".\slobject_mgr.h"
 				>
 			</File>
 			<File
 				RelativePath=".\slplatform.h"
+				>
+			</File>
+			<File
+				RelativePath=".\slserver_utils.h"
 				>
 			</File>
 			<File
@@ -242,6 +254,10 @@
 			</File>
 			<File
 				RelativePath=".\slsvr_base_frame.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sltime.h"
 				>
 			</File>
 			<File
@@ -283,11 +299,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\test_code_queue.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\test_epoll_and_shm_svr_fram.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\test_fileutils.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\test_just.cpp"
 				>
 			</File>
 			<File

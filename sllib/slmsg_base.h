@@ -147,6 +147,24 @@ namespace sl
 	};
 
 
+	/*
+		Handle的状态标志定义
+		低8位用于net向上层返回状态
+		高8位用于上层向net发送控制
+	*/
+
+	enum enumNetFlag
+	{
+		ENF_NET_FALG_ERROR			=	0x1,		///< 其他未知错误
+		ENF_NET_FLAG_REMOTECLOSE	=	0x2,		///< 远程主机关闭连接
+		ENF_NET_FLAG_IDLECLOSE		=	0x4,
+
+		ENF_NET_FLAG_ASKCLOSE		=	0x100,		///< Handle在发送完成后关闭
+		ENF_NET_FLAG_BUSY			=	0x200,		///< 上层繁忙
+		ENF_NET_FLAG_MSG_TOO_BIG	=	0x400,      ///< 消息太大
+	};
+
+
 	//Net头部
 	class CNetHead
 	{

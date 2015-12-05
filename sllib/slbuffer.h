@@ -2,7 +2,7 @@
 
 #ifndef _SL_BUFFER_H_
 #define _SL_BUFFER_H_
-#include "slbase.h"
+
 #include <string.h>
 
 namespace sl
@@ -49,7 +49,9 @@ namespace sl
 				m_bNew = true;
 				m_pszBuf = new char[iSize];
 				if(m_pszBuf == NULL)
+				{
 					return -1;
+				}
 			}else
 			{
 				m_bNew = false;
@@ -88,18 +90,20 @@ namespace sl
 			{
 				return -1;
 			}
-			memcpy(m_pszBuf + m_iPos, (const void *)&a_Value,CHAR_SIZE);
+			memcpy(m_pszBuf + m_iPos, (const void *)&a_Value, CHAR_SIZE);
 			m_iPos += CHAR_SIZE;
 			return 0;
 		}
 
 		//追加一个指定的数据
 		template<class T>
-		int AppendData(const T & a_Data)
+		int AppendData(const T& a_Data)
 		{
 			const int T_SIZE = (int) sizeof(T);
 			if(GetFreeLen() < T_SIZE)
+			{
 				return -1;
+			}
 			memcpy(m_pszBuf + m_iPos, (const void *)&a_Data, T_SIZE);
 			m_iPos += T_SIZE;
 			return 0;
@@ -111,7 +115,9 @@ namespace sl
 		{
 			SL_ASSERT(pszBuf && iLen >= 0);
 			if(GetFreeLen() < iLen)
+			{
 				return -1;
+			}
 			memcpy(m_pszBuf + m_iPos, (const void *)pszBuf, iLen);
 			m_iPos += iLen;
 			return 0;
@@ -160,7 +166,7 @@ namespace sl
 	public:
 
 		//获取缓冲区地址
-		char * GetUsedBuf() const
+		char* GetUsedBuf() const
 		{
 			return m_pszBuf;
 		}
@@ -172,7 +178,7 @@ namespace sl
 		}
 
 		//获取空闲的缓冲区起始地址
-		char * GetFreeBuf() const
+		char* GetFreeBuf() const
 		{
 			return m_pszBuf + m_iPos;
 		}

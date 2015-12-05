@@ -1,13 +1,20 @@
 //多级ObjectMgr，每一级的对象大小递增
+/********************************************************************
+	created:	2015/12/05
+	created:	5:12:2015   15:56
+	filename: 	e:\myproject\shyloo\sllib\slmulti_object_mgr.h
+	file path:	e:\myproject\shyloo\sllib
+	file base:	slmulti_object_mgr
+	file ext:	h
+	author:		ddc
+	
+	purpose:	多级ObjectMgr
+*********************************************************************/
 #ifndef _SL_MULTI_OBJECT_MGR_H_
 #define _SL_MULTI_OBJECT_MGR_H_
+#include "slbase.h"
 #include "slobject_mgr.h"
-#include "slmulti_object_mgr.h"
-#include "slstring_utils.h"
-#include <vector>
-#include <algorithm>
-#include <string.h>
-using namespace std;
+#include "slobj_reload_check.h"
 namespace sl
 {
 	//多级ObjectMgr的下标信息
@@ -157,6 +164,7 @@ namespace sl
 			int iIndex = stMgr.InfoListAlloc(0, 1);
 			if(iIndex < 0)
 			{
+				SL_WARNING("Mgr[%d].Alloc failed %d", iMgrIndex, iIndex);
 				return NULL;
 			}
 			if(pstIndex)
@@ -172,9 +180,9 @@ namespace sl
 			@param [in]   pOject	要检测的缓冲区
 			@param [out]  pstIndex	保存缓冲区的下标信息
 		*/
-		bool IsValidObject(const char* pObject, CMgrIndex* pstIndex)
+		bool IsValidObject(const char* pObject, CMgrIndex* pstIndex) const
 		{
-			if(pObject == NULL)
+			if( !pObject)
 			{
 				return false;
 			}

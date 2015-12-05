@@ -1,13 +1,20 @@
 //SOCKET封装类
-
+/********************************************************************
+	created:	2015/12/01
+	created:	1:12:2015   17:18
+	filename: 	e:\myproject\shyloo\sllib\net\slsocket.h
+	file path:	e:\myproject\shyloo\sllib\net
+	file base:	slsocket
+	file ext:	h
+	author:		ddc
+	
+	purpose:	SOCKET封装类
+*********************************************************************/
 #ifndef _SL_SOCKET_H_
 #define _SL_SOCKET_H_
-#include "../slconfig.h"
+#include "../slbase.h"
 #include "slsocket_utils.h"
-#include "../slbase_define.h"
-#include "../slassert.h"
-#include "../slbase_define.h"
-#include <WinSock2.h>
+#include "slsize_string.h"
 namespace sl
 {
 	class CSocket
@@ -35,7 +42,7 @@ namespace sl
 		//超时时间的单位是毫秒
 		CSocket(int iAF = PF_INET,
 				int iType = SOCK_STREAM,
-				bool bUseSelect = true,
+				bool bUseSelect = true,				///< 默认使用select控制超时
 				int iConnTimeOut = SLLIB_SOCK_TIMEOUT,
 				int iSendTimeOut = SLLIB_SOCK_TIMEOUT,
 				int iRecvTimeOut = SLLIB_SOCK_TIMEOUT)
@@ -51,16 +58,19 @@ namespace sl
 		{
 			memset(m_szAddr, 0, sizeof(m_szAddr));
 		}
+		virtual ~CSocket()
+		{
+			Close();
+		}
 	public:
 		bool IsTCP() const {return m_iType == SOCK_STREAM;}
 		bool IsValid() const {return (m_iSocket != SL_INVALID_SOCKET);}
 		bool IsListen() const {return m_bListen;}
 		int GetAF() const {return m_iAF;}
 		int GetType() const {return m_iType;}
-
-		SOCKET GetSocket() const {return m_iSocket;}
-
 		bool IsUseSelect() const {return m_bUseSelect;}
+		SOCKET GetSocket() const {return m_iSocket;}
+		void SetSocket(SOCKET s) {m_iSocket = s;}
 
 
 	public:
@@ -343,6 +353,39 @@ namespace sl
 		}
 #endif
 
+		//接收连接
+		int Accept(SOCKET& iAcceptSocket, sockaddr* pstAddr = NULL, socklen_t* pAddrLen = NULL)
+		{
+			if(!IsListen())
+			{
+				return -1;
+			}
+
+			int iRet = 0;
+			if(IsUseSelect())
+			{
+				iRet = CSocketUtils::Select(m_iSocket, true, m_iConnTimeOut);
+				if(iRet)
+				{
+					return iRet;
+				}
+			}
+			iAcceptSocket = accept(m_iSocket, pstAddr, pAddrLen);
+			if(iAcceptSocket == SL_INVALID_SOCKET)
+			{
+				return SL_WSA_ERRNO;
+			}
+
+			iRet = CSocketUtils::NonblockSocket(iAcceptSocket);
+			if(iRet)
+			{
+				closesocket(iAcceptSocket);
+				return SL_WSA_ERRNO;
+			}
+			return 0;
+			
+		}
+
 		/*
 			发送数据，直到所有数据发送完或出错才返回
 			@param [out] sendlen 已发送的数据的长度
@@ -460,7 +503,7 @@ namespace sl
 
 			if(IsUseSelect())
 			{
-				iRet = CSocketUtils::Select(m_iSocket, true, m_iSendTimeOut);
+				iRet = CSocketUtils::Select(m_iSocket, true, m_iRecvTimeOut);
 				if(iRet)
 				{
 					if(iRet != SL_ETIME)

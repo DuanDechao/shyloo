@@ -77,6 +77,37 @@ namespace sl
 			return true;
 		}
 
+		///删除字符串左边中的某些字符
+		static string& TrimLeft(string& str, const char* pszTrim)
+		{
+			size_t iIndex = str.find_first_not_of(pszTrim);
+			if(iIndex != string::npos)
+			{
+				str.erase(0, iIndex);
+			}
+
+			return str;
+		}
+
+		//删除字符串右边中的某些字符
+		static string& TrimRight(string& str, const char* pszTrim)
+		{
+			size_t iIndex = str.find_last_not_of(pszTrim);
+			if((++iIndex) != str.length())
+			{
+				str.erase(iIndex, str.length() - iIndex);
+			}
+
+			return str;
+		}
+
+		//转为小写
+		static string& MakeLower(string& str)
+		{
+			transform(str.begin(), str.end(), str.begin(), static_cast<int(*)(int)>(tolower));
+			return str;
+		}
+
 
 		/**
         * 严格的十进制整数转换模扳函数.

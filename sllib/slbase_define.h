@@ -1,7 +1,7 @@
 //常用的基本定义
 #ifndef _SL_BASE_DEFINE_H_
 #define _SL_BASE_DEFINE_H_
-#include "slconfig.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -15,7 +15,7 @@
 #include <map>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "slplatform.h"
+#include "slconfig.h"
 using namespace std;
 
 #ifdef SL_OS_WINDOWS
@@ -32,6 +32,7 @@ using namespace std;
 	#include <Windows.h>
 	#include <WinSock2.h>
 	#include <io.h>
+	#include <WinDef.h>
 #else
 	#include <fcntl.h>
 	#include <ctype.h>
@@ -98,6 +99,23 @@ namespace sl
 	#define SL_ECONNRESET		ECONNRESET
 #endif
 
-#define sl_snprintf				sl::CPlatForm::_sl_vsnprintf	
+///屏蔽Windows和Linux的这些函数差异
+#ifdef SL_OS_WINDOWS
+	#define sl_fopen			CPlatForm::_sl_fopen
+	#define sl_stat				_stat32
+	#define sl_access			_access
+	#define	sl_rename			rename
+	#define sl_unlink			_unlink
+	#define	sl_remove			remove
+#else
+	#define sl_fopen			fopen
+	#define sl_stat				stat
+	#define sl_access			access
+	#define	sl_rename			rename
+	#define sl_unlink			unlink
+	#define	sl_remove			remove
+#endif
 
+#define sl_vsnprintf			CPlatForm::_sl_vsnprintf	
+#define sl_snprintf				CPlatForm::_sl_snprintf
 #endif //_SL_BASE_DEFINE_H_

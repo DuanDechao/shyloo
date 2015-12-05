@@ -1,8 +1,19 @@
 //存放Code的队列
-
+/********************************************************************
+	created:	2015/12/01
+	created:	1:12:2015   17:15
+	filename: 	e:\myproject\shyloo\sllib\slcode_queue.h
+	file path:	e:\myproject\shyloo\sllib
+	file base:	slcode_queue
+	file ext:	h
+	author:		ddc
+	
+	purpose:	存放code队列
+*********************************************************************/
 #ifndef _SL_CODE_QUEUE_H_
 #define _SL_CODE_QUEUE_H_
-#include <string.h>
+#include "slbase.h"
+#include "net/slsocket_utils.h"
 namespace sl
 {
 	///存放Code的队列
@@ -67,6 +78,7 @@ namespace sl
 			//每次放入的长度最大不能超过0xFFFFFF  = 16M
 			if(iLen < 0 || iLen > (size_ - SPACE - (int)sizeof(int)) || iLen > 0xFFFFFF)
 			{
+				SL_WARNING("put buf to queue failed! len = %d, left len = %d", iLen, size_ - SPACE - (int)sizeof(int));
 				return -1;
 			}
 
@@ -107,7 +119,7 @@ namespace sl
 				else
 				{
 					memcpy(GetBuffer() + startpos, pszBuffer, size_-startpos);
-					memcpy(GetBuffer(), pszBuffer, iLen - size_ + startpos);
+					memcpy(GetBuffer(), pszBuffer + size_ - startpos, iLen - size_ + startpos);
 				}
 			}
 			else
@@ -121,8 +133,8 @@ namespace sl
 			//调整write_指针
 			wrap	=	write_;
 			write_	=	newpos;
-			newpos  =   write_;
-
+			newpos  =   wrap;
+			
 			//把长度写到头部
 			iLen	=	ntohl(iLen);
 			if(size_ - newpos < (int) sizeof(int))
@@ -134,6 +146,7 @@ namespace sl
 			{
 				memcpy(GetBuffer() + newpos, &iLen, sizeof(int));
 			}
+
 			*(char*)(GetBuffer() + newpos) = 1;
 			
 			tempcodelen_ = iLen;
@@ -159,6 +172,7 @@ namespace sl
 			int iLen = iLen1 + iLen2;
 			if(iLen > (size_ - SPACE - (int)sizeof(int)) || iLen > 0xFFFFFF)
 			{
+				SL_ERROR("In Put len = %d, size_ = %d", iLen, size_);
 				return -1;
 			}
 
@@ -166,7 +180,7 @@ namespace sl
 			//wrap表示是否换行了
 			//minpos是本次write的极限
 			const int startpos = write_ + (int)sizeof(int);
-			const int minpos   = (read_ < SPACE ? size_ : 0) + read_ - SPACE;
+			const int minpos   = read_ - SPACE + (read_ < SPACE ? size_ : 0);
 			int newpos = startpos + iLen;
 			int wrap = 0;
 			if(newpos >= size_)

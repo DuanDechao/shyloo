@@ -1,4 +1,15 @@
 //封装Socket一些常用操作
+/********************************************************************
+	created:	2015/12/01
+	created:	1:12:2015   17:19
+	filename: 	e:\myproject\shyloo\sllib\net\slsocket_utils.h
+	file path:	e:\myproject\shyloo\sllib\net
+	file base:	slsocket_utils
+	file ext:	h
+	author:		ddc
+	
+	purpose:	
+*********************************************************************/
 #ifndef _SL_SOCKET_UTILS_H_
 #define _SL_SOCKET_UTILS_H_
 #include "../slconfig.h"
@@ -99,7 +110,7 @@ namespace sl
 				iRet = select(nfds, prd, pwr, NULL, ptv);
 				if(iRet > 0)
 				{
-					return iRet;
+					return 0;
 				}
 				else if(iRet == 0)
 				{

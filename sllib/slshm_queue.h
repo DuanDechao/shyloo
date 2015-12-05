@@ -1,10 +1,23 @@
 //共享内存队列
+/********************************************************************
+	created:	2015/12/05
+	created:	5:12:2015   21:50
+	filename: 	e:\myproject\shyloo\sllib\slshm_queue.h
+	file path:	e:\myproject\shyloo\sllib
+	file base:	slshm_queue
+	file ext:	h
+	author:		ddc
+	
+	purpose:	共享内存队列
+*********************************************************************/
 #ifndef _SL_SHM_QUEUE_H_
 #define _SL_SHM_QUEUE_H_
+#include "slbase.h"
 #include "net/slepoll.h"
 #include "ipc/slshm.h"
 #include "slcode_queue.h"
 #include "net/slsocket.h"
+#include "slsize_string.h"
 namespace sl
 {
 	//共享内存队列
@@ -27,8 +40,8 @@ namespace sl
 		CShmQueue()
 			:m_pstRecvQueue(NULL),
 			 m_pstSendQueue(NULL),
-			 m_stNotifySocket(PF_INET, SOCK_DGRAM, false),
-			 m_stListenSocket(PF_INET, SOCK_DGRAM, false),
+			 m_stNotifySocket(PF_LOCAL, SOCK_DGRAM, false),
+			 m_stListenSocket(PF_LOCAL, SOCK_DGRAM, false),
 			 m_bBackEnd(false)
 		{}
 
@@ -59,17 +72,22 @@ namespace sl
 			iRet = m_stShm.Create(pszShmKey, iShmSize);
 			if(iRet)
 			{
+				SL_ERROR("m_stShm.Create failed %d. key=%s size=%d",iRet, pszShmKey, iShmSize);
 				return iRet;
 			}
+
+			SL_INFO("create shmqueue's shm at %p ok, key=%s size=%d", m_stShm.GetBuffer(), pszShmKey, iShmSize);
 
 			//初始化消息队列
 			const int iQueueSize = m_stShm.GetSize() / 2;
 			m_pstRecvQueue = (CCodeQueue*)(m_stShm.GetBuffer() + (m_bBackEnd ? 0 : iQueueSize));
 			if(m_pstRecvQueue->CheckSum())
 			{
+				SL_INFO("m_pstRecvQueue need create");
 				iRet = m_pstRecvQueue->Init(iQueueSize);
 				if(iRet)
 				{
+					SL_ERROR("m_pstRecvQueue init failed %d", iRet);
 					return iRet;
 				}
 				
@@ -78,9 +96,11 @@ namespace sl
 			m_pstSendQueue = (CCodeQueue*)(m_stShm.GetBuffer() + (m_bBackEnd ? iQueueSize : 0));
 			if(m_pstSendQueue->CheckSum())
 			{
+				SL_INFO("m_pstSendQueue need create");
 				iRet = m_pstSendQueue->Init(iQueueSize);
 				if(iRet)
 				{
+					SL_ERROR("m_pstSendQueue init failed %d", iRet);
 					return iRet;
 				}
 			}
@@ -92,12 +112,14 @@ namespace sl
 			iRet = m_stNotifySocket.Connect(pszNotifySocket);
 			if(iRet)
 			{
+				SL_ERROR("m_stNotifySocket.Connect failed %d, sock=%s", iRet, pszNotifySocket);
 				return iRet;
 			}
 
 			iRet = m_stListenSocket.Listen(pszListenSocket);
 			if(iRet)
 			{
+				SL_ERROR("m_stListenSocket.Listen failed %d, sock=%s", iRet, pszListenSocket);
 				return iRet;
 			}
 
@@ -176,7 +198,7 @@ namespace sl
 		//判断接收队列中有没有Code
 		bool HasCode() const
 		{
-			return m_pstSendQueue->GetCodeLen() > 0;
+			return m_pstRecvQueue->GetCodeLen() > 0;
 		}
 
 		/*
@@ -193,7 +215,7 @@ namespace sl
 				{
 					if(iRet != SL_EWOULDBLOCK && iRet != SL_EINPROGRESS)
 					{
-
+						SL_WARNING("m_stListenSocket.Recv failed %d, errno=%d", iRet, SL_WSA_ERRNO);
 					}
 					return;
 				}
