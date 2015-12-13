@@ -11,7 +11,6 @@
 *********************************************************************/
 
 #include "netctrl.h"
-#include <string.h>
 using namespace sl;
 
 bool CNetCtrl::s_bReloadConfig	=	false;
@@ -99,6 +98,10 @@ int CNetCtrl::Init()
 	iRet = m_stTempBuf.Attach(NULL, CONF->SendBufferSize + sizeof(CNetHead), 0);
 	CHECK_RETURN(iRet);
 
+	///流量控制对象初始化
+	m_stFlowCtrl.Init(CONF->MaxConnect, CONF->NewConnCheckInterval, CONF->NewConnMax, CONF->SendUpCheckInterval,
+		CONF->SendUpMax, CONF->StopAcceptInterval);
+
 
 	SL_INFO("NET init ok");
 
@@ -119,7 +122,7 @@ int CNetCtrl::Run()
 		if(s_bReloadConfig)
 		{
 			s_bReloadConfig = false;
-			//CONF->ReloadConfig();
+			CONF->ReloadConfig();
 		}
 
 		if(s_bExit)
@@ -128,6 +131,15 @@ int CNetCtrl::Run()
 			return 0;
 		}
 		
+		if(iLoop == 0)
+		{
+			m_uiNow = (unsigned int)time(0);
+			if(m_uiNow - iPrevNow >= 60)
+			{
+				iPrevNow = m_uiNow;
+				
+			}
+		}
 		iRet = m_stEpoll.WaitAndEvent(10);
 		if(iRet == 0)
 		{
@@ -151,7 +163,7 @@ int CNetCtrl::Run()
 
 int CNetCtrl::Exit()
 {
-	SL_INFO("%s exit", );
+	SL_INFO("%s exit", APPNAME);
 	return 0;
 }
 
@@ -180,6 +192,7 @@ int CNetCtrl::CheckIdle()
 			CloseSocket(pstClient, ENF_NET_FLAG_IDLECLOSE);
 		}
 	}
+	return 0;
 }
 
 void CNetCtrl::OnShmQueueEvent(CNetEpollObject* pstObject, SOCKET iSocket, int iEvent)
@@ -282,7 +295,7 @@ void CNetCtrl::HandleShmQueueMsg()
 		//检查上层状态
 		if(pstClient->m_stNetHead.m_LiveFlag & ENF_NET_FLAG_BUSY)  ///上层出现繁忙
 		{
-
+			m_stFlowCtrl.StopAccept();
 		}
 
 		pstClient->m_stNetHead.m_Act1 = stHead.m_Act1;
@@ -316,7 +329,7 @@ void CNetCtrl::HandleShmQueueMsg()
 
 			}
 			
-			iRet = pstClient->m_stSendBuf.Append(m_stTempBuf.GetUsedBuf() + sizeof(CNetHead),stHead.m_iDataLength);
+			iRet = pstClient->m_stSendBuf.Append(m_stTempBuf.GetUsedBuf() + sizeof(CNetHead), stHead.m_iDataLength);
 			if(iRet)
 			{
 				if(pstClient->m_stSendBuf.GetUsedLen() == 0)
@@ -382,6 +395,18 @@ void CNetCtrl::OnListenEvent(CNetEpollObject* pstObject, SOCKET iSocket, int iEv
 		return;
 	}
 
+	///必须先accept才能做流控检查，不然连接很久不会释放
+	if(m_stFlowCtrl.IsOverflow())
+	{
+		SL_WARNING("over flow: %s", m_stFlowCtrl.GetStat());
+		closesocket(s);
+		s = SL_INVALID_SOCKET;
+		return;
+	}
+
+	//记录新连接
+	m_stFlowCtrl.AcceptConnect();
+
 	///从工厂分配CNetClient
 	CNetClient* pstClient = m_stClientFactory.Alloc();
 	if(pstClient == NULL)
@@ -393,7 +418,7 @@ void CNetCtrl::OnListenEvent(CNetEpollObject* pstObject, SOCKET iSocket, int iEv
 	iRet = pstClient->Init(*this, *pstListen, s,
 		clientaddr.sin_addr.s_addr, ntohs(clientaddr.sin_port));
 	pstClient->m_uiSeq = m_stClientFactory.GetClientSeq();
-	CHECK_RETURN(iRet);
+	//CHECK_RETURN(iRet);
 
 	SL_TRACE("Client %s:%d connected port %d at sock %d", 
 		inet_ntoa(clientaddr.sin_addr),
@@ -558,6 +583,9 @@ int CNetCtrl::PutOneMessage(CNetClient* pstClient, int iLen, const char* szMsgBu
 	}
 	pstClient->m_iRecvBytes += iLen;
 	pstClient->m_stRecvBuf.Remove(iLen);
+
+	///记录发送数据包
+	m_stFlowCtrl.SendOneMsgUp();
 
 	return 0;
 }
@@ -827,8 +855,51 @@ int CNetCtrl::CloseSocket(CNetClient* pstClient, unsigned short unLiveFlag)
 	m_stClientFactory.Free(pstClient);
 
 	//记录连接关闭
+	m_stFlowCtrl.ClientDisconnect();
 
 	return 0;
 	
 }
+
+void CNetCtrl::DumpNetHead(CNetHead& stHead)
+{
+	SL_TRACE("%s", "---- BeginDumpNetHead ----");
+	struct in_addr in;
+	in.s_addr = stHead.m_RemoteIP;
+	SL_TRACE("%-16s = %s", "RemoteIP", inet_ntoa(in));
+	SL_TRACE("%-16s = %s", "RemotePort", stHead.m_RemotePort);
+	SL_TRACE("%-16s = %s", "Handle", stHead.m_Handle);
+	SL_TRACE("%-16s = %s", "HandleSeq", stHead.m_HandleSeq);
+	SL_TRACE("%-16s = %s", "CreateTime", stHead.m_CreateTime);
+	SL_TRACE("%-16s = %s", "LastTime", stHead.m_LastTime);
+	SL_TRACE("%-16s = %s", "Reserve1", stHead.m_Act1);
+	SL_TRACE("%-16s = %s", "Reserve2", stHead.m_Act2);
+	SL_TRACE("%-16s = %s", "LiveFlag", stHead.m_LiveFlag);
+	SL_TRACE("%-16s = %s", "DataLength", stHead.m_iDataLength);
+	SL_TRACE("%s", "---- EndDumpNetHead ----");
+}
+
+
+void CNetCtrl::DumpHandleInfo(CNetClient* pstClient)
+{
+	SL_TRACE("%s", "---- BeginDumpHandleInfo ----");
+	SL_TRACE("%-16s = %u", "Handle", m_stClientFactory.CalcObjectPos(pstClient));
+	struct in_addr in;
+	in_addr.s_addr = pstClient->m_stNetHead.m_RemoteIP;
+	SL_TRACE("%-16s = %s", "RemoteIP", inet_ntoa(in));
+	SL_TRACE("%-16s = %s", "RemotePort", pstClient->m_stNetHead.m_RemotePort);
+	SL_TRACE("%-16s = %s", "Socket", pstClient->m_stSocket.GetSocket());
+	SL_TRACE("%-16s = %s", "HandleSeq", pstClient->m_stNetHead.m_HandleSeq);
+	SL_TRACE("%-16s = %s", "CreateTime", pstClient->m_stNetHead.m_CreateTime);
+	SL_TRACE("%-16s = %s", "LastTime", pstClient->m_stNetHead.m_LastTime);
+	SL_TRACE("%-16s = %s", "Reserve1", pstClient->m_stNetHead.m_Act1);
+	SL_TRACE("%-16s = %s", "Reserve2", pstClient->m_stNetHead.m_Act2);
+	SL_TRACE("%-16s = %s", "LiveFlag", pstClient->m_stNetHead.m_LiveFlag);
+	SL_TRACE("%-16s = %s", "RecvBufAct", pstClient->m_stRecvBuf.Act());
+	SL_TRACE("%-16s = %s", "RecvBufLen", pstClient->m_stRecvBuf.GetUsedLen());
+	SL_TRACE("%-16s = %s", "SendBufAct", pstClient->m_stSendBuf.Act());
+	SL_TRACE("%-16s = %s", "SendBufLen", pstClient->m_stSendBuf.GetUsedLen());
+	SL_TRACE("%s","---- EndDumpHandleInfo ----");
+}
+
 

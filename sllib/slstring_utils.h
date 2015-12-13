@@ -10,6 +10,67 @@ namespace sl
 	class CStringUtils
 	{
 	public:
+
+		/**
+        * 格式化字符串.
+        * 根据参数pszFormat字符串来转换并格式化数据，然后将结果复制到参数str所指的字符串中，直到字符串结束为止
+        * @return 返回格式化后字符串的长度
+        */
+        static int Format(string& str, const char* pszFormat, ...)
+        {
+            va_list ap;
+            va_start(ap, pszFormat);
+            int iRet = FormatV(str, pszFormat, ap);
+            va_end(ap);
+            return iRet;
+        }
+
+
+		 /**
+        * 格式化字符串.
+        * 根据参数pszFormat字符串来转换并格式化数据，然后将结果复制到参数str所指的字符串中，直到字符串结束为止
+        * @return 返回格式化后字符串的长度
+        */
+        static int FormatV(string& str, const char* pszFormat, va_list ap)
+        {
+            va_list apcopy;
+#ifndef SL_OS_WINDOWS
+            va_copy(apcopy, ap);
+#else
+            apcopy = ap;
+            //assert(false && "函数 va_copy() 无法执行！");
+#endif
+            
+            int iSize = sl_vsnprintf(NULL, 0, pszFormat, ap);   // 计算需要的内存空间
+            if (iSize <= 0)
+            {
+                return iSize;
+            }
+            ++ iSize;
+
+            int iLen = 0;
+            char* pszBuf = new char[iSize];
+            if (!pszBuf)
+            {
+                return -1;
+            }        
+            iLen = sl_vsnprintf(pszBuf, iSize, pszFormat, apcopy);
+            va_end(apcopy);
+
+            if (iLen < 0 || iLen >= iSize)
+            {
+                delete[] pszBuf;
+                return iLen;
+            }
+
+            pszBuf[iLen] = 0;
+            str.assign(pszBuf, iLen);
+            delete[] pszBuf;
+
+            return iLen;
+        }
+
+
 		/*
 			删除字符串中某些字符串外的字符
 			@return	 返回删除的次数
@@ -108,6 +169,13 @@ namespace sl
 			return str;
 		}
 
+		/**
+        * 字符串比较，不区分大小写
+        */
+        static int CompareNoCase(const string& str1, const string& str2)
+        {
+            return strcasecmp(str1.c_str(), str2.c_str());
+        }
 
 		/**
         * 严格的十进制整数转换模扳函数.

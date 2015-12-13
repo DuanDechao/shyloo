@@ -46,7 +46,7 @@ namespace sl
 #ifndef SL_OS_WINDOWS
 			int flag = 1;
 			if(ioctl(s, FIONBIO, &flag) && 
-				((flag = fcntl(s, F_GETEL, 0))< 0 || fcntl(s, F_SETEL, flag|O_NONBLOCK) < 0))
+				((flag = fcntl(s, F_GETFL, 0))< 0 || fcntl(s, F_SETFL, flag|O_NONBLOCK) < 0))
 			{
 				return errno;
 			}

@@ -449,7 +449,7 @@ namespace sl
 		}
 		CListInfo& ListInfo(int iListID, int iIndexID = 0)
 		{
-			SL_ASSERT( iIndexID * m_iListCount + iListID < m_iIndexCount * m_iListCount);
+			SL_ASSERT( ((iIndexID * m_iListCount + iListID) < (m_iIndexCount * m_iListCount)));
 			return m_pstInfo[iIndexID * m_iListCount + iListID];
 		}
 		const CList& List(int i, int iIndexID = 0) const
@@ -496,9 +496,9 @@ namespace sl
 			}
 			else
 			{
-				OBJ_STAT->SetNotReset();
+				//OBJ_STAT->SetNotReset();
 				m_astObject = new (m_pDataBuffer) T[iObjectCount];
-				OBJ_STAT->SetReset();
+				//OBJ_STAT->SetReset();
 			}
 			return 0;
 		}

@@ -24,6 +24,19 @@
 #include "../sllib/slshm_queue.h"
 #include "../sllib/slserver_utils.h"
 #include "../sllib/slsize_string.h"
+#include "../sllib/slsvr_base_frame.h"
+#include "../sllib/slini_config.h"
+
+
+//==========================================================
+// 相关文件的定义，作为一个约定，不用再配置文件中读取
+#define APPNAME				"netsvr"
+#define FILE_CONFIG			"./config/netsvr.conf"
+#define FILE_NORMALLOG		"./log/netsvr.log"
+#define FILE_ERRORLOG		"./log/netsvr.err"
+#define FILE_STATLOG		"./log/netsvr.sta"
+#define FILE_PIDFILE        "./netsvr.pid"
+
 
 #define CHECK_RETURN(iRet)  do{if(iRet) {return iRet;}} while(0)
 enum net_const
@@ -51,5 +64,16 @@ namespace sl
 		unsigned char			m_ucDecodeMethod;		///< 消息体解码方法
 
 	};
+
+	//=====================================================
+	//
+#ifdef WIN32
+#define signal(signum, handler) (0)
+#define getopt(argc, argv, optstring) (0)
+
+#else
+#include <sys/types.h>
+#include <signal.h>
+#endif
 }
 #endif

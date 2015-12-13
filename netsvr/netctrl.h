@@ -17,6 +17,7 @@
 #include "netclientfactory.h"
 #include "netlisten.h"
 #include "netconfig.h"
+#include "flowctrl.h"
 //===================================
 
 #define CNetEpollObject CEpollObject<CNetCtrl>
@@ -70,6 +71,10 @@ namespace sl
 		//向上层发送Notify
 		int PutOneNotify(CNetClient* pstClient, unsigned short unLiveFlag);
 
+		void DumpNetHead(CNetHead& stHead);
+		void DumpHandleInfo(CNetClient* pstClient);
+		void DumpStatInfo();
+
 		/*
 			判断RecvBuf中是否有完整的消息
 			@param	[out]	iLen			是整个消息的长度
@@ -109,6 +114,8 @@ namespace sl
 		static bool				s_bExit;
 
 		unsigned int			m_uiNow;
+
+		CFlowCtrl				m_stFlowCtrl;
 	};
 }
 #endif

@@ -109,6 +109,14 @@ namespace sl
 			const char* pszNotifySocket = m_bBackEnd ? pszFrontEndSocket : pszBackEndSocket;
 			const char* pszListenSocket = m_bBackEnd ? pszBackEndSocket : pszFrontEndSocket;
 
+			
+			iRet = m_stListenSocket.Listen(pszListenSocket);
+			if(iRet)
+			{
+				SL_ERROR("m_stListenSocket.Listen failed %d, sock=%s", iRet, pszListenSocket);
+				return iRet;
+			}
+
 			iRet = m_stNotifySocket.Connect(pszNotifySocket);
 			if(iRet)
 			{
@@ -116,12 +124,6 @@ namespace sl
 				return iRet;
 			}
 
-			iRet = m_stListenSocket.Listen(pszListenSocket);
-			if(iRet)
-			{
-				SL_ERROR("m_stListenSocket.Listen failed %d, sock=%s", iRet, pszListenSocket);
-				return iRet;
-			}
 
 			//ע�ᵽEpoll
 			iRet = m_stEpollObject.Register(stOwner, pfEvent, stEpoll, m_stListenSocket.GetSocket(), EPOLLIN);

@@ -209,6 +209,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\slini_config.h"
+				>
+			</File>
+			<File
 				RelativePath=".\sllog.h"
 				>
 			</File>

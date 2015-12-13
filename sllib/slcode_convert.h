@@ -6,9 +6,16 @@
 #include "slsize_string.h"
 #include "slbuffer.h"
 #include <time.h>
-#include <WinSock2.h>
-#include <stdio.h>
-#pragma  comment(lib,"ws2_32.lib")
+#include "slarray.h"
+
+#ifdef SL_OS_WINDOWS
+	#include <WinSock2.h>
+	#pragma  comment(lib,"ws2_32.lib")
+#else
+	#include <arpa/inet.h>
+#endif
+
+
 
 namespace sl
 {

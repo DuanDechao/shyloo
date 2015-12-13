@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <string>
+#include <fcntl.h>
 
 namespace sl
 {

@@ -285,8 +285,8 @@ namespace sl
 	public:
 		enum
 		{
-			MSG_ID		=	MessageID;
-			MSG_TYPE	=	MessageType;	
+			MSG_ID		=	MessageID,
+			MSG_TYPE	=	MessageType,	
 		};
 		
 		virtual void Reset() {}

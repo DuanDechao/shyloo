@@ -155,6 +155,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\netconfig.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\netctrl.cpp"
 				>
 			</File>
@@ -172,6 +176,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\flowctrl.h"
+				>
+			</File>
 			<File
 				RelativePath=".\netclient.h"
 				>

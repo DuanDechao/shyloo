@@ -202,7 +202,7 @@ namespace sl
 		{
 			m_stEvent.events = event | EPOLLERR | EPOLLHUP;
 			m_stEvent.data.u64 = data; 
-			int iRet = epoll_ctl(m_kdpfd. EPOLL_CTL_ADD, s, &m_stEvent); //¼àÌýÄ³¸ösocket fd
+			int iRet = epoll_ctl(m_kdpfd, EPOLL_CTL_ADD, s, &m_stEvent); //¼àÌýÄ³¸ösocket fd
 			if(iRet)
 			{
 				SL_WARNING("epoll_ctl(add) failed: %d, epoll = %d, socket = %d", SL_ERRNO, m_kdpfd, s);
@@ -284,9 +284,8 @@ namespace sl
 		int Register(Owner& stOwner, PF_EPOLL_EVENT pfEvent, CEpoll& stEpoll, SOCKET iSocket, unsigned int iRegEvent)
 		{
 			SL_ASSERT(iSocket != SL_INVALID_SOCKET && iRegEvent > 0 && pfEvent != NULL);
-
+			
 			int iRet = 0;
-
 			iRet = Unregister();
 			if(iRet)
 			{

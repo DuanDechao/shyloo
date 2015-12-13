@@ -13,8 +13,10 @@
 
 #ifndef _SL_LOG_H_
 #define _SL_LOG_H_
-
-#include "slbase.h"
+#include "slbase_define.h"
+#include "slplatform.h"
+#include "slstring_utils.h"
+#include "sltime.h"
 namespace sl
 {
 	//日志类型

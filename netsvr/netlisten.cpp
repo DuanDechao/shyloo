@@ -24,12 +24,13 @@ int CNetListen::Init(CNetCtrl& stOwner, const CNetListenInfo& stListenInfo)
 	
 	iRet	=	m_stSocket.Listen(m_stListenInfo.m_szListenIP(), m_stListenInfo.m_unListenPort);
 	CHECK_RETURN(iRet);
-
+	
 	iRet	=	Register(stOwner,
 		&CNetCtrl::OnListenEvent,
 		stOwner.m_stEpoll,
 		m_stSocket.GetSocket(),
 		EPOLLIN);
+
 	CHECK_RETURN(iRet);
 	return 0;
 }

@@ -126,6 +126,7 @@
 				{
 					if( SL_ERRNO != EEXIST)
 					{
+						perror("shmget error");
 						SL_ERROR("shmget create fail: errno=%d, key=%u, size=%u", SL_ERRNO, uiKey, m_uiSize);
 						return -1;
 					}
@@ -172,13 +173,12 @@
 			//根据文件计算用于创建共享内存的key
 			static key_t FtoK(const char* pszPathName)
 			{
-				struct stat stStat;
-				memset(&stStat, 0, sizeof(stStat));
-				if(stat(pszPathName, &stStat) != 0)
+				key_t key;
+				if((key = ftok(pszPathName,'S')) < 0)
 				{
-					return -abs(errno);
+					return SL_ERRNO;
 				}
-				return stStat.st_ino;
+				return key;
 			}
 
 			//创建或连接上一块共享内存

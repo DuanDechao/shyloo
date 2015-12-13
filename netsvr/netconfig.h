@@ -20,6 +20,7 @@ namespace sl
 	class CNetConfig
 	{
 	public:
+		CNetConfig(): ConfigName(FILE_CONFIG){}
 
 		//共享内存
 		CSizeString<SL_PATH_MAX>		MgrShmKey;
@@ -42,16 +43,21 @@ namespace sl
 		CArray<CNetListenInfo, NET_MAX_LISTEN> ListenArray;
 
 		///流量控制配置
-
+		int			MaxConnect;								///< 最大连接数
+		int			NewConnCheckInterval;					///< 新连接创建数量检查时间间隔（微秒）	
+		int			NewConnMax;								///< 在NewConnCheckInterval时间内所能接收的最大连接数
+		int			SendUpCheckInterval;					///< 向上层发送的数据包数量检查时间间隔（微秒）
+		int			SendUpMax;								///< 在SendUpCheckInterval时间内向上层所能发送数据包的最大数量
+		int			StopAcceptInterval;						///< 停止接收新连接的时间间隔（秒）
 
 		CSizeString<SL_PATH_MAX>		ConfigName;			///< 配置文件名
 	public:
-		int		LoadConfig(){return 0;}
+		int		LoadConfig();
 
-		int		ReloadConfig(){return 0;}
+		int		ReloadConfig();
 
 		//读取日志配置
-		int		LoadLogConfig(){return 0;}
+		int		LoadLogConfig();
 
 	}; //class CNetConfig
 }

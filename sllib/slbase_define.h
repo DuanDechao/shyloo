@@ -107,6 +107,8 @@ namespace sl
 	#define	sl_rename			rename
 	#define sl_unlink			_unlink
 	#define	sl_remove			remove
+	#define strcasecmp          _stricmp
+	#define strncasecmp         _strnicmp
 #else
 	#define sl_fopen			fopen
 	#define sl_stat				stat

@@ -14,7 +14,11 @@
 #define _SL_SOCKET_H_
 #include "../slbase.h"
 #include "slsocket_utils.h"
-#include "slsize_string.h"
+#include "../slsize_string.h"
+#ifndef SL_OS_WINDOWS 
+#include "stddef.h"
+#endif
+
 namespace sl
 {
 	class CSocket
@@ -81,7 +85,6 @@ namespace sl
 			{
 				Close();
 			}
-
 			m_iSocket = socket(m_iAF, m_iType, 0);
 			if(!IsValid())
 			{
@@ -255,7 +258,7 @@ namespace sl
 #endif
 
 		//¼àÌý
-		int Listen(const sockaddr* pstAddr, socklen_t iAddrLen)
+		int Listen(const struct sockaddr* pstAddr, socklen_t iAddrLen)
 		{
 			SL_ASSERT(iAddrLen <= sizeof(m_szAddr));
 			memcpy(m_szAddr, pstAddr, iAddrLen);
@@ -336,13 +339,11 @@ namespace sl
 			{
 				return -1;
 			}
-
 			struct sockaddr_un stTempAddr;
 			memset((void*)&stTempAddr, 0, sizeof(stTempAddr));
-
-			stTempAddr.sun_family = PF_LOCAL;
-			snprintf(SL_STRSIZE(stTempAddr.sun_path), "%s", pszPathName);
-
+			stTempAddr.sun_family = AF_LOCAL;
+			strncpy(stTempAddr.sun_path, pszPathName, sizeof(stTempAddr.sun_path)-1);
+			
 			unlink(pszPathName);
 			return Listen((struct sockaddr*)&stTempAddr, sizeof(stTempAddr));
 		}
