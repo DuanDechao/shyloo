@@ -26,6 +26,7 @@
 #include "../sllib/slsize_string.h"
 #include "../sllib/slsvr_base_frame.h"
 #include "../sllib/slini_config.h"
+#include "../sllib/slstat.h"
 
 
 //==========================================================
@@ -70,10 +71,23 @@ namespace sl
 #ifdef WIN32
 #define signal(signum, handler) (0)
 #define getopt(argc, argv, optstring) (0)
-
+#define SIGUSR1  10
+#define SIGUSR2  12
 #else
 #include <sys/types.h>
 #include <signal.h>
 #endif
+
+	enum EEnpStat
+	{
+		enp_stat_recvmsg = 0,
+		enp_stat_sendmsg,
+		enp_stat_accept,
+		enp_stat_idleclose,
+		enp_stat_mainloop,
+		enp_stat_waittimeout,
+		enp_stat_check,
+	};
+
 }
 #endif

@@ -126,8 +126,8 @@ netconfig.o: netconfig.cpp netconfig.h netdef.h ../sllib/slbase.h \
  /usr/include/i386-linux-gnu/sys/shm.h \
  /usr/include/i386-linux-gnu/bits/shm.h ../sllib/slcode_queue.h \
  ../sllib/net/slsocket_utils.h ../sllib/net/slsocket.h \
- ../sllib/slserver_utils.h ../sllib/../sllib/slconfig.h \
- /usr/include/signal.h /usr/include/i386-linux-gnu/bits/signum.h \
+ ../sllib/slserver_utils.h ../sllib/slfile_utils.h /usr/include/signal.h \
+ /usr/include/i386-linux-gnu/bits/signum.h \
  /usr/include/i386-linux-gnu/bits/siginfo.h \
  /usr/include/i386-linux-gnu/bits/sigaction.h \
  /usr/include/i386-linux-gnu/bits/sigcontext.h \
@@ -163,4 +163,4 @@ netconfig.o: netconfig.cpp netconfig.h netdef.h ../sllib/slbase.h \
  /usr/include/c++/4.6/bits/codecvt.h \
  /usr/include/c++/4.6/i686-linux-gnu/./bits/basic_file.h \
  /usr/include/c++/4.6/i686-linux-gnu/./bits/c++io.h \
- /usr/include/c++/4.6/bits/fstream.tcc
+ /usr/include/c++/4.6/bits/fstream.tcc ../sllib/slstat.h

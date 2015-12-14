@@ -253,6 +253,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\slstat.h"
+				>
+			</File>
+			<File
 				RelativePath=".\slstring_utils.h"
 				>
 			</File>

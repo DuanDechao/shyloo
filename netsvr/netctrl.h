@@ -109,6 +109,8 @@ namespace sl
 		///¼àÌý¶Ë¿Ú
 		CArray<CNetListen, NET_MAX_LISTEN>		m_astListen;
 
+		CStat					m_stat;
+
 		
 		static bool				s_bReloadConfig;
 		static bool				s_bExit;
