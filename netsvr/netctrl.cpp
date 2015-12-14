@@ -430,7 +430,7 @@ void CNetCtrl::OnListenEvent(CNetEpollObject* pstObject, SOCKET iSocket, int iEv
 
 void CNetCtrl::OnClientEvent(CNetEpollObject* pstObject, SOCKET iSocket, int iEvent)
 {
-	CNetClient* pstClient = (CNetClient*) pstClient;
+	CNetClient* pstClient = (CNetClient*) pstObject;
 	SL_TRACE("client socket %d handle %d event=%d",
 		iSocket, pstClient->m_stNetHead.m_Handle, iEvent);
 
@@ -885,7 +885,7 @@ void CNetCtrl::DumpHandleInfo(CNetClient* pstClient)
 	SL_TRACE("%s", "---- BeginDumpHandleInfo ----");
 	SL_TRACE("%-16s = %u", "Handle", m_stClientFactory.CalcObjectPos(pstClient));
 	struct in_addr in;
-	in_addr.s_addr = pstClient->m_stNetHead.m_RemoteIP;
+	in.s_addr = pstClient->m_stNetHead.m_RemoteIP;
 	SL_TRACE("%-16s = %s", "RemoteIP", inet_ntoa(in));
 	SL_TRACE("%-16s = %s", "RemotePort", pstClient->m_stNetHead.m_RemotePort);
 	SL_TRACE("%-16s = %s", "Socket", pstClient->m_stSocket.GetSocket());
