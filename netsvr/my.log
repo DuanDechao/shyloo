@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [2015-12-14 17:05:08.310226][info]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
 [2015-12-14 17:05:08.314831][info]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
 [2015-12-14 17:05:08.317536][info]Accept: Count=1 Max=1 Min=1 Avg=1 All=1 Zero=0
@@ -167,3 +168,6 @@
 [2015-12-14 17:17:08.454951][info]ShmQueueFreeSize: Recv=1777160 Send=1777160
 [2015-12-14 17:17:08.461775][info]FlowCtrl: connected 0/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
 
+=======
+[1970-01-01 08:00:00.000000][trace]InfoListMove i(hashkey) 0 indexID 0 newListId 1 oldList(head 0, tail 1023, size 1024) newList(head -1, tail -1, size 0)
+>>>>>>> 431a0c05b114d84fb92dcbfbdad5eeb353722b87
