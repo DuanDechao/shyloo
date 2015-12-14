@@ -1,0 +1,1 @@
+[1970-01-01 08:00:00.000000][trace]InfoListMove i(hashkey) 0 indexID 0 newListId 1 oldList(head 0, tail 1023, size 1024) newList(head -1, tail -1, size 0)

@@ -430,7 +430,7 @@ void CNetCtrl::OnListenEvent(CNetEpollObject* pstObject, SOCKET iSocket, int iEv
 
 void CNetCtrl::OnClientEvent(CNetEpollObject* pstObject, SOCKET iSocket, int iEvent)
 {
-	CNetClient* pstClient = (CNetClient*) pstClient;
+	CNetClient* pstClient = (CNetClient*) pstObject;
 	SL_TRACE("client socket %d handle %d event=%d",
 		iSocket, pstClient->m_stNetHead.m_Handle, iEvent);
 
