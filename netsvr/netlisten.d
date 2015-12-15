@@ -163,5 +163,5 @@ netlisten.o: netlisten.cpp netclient.h netdef.h ../sllib/slbase.h \
  /usr/include/c++/4.6/bits/codecvt.h \
  /usr/include/c++/4.6/i686-linux-gnu/./bits/basic_file.h \
  /usr/include/c++/4.6/i686-linux-gnu/./bits/c++io.h \
- /usr/include/c++/4.6/bits/fstream.tcc netctrl.h netclientfactory.h \
- netlisten.h netconfig.h
+ /usr/include/c++/4.6/bits/fstream.tcc ../sllib/slstat.h netctrl.h \
+ netclientfactory.h netlisten.h netconfig.h flowctrl.h
