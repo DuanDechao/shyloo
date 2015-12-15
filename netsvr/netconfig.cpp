@@ -141,7 +141,8 @@ int CNetConfig::LoadLogConfig()
 	GETINT(MAIN_SECTION, "LogFileSize", iLogFileSize);
 	SL_NLOG->Init(ENamed, NULL, FILE_NORMALLOG, iLogFileSize, iLogFileNum);
 	SL_ELOG->Init(ENamed, NULL, FILE_ERRORLOG, iLogFileSize, iLogFileNum);
-	//SL_NLOG->Init(ENamed, NULL, FILE_STATLOG, iLogFileSize, iLogFileNum);
+	SL_STAT->Init(ENamed, NULL, FILE_STATLOG, iLogFileSize, iLogFileNum);
+	SL_STAT->SetFormat(ETime|ENewLine);
 
 	//…Ë÷√format
 	string str;

@@ -52,7 +52,9 @@ namespace sl
 
 
 #define SL_STRSIZE(x)	x,sizeof(x)			///< 用在snprintf中的简化宏
-
+#define SL_COUNTOF(x)  (sizeof(x)/sizeof(x[0]))
+#define SL_MAX(a, b)   ((a) > (b) ? (a) : (b))
+#define SL_MIN(a, b)   ((a) < (b) ? (a) : (b))
 #define SL_CEIL(a, b)  ((a) == 0 ? 0 : ((a) - 1) / (b) + 1) 
 #define SL_UNUSED(x)						///< 如果有些参数在函数类没用到，用这个可以避免警告
 

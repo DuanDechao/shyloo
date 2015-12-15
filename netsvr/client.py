@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import socket
 host = '127.0.0.1'
-port = 18911
+port = 18912
 BUFSIZE = 1024
 tcpClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 tcpClient.connect((host, port))

@@ -19,6 +19,21 @@ bool CNetCtrl::s_bExit			=	false;
 CNetCtrl::CNetCtrl()
 {
 	m_uiNow	=	static_cast<unsigned int>(time(0));
+
+	//统计项描述
+	const char g_aszEnpStatDesc[][CStatItem::SL_DESC_MAX] = 
+	{
+		"RecvMessage",
+		"SendMessage",
+		"Accept",
+		"IdleClose",
+		"MainLoop",
+		"WaitTimeout",
+		"Check"
+	};
+	
+	m_stat.Init(SL_COUNTOF(g_aszEnpStatDesc), g_aszEnpStatDesc);
+
 }
 
 void CNetCtrl::sigusr1_handle(int SL_UNUSED(iSigVal))
@@ -73,6 +88,7 @@ int CNetCtrl::Init()
 		iClientSize, CONF->SocketMaxCount);
 	CHECK_RETURN(iRet);
 
+	SL_INFO("ENP init: initialing buffer");
 	///初始化接收缓冲区
 	iRet = m_stRecvBufMgr.Init(m_stHandleMgrShm.GetBuffer() + iClientSize,
 		CONF->BufferCount, CONF->RecvBufferSize);
@@ -131,19 +147,22 @@ int CNetCtrl::Run()
 			return 0;
 		}
 		
+		m_stat.Put(enp_stat_mainloop);
+
+		// 定时器检查
 		if(iLoop == 0)
 		{
 			m_uiNow = (unsigned int)time(0);
 			if(m_uiNow - iPrevNow >= 60)
 			{
 				iPrevNow = m_uiNow;
-				
+				DumpStatInfo();
 			}
 		}
 		iRet = m_stEpoll.WaitAndEvent(10);
 		if(iRet == 0)
 		{
-
+			m_stat.Put(enp_stat_waittimeout);
 		}
 
 		// 遗留未发送的数据的检查
@@ -154,6 +173,7 @@ int CNetCtrl::Run()
 		if(++iLoop >= 50)
 		{
 			iLoop = 0;
+			m_stat.Put(enp_stat_check);
 			CheckIdle();
 			CheckRemain();
 		}
@@ -187,8 +207,10 @@ int CNetCtrl::CheckIdle()
 		if((m_uiNow - pstClient->m_stNetHead.m_LastTime) >
 			pstClient->m_pstListen->m_stListenInfo.m_uiIdleTimeOut)
 		{
+			m_stat.Put(enp_stat_idleclose);
 			SL_TRACE("CheckIdle handle(%d) socket(%d) close",
 				iIndex, pstClient->m_stSocket.GetSocket());
+			DumpHandleInfo(pstClient);
 			CloseSocket(pstClient, ENF_NET_FLAG_IDLECLOSE);
 		}
 	}
@@ -303,6 +325,9 @@ void CNetCtrl::HandleShmQueueMsg()
 		memcpy(pstClient->m_stNetHead.m_Key, stHead.m_Key, sizeof(pstClient->m_stNetHead.m_Key));
 		
 		SL_TRACE("get msg from shmqueue. handle=%d datalen=%d seq=%u", iIndex, stHead.m_iDataLength, stHead.m_HandleSeq);
+		DumpNetHead(stHead);
+		DumpHandleInfo(pstClient);
+
 		iRet = AllocSendBuffer(pstClient);
 		if(iRet)
 		{
@@ -356,6 +381,7 @@ void CNetCtrl::HandleShmQueueMsg()
 		SL_TRACE("---- handle(%d) begin send data, len=%d ----", iIndex,
 			pstClient->m_stSendBuf.GetUsedLen());
 
+		m_stat.Put(enp_stat_sendmsg);
 		//发送数据
 		iRet = SendSocket(pstClient);
 		if(iRet)
@@ -381,6 +407,7 @@ void CNetCtrl::OnListenEvent(CNetEpollObject* pstObject, SOCKET iSocket, int iEv
 	int iRet = 0;
 	CNetListen* pstListen = (CNetListen*) pstObject;
 	pstListen->m_uiLastTime = m_uiNow;
+	m_stat.Put(enp_stat_accept);
 
 	///接受连接
 	struct sockaddr_in clientaddr;
@@ -409,7 +436,7 @@ void CNetCtrl::OnListenEvent(CNetEpollObject* pstObject, SOCKET iSocket, int iEv
 
 	///从工厂分配CNetClient
 	CNetClient* pstClient = m_stClientFactory.Alloc();
-	if(pstClient == NULL)
+	if(!pstClient)
 	{
 		SL_WARNING("m_stClientFactory Alloc failed");
 		return;
@@ -522,6 +549,7 @@ int CNetCtrl::AfterRecvSocket(CNetClient* pstClient)
 			break;
 		}
 		SL_TRACE("Has one message len=%d msglen=%d, put to RecvQueue", iLen, iMsgLen);
+		m_stat.Put(enp_stat_recvmsg);
 		iRet = PutOneMessage(pstClient, iLen, szMsgBuf, iMsgLen);
 		if(iRet)
 		{
@@ -900,6 +928,33 @@ void CNetCtrl::DumpHandleInfo(CNetClient* pstClient)
 	SL_TRACE("%-16s = %s", "SendBufAct", pstClient->m_stSendBuf.Act());
 	SL_TRACE("%-16s = %s", "SendBufLen", pstClient->m_stSendBuf.GetUsedLen());
 	SL_TRACE("%s","---- EndDumpHandleInfo ----");
+}
+
+void CNetCtrl::DumpStatInfo()
+{
+	m_stat.Dump(SL_STAT);
+
+	SL_STAT->Log(EInfo, "Handle: All=%d Used=%d Free=%d Remain=%d",
+		m_stClientFactory.GetObjectCount(),
+		m_stClientFactory.Size(USED_LIST, ALLOC_INDEX),
+		m_stClientFactory.Size(FREE_LIST, ALLOC_INDEX),
+		m_stClientFactory.Size(REMAIN_LIST, REMAIN_INDEX));
+
+	SL_STAT->Log(EInfo, "RecvBuffer: All=%d Used=%d Free=%d",
+		m_stRecvBufMgr.GetObjectCount(),
+		m_stRecvBufMgr.Size(USED_LIST),
+		m_stRecvBufMgr.Size(FREE_LIST));
+
+	SL_STAT->Log(EInfo, "SendBuffer: All=%d Used=%d Free=%d",
+		m_stSendBufMgr.GetObjectCount(),
+		m_stSendBufMgr.Size(USED_LIST),
+		m_stSendBufMgr.Size(FREE_LIST));
+
+	SL_STAT->Log(EInfo, "ShmQueueFreeSize: Recv=%d Send=%d",
+		m_stShmQueue.GetRecvQueueFreeSize(),
+		m_stShmQueue.GetSendQueueFreeSize());
+
+	SL_STAT->Log(EInfo, "FlowCtrl: %s\n", m_stFlowCtrl.GetStat());
 }
 
 
