@@ -157,6 +157,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\slapp_inf.h"
+				>
+			</File>
+			<File
 				RelativePath=".\slapp_so_cmd.h"
 				>
 			</File>
@@ -198,6 +202,10 @@
 			</File>
 			<File
 				RelativePath=".\slepoll_and_shm_svr_fram.h"
+				>
+			</File>
+			<File
+				RelativePath=".\slexception.h"
 				>
 			</File>
 			<File
@@ -277,6 +285,10 @@
 				>
 				<File
 					RelativePath=".\ipc\slshm.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ipc\slshm_buff.h"
 					>
 				</File>
 			</Filter>

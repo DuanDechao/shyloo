@@ -1,8 +1,20 @@
 //这里定义了异步命令框架
+/********************************************************************
+	created:	2015/12/15
+	created:	15:12:2015   19:42
+	filename: 	d:\workspace\shyloo\sllib\slasync_cmd.h
+	file path:	d:\workspace\shyloo\sllib
+	file base:	slasync_cmd
+	file ext:	h
+	author:		ddc
+	
+	purpose:	异步命令框架
+*********************************************************************/
 #ifndef _SL_ASYNC_CMD_H_
 #define _SL_ASYNC_CMD_H_
 #include "slasync_cmd_factory.h"
 #include "slmsg_base.h"
+#include "slbase.h"
 
 namespace sl
 {
@@ -29,6 +41,7 @@ namespace sl
 
 		virtual ~CAsyncCmd()
 		{
+			SL_TRACE("AsyncCmd(%p) free. parent=%p, child=%p, seq=%d", this, m_pstParent, m_pstChild, GetCmdSeq());
 			//如果自己比子命令先释放(超时会出现这种情况)，那么把子命令的pParent设为0
 			if(m_pstChild != NULL && m_pstChild->m_pstParent == this)
 			{
@@ -44,6 +57,9 @@ namespace sl
 		//在调用子命令Do之前先RegChild
 		void RegisterChild(CAsyncCmd* pChildCmd, bool bParentEnableLogicDo = false)
 		{
+			SL_ASSERT(pChildCmd);
+			SL_TRACE("AsyncCmd(%d, %p) register child(%d, %p)",
+				GetCmdID(), this, pChildCmd->GetCmdID(), pChildCmd);
 			m_iState = pChildCmd->GetCmdID();
 			pChildCmd->m_pstParent = this;
 			this->m_pstChild = pChildCmd;
@@ -53,8 +69,10 @@ namespace sl
 		//命令执行完毕后调用Done函数，以便自动释放或回调父命令
 		virtual int Done(int iRet)
 		{
+			SL_TRACE("AsyncCmd(%d, %p) done, ret = %d", GetCmdID(), this, iRet);
 			if(m_pstParent)
 			{
+				SL_TRACE("AsyncCmd(%d, %p) done, it's parent is (%d, %p)", GetCmdID(), this, m_pstParent->GetCmdID(), m_pstParent);
 				m_pstParent->DecInf();
 				m_pstParent->LoginDo(iRet);
 				m_pstParent = NULL;
@@ -62,10 +80,10 @@ namespace sl
 			}
 
 			//释放自己
-			int i = SL_CMDFACTORY->FreeCmd(this);
-			if(i)
+			int _iRet = SL_CMDFACTORY->FreeCmd(this);
+			if(_iRet)
 			{
-
+				SL_WARNING("freecmd(%d, %p) failed, ret=%d",GetCmdID(),this, _iRet);
 			}
 			return iRet;
 		}
@@ -73,6 +91,15 @@ namespace sl
 		virtual bool HasChild()
 		{
 			return (m_pstChild != NULL && GetRef() > 0);
+		}
+
+		//把自己放到CAsyncCmdQueue中
+		int PushQueue(int iRet)
+		{
+			m_iQueueRet = iRet;
+			m_iState = GetCmdID();
+			IncInf();
+			return SL_CMDFACTORY->PushQueue(this);
 		}
 
 		//设置命令开始时间
@@ -114,6 +141,11 @@ namespace sl
 					m_pstParent->AddExecTime(dExecTime);
 				}
 			}
+
+			//最近一次结算完成，重置开始占用cpu的时间
+			m_stBeginExecTime.tv_sec = 0;
+			m_stBeginExecTime.tv_usec = 0;
+			return 0;
 		}
 
 		/*

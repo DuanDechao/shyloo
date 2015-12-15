@@ -1,10 +1,22 @@
 //异步命令工厂类
+/********************************************************************
+	created:	2015/12/15
+	created:	15:12:2015   16:29
+	filename: 	d:\workspace\shyloo\sllib\slasync_cmd_factory.h
+	file path:	d:\workspace\shyloo\sllib
+	file base:	slasync_cmd_factory
+	file ext:	h
+	author:		ddc
+	
+	purpose:	异步命令工厂类
+*********************************************************************/
 #ifndef _SL_ASYNC_CMD_FACTORY_H_
 #define _SL_ASYNC_CMD_FACTORY_H_
 #include "slmulti_object_mgr.h"
 #include "slsingleton.h"
 #include "slmsg_base.h"
 #include "slarray.h"
+#include "slexception.h"
 #include <map>
 
 namespace sl
@@ -203,11 +215,12 @@ namespace sl
 				iMgrIndex	=	m_stMgr.CalcMgrIndex(iter->second->GetObjectSize());
 				if(iMgrIndex < 0)
 				{
+					SL_ERROR("RegisterCmd fail, cmdid(%d)'s size(%d) is too large", iter->first, iter->second->GetObjectSize());
 					return -1;
 				}
 				else
 				{
-
+					SL_INFO("Register Cmdid = %d, size = %d, mgr index = %d", iter->first, iter->second->GetObjectSize(), iMgrIndex);
 				}
 				iter->second->m_iMgrIndex = iMgrIndex;
 			}
@@ -229,9 +242,12 @@ namespace sl
 			TRegisterMap::iterator it = m_stMap.find(iCmdID);
 			if(it != m_stMap.end())
 			{
+				SL_THROW("cmdid(%d) already exists", iCmdID);
 				//return;
 			}
 			m_stMap[iCmdID] = p;
+
+			SL_INFO("CmdID = %d, cmd size = %d, mgr index = %d", iCmdID, p->GetObjectSize(), m_stMapp[iCmdID]->m_iMgrIndex);
 		}
 
 		/*
@@ -253,11 +269,14 @@ namespace sl
 				{
 					if(m_cBufMgr.m_iUsedCount == BUF_NEW_COUNT)
 					{
+						SL_ERROR("cmd factory buf mgr usecount full, alloc cmd %d failed", iCmdID);
 						return NULL;
 					}
+					SL_WARNING("alloc buffer fail, mgrindex = %d, cmdid = %d, alloc buf buy new", p->m_iMgrIndex, iCmdID);
 					pszBuffer = new char[p->GetObjectSize()];
 					if(!pszBuffer)
 					{
+						SL_WARNING("alloc buf by new for cmd %d failed", iCmdID);
 						return NULL;
 					}
 					bufModul.m_pBuf    =  pszBuffer;
@@ -271,6 +290,7 @@ namespace sl
 				pstCmd->m_stIndex	  =  stIndex;
 				pstCmd->SetCmdCreateTime();
 				if(bufModul.m_pBuf)  pstCmd->m_bufSty  =  true;
+				SL_TRACE("Create AsybcCmd %d(%p)", iCmdID, pstCmd);
 				return pstCmd;
 			}
 			return NULL;
@@ -285,10 +305,11 @@ namespace sl
 			{
 				for (int i = 0; i < m_cBufMgr.m_iUsedCount; i++)
 				{
-					if(m_cBufMgr[i].m_iCmdID == pstCmd->m_CmdID)
+					if(m_cBufMgr[i].m_iCmdID == pstCmd->GetCmdID())
 					{
 						delete m_cBufMgr[i].m_pBuf;
 						m_cBufMgr.DelOneItem(i);
+						SL_TRACE("delete buf in m_cBufMgr index %d cmdid %d", i, pstCmd->GetCmdID());
 						return 0;
 					}
 				}
@@ -302,6 +323,151 @@ namespace sl
 			pstCmd->~CAsyncCmdInf();
 			m_stMgr.Free(stIndex);
 			return 0;
+		}
+
+		bool IsValidCmd(CAsyncCmdInf* pstCmd, CMgrIndex* pstIndex = NULL)
+		{
+			return m_stMgr.IsValidObject(pstCmd, pstIndex);
+		}
+
+		///-1表示按照全局测试判断，其他ID
+		bool IsBusy(int iMaxPercent)
+		{
+			if(iMaxPercent <= 0)
+			{
+				return true;
+			}
+			for (unsigned int i = 0; i < m_stMgr.GetMgrCount(); ++i)
+			{
+				int iTotalCount = m_stMgr.GetMgrObjectCount(i);
+				if(iTotalCount <= 0)
+				{
+					return true;
+				}
+
+				int64 i64Temp = m_stMgr.Size(i, ALLOC_INDEX, USED_LIST) * 100;
+				if(i64Temp / iTotalCount >= iMaxPercent)
+				{
+					return true;
+				}
+
+			}
+			return false;
+		}
+
+		void DumpStatInfo(CLog* pstLog)
+		{
+			for(unsigned int i = 0; i< m_stMgr.GetMgrCount(); ++i)
+			{
+				pstLog->Log(EInfo, "Cmds_Lv%d: All=%d Used=%d Free=%d Queue=%d", i+1
+					m_stMgr.GetMgrObjectCount(i),
+					m_stMgr.Size(i, ALLOC_INDEX, USED_LIST),
+					m_stMgr.Size(i, ALLOC_INDEX, FREE_LIST),
+					m_stMgr.Size(i, QUEUE_INDEX, QUEUE_LIST));
+			}
+		}
+
+		void DumpStatDetail(CLog* pstLog)
+		{
+			pstLog->Log(EInfo, "======================== Async Cmds Detail ===================");
+			CMgrIndex stFirst, stIndex, stNext;
+			m_stMgr.GetHead(stFirst, USED_LIST, ALLOC_INDEX);
+
+			if(stFirst.IsNull())
+			{
+				pstLog->Log(EInfo, "No Used Cmd");
+				return;
+			}
+
+			stIndex = stFirst;
+			for (; !stIndex.IsNull(); stIndex = stNext)
+			{
+				m_stMgr.GetNext(stIndex, stNext, ALLOC_INDEX);
+				pstLog->Log(EInfo, "Cmd MsgId %d", ((CAsyncCmdInf*)(m_stMgr.Get(stIndex)))->GetCmdID());
+			}
+		}
+
+		//=================================
+		// 命令队列的操作
+
+		///把命令放到队列中
+		int PushQueue(CAsyncCmdInf* pstCmd)
+		{
+			CMgrIndex stIndex;
+			if(!m_stMgr.IsValidObject((const char*)pstCmd, &stIndex))
+			{
+				return -1;
+			}
+			return m_stMgr.Move(stIndex, QUEUE_INDEX, QUEUE_LIST);
+		}
+
+		/*
+			把队列中的命令拉出来执行
+			@param [in] iMaxDo 最多执行多少个队列命令
+			@return 返回执行了多少个队列命令
+		*/
+		int DoQueue(int iMaxDo = MAX_DOQUEUE)
+		{
+			int iCount = 0;
+			CMgrIndex stFirst, stIndex, stNext;
+			m_stMgr.GetHead(stFirst, QUEUE_LIST, QUEUE_INDEX);
+
+			//如果队列中的某个命令执行后还会继续放到队列中，需要
+			//用!(iCount >0 && stIndex != stFirst) 来避免这种情况造成的无效循环
+			for(iCount = 0, stIndex = stFirst;
+				iCount < iMaxDo && !stIndex.IsNull() && !(iCount >0 && stIndex != stFirst);
+				++iCount, stIndex = stNext)
+			{
+				m_stMgr.GetNext(stIndex, stNext, QUEUE_INDEX);
+
+				CAsyncCmdInf* pstCmd = (CAsyncCmdInf*) m_stMgr.Get(stIndex);
+				SL_TRACE("exec queue AsyncCmd(%d, %p)(%d)", pstCmd->GetCmdID(), pstCmd, pstCmd->m_iQueueRet);
+
+				pstCmd->DecInf();
+				pstCmd->LogicDo(pstCmd->m_iQueueRet);
+				if(pstCmd->GetRef() <= 0)
+				{
+					FreeCmd(pstCmd);
+				}
+			}
+
+			return iCount;
+		}
+
+		//检查超时的命令
+		int CheckTimeoutCmd()
+		{
+			int iCount = 0;
+			const int FREE_CMD_PER_CHECK = 100;
+			CArray<CAsyncCmdInf*, FREE_CMD_PER_CHECK> arpCmdNeedFree;
+
+			CMgrIndex stFirst, stIndex, stNext;
+			m_stMgr.GetHead(stFirst, USED_LIST, ALLOC_INDEX);
+
+			int iNow  = static_cast<int>(time(NULL));
+			///如果队列中的某个命令执行后还会继续放入队列中
+			for (iCount = 0, stIndex = stFirst; !stIndex.IsNull() && iCount < FREE_CMD_PER_CHECK; stIndex = stNext)
+			{
+				m_stMgr.GetNext(stIndex, stNext, ALLOC_INDEX);
+
+				CAsyncCmdInf* pstCmd = (CAsyncCmdInf*) m_stMgr.Get(stIndex);
+				if(!pstCmd->HasChild() && iNow - pstCmd->GetCmdCreateTime() > MAX_CMD_TIMEOUT)
+				{
+					arpCmdNeedFree[iCount] = pstCmd;			//由于命令有关联性，所以将待释放的命令先存起来，之后统一释放
+					arpCmdNeedFree.m_iUsedCount = iCount + 1;
+					iCount++;
+				}
+			}
+
+			//释放命令
+			for (int i = 0; i< arpCmdNeedFree.m_iUsedCount; i++)
+			{
+				SL_WARNING("find cmd (%d, %p) timeout, do Done()", arpCmdNeedFree[i]->GetCmdID(), arpCmdNeedFree[i]);
+				arpCmdNeedFree[i]->Done(10);
+			}
+
+			arpCmdNeedFree.m_iUsedCount = 0;
+			return iCount;
 		}
 
 	protected:
@@ -324,6 +490,7 @@ namespace sl
 	public:
 		CAsyncCmdRegister(int iCmdID, const char* pszClassName)
 		{
+			SL_TRACE("register cmd id(%d), class(%s)!", iCmdID, pszClassName);
 			SL_CMDFACTORY->RegisterCmd(iCmdID, this);
 		}
 		int GetObjectSize() const
