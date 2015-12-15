@@ -61,3 +61,4 @@
 [2015-12-07 13:28:49.706044][2239][error]shmget recreate fail: errno=22, key=1392508936, size=138131936 (../sllib/ipc/slshm.h:152)
 [2015-12-07 13:29:26.697918][2272][error]shmget create fail: errno=22, key=1392508936, size=138131936 (../sllib/ipc/slshm.h:130)
 [2015-12-07 13:30:25.506473][2278][error]shmget create fail: errno=22, key=1392508936, size=37701216 (../sllib/ipc/slshm.h:130)
+[2015-12-14 14:39:33.844852][2431][error]netctrl 915 set live flag ENF_NET_FLAG_REMOTECLOSE 2 (netctrl.cpp:763)
