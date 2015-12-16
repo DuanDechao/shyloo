@@ -220,5 +220,34 @@ namespace sl
 
 	}; //class CCmdOnAnswerParam
 
+	///加载数据的状态
+	enum EnumLoadDataResult
+	{
+		ELDR_NEED_LOAD		=	0,			///< 尚未加载
+		ELDR_LOADING		=	1,			///< 加载中
+		ELDR_LOAD_SUCCESS	=	2,			///< 加载成功
+		ELDR_LOAD_FAILED	=	3,			///< 加载失败
+		ELDR_LOAD_EMPTY		=	4,			///< 数据为空
+	};
+
+	//加载数据状态
+	class CLoadDataStat
+	{
+	public:
+		CLoadDataStat(): m_Stat(ELDR_NEED_LOAD){}
+
+		inline void SetLoadStat(EnumLoadDataResult stStat) {m_Stat = stStat;}
+		inline EnumLoadDataResult GetLoadStat() const {return m_Stat;}
+		inline bool IsNeedLoad() const {return m_Stat == ELDR_NEED_LOAD;}
+		inline bool IsLoading() const {return m_Stat == ELDR_LOADING;}
+		inline bool IsLoadSuccess() const {return m_Stat == ELDR_LOAD_SUCCESS;}
+		inline bool IsLoadFailed() const {return m_Stat == ELDR_LOAD_FAILED;}
+		inline bool IsLoadEmpty() const {return m_Stat == ELDR_LOAD_EMPTY;}
+	
+	protected:
+		short	m_Stat;			///< 加载状态
+		
+	};
+
 } //namespace sl
 #endif

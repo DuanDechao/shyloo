@@ -157,11 +157,23 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\FastDelegate.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FastDelegateBind.h"
+				>
+			</File>
+			<File
 				RelativePath=".\slapp_inf.h"
 				>
 			</File>
 			<File
 				RelativePath=".\slapp_so_cmd.h"
+				>
+			</File>
+			<File
+				RelativePath=".\slapp_so_inf.h"
 				>
 			</File>
 			<File
@@ -198,6 +210,14 @@
 			</File>
 			<File
 				RelativePath=".\slconfig.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sldelegate.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sldelegate2.h"
 				>
 			</File>
 			<File

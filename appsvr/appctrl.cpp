@@ -1,6 +1,6 @@
 #include "../sllib/slsvr_base_frame.h"
 #include "appconfig.h"
-
+#include "../sllib/slasync_cmd.h"
 CAppCtrl g_App;		///全局对象
 CAppCtrl::CAppCtrl()
 	: CEpollAndShmSvr("appsvr"),
@@ -95,4 +95,92 @@ void CAppCtrl::RunOne()
 	///调用so的RunOnce
 
 }
-		
+
+void CAppCtrl::OnRecvData(sl::uint uiPathKey)
+{
+	int i = 0;
+	for (; i < EDCM_DOCODE_MAX; ++i)
+	{
+		int iRecvLen = RecvData(uiPathKey, m_stClientDecodeBuf);
+		if(iRecvLen <= 0)
+		{
+			//沒有數據或者獲取數據失敗
+			break;
+		}
+		AcceptReq(m_stClientDecodeBuf, iRecvLen);
+	}
+	if(i >= EDCM_DOCODE_MAX)
+	{
+		m_Stat.Put(app_stat_toomoremsg);
+		SL_WARNING("one time decode msg count is more than %d!", EDCM_DOCODE_MAX);
+	}
+}
+
+void CAppCtrl::AcceptReq(CBuffer& stBuff, int iLen)
+{
+	if(m_bExit) //停止了服務，這不處理客戶端信息
+	{
+		return;
+	}
+
+	//把數據解析出來
+	CNetHead& stHead = *(CNetHead*)stBuff.GetUsedBuf();
+	if(iLen != (int)sizeof(CNetHead) + stHead.m_iDataLength) //長度不一致
+	{
+		SL_WARNING("code length invalid. %d != %d + %d",iLen, sizeof(CNetHead), stHead.m_iDataLength);
+		return;
+	}
+	
+	CCodeStream s;
+	CMsgHead stMsgHead;
+
+	//斷線判斷
+	if((stHead.m_LiveFlag && 0xFF) != 0)
+	{
+		SL_TRACE("user(%u) offline, liveflag = %x, handle = %d!",stHead.m_Act1, stHead.m_LiveFlag, stHead.m_Handle);
+		SetOfflining(stHead);
+		return;
+	}
+
+	int iRet = s.Attach(stBuff.GetUsedBuf() + sizeof(CNetHead), stHead.m_iDataLength);
+	if(iRet)
+	{
+		return;
+	}
+
+	s.InitConvert();
+	iRet = CodeConvert(s, stMsgHead, NULL, bin_decode());
+	if(iRet)
+	{
+		return;
+	}
+
+	//檢查消息合法性
+	bool bIsAdmin = IsFromAdminPort(stHead);
+	if(!bIsAdmin && IsAdminMsg(stMsgHead.m_shMsgID))
+	{
+		//如果是從非管理端口來的管理消息則直接忽略掉
+		SL_WARNING("user (%llu) send admin msg(%u) but no admin", static_cast<sl::uid_t>(stHead.m_Act1), stMsgHead.m_shMsgID);
+		return;
+	}
+	
+	//慢處理的檢測
+	SL_TRACE("get commend from user(%llu), cmd id = (%d)", stHead.m_Act1, stMsgHead.m_shMsgID);
+	sl::uint iNowTime = static_cast<sl::uint>(time(0));
+	if(iNowTime - stHead.m_LastTime >= 2)
+	{
+		m_Stat.Put(app_stat_waittimeout);
+		SL_WARNING("user(%llu) cmd(%d) act(%d) waited more than 2 sec!", stHead.m_Act1, stMsgHead.m_shMsgID, stMsgHead.m_llMsgAct);
+	}
+
+	//創建并執行異步命令
+	CAsyncCmdInf* pstCmd = SL_CMDFACTORY->CreateCmd(stMsgHead.m_shMsgID);
+	if(pstCmd == NULL)
+	{
+		//創建命令失敗
+		SL_WARNING("create cmd(%d) fails", stMsgHead.m_shMsgID);
+		return;
+	}
+	CCmdDoParam stPara(stHead, stMsgHead, s, bIsAdmin);
+	pstCmd->Do((void*)&stPara);
+}

@@ -48,6 +48,11 @@ namespace sl
 		return shMsgID >= MSGID_LOGIN_START && shMsgID <= MSGID_LOGIN_END;
 	}
 
+	inline bool IsSetDataMsg(unsigned short shMsgID)
+	{
+		return shMsgID == MSGID_SET_DATA;
+	}
+
 	//全局错误码定义
 	enum enumRet
 	{
