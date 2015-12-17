@@ -15,6 +15,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			>
@@ -146,6 +147,14 @@
 				RelativePath=".\appctrl.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\appsvr.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\svrconn.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Í·ÎÄ¼þ"
@@ -158,6 +167,10 @@
 			</File>
 			<File
 				RelativePath=".\appctrl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\svrconn.h"
 				>
 			</File>
 		</Filter>

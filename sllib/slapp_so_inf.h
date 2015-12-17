@@ -4,7 +4,7 @@
 
 #include "slapp_inf.h"
 #include "slmsg_base.h"
-
+#include "slcheck_mac_def.h"
 namespace sl
 {
 	///AppSoµÄµ¥¼þ

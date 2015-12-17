@@ -14,12 +14,18 @@
 #ifndef __APP_CONFIG_H__
 #define __APP_CONFIG_H__
 
+#include "../sllib/slbase_define.h"
+#include "../sllib/sltype.h"
+#include "svrconn.h"
 #define APP_CONF_PATH	"./config/appsvr.jsn"
+
 namespace sl
 {
 	class CAppConfig
 	{
 	public:
+		CAppConfig(): ServerID(0), CodeStreamSize(0), LogFileNum(0), LogFileSize(100000){}
+
 		int		ServerID;			///< SvrID
 		string  Platform;			///< 平台
 		string  SoPath;				///< 业务逻辑so的路径
@@ -42,9 +48,9 @@ namespace sl
 		int		DBWriteBackTime;
 
 		//svr连接配置
+		vector<CSvrConnectParam> SvrConnectInfo;
 		
-
-		CAppConfig();
+		
 	};
 }
 

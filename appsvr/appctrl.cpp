@@ -1,6 +1,7 @@
-#include "../sllib/slsvr_base_frame.h"
 #include "appconfig.h"
 #include "../sllib/slasync_cmd.h"
+#include "appctrl.h"
+#include "../sllib/slcheck_mac_def.h"
 CAppCtrl g_App;		///全局对象
 CAppCtrl::CAppCtrl()
 	: CEpollAndShmSvr("appsvr"),
@@ -23,7 +24,7 @@ CAppCtrl::CAppCtrl()
 		"TooMoreMsg",
 		"WriteBackCount",         ///< 回写完成的次数
 		"WriteBackUsers",         ///< 回写的玩家个数
-	}
+	};
 	m_Stat.Init(SL_COUNTOF(szAppStatDesc), szAppStatDesc);
 }
 
@@ -35,8 +36,46 @@ int CAppCtrl::InitAppBuffer()
 
 int CAppCtrl::SendToServer(int iSvrID, const char* pszBuf, int iBufLen)
 {
-	if(iSvrID < 0 || iSvrID >= (int)SL_COUNTOF())
+	if(iSvrID < 0 || iSvrID >= (int)SL_COUNTOF(m_SvrConnect) || pszBuf == NULL || iBufLen <= 0)
+	{
+		SL_ERROR("invalid param: svrid=%d, buf=%p, len=%d", iSvrID, pszBuf, iBufLen);
+		return -1;
+	}
+
+	if(!m_SvrConnect[iSvrID].IsInited())
+	{
+		SL_ERROR("invalid Param: svrid=%d, buf=%p, len=%d, svr not inited",iSvrID, pszBuf, iBufLen);
+		return -1;
+	}
+
+	return m_SvrConnect[iSvrID].Send(pszBuf, iBufLen);
 }
+
+int CAppCtrl::LoadConfig()
+{
+	return 0;
+}
+
+int CAppCtrl::ReLoadConfig()
+{
+	return 0;
+}
+
+bool CAppCtrl::IsFromAdminPort(const CNetHead& stHead)
+{
+	return true;
+}
+
+int CAppCtrl::SetOfflining(const CNetHead& stHead)
+{
+	return 0;
+}
+
+void CAppCtrl::DumpStatInfo()
+{
+
+}
+
 
 int CAppCtrl::WorkInit()
 {
@@ -44,13 +83,30 @@ int CAppCtrl::WorkInit()
 	m_InitFinish = false;
 
 	//初始化数据缓冲区
-	m_stClientEncodeBuf.Attach(NULL,1024, 0);
-	m_stServerEncodeBuf.Attach(NULL, 1024, 0);
-	m_stClientDecodeBuf.Attach(NULL, 1024, 0);
+	m_stClientEncodeBuf.Attach(NULL, STREAM_BUFF_LENGTH, 0);
+	m_stServerEncodeBuf.Attach(NULL, STREAM_BUFF_LENGTH, 0);
+	m_stClientDecodeBuf.Attach(NULL, STREAM_BUFF_LENGTH, 0);
 
+	///初始化後台連接
+	int iRet = 0;
+	bool NewServer = false;
+	for (size_t i = 0; i < APP_CONF->SvrConnectInfo.size(); ++i)
+	{
+		CSvrConnectParam& stParam = APP_CONF->SvrConnectInfo[i];
+		if(stParam.Index < 0 || stParam.Index >= EMAX_SVRCONN_COUNT)
+		{
+			SL_ERROR("invalid svr index %d, must in[0~%d]", stParam.Index, EMAX_SVRCONN_COUNT);
+			return -1;
+		}
 
+		iRet = m_SvrConnect[stParam.Index].Init(GetEpoll(), stParam);
+		CHECK_RETURN(iRet);
+
+		iRet = m_SvrConnect[stParam.Index].ConnectSvr();
+		CHECK_RETURN(iRet);
+	}
 	///内存预分配
-	int iRet = InitAppBuffer();
+	iRet = InitAppBuffer();
 	SL_TRACE("appctrl init InitAppBuffer");
 
 	iRet = m_stShmBuff.CreateBuff("key/appsvr.key");
@@ -84,17 +140,41 @@ void CAppCtrl::RunOne()
 			}
 		}
 
+		CheckSvrConnect();
+
 	}
 	
 	///定时检查命令
 	SL_CMDFACTORY->CheckTimeoutCmd();
 
 	//处理与前端管道中数据，防止数据包过多累积
-	OnRecvData();
+	OnRecvData(EDPID_CLIENT);
 
 	///调用so的RunOnce
 
 }
+
+void CAppCtrl::DoExit()
+{
+
+}
+
+bool CAppCtrl::IsLogined(const CNetHead& stHead)
+{
+	return true;
+}
+
+void CAppCtrl::CheckSvrConnect()
+{
+	for (size_t i = 0; i< SL_COUNTOF(m_SvrConnect); ++i)
+	{
+		if(m_SvrConnect[i].IsInited())
+		{
+			m_SvrConnect[i].CheckConnect();
+		}
+	}
+}
+
 
 void CAppCtrl::OnRecvData(sl::uint uiPathKey)
 {
@@ -184,3 +264,82 @@ void CAppCtrl::AcceptReq(CBuffer& stBuff, int iLen)
 	CCmdDoParam stPara(stHead, stMsgHead, s, bIsAdmin);
 	pstCmd->Do((void*)&stPara);
 }
+
+int CAppCtrl::RecvData(unsigned int uiDPKey, CBuffer& stBuff)
+{
+	//找到key对应的管道
+	PCShmQ pstShm = GetShm(uiDPKey);
+	if(pstShm == NULL)
+	{
+		SL_ERROR("shm %u fand fails!", uiDPKey);
+		return -1;
+	}
+	else if(!pstShm->HasCode())
+	{
+		//管道里没有数据
+		return 0;
+	}
+	m_Stat.Put(app_stat_recvpkg);
+	stBuff.Clear();
+	int iCodeLen = 0;
+
+	//从管道里取出一个code
+	int iRet = pstShm->GetOneCode(stBuff.GetFreeBuf(), stBuff.GetFreeLen(), iCodeLen);
+	if(iRet || iCodeLen < (int)sizeof(CNetHead))
+	{
+		SL_ERROR("get one code but data fails (ret: %d, clen:%d)",iRet, iCodeLen);
+		return -2;
+	}
+	stBuff.Append(iCodeLen);
+	return iCodeLen;
+}
+
+int CAppCtrl::SendData(unsigned int uiDPKey, CNetHead& stHead, const char* pszBuf, int iBufLen)
+{
+	m_Stat.Put(app_stat_sendpkg);
+	PCShmQ pstShm = GetShm(uiDPKey);
+	if(pstShm == NULL)
+	{
+		SL_ERROR("shm %u find fails!", uiDPKey);
+		return -1;
+	}
+
+	if((stHead.m_LiveFlag &  0xFF) != 0)
+	{
+		SL_WARNING("nethead (handle=%u, handlereq=%u) liveflag=%d not online, but want send data",
+			stHead.m_Handle, stHead.m_HandleSeq, stHead.m_LiveFlag);
+	}
+
+	stHead.m_iDataLength = iBufLen;
+	int iRet = pstShm->PutOneCode((const char*)&stHead, sizeof(stHead), pszBuf, iBufLen);
+	if(iRet)
+	{
+		SL_ERROR("put one code into shm fails(%d)!", iRet);
+	}
+	return iRet;
+}
+
+int CAppCtrl::InitCmdFactory(char* pszBuff, unsigned int uiSize, bool bResetShm)
+{
+	SL_INFO("init cmd factory, config=%s", APP_CONF->CmdFactoryConf.c_str());
+	return SL_CMDFACTORY->Init(APP_CONF->CmdFactoryConf.c_str(), pszBuff, uiSize & 0x7FFFFFFF);
+}
+
+void CAppCtrl::OnClientEvent(unsigned int uiPathKey, int iEvent)
+{
+	SL_TRACE("one net event(%d), data path Key(%u)", iEvent, uiPathKey);
+
+	//处理管道中数据
+	Instance()->OnRecvData(uiPathKey);
+}
+
+void CAppCtrl::AttachUserToWB(sl::uid_t iUID)
+{
+
+}
+
+void CAppCtrl::DettachUserFromWB(sl::uid_t iUID)
+{
+
+}
+

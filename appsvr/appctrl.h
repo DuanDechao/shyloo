@@ -18,6 +18,7 @@
 #include "../sllib/slstat.h"
 #include "../sllib/slapp_inf.h"
 #include "../sllib/ipc/slshm_buff.h"
+#include "../sllib/slapp_so_inf.h"
 //#include <unistd.h>
 #include <stdio.h>
 using namespace sl;
@@ -60,7 +61,8 @@ public:
 	*/
 	int RegisterBuffer(const char* szBuffName, unsigned int uiBuffSize, PInitBuffFunc pInitFunc)
 	{
-		m_stShmBuff.RegisterBuff(szBuffName, uiBuffSize, pInitFunc);
+		return m_stShmBuff.RegisterBuff(szBuffName, uiBuffSize, pInitFunc);
+
 	}
 
 	//获取向前台发送消息的编码缓冲区
@@ -151,16 +153,18 @@ protected:
 	bool					m_InitFinish;					///< 初始化是否完成
 
 	unsigned int			m_SecondCount;
-	unsigned int			m_MinitCount;					///< 分钟计数
-	unsigned int			m_LastTime;						///< 上次记录时间
+	unsigned int			m_MinitCount;						///< 分钟计数
+	unsigned int			m_LastTime;							///< 上次记录时间
 
-	CBuffer					m_stClientEncodeBuf;		    ///< Client编码缓冲区
-	CBuffer					m_stClientDecodeBuf;			///< Client解码缓冲区
-	CBuffer					m_stServerEncodeBuf;			///< Server编码缓冲区
+	CBuffer					m_stClientEncodeBuf;				///< Client编码缓冲区
+	CBuffer					m_stClientDecodeBuf;				///< Client解码缓冲区
+	CBuffer					m_stServerEncodeBuf;				///< Server编码缓冲区
 
-	CStat					m_Stat;							///< 监控
+	CStat					m_Stat;								///< 监控
 
-	CShmBuff				m_stShmBuff;					///< 共享内存数据缓冲区
+	CSvrConnect				m_SvrConnect[EMAX_SVRCONN_COUNT];	///< 服務器連接
+
+	CShmBuff				m_stShmBuff;						///< 共享内存数据缓冲区
 };
 
 #endif

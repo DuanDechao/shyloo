@@ -247,7 +247,7 @@ namespace sl
 			}
 			m_stMap[iCmdID] = p;
 
-			SL_INFO("CmdID = %d, cmd size = %d, mgr index = %d", iCmdID, p->GetObjectSize(), m_stMapp[iCmdID]->m_iMgrIndex);
+			SL_INFO("CmdID = %d, cmd size = %d, mgr index = %d", iCmdID, p->GetObjectSize(), m_stMap[iCmdID]->m_iMgrIndex);
 		}
 
 		/*
@@ -327,7 +327,7 @@ namespace sl
 
 		bool IsValidCmd(CAsyncCmdInf* pstCmd, CMgrIndex* pstIndex = NULL)
 		{
-			return m_stMgr.IsValidObject(pstCmd, pstIndex);
+			return m_stMgr.IsValidObject((char*)pstCmd, pstIndex);
 		}
 
 		///-1表示按照全局测试判断，其他ID
@@ -359,7 +359,7 @@ namespace sl
 		{
 			for(unsigned int i = 0; i< m_stMgr.GetMgrCount(); ++i)
 			{
-				pstLog->Log(EInfo, "Cmds_Lv%d: All=%d Used=%d Free=%d Queue=%d", i+1
+				pstLog->Log(EInfo, "Cmds_Lv%d: All=%d Used=%d Free=%d Queue=%d", i+1,
 					m_stMgr.GetMgrObjectCount(i),
 					m_stMgr.Size(i, ALLOC_INDEX, USED_LIST),
 					m_stMgr.Size(i, ALLOC_INDEX, FREE_LIST),

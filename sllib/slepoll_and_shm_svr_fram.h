@@ -289,6 +289,7 @@ namespace sl
 			{
 				iRet = m_stShmList[i].MakeShm(*this, m_stEpoll, pFuncEvent);
 			}
+			return 0;
 		}
 		
 	};

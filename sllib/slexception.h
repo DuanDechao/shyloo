@@ -14,9 +14,9 @@
 #ifndef _SL_EXCEPTION_H_
 #define _SL_EXCEPTION_H_
 
-#include <lzbase_define.h>
-#include <lzstring_utils.h>
-#include <lzlog.h>
+#include "slbase_define.h"
+#include "slstring_utils.h"
+#include "sllog.h"
 
 #ifndef SL_OS_WINDOWS
 #include <execinfo.h>
@@ -28,7 +28,7 @@
 #define SL_THROW(...) throw EException(__VA_ARGS__)
 #endif
 
-namespace lz
+namespace sl
 {
     ///异常基类
     class EException
@@ -120,21 +120,21 @@ namespace lz
                     return;
                 }
 
-#ifndef LZ_OS_WINDOWS
-                void* array[20];
-                int iCount = backtrace(array, LZ_COUNTOF(array));
-                char** symbols = backtrace_symbols(array, iCount);
-                CAutoFree autop(symbols);
-                string sBackTrace = "StackTrace:\n";
-                for (int i = 1; i < iCount; ++i)  // 第1个是DumpBackTrace, 忽略
-                {
-                    sBackTrace += "    ";
-                    sBackTrace += symbols[i];
-                    sBackTrace += "\n";
-                }
-
-                SL_FATAL("%s", sBackTrace.c_str());
-#endif
+//#ifndef LZ_OS_WINDOWS
+//                void* array[20];
+//                int iCount = backtrace(array, LZ_COUNTOF(array));
+//                char** symbols = backtrace_symbols(array, iCount);
+//                CAutoFree autop(symbols);
+//                string sBackTrace = "StackTrace:\n";
+//                for (int i = 1; i < iCount; ++i)  // 第1个是DumpBackTrace, 忽略
+//                {
+//                    sBackTrace += "    ";
+//                    sBackTrace += symbols[i];
+//                    sBackTrace += "\n";
+//                }
+//
+//                SL_FATAL("%s", sBackTrace.c_str());
+//#endif
             }
 
         protected:

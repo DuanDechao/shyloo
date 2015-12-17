@@ -182,6 +182,7 @@ namespace sl
 			//安装信号处理函数
 			signal(SIGUSR1, CSvrBaseFrame::Sigusr1Handle);    ///< kill -USR1 pid 会让程序重读配置
 			signal(SIGUSR2, CSvrBaseFrame::Sigusr2Handle);	  ///< kill -USR1 pid 会让程序安全的退出
+			return 0;
 		}
 		
 		///初始化数据通道

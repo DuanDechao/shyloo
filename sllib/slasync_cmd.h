@@ -237,7 +237,7 @@ namespace sl
 		CLoadDataStat(): m_Stat(ELDR_NEED_LOAD){}
 
 		inline void SetLoadStat(EnumLoadDataResult stStat) {m_Stat = stStat;}
-		inline EnumLoadDataResult GetLoadStat() const {return m_Stat;}
+		inline EnumLoadDataResult GetLoadStat() const {return (EnumLoadDataResult)m_Stat;}
 		inline bool IsNeedLoad() const {return m_Stat == ELDR_NEED_LOAD;}
 		inline bool IsLoading() const {return m_Stat == ELDR_LOADING;}
 		inline bool IsLoadSuccess() const {return m_Stat == ELDR_LOAD_SUCCESS;}

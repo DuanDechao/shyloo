@@ -38,8 +38,6 @@
 #define FILE_STATLOG		"./log/netsvr.sta"
 #define FILE_PIDFILE        "./netsvr.pid"
 
-
-#define CHECK_RETURN(iRet)  do{if(iRet) {return iRet;}} while(0)
 enum net_const
 {
 	NET_MAX_LISTEN		=		8,			///< 最多能侦听NET_MAX_LISTEN个端口

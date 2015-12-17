@@ -292,7 +292,7 @@ namespace sl
 	#define CODE_CONVERT(iField) \
 	        if(t.__max__ > s.m_iPos) \
 			{ \
-				CodeConvert(s, t.iField, pszName, m); \
+				CodeConvert(s, t.iField, #iField, m); \
 			} 
     #define END_CODE_CONVERT(ClassName) \
 			CodeConvertEnd(s, t, #ClassName, m); \
@@ -311,6 +311,8 @@ namespace sl
 	template<typename METHOD> int CodeConvert(CCodeStream& s, unsigned short& t, const char* pszName, const METHOD& m);
 	template<typename METHOD> int CodeConvert(CCodeStream& s, int& t, const char* pszName, const METHOD& m);
 	template<typename METHOD> int CodeConvert(CCodeStream& s, unsigned int& t, const char* pszName, const METHOD& m);
+	template<typename METHOD> int CodeConvert(CCodeStream& s, int64& t, const char* pszName, const METHOD& m);
+	template<typename METHOD> int CodeConvert(CCodeStream& s, uint64& t, const char* pszName, const METHOD& m);
 	template<typename METHOD> int CodeConvert(CCodeStream& s, ICodeRaw& t, const char* pszName, const METHOD& m);
 
 	//========================================================
@@ -389,6 +391,40 @@ namespace sl
 		s.m_iPos += sizeof(t);
 
 		return 0;
+	}
+
+	template<> inline
+	int CodeConvert<bin_encode>(CCodeStream& s, int64& t, const char* pszName, const bin_encode& m)
+	{
+		SL_CHECK_BIN_ENCODE(s, sizeof(t));
+
+		*(unsigned int*)(s.m_pszBuf + s.m_iPos) = htonl((unsigned int)((t >> 32) & 0xFFFFFFFF));
+		s.m_iPos += sizeof(unsigned int);
+
+		//再编低位的四个字节
+		*(unsigned int*)(s.m_pszBuf + s.m_iPos) = htonl((unsigned int)(t & 0xFFFFFFFF));
+		s.m_iPos += sizeof(unsigned int);
+
+		return 0;
+	}
+
+	template<> inline
+	int CodeConvert<bin_encode>(CCodeStream& s, uint64& t, const char* pszName, const bin_encode& m)
+	{
+		SL_CHECK_BIN_ENCODE(s, sizeof(t));
+		
+		//先编高位的四个字节
+		*(unsigned int*)(s.m_pszBuf + s.m_iPos) = htonl((unsigned int)((t >> 32) & 0xFFFFFFFF));
+		s.m_iPos += sizeof(unsigned int);
+
+		///再编低位的四个字节
+		*(unsigned int*)(s.m_pszBuf + s.m_iPos) = htonl((unsigned int)(t & 0xFFFFFFFF));
+		s.m_iPos += sizeof(unsigned int);
+
+		return 0;
+
+
+
 	}
 
 	template<> inline
@@ -526,6 +562,39 @@ namespace sl
 		SL_CHECK_BIN_DECODE(s, sizeof(t));
 		t = static_cast<unsigned int>( ntohl( *(unsigned int*)(s.m_pszBuf + s.m_iPos) ) );
 		s.m_iPos += sizeof(t);
+
+		return 0;
+	}
+
+	template<> inline
+	int CodeConvert<bin_decode>(CCodeStream& s, int64& t, const char* pszName, const bin_decode& m)
+	{
+		SL_CHECK_BIN_DECODE(s, sizeof(t));
+
+		//先解高位的四个字节
+		t = ntohl(*(unsigned int*)(s.m_pszBuf + s.m_iPos));
+		s.m_iPos += sizeof(unsigned int);
+		t<<= 32;
+
+		//再解低位的四个字节
+		t += ntohl(*(unsigned int*)(s.m_pszBuf + s.m_iPos));
+		s.m_iPos += sizeof(unsigned int);
+		return 0;
+	}
+
+	template<> inline
+	int CodeConvert<bin_decode>(CCodeStream& s, uint64& t, const char* pszName, const bin_decode& m)
+	{
+		SL_CHECK_BIN_DECODE(s, sizeof(t));
+
+		//先解高位的四个字节
+		t = ntohl(*(unsigned int*)(s.m_pszBuf + s.m_iPos));
+		s.m_iPos += sizeof(unsigned int);
+		t <<= 32;
+
+		//再解低位的四个字节
+		t += ntohl(*(unsigned int*)(s.m_pszBuf + s.m_iPos));
+		s.m_iPos += sizeof(unsigned int);
 
 		return 0;
 	}

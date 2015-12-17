@@ -201,6 +201,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\slcheck_mac_def.h"
+				>
+			</File>
+			<File
 				RelativePath=".\slcode_convert.h"
 				>
 			</File>

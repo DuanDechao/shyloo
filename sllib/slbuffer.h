@@ -4,7 +4,7 @@
 #define _SL_BUFFER_H_
 
 #include <string.h>
-
+#include "slbase.h"
 namespace sl
 {
 	//缓冲区数据类型
