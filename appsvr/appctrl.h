@@ -21,8 +21,85 @@
 #include "../sllib/slapp_so_inf.h"
 //#include <unistd.h>
 #include <stdio.h>
+#ifdef SL_OS_WINDOWS
+#else
+#include <dlfcn.h>
+#endif
 using namespace sl;
 
+/**
+	so加载类
+	用于server加载so，每个加载器对应一个so，每个so对应一个app
+*/
+class CAppSoLoader
+{
+public:
+	typedef sl::CAppSoInf* CREATE_APPSO_FUNC();
+	typedef void DESTROY_APPSO_FUNC(sl::CAppInf*);
+
+	enum enumSoRetCode
+	{
+		SOAPP_OK					=	0,		///< 成功
+		SOAPP_LOAD_LIBRARY_ERROR	=	-1,		///< 加载so失败
+		SOAPP_LOAD_SYMBOL_ERROR		=	-2		///< 加载so函数失败
+	};
+
+	/**
+		so载入函数
+		@param[in] sSoFile so文件绝对路径
+		@return 0为正常 非0为错误
+	*/
+	int LoadAppSo(const char* pszSoFile)
+	{
+		SL_TRACE("load so app(%s)", pszSoFile);
+		void* pstSo = dlopen(pszSoFile, RTLD_LAZY|RTLD_NODELETE|RTLD_GLOBAL);
+		if(!pstSo)
+		{
+			SL_WARNING("dlopen, %s", dlerror());
+			return SOAPP_LOAD_LIBRARY_ERROR;
+		}
+
+		m_pCreateFunc = (CREATE_APPSO_FUNC*)dlsym(pstSo, "CreateAppSo");
+		if(dlerror())
+		{
+			SL_WARNING("dlsym CreateSoApp, %s", dlerror());
+			return SOAPP_LOAD_SYMBOL_ERROR;
+		}
+
+		m_pDestroyFunc = (DESTROY_APPSO_FUNC*)dlsym(pstSo, "DestroyAppSo");
+		if(dlerror())
+		{
+			SL_WARNING("dlsym DestroySoApp, %s", dlerror());
+			return SOAPP_LOAD_SYMBOL_ERROR;
+		}
+		dlclose(pstSo);
+		return SOAPP_OK;
+	}
+
+	/**
+		so应用创建函数
+		@return 应用对象指针
+		函数定义参考SL_APPSO_DECLARE宏
+	*/
+	sl::CAppSoInf* CreateAppSo()
+	{
+		return m_pCreateFunc();
+	}
+
+	/**
+		so应用销毁函数
+		@param[in] pstSoApp 应用对象指针
+		函数定义请参考SL_APPSO_DECLARE宏
+	*/
+	void DestroyAppSo(sl::CAppSoInf* pstAppSoInfo)
+	{
+		m_pDestroyFunc(pstAppSoInfo);
+	}
+
+private:
+	CREATE_APPSO_FUNC*  m_pCreateFunc;
+	DESTROY_APPSO_FUNC* m_pDestroyFunc;
+};
 class CAppCtrl: public CAppInf, public CEpollAndShmSvr
 {
 public:
@@ -161,6 +238,7 @@ protected:
 	CBuffer					m_stServerEncodeBuf;				///< Server编码缓冲区
 
 	CStat					m_Stat;								///< 监控
+	CAppSoLoader			m_stSoLoader;						///< AppSO载入
 
 	CSvrConnect				m_SvrConnect[EMAX_SVRCONN_COUNT];	///< 服務器連接
 

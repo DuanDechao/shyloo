@@ -51,32 +51,6 @@ int CAppCtrl::SendToServer(int iSvrID, const char* pszBuf, int iBufLen)
 	return m_SvrConnect[iSvrID].Send(pszBuf, iBufLen);
 }
 
-int CAppCtrl::LoadConfig()
-{
-	return 0;
-}
-
-int CAppCtrl::ReLoadConfig()
-{
-	return 0;
-}
-
-bool CAppCtrl::IsFromAdminPort(const CNetHead& stHead)
-{
-	return true;
-}
-
-int CAppCtrl::SetOfflining(const CNetHead& stHead)
-{
-	return 0;
-}
-
-void CAppCtrl::DumpStatInfo()
-{
-
-}
-
-
 int CAppCtrl::WorkInit()
 {
 	///停止主循环，待Init执行完毕后再执行主循环
@@ -105,17 +79,40 @@ int CAppCtrl::WorkInit()
 		iRet = m_SvrConnect[stParam.Index].ConnectSvr();
 		CHECK_RETURN(iRet);
 	}
+
+	//加载业务so
+	iRet = m_stSoLoader.LoadAppSo(APP_CONF->SoPath.c_str());
+	CHECK_RETURN(iRet);
+	CAppSoInf* pstAppSo = m_stSoLoader.CreateAppSo();
+	if(pstAppSo == NULL)
+	{
+		return -1;
+	}
+
+	//调用so的onInit
+	iRet = SL_APPSO->OnInitConfig();
+	CHECK_RETURN(iRet);
+	SL_TRACE("appctrl init OnInitConfig");
+	
 	///内存预分配
 	iRet = InitAppBuffer();
+	CHECK_RETURN(iRet);
 	SL_TRACE("appctrl init InitAppBuffer");
 
+	iRet = SL_APPSO->OnInitBuffer();
+	CHECK_RETURN(iRet);
+	SL_TRACE("appctrl init OnInitBuffer");
+
 	iRet = m_stShmBuff.CreateBuff("key/appsvr.key");
+	CHECK_RETURN(iRet);
 	SL_TRACE("appctrl inti CreateBuff");
 
 }
 
 void CAppCtrl::RunOne()
 {
+	SL_APPSO->repeate_do();
+	//获取当前时间，时，分
 	time_t		timep;
 	struct tm   *pTime; 
 	time(&timep);
@@ -151,12 +148,19 @@ void CAppCtrl::RunOne()
 	OnRecvData(EDPID_CLIENT);
 
 	///调用so的RunOnce
+	SL_APPSO->OneRunOne();
 
 }
 
 void CAppCtrl::DoExit()
 {
+	SL_APPSO->OnExit();
+}
 
+void CAppCtrl::DumpStatInfo()
+{
+	m_Stat.Dump(SL_STAT);
+	SL_APPSO->OnDumpStatInfo();
 }
 
 bool CAppCtrl::IsLogined(const CNetHead& stHead)
@@ -250,7 +254,8 @@ void CAppCtrl::AcceptReq(CBuffer& stBuff, int iLen)
 	if(iNowTime - stHead.m_LastTime >= 2)
 	{
 		m_Stat.Put(app_stat_waittimeout);
-		SL_WARNING("user(%llu) cmd(%d) act(%d) waited more than 2 sec!", stHead.m_Act1, stMsgHead.m_shMsgID, stMsgHead.m_llMsgAct);
+		SL_WARNING("user(%llu) cmd(%d) act(%d) waited more than 2 sec!", stHead.m_Act1, 
+			stMsgHead.m_shMsgID, stMsgHead.m_llMsgAct);
 	}
 
 	//創建并執行異步命令
@@ -319,6 +324,20 @@ int CAppCtrl::SendData(unsigned int uiDPKey, CNetHead& stHead, const char* pszBu
 	return iRet;
 }
 
+bool CAppCtrl::IsFromAdminPort(const CNetHead& stHead)
+{
+	bool bFind = false;
+	for (size_t i = 0; i < APP_CONF->AdminPorts.size(); ++i)
+	{
+		if(stHead.m_LocalPort == APP_CONF->AdminPorts[i])
+		{
+			bFind = true;
+			break;
+		}
+	}
+	return (bFind && CSocketUtils::IsLanIp(stHead.m_LocalIP));
+}
+
 int CAppCtrl::InitCmdFactory(char* pszBuff, unsigned int uiSize, bool bResetShm)
 {
 	SL_INFO("init cmd factory, config=%s", APP_CONF->CmdFactoryConf.c_str());
@@ -331,6 +350,29 @@ void CAppCtrl::OnClientEvent(unsigned int uiPathKey, int iEvent)
 
 	//处理管道中数据
 	Instance()->OnRecvData(uiPathKey);
+}
+
+int CAppCtrl::LoadConfig()
+{
+	return 0;
+}
+
+int CAppCtrl::ReLoadConfig()
+{
+	return 0;
+}
+
+int CAppCtrl::SetOfflining(const CNetHead& stHead)
+{
+	if(stHead.m_Act1 == 0)
+	{
+		//一个没有登录的用户断开连接
+		SL_WARNING("no login nethead(handleseq=%i) ask for offline!", stHead.m_HandleSeq);
+		return 0;
+	}
+	sl::uid_t UID = static_cast<sl::uid_t>(stHead.m_Act1);
+	
+	return 0;
 }
 
 void CAppCtrl::AttachUserToWB(sl::uid_t iUID)

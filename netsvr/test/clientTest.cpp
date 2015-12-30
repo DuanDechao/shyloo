@@ -42,7 +42,7 @@ int main()
 		memset(&servaddr, 0, sizeof(servaddr));
 		servaddr.sin_family = AF_INET;
 		servaddr.sin_port = htons(18912);
-		if(inet_pton(AF_INET, "127.0.0.1", &servaddr.sin_addr) <= 0)
+		if(inet_pton(AF_INET, "59.71.135.252", &servaddr.sin_addr) <= 0)
 		{
 			iRet = -2;
 			break;
