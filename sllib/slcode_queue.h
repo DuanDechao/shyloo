@@ -349,8 +349,7 @@ namespace sl
 			int readlen = 0;
 			const int startpos = read_ + sizeof(int);
 
-			char flag = *(char*)(GetBuffer() + startpos);
-			SL_INFO("read_:%d, write_:%d, flag£º%d ++++++++", read_, write_, flag);
+			char flag = *(char*)(GetBuffer() + read_);
 			if(flag != 1)
 			{
 				return 0;

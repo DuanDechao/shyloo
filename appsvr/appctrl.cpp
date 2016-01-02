@@ -218,7 +218,6 @@ void CAppCtrl::AcceptReq(CBuffer& stBuff, int iLen)
 	CCodeStream s;
 	CMsgHead stMsgHead;
 	
-	SL_TRACE("========================================");
 	//斷線判斷
 	if((stHead.m_LiveFlag && 0xFF) != 0)
 	{
@@ -291,7 +290,6 @@ int CAppCtrl::RecvData(unsigned int uiDPKey, CBuffer& stBuff)
 	stBuff.Clear();
 	int iCodeLen = 0;
 	
-	SL_INFO("RecvData ++++++++++++++++++++++++++++++++++++");
 	//从管道里取出一个code
 	int iRet = pstShm->GetOneCode(stBuff.GetFreeBuf(), stBuff.GetFreeLen(), iCodeLen);
 	if(iRet || iCodeLen < (int)sizeof(CNetHead))

@@ -1,0 +1,429 @@
+[2016-01-02 15:59:59.238121]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 15:59:59.241951]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 15:59:59.245657]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 15:59:59.248876]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 15:59:59.253379]MainLoop: Count=5450 Max=1 Min=1 Avg=1 All=5450 Zero=0
+[2016-01-02 15:59:59.257410]WaitTimeout: Count=5450 Max=1 Min=1 Avg=1 All=5450 Zero=0
+[2016-01-02 15:59:59.260959]Check: Count=109 Max=1 Min=1 Avg=1 All=109 Zero=0
+[2016-01-02 15:59:59.264827]Handle: All=110 Used=0 Free=110 Remain=0
+[2016-01-02 15:59:59.268649]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 15:59:59.271858]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 15:59:59.275767]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 15:59:59.279303]FlowCtrl: connected 0/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:02:02.646108]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:02:02.648734]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:02:02.651706]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:02:02.654889]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:02:02.662629]MainLoop: Count=5451 Max=1 Min=1 Avg=1 All=5451 Zero=0
+[2016-01-02 16:02:02.666492]WaitTimeout: Count=5450 Max=1 Min=1 Avg=1 All=5450 Zero=0
+[2016-01-02 16:02:02.669373]Check: Count=109 Max=1 Min=1 Avg=1 All=109 Zero=0
+[2016-01-02 16:02:02.674071]Handle: All=110 Used=0 Free=110 Remain=0
+[2016-01-02 16:02:02.676976]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:02:02.679473]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:02:02.683270]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:02:02.690069]FlowCtrl: connected 0/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:03:02.301140]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:03:02.305697]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:03:02.309934]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:03:02.314848]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:03:02.318275]MainLoop: Count=5400 Max=1 Min=1 Avg=1 All=5400 Zero=0
+[2016-01-02 16:03:02.321516]WaitTimeout: Count=5400 Max=1 Min=1 Avg=1 All=5400 Zero=0
+[2016-01-02 16:03:02.325096]Check: Count=108 Max=1 Min=1 Avg=1 All=108 Zero=0
+[2016-01-02 16:03:02.328722]Handle: All=110 Used=0 Free=110 Remain=0
+[2016-01-02 16:03:02.331988]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:03:02.335525]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:03:02.338800]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:03:02.341980]FlowCtrl: connected 0/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:04:02.508174]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:04:02.510813]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:04:02.514009]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:04:02.516550]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:04:02.518619]MainLoop: Count=5450 Max=1 Min=1 Avg=1 All=5450 Zero=0
+[2016-01-02 16:04:02.522260]WaitTimeout: Count=5450 Max=1 Min=1 Avg=1 All=5450 Zero=0
+[2016-01-02 16:04:02.526349]Check: Count=109 Max=1 Min=1 Avg=1 All=109 Zero=0
+[2016-01-02 16:04:02.530370]Handle: All=110 Used=0 Free=110 Remain=0
+[2016-01-02 16:04:02.533050]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:04:02.536234]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:04:02.538687]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:04:02.541278]FlowCtrl: connected 0/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:05:02.398665]RecvMessage: Count=5 Max=1 Min=1 Avg=1 All=5 Zero=0
+[2016-01-02 16:05:02.403574]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:05:02.407086]Accept: Count=5 Max=1 Min=1 Avg=1 All=5 Zero=0
+[2016-01-02 16:05:02.410047]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:05:02.414260]MainLoop: Count=5550 Max=1 Min=1 Avg=1 All=5550 Zero=0
+[2016-01-02 16:05:02.418635]WaitTimeout: Count=5544 Max=1 Min=1 Avg=1 All=5544 Zero=0
+[2016-01-02 16:05:02.422281]Check: Count=111 Max=1 Min=1 Avg=1 All=111 Zero=0
+[2016-01-02 16:05:02.426734]Handle: All=110 Used=5 Free=105 Remain=0
+[2016-01-02 16:05:02.430707]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:05:02.433912]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:05:02.437187]ShmQueueFreeSize: Recv=1777160 Send=1776720
+[2016-01-02 16:05:02.441866]FlowCtrl: connected 5/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:06:02.379598]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:06:02.383376]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:06:02.386153]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:06:02.390151]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:06:02.395480]MainLoop: Count=5750 Max=1 Min=1 Avg=1 All=5750 Zero=0
+[2016-01-02 16:06:02.397814]WaitTimeout: Count=5750 Max=1 Min=1 Avg=1 All=5750 Zero=0
+[2016-01-02 16:06:02.401659]Check: Count=115 Max=1 Min=1 Avg=1 All=115 Zero=0
+[2016-01-02 16:06:02.403801]Handle: All=110 Used=5 Free=105 Remain=0
+[2016-01-02 16:06:02.408733]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:06:02.412016]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:06:02.414121]ShmQueueFreeSize: Recv=1777160 Send=1776720
+[2016-01-02 16:06:02.418320]FlowCtrl: connected 5/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:07:02.111803]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:07:02.114529]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:07:02.118232]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:07:02.120818]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:07:02.122823]MainLoop: Count=5700 Max=1 Min=1 Avg=1 All=5700 Zero=0
+[2016-01-02 16:07:02.127177]WaitTimeout: Count=5700 Max=1 Min=1 Avg=1 All=5700 Zero=0
+[2016-01-02 16:07:02.131198]Check: Count=114 Max=1 Min=1 Avg=1 All=114 Zero=0
+[2016-01-02 16:07:02.134747]Handle: All=110 Used=5 Free=105 Remain=0
+[2016-01-02 16:07:02.136504]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:07:02.138232]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:07:02.139921]ShmQueueFreeSize: Recv=1777160 Send=1776720
+[2016-01-02 16:07:02.144984]FlowCtrl: connected 5/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:08:02.176457]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:08:02.214215]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:08:02.216659]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:08:02.217941]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:08:02.220424]MainLoop: Count=5750 Max=1 Min=1 Avg=1 All=5750 Zero=0
+[2016-01-02 16:08:02.223327]WaitTimeout: Count=5750 Max=1 Min=1 Avg=1 All=5750 Zero=0
+[2016-01-02 16:08:02.224987]Check: Count=115 Max=1 Min=1 Avg=1 All=115 Zero=0
+[2016-01-02 16:08:02.234732]Handle: All=110 Used=5 Free=105 Remain=0
+[2016-01-02 16:08:02.237376]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:08:02.239255]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:08:02.242219]ShmQueueFreeSize: Recv=1777160 Send=1776720
+[2016-01-02 16:08:02.244272]FlowCtrl: connected 5/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:09:02.239001]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:09:02.243094]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:09:02.246360]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:09:02.248066]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:09:02.250598]MainLoop: Count=5750 Max=1 Min=1 Avg=1 All=5750 Zero=0
+[2016-01-02 16:09:02.252484]WaitTimeout: Count=5750 Max=1 Min=1 Avg=1 All=5750 Zero=0
+[2016-01-02 16:09:02.254510]Check: Count=115 Max=1 Min=1 Avg=1 All=115 Zero=0
+[2016-01-02 16:09:02.260592]Handle: All=110 Used=5 Free=105 Remain=0
+[2016-01-02 16:09:02.263847]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:09:02.268599]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:09:02.271884]ShmQueueFreeSize: Recv=1777160 Send=1776720
+[2016-01-02 16:09:02.274455]FlowCtrl: connected 5/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:11:09.055100]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:11:09.059254]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:11:09.062769]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:11:09.066507]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:11:09.069988]MainLoop: Count=5501 Max=1 Min=1 Avg=1 All=5501 Zero=0
+[2016-01-02 16:11:09.073767]WaitTimeout: Count=5500 Max=1 Min=1 Avg=1 All=5500 Zero=0
+[2016-01-02 16:11:09.077779]Check: Count=110 Max=1 Min=1 Avg=1 All=110 Zero=0
+[2016-01-02 16:11:09.081335]Handle: All=110 Used=0 Free=110 Remain=0
+[2016-01-02 16:11:09.085077]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:11:09.088441]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:11:09.091866]ShmQueueFreeSize: Recv=1777160 Send=1776320
+[2016-01-02 16:11:09.096452]FlowCtrl: connected 0/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:12:09.356307]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:12:09.360489]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:12:09.364981]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:12:09.369897]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:12:09.373693]MainLoop: Count=5600 Max=1 Min=1 Avg=1 All=5600 Zero=0
+[2016-01-02 16:12:09.378160]WaitTimeout: Count=5600 Max=1 Min=1 Avg=1 All=5600 Zero=0
+[2016-01-02 16:12:09.382153]Check: Count=112 Max=1 Min=1 Avg=1 All=112 Zero=0
+[2016-01-02 16:12:09.385799]Handle: All=110 Used=0 Free=110 Remain=0
+[2016-01-02 16:12:09.389306]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:12:09.393347]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:12:09.397308]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:12:09.401295]FlowCtrl: connected 0/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:13:09.334453]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:13:09.338496]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:13:09.342836]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:13:09.346629]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:13:09.350684]MainLoop: Count=5550 Max=1 Min=1 Avg=1 All=5550 Zero=0
+[2016-01-02 16:13:09.354254]WaitTimeout: Count=5550 Max=1 Min=1 Avg=1 All=5550 Zero=0
+[2016-01-02 16:13:09.357768]Check: Count=111 Max=1 Min=1 Avg=1 All=111 Zero=0
+[2016-01-02 16:13:09.362059]Handle: All=110 Used=0 Free=110 Remain=0
+[2016-01-02 16:13:09.365689]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:13:09.369719]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:13:09.373434]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:13:09.377655]FlowCtrl: connected 0/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:14:09.306834]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:14:09.311206]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:14:09.315013]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:14:09.319190]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:14:09.322701]MainLoop: Count=5550 Max=1 Min=1 Avg=1 All=5550 Zero=0
+[2016-01-02 16:14:09.326630]WaitTimeout: Count=5550 Max=1 Min=1 Avg=1 All=5550 Zero=0
+[2016-01-02 16:14:09.330585]Check: Count=111 Max=1 Min=1 Avg=1 All=111 Zero=0
+[2016-01-02 16:14:09.334540]Handle: All=110 Used=0 Free=110 Remain=0
+[2016-01-02 16:14:09.338767]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:14:09.342961]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:14:09.346377]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:14:09.350209]FlowCtrl: connected 0/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:15:09.224173]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:15:09.229780]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:15:09.234943]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:15:09.238308]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:15:09.242610]MainLoop: Count=5550 Max=1 Min=1 Avg=1 All=5550 Zero=0
+[2016-01-02 16:15:09.247056]WaitTimeout: Count=5550 Max=1 Min=1 Avg=1 All=5550 Zero=0
+[2016-01-02 16:15:09.250913]Check: Count=111 Max=1 Min=1 Avg=1 All=111 Zero=0
+[2016-01-02 16:15:09.254169]Handle: All=110 Used=0 Free=110 Remain=0
+[2016-01-02 16:15:09.257946]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:15:09.262134]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:15:09.266158]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:15:09.269827]FlowCtrl: connected 0/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:16:09.432887]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:16:09.437075]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:16:09.441085]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:16:09.445868]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:16:09.450161]MainLoop: Count=5600 Max=1 Min=1 Avg=1 All=5600 Zero=0
+[2016-01-02 16:16:09.454341]WaitTimeout: Count=5600 Max=1 Min=1 Avg=1 All=5600 Zero=0
+[2016-01-02 16:16:09.458426]Check: Count=112 Max=1 Min=1 Avg=1 All=112 Zero=0
+[2016-01-02 16:16:09.462871]Handle: All=110 Used=0 Free=110 Remain=0
+[2016-01-02 16:16:09.466740]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:16:09.470414]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:16:09.474221]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:16:09.478822]FlowCtrl: connected 0/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:17:09.382219]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:17:09.385953]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:17:09.390452]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:17:09.394384]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:17:09.398114]MainLoop: Count=5550 Max=1 Min=1 Avg=1 All=5550 Zero=0
+[2016-01-02 16:17:09.401849]WaitTimeout: Count=5550 Max=1 Min=1 Avg=1 All=5550 Zero=0
+[2016-01-02 16:17:09.405459]Check: Count=111 Max=1 Min=1 Avg=1 All=111 Zero=0
+[2016-01-02 16:17:09.409273]Handle: All=110 Used=0 Free=110 Remain=0
+[2016-01-02 16:17:09.413467]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:17:09.416388]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:17:09.419889]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:17:09.424003]FlowCtrl: connected 0/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:18:09.151496]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:18:09.155526]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:18:09.160000]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:18:09.163417]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:18:09.167072]MainLoop: Count=5550 Max=1 Min=1 Avg=1 All=5550 Zero=0
+[2016-01-02 16:18:09.170750]WaitTimeout: Count=5550 Max=1 Min=1 Avg=1 All=5550 Zero=0
+[2016-01-02 16:18:09.174467]Check: Count=111 Max=1 Min=1 Avg=1 All=111 Zero=0
+[2016-01-02 16:18:09.177956]Handle: All=110 Used=0 Free=110 Remain=0
+[2016-01-02 16:18:09.181562]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:18:09.184401]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:18:09.187032]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:18:09.190256]FlowCtrl: connected 0/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:19:09.353977]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:19:09.358339]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:19:09.362244]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:19:09.366196]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:19:09.370089]MainLoop: Count=5600 Max=1 Min=1 Avg=1 All=5600 Zero=0
+[2016-01-02 16:19:09.373537]WaitTimeout: Count=5600 Max=1 Min=1 Avg=1 All=5600 Zero=0
+[2016-01-02 16:19:09.377514]Check: Count=112 Max=1 Min=1 Avg=1 All=112 Zero=0
+[2016-01-02 16:19:09.381668]Handle: All=110 Used=0 Free=110 Remain=0
+[2016-01-02 16:19:09.385494]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:19:09.390009]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:19:09.393510]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:19:09.397227]FlowCtrl: connected 0/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:20:09.025113]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:20:09.028772]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:20:09.033317]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:20:09.037780]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:20:09.041751]MainLoop: Count=5550 Max=1 Min=1 Avg=1 All=5550 Zero=0
+[2016-01-02 16:20:09.045169]WaitTimeout: Count=5550 Max=1 Min=1 Avg=1 All=5550 Zero=0
+[2016-01-02 16:20:09.048838]Check: Count=111 Max=1 Min=1 Avg=1 All=111 Zero=0
+[2016-01-02 16:20:09.052465]Handle: All=110 Used=0 Free=110 Remain=0
+[2016-01-02 16:20:09.055878]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:20:09.058566]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:20:09.061712]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:20:09.064570]FlowCtrl: connected 0/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:21:09.273041]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:21:09.277129]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:21:09.281442]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:21:09.285729]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:21:09.289358]MainLoop: Count=5600 Max=1 Min=1 Avg=1 All=5600 Zero=0
+[2016-01-02 16:21:09.292304]WaitTimeout: Count=5600 Max=1 Min=1 Avg=1 All=5600 Zero=0
+[2016-01-02 16:21:09.295001]Check: Count=112 Max=1 Min=1 Avg=1 All=112 Zero=0
+[2016-01-02 16:21:09.297824]Handle: All=110 Used=0 Free=110 Remain=0
+[2016-01-02 16:21:09.300397]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:21:09.305160]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:21:09.309812]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:21:09.314483]FlowCtrl: connected 0/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:22:09.350375]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:22:09.354940]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:22:09.358886]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:22:09.362492]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:22:09.366333]MainLoop: Count=5600 Max=1 Min=1 Avg=1 All=5600 Zero=0
+[2016-01-02 16:22:09.370159]WaitTimeout: Count=5600 Max=1 Min=1 Avg=1 All=5600 Zero=0
+[2016-01-02 16:22:09.374241]Check: Count=112 Max=1 Min=1 Avg=1 All=112 Zero=0
+[2016-01-02 16:22:09.378722]Handle: All=110 Used=0 Free=110 Remain=0
+[2016-01-02 16:22:09.386804]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:22:09.389240]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:22:09.429495]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:22:09.435761]FlowCtrl: connected 0/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:23:09.492272]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:23:09.495998]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:23:09.499386]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:23:09.502690]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:23:09.505803]MainLoop: Count=5600 Max=1 Min=1 Avg=1 All=5600 Zero=0
+[2016-01-02 16:23:09.509340]WaitTimeout: Count=5600 Max=1 Min=1 Avg=1 All=5600 Zero=0
+[2016-01-02 16:23:09.512985]Check: Count=112 Max=1 Min=1 Avg=1 All=112 Zero=0
+[2016-01-02 16:23:09.516721]Handle: All=110 Used=0 Free=110 Remain=0
+[2016-01-02 16:23:09.520492]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:23:09.523616]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:23:09.527213]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:23:09.530564]FlowCtrl: connected 0/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:24:09.361130]RecvMessage: Count=5 Max=1 Min=1 Avg=1 All=5 Zero=0
+[2016-01-02 16:24:09.364507]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:24:09.369163]Accept: Count=5 Max=1 Min=1 Avg=1 All=5 Zero=0
+[2016-01-02 16:24:09.374288]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:24:09.378725]MainLoop: Count=5650 Max=1 Min=1 Avg=1 All=5650 Zero=0
+[2016-01-02 16:24:09.383228]WaitTimeout: Count=5644 Max=1 Min=1 Avg=1 All=5644 Zero=0
+[2016-01-02 16:24:09.387233]Check: Count=113 Max=1 Min=1 Avg=1 All=113 Zero=0
+[2016-01-02 16:24:09.395901]Handle: All=110 Used=5 Free=105 Remain=0
+[2016-01-02 16:24:09.399866]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:24:09.405152]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:24:09.409927]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:24:09.414421]FlowCtrl: connected 5/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:25:09.166554]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:25:09.170704]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:25:09.174276]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:25:09.177336]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:25:09.179413]MainLoop: Count=5700 Max=1 Min=1 Avg=1 All=5700 Zero=0
+[2016-01-02 16:25:09.183703]WaitTimeout: Count=5700 Max=1 Min=1 Avg=1 All=5700 Zero=0
+[2016-01-02 16:25:09.187879]Check: Count=114 Max=1 Min=1 Avg=1 All=114 Zero=0
+[2016-01-02 16:25:09.192332]Handle: All=110 Used=5 Free=105 Remain=0
+[2016-01-02 16:25:09.193541]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:25:09.194885]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:25:09.200651]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:25:09.203772]FlowCtrl: connected 5/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:26:09.218659]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:26:09.221124]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:26:09.225395]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:26:09.227916]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:26:09.230007]MainLoop: Count=5750 Max=1 Min=1 Avg=1 All=5750 Zero=0
+[2016-01-02 16:26:09.232211]WaitTimeout: Count=5750 Max=1 Min=1 Avg=1 All=5750 Zero=0
+[2016-01-02 16:26:09.235506]Check: Count=115 Max=1 Min=1 Avg=1 All=115 Zero=0
+[2016-01-02 16:26:09.238119]Handle: All=110 Used=5 Free=105 Remain=0
+[2016-01-02 16:26:09.242179]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:26:09.244505]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:26:09.246558]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:26:09.254860]FlowCtrl: connected 5/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:27:09.217668]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:27:09.221373]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:27:09.222794]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:27:09.225547]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:27:09.229121]MainLoop: Count=5750 Max=1 Min=1 Avg=1 All=5750 Zero=0
+[2016-01-02 16:27:09.232201]WaitTimeout: Count=5750 Max=1 Min=1 Avg=1 All=5750 Zero=0
+[2016-01-02 16:27:09.234884]Check: Count=115 Max=1 Min=1 Avg=1 All=115 Zero=0
+[2016-01-02 16:27:09.236525]Handle: All=110 Used=5 Free=105 Remain=0
+[2016-01-02 16:27:09.240177]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:27:09.244214]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:27:09.247362]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:27:09.249501]FlowCtrl: connected 5/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:28:09.230587]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:28:09.236659]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:28:09.240779]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:28:09.243432]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:28:09.253778]MainLoop: Count=5750 Max=1 Min=1 Avg=1 All=5750 Zero=0
+[2016-01-02 16:28:09.264876]WaitTimeout: Count=5750 Max=1 Min=1 Avg=1 All=5750 Zero=0
+[2016-01-02 16:28:09.272207]Check: Count=115 Max=1 Min=1 Avg=1 All=115 Zero=0
+[2016-01-02 16:28:09.274851]Handle: All=110 Used=5 Free=105 Remain=0
+[2016-01-02 16:28:09.282455]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:28:09.286278]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:28:09.290793]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:28:09.294839]FlowCtrl: connected 5/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:29:09.295791]RecvMessage: Count=5 Max=1 Min=1 Avg=1 All=5 Zero=0
+[2016-01-02 16:29:09.300236]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:29:09.304235]Accept: Count=5 Max=1 Min=1 Avg=1 All=5 Zero=0
+[2016-01-02 16:29:09.308661]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:29:09.312253]MainLoop: Count=5700 Max=1 Min=1 Avg=1 All=5700 Zero=0
+[2016-01-02 16:29:09.316956]WaitTimeout: Count=5692 Max=1 Min=1 Avg=1 All=5692 Zero=0
+[2016-01-02 16:29:09.320747]Check: Count=114 Max=1 Min=1 Avg=1 All=114 Zero=0
+[2016-01-02 16:29:09.325170]Handle: All=110 Used=5 Free=105 Remain=0
+[2016-01-02 16:29:09.329171]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:29:09.333652]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:29:09.338207]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:29:09.342232]FlowCtrl: connected 5/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:30:09.503335]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:30:09.507337]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:30:09.512258]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:30:09.515761]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:30:09.520185]MainLoop: Count=5800 Max=1 Min=1 Avg=1 All=5800 Zero=0
+[2016-01-02 16:30:09.523792]WaitTimeout: Count=5800 Max=1 Min=1 Avg=1 All=5800 Zero=0
+[2016-01-02 16:30:09.528192]Check: Count=116 Max=1 Min=1 Avg=1 All=116 Zero=0
+[2016-01-02 16:30:09.531966]Handle: All=110 Used=5 Free=105 Remain=0
+[2016-01-02 16:30:09.536252]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:30:09.539798]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:30:09.545024]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:30:09.549628]FlowCtrl: connected 5/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:31:09.523361]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:31:09.528172]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:31:09.533173]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:31:09.538637]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:31:09.544360]MainLoop: Count=5750 Max=1 Min=1 Avg=1 All=5750 Zero=0
+[2016-01-02 16:31:09.549137]WaitTimeout: Count=5750 Max=1 Min=1 Avg=1 All=5750 Zero=0
+[2016-01-02 16:31:09.553621]Check: Count=115 Max=1 Min=1 Avg=1 All=115 Zero=0
+[2016-01-02 16:31:09.559802]Handle: All=110 Used=5 Free=105 Remain=0
+[2016-01-02 16:31:09.564360]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:31:09.569213]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:31:09.584256]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:31:09.589185]FlowCtrl: connected 5/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:32:09.205296]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:32:09.208730]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:32:09.210778]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:32:09.216110]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:32:09.219613]MainLoop: Count=5700 Max=1 Min=1 Avg=1 All=5700 Zero=0
+[2016-01-02 16:32:09.223371]WaitTimeout: Count=5700 Max=1 Min=1 Avg=1 All=5700 Zero=0
+[2016-01-02 16:32:09.228645]Check: Count=114 Max=1 Min=1 Avg=1 All=114 Zero=0
+[2016-01-02 16:32:09.233252]Handle: All=110 Used=5 Free=105 Remain=0
+[2016-01-02 16:32:09.235887]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:32:09.239226]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:32:09.243716]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:32:09.248864]FlowCtrl: connected 5/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:33:09.492935]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:33:09.494924]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:33:09.500822]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:33:09.502479]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:33:09.503961]MainLoop: Count=5800 Max=1 Min=1 Avg=1 All=5800 Zero=0
+[2016-01-02 16:33:09.505559]WaitTimeout: Count=5800 Max=1 Min=1 Avg=1 All=5800 Zero=0
+[2016-01-02 16:33:09.507039]Check: Count=116 Max=1 Min=1 Avg=1 All=116 Zero=0
+[2016-01-02 16:33:09.515945]Handle: All=110 Used=5 Free=105 Remain=0
+[2016-01-02 16:33:09.520996]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:33:09.524651]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:33:09.528636]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:33:09.534158]FlowCtrl: connected 5/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
+[2016-01-02 16:34:09.165551]RecvMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:34:09.169653]SendMessage: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:34:09.174085]Accept: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:34:09.178386]IdleClose: Count=0 Max=0 Min=0 Avg=0 All=0 Zero=0
+[2016-01-02 16:34:09.183123]MainLoop: Count=5700 Max=1 Min=1 Avg=1 All=5700 Zero=0
+[2016-01-02 16:34:09.187077]WaitTimeout: Count=5700 Max=1 Min=1 Avg=1 All=5700 Zero=0
+[2016-01-02 16:34:09.188986]Check: Count=114 Max=1 Min=1 Avg=1 All=114 Zero=0
+[2016-01-02 16:34:09.192696]Handle: All=110 Used=5 Free=105 Remain=0
+[2016-01-02 16:34:09.197693]RecvBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:34:09.201143]SendBuffer: All=30 Used=0 Free=30
+[2016-01-02 16:34:09.204607]ShmQueueFreeSize: Recv=1777160 Send=1777160
+[2016-01-02 16:34:09.207786]FlowCtrl: connected 5/110, accept rate 0/10, sendup rate 0/1000, stop stat 0
+
