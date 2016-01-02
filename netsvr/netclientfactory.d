@@ -163,4 +163,4 @@ netclientfactory.o: netclientfactory.cpp netclientfactory.h netdef.h \
  /usr/include/c++/4.6/bits/codecvt.h \
  /usr/include/c++/4.6/i686-linux-gnu/./bits/basic_file.h \
  /usr/include/c++/4.6/i686-linux-gnu/./bits/c++io.h \
- /usr/include/c++/4.6/bits/fstream.tcc netclient.h
+ /usr/include/c++/4.6/bits/fstream.tcc ../sllib/slstat.h netclient.h

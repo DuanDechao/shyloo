@@ -129,6 +129,26 @@ namespace sl
 
 		}
 
+		///判断是否是内网IP
+		static bool IsLanIp(const char* pszIP)
+		{
+			if (pszIP == NULL)
+			{
+				return false;
+			}
+
+			return IsLanIp(inet_addr(pszIP));
+		}
+
+		///判断是否是内网IP
+		static bool IsLanIp(unsigned int IP)
+		{
+			const unsigned int uiIP = htonl(IP);
+			const unsigned int t = uiIP & 0xFFFF0000;
+			const unsigned int t2 = uiIP & 0xFF000000;
+			return (uiIP == 0 || uiIP == 0x7F000001 || t == 0xc0a80000 || t2 == 0xa000000 || (t >= 0xac100000 && t <= 0xac200000));
+		}
+
 	}; // class CSocketUtils
 
 }// namespace sl

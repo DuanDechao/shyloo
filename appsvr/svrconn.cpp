@@ -337,4 +337,8 @@ void CSvrConnect::HandleMsg(char* pstBuff, int iDataLen)
 		CCmdOnAnswerParam stParam(stMsgHead, s);
 		pstCmd->Do(&stParam);
 	}
+	else
+	{
+		SL_WARNING("cmd type is error %d", stMsgHead.m_shMsgType);
+	}
 }
