@@ -14,6 +14,7 @@
 #define _SL_SERVER_UTILS_H_
 #include "slconfig.h"
 #include "slfile_utils.h"
+#include "slstring_utils.h"
 #include <string>
 using namespace std;
 #ifndef SL_OS_WINDOWS

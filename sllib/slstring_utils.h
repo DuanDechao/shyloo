@@ -1,8 +1,8 @@
 //shyloo字符串常用函数封装类
 #ifndef _SL_STRING_UTILS_
 #define _SL_STRING_UTILS_
-#include <string>
-#include <vector>
+#include "slbase_define.h"
+#include "slplatform.h"
 using namespace std;
 namespace sl
 {

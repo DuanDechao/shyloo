@@ -1,0 +1,9 @@
+[2016-01-02 08:48:18.340566][trace]init epoll ok, epoll = 3
+[2016-01-02 08:48:18.346996][trace]load so app()
+[2016-01-02 08:48:18.350845][warn]dlsym CreateSoApp, (null)
+[2016-01-02 10:23:08.990333][info]AT EXIT
+[2016-01-02 10:23:09.002722][trace]del 4 from epoll
+[2016-01-02 10:23:09.005657][warn]epoll_ctl(del) failed: 22, epoll = 0, socket = 4
+[2016-01-02 11:20:45.314172][info]AT EXIT
+[2016-01-02 11:20:45.330331][trace]del 4 from epoll
+[2016-01-02 11:20:45.349757][warn]epoll_ctl(del) failed: 22, epoll = 0, socket = 4

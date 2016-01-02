@@ -422,9 +422,6 @@ namespace sl
 			sort(astMgrConfig.begin(), astMgrConfig.end());
 			return 0;
 		}
-
-	
-
 	};
 
 

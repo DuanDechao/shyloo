@@ -245,6 +245,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sljsonext.h"
+				>
+			</File>
+			<File
 				RelativePath=".\sllog.h"
 				>
 			</File>

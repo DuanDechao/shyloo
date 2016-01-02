@@ -35,7 +35,7 @@ class CAppSoLoader
 {
 public:
 	typedef sl::CAppSoInf* CREATE_APPSO_FUNC();
-	typedef void DESTROY_APPSO_FUNC(sl::CAppInf*);
+	typedef void DESTROY_APPSO_FUNC(sl::CAppSoInf*);
 
 	enum enumSoRetCode
 	{

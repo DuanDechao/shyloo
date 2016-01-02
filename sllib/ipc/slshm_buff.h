@@ -172,7 +172,7 @@ namespace sl
 #ifndef SL_OS_WINDOWS
 		int CreateBuff(key_t uikey)
 		{
-			int iRet = m_stShm.Create(uiKey, (size_t)m_ui64BuffSize);
+			int iRet = m_stShm.Create(uikey, (size_t)m_ui64BuffSize);
 			if(iRet)
 			{
 				SL_ERROR("make shm fails(%d)!", iRet);

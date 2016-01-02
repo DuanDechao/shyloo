@@ -39,3 +39,5 @@ log file write 7 ok! (e:\myproject\shyloo\sllib\test_just.cpp:7)[1970-01-01 08:0
 [1970-01-01 08:00:00.000000][trace]log file write 7 ok! (e:\myproject\shyloo\sllib\test_code_queue.cpp:7)
 [1970-01-01 08:00:00.000000][trace]log file write 7 ok! (e:\myproject\shyloo\sllib\test_code_queue.cpp:7)
 [1970-01-01 08:00:00.000000][trace]log file write 7 ok! (e:\myproject\shyloo\sllib\test_code_queue.cpp:7)
+[1970-01-01 08:00:00.000000][trace]log file write 7 ok! (d:\workspace\shyloo\sllib\test_code_queue.cpp:7)
+[1970-01-01 08:00:00.000000][trace]log file write 7 ok! (d:\workspace\shyloo\sllib\test_code_queue.cpp:7)

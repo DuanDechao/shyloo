@@ -81,16 +81,16 @@ int CAppCtrl::WorkInit()
 	}
 
 	//加载业务so
-	iRet = m_stSoLoader.LoadAppSo(APP_CONF->SoPath.c_str());
+	/*iRet = m_stSoLoader.LoadAppSo(APP_CONF->SoPath.c_str());
 	CHECK_RETURN(iRet);
 	CAppSoInf* pstAppSo = m_stSoLoader.CreateAppSo();
 	if(pstAppSo == NULL)
 	{
 		return -1;
-	}
+	}*/
 
 	//调用so的onInit
-	iRet = SL_APPSO->OnInitConfig();
+	//iRet = SL_APPSO->OnInitConfig();
 	CHECK_RETURN(iRet);
 	SL_TRACE("appctrl init OnInitConfig");
 	
@@ -99,19 +99,19 @@ int CAppCtrl::WorkInit()
 	CHECK_RETURN(iRet);
 	SL_TRACE("appctrl init InitAppBuffer");
 
-	iRet = SL_APPSO->OnInitBuffer();
+	/*iRet = SL_APPSO->OnInitBuffer();
 	CHECK_RETURN(iRet);
-	SL_TRACE("appctrl init OnInitBuffer");
+	SL_TRACE("appctrl init OnInitBuffer");*/
 
 	iRet = m_stShmBuff.CreateBuff("key/appsvr.key");
 	CHECK_RETURN(iRet);
-	SL_TRACE("appctrl inti CreateBuff");
+	SL_TRACE("appctrl init CreateBuff");
 
 }
 
 void CAppCtrl::RunOne()
 {
-	SL_APPSO->repeate_do();
+	//SL_APPSO->repeate_do();
 	//获取当前时间，时，分
 	time_t		timep;
 	struct tm   *pTime; 
@@ -148,19 +148,19 @@ void CAppCtrl::RunOne()
 	OnRecvData(EDPID_CLIENT);
 
 	///调用so的RunOnce
-	SL_APPSO->OneRunOne();
+	//SL_APPSO->OneRunOne();
 
 }
 
 void CAppCtrl::DoExit()
 {
-	SL_APPSO->OnExit();
+	//SL_APPSO->OnExit();
 }
 
 void CAppCtrl::DumpStatInfo()
 {
 	m_Stat.Dump(SL_STAT);
-	SL_APPSO->OnDumpStatInfo();
+	//SL_APPSO->OnDumpStatInfo();
 }
 
 bool CAppCtrl::IsLogined(const CNetHead& stHead)
@@ -217,7 +217,8 @@ void CAppCtrl::AcceptReq(CBuffer& stBuff, int iLen)
 	
 	CCodeStream s;
 	CMsgHead stMsgHead;
-
+	
+	SL_TRACE("========================================");
 	//斷線判斷
 	if((stHead.m_LiveFlag && 0xFF) != 0)
 	{
@@ -229,6 +230,7 @@ void CAppCtrl::AcceptReq(CBuffer& stBuff, int iLen)
 	int iRet = s.Attach(stBuff.GetUsedBuf() + sizeof(CNetHead), stHead.m_iDataLength);
 	if(iRet)
 	{
+		SL_TRACE("Attach failed!");
 		return;
 	}
 
@@ -236,6 +238,7 @@ void CAppCtrl::AcceptReq(CBuffer& stBuff, int iLen)
 	iRet = CodeConvert(s, stMsgHead, NULL, bin_decode());
 	if(iRet)
 	{
+		SL_TRACE("CodeConvert iRet = %d!", iRet);
 		return;
 	}
 
@@ -287,7 +290,8 @@ int CAppCtrl::RecvData(unsigned int uiDPKey, CBuffer& stBuff)
 	m_Stat.Put(app_stat_recvpkg);
 	stBuff.Clear();
 	int iCodeLen = 0;
-
+	
+	SL_INFO("RecvData ++++++++++++++++++++++++++++++++++++");
 	//从管道里取出一个code
 	int iRet = pstShm->GetOneCode(stBuff.GetFreeBuf(), stBuff.GetFreeLen(), iCodeLen);
 	if(iRet || iCodeLen < (int)sizeof(CNetHead))
@@ -354,6 +358,24 @@ void CAppCtrl::OnClientEvent(unsigned int uiPathKey, int iEvent)
 
 int CAppCtrl::LoadConfig()
 {
+	int iRet = APP_CONF->LoadConfig();
+	if(iRet)
+	{
+		SL_ERROR("fail to load appconfig %d, iRet= %d!", APP_CONF_PATH, iRet);
+		return iRet;
+	}
+	SL_INFO("Init NetShm Key = %s", APP_CONF->CodeStreamKey.c_str());
+	CDataPathPara stPara(EDPID_CLIENT, true, APP_CONF->CodeStreamKey.c_str(),
+		APP_CONF->CodeStreamSize,
+		APP_CONF->CodeFrontEndSocket.c_str(),
+		APP_CONF->CodeBackEndSocket.c_str(),
+		OnClientEvent);
+	iRet = InsertDataPath(stPara);
+	if(iRet)
+	{
+		SL_ERROR("fail InsetDataPath iRet= %d", iRet);
+		return iRet;
+	}
 	return 0;
 }
 

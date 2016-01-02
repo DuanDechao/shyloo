@@ -26,6 +26,7 @@
 #include "../sllib/slsize_string.h"
 #include "../sllib/slsvr_base_frame.h"
 #include "../sllib/slini_config.h"
+#include "../sllib/slcheck_mac_def.h"
 #include "../sllib/slstat.h"
 
 

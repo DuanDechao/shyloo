@@ -17,7 +17,8 @@
 #include "../sllib/slbase_define.h"
 #include "../sllib/sltype.h"
 #include "svrconn.h"
-#define APP_CONF_PATH	"./config/appsvr.jsn"
+#include "../sllib/slini_config.h"
+#define APP_CONF_PATH	"./config/appsvr.conf"
 
 namespace sl
 {
@@ -50,6 +51,45 @@ namespace sl
 		//svr连接配置
 		vector<CSvrConnectParam> SvrConnectInfo;
 		
+	public:
+		void reset()
+		{
+			ServerID = 0;
+			Platform = "";
+			SoPath = "";
+			AdminPorts.clear();
+			CmdFactoryConf = "";
+			CodeStreamKey = "";
+			CodeStreamSize = 0;
+			CodeFrontEndSocket = "";
+			CodeBackEndSocket = "";
+			LogFormat = "";
+			LogFilter = "";
+			LogFileNum = 0;
+			LogFileSize = 0;
+			SvrConnectInfo.clear();
+		}
+		
+		//根据配置来设置日志配置
+		int SetLogConfig()
+		{
+			SL_NLOG->Init(ENamed, NULL, "./log/appsvr.log", LogFileSize, LogFileNum);
+			SL_NLOG->SetFormatByStr(LogFormat.c_str());
+			SL_NLOG->SetFilterByStr(LogFilter.c_str());
+
+			SL_ELOG->Init(ENamed, NULL, "./log/appsvr.err", LogFileSize, LogFileNum);
+			SL_ELOG->SetFormatByStr(LogFormat.c_str());
+			SL_ELOG->SetFilterByStr(LogFilter.c_str());
+
+			SL_STAT->Init(ENamed, NULL, "./log/appsvr.sta", LogFileSize, LogFileNum);
+			SL_STAT->SetFormat(ETime|ENewLine);
+			
+			return 0;
+		}
+
+		int LoadConfig();
+
+		//int ReLoadConfig();
 		
 	};
 }
