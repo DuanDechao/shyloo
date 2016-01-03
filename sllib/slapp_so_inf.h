@@ -67,12 +67,10 @@ namespace sl
 			stMsg.m_shMsgType	=	sMsgType;
 			stMsg.m_iCmdSeq		=	0;
 			stMsg.m_llMsgAct	=	llAct;
-
 			CCodeStream s(SL_APP->GetClientEncodeBuffer());
-			int iRet = CodeConvert(s, stMsg, NULL, bin_decode());
+			int iRet = CodeConvert(s, stMsg, NULL, bin_encode());
 			CHECK_RETURN(iRet);
-
-			iRet = CodeConvert(s, tData, NULL, bin_decode());
+			iRet = CodeConvert(s, tData, NULL, bin_encode());
 			CHECK_RETURN(iRet);
 
 			return SL_APP->SendData(EDPID_CLIENT, stHead, s.m_pszBuf, s.m_iPos);

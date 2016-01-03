@@ -244,7 +244,7 @@ void CNetCtrl::HandleShmQueueMsg()
 		{
 			return;
 		}
-
+		SL_INFO("have code...........................");
 		//接收消息
 		int iCodeLen = 0;
 
@@ -325,8 +325,8 @@ void CNetCtrl::HandleShmQueueMsg()
 		memcpy(pstClient->m_stNetHead.m_Key, stHead.m_Key, sizeof(pstClient->m_stNetHead.m_Key));
 		
 		SL_TRACE("get msg from shmqueue. handle=%d datalen=%d seq=%u", iIndex, stHead.m_iDataLength, stHead.m_HandleSeq);
-		DumpNetHead(stHead);
-		DumpHandleInfo(pstClient);
+		//DumpNetHead(stHead);
+		//DumpHandleInfo(pstClient);
 
 		iRet = AllocSendBuffer(pstClient);
 		if(iRet)

@@ -73,7 +73,7 @@
     SL_DECLARE_ARGS(a, b, c, d, e, f, g, h))
 
 #define SL_DECLARE_DELEGATE(name, params, args)                                         \
-namespace lz                                                                            \
+namespace sl                                                                            \
 {                                                                                       \
     namespace detail                                                                    \
     {                                                                                   \

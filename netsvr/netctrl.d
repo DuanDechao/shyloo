@@ -163,5 +163,6 @@ netctrl.o: netctrl.cpp netctrl.h netdef.h ../sllib/slbase.h \
  /usr/include/c++/4.6/bits/codecvt.h \
  /usr/include/c++/4.6/i686-linux-gnu/./bits/basic_file.h \
  /usr/include/c++/4.6/i686-linux-gnu/./bits/c++io.h \
- /usr/include/c++/4.6/bits/fstream.tcc ../sllib/slstat.h \
+ /usr/include/c++/4.6/bits/fstream.tcc ../sllib/slcheck_mac_def.h \
+ ../sllib/slexception.h /usr/include/execinfo.h ../sllib/slstat.h \
  netclientfactory.h netclient.h netlisten.h netconfig.h flowctrl.h

@@ -283,7 +283,7 @@ int CSvrConnect::RecvdData()
 void CSvrConnect::HandleMsg(char* pstBuff, int iDataLen)
 {
 	CCodeStream s;
-	s.Append(pstBuff, iDataLen);
+	s.Attach(pstBuff, iDataLen);
 	s.InitConvert();
 	
 	CMsgHead stMsgHead;

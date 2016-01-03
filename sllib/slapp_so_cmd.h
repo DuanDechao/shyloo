@@ -51,7 +51,7 @@ namespace sl
 			m_llUid		=	static_cast<uid_t>(m_stHead.m_Act1);
 
 			//检查请求是否合法
-			int iRet = CheckReq();
+			iRet = CheckReq();
 			if(iRet < 0) //用户的请求没有通过系统检测出现错误
 			{
 				SL_ERROR("the require from client doesn't pass the system check(%d)", iRet);
@@ -110,7 +110,7 @@ namespace sl
 			}
 
 			iRet = DoWork();
-			m_stAns.m_Result = iRet;
+			m_stAns.m_iResult = iRet;
 			AnsClient();
 
 			if(iRet > 0) ///业务错误不作为Done时候的参数
@@ -149,10 +149,10 @@ namespace sl
 				return 0;
 			}
 			m_IsAnsClientUsed = true;
-			if(m_stAns.m_Result)
+			if(m_stAns.m_iResult)
 			{
 				CResult stResult;
-				stResult.iResultID = m_stAns.m_Result;
+				stResult.iResultID = m_stAns.m_iResult;
 				return SL_APPSO->SendErrorAns(m_stHead, CMD_ID, m_llMsgAct, stResult);
 			}
 			else
@@ -270,8 +270,8 @@ namespace sl
 		}
 		pstCmd->Init(iUID, stReq, &stDelegate);
 		stAsyncCmd.RegisterChild(pstCmd);
-		int iSvrID = iSvrID;
-		int iRet = pstCmd->Do(&iSvrID);
+		int a_iSvrID = iSvrID;
+		int iRet = pstCmd->Do(&a_iSvrID);
 		if(iRet != 0)
 		{
 			SL_WARNING("CCmdKetValueGet do fail: ret=%d",iRet);
