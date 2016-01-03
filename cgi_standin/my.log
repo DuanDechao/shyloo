@@ -54,3 +54,9 @@
 [2016-01-03 14:29:27.163359][trace]AsyncCmd(0, 0xbfb71af8) done, ret = 0
 [2016-01-03 14:29:27.168179][warn]freecmd(0, 0xbfb71af8) failed, ret=-1
 [2016-01-03 14:29:27.171982][trace]AsyncCmd(0xbfb71af8) free. parent=(nil), child=(nil), seq=0
+[2016-01-03 15:03:07.491099][trace]AsyncCmd(0, 0xbfbca788) done, ret = 0
+[2016-01-03 15:03:07.494507][warn]freecmd(0, 0xbfbca788) failed, ret=-1
+[2016-01-03 15:03:07.498978][trace]AsyncCmd(0xbfbca788) free. parent=(nil), child=(nil), seq=0
+[2016-01-03 15:08:30.391415][trace]AsyncCmd(0, 0xbfa00518) done, ret = 0
+[2016-01-03 15:08:30.394894][warn]freecmd(0, 0xbfa00518) failed, ret=-1
+[2016-01-03 15:08:30.399192][trace]AsyncCmd(0xbfa00518) free. parent=(nil), child=(nil), seq=0

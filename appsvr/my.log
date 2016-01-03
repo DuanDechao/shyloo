@@ -33,3 +33,5 @@
 [2016-01-03 14:26:49.569388][info]CmdID = 1027, cmd size = 244, mgr index = -1
 [2016-01-03 14:29:16.249483][trace]register cmd id(1027), class(CCmdHeartbeat)!
 [2016-01-03 14:29:16.255518][info]CmdID = 1027, cmd size = 244, mgr index = -1
+[2016-01-03 15:02:14.216769][trace]register cmd id(1027), class(CCmdHeartbeat)!
+[2016-01-03 15:02:14.221697][info]CmdID = 1027, cmd size = 244, mgr index = -1
