@@ -54,3 +54,69 @@
 [2016-01-03 14:29:27.163359][trace]AsyncCmd(0, 0xbfb71af8) done, ret = 0
 [2016-01-03 14:29:27.168179][warn]freecmd(0, 0xbfb71af8) failed, ret=-1
 [2016-01-03 14:29:27.171982][trace]AsyncCmd(0xbfb71af8) free. parent=(nil), child=(nil), seq=0
+[2016-01-04 11:50:12.465612][trace]AsyncCmd(0, 0xbf964868) done, ret = 11
+[2016-01-04 11:50:12.482572][warn]freecmd(0, 0xbf964868) failed, ret=-1
+[2016-01-04 12:09:10.431656][trace]AsyncCmd(0, 0xbfc378a8) done, ret = 11
+[2016-01-04 12:09:10.435145][warn]freecmd(0, 0xbfc378a8) failed, ret=-1
+[2016-01-04 14:35:19.526813][trace]AsyncCmd(0, 0xbfb54128) done, ret = 11
+[2016-01-04 14:35:19.551813][warn]freecmd(0, 0xbfb54128) failed, ret=-1
+[2016-01-04 14:36:46.853602][trace]AsyncCmd(0, 0xbfe08d78) done, ret = 11
+[2016-01-04 14:36:46.860192][warn]freecmd(0, 0xbfe08d78) failed, ret=-1
+[2016-01-05 02:07:31.676358][trace]AsyncCmd(0, 0xbfda88c8) done, ret = 11
+[2016-01-05 02:07:31.681761][warn]freecmd(0, 0xbfda88c8) failed, ret=-1
+[2016-01-05 02:23:21.252834][trace]AsyncCmd(0, 0xbf879d88) done, ret = 11
+[2016-01-05 02:23:21.255967][warn]freecmd(0, 0xbf879d88) failed, ret=-1
+[2016-01-05 02:26:28.059595][trace]AsyncCmd(0, 0xbfed05c8) done, ret = 11
+[2016-01-05 02:26:28.064974][warn]freecmd(0, 0xbfed05c8) failed, ret=-1
+[2016-01-05 02:47:01.064699][trace]AsyncCmd(0, 0xbf9a4fe8) done, ret = 11
+[2016-01-05 02:47:01.071993][warn]freecmd(0, 0xbf9a4fe8) failed, ret=-1
+[2016-01-05 02:50:36.676722][trace]AsyncCmd(0, 0xbfa76be8) done, ret = 11
+[2016-01-05 02:50:36.681223][warn]freecmd(0, 0xbfa76be8) failed, ret=-1
+[2016-01-05 02:54:50.678766][trace]AsyncCmd(0, 0xbfca7b18) done, ret = 11
+[2016-01-05 02:54:50.682811][warn]freecmd(0, 0xbfca7b18) failed, ret=-1
+[2016-01-05 02:54:50.686180][trace]AsyncCmd(0xbfca7b18) free. parent=(nil), child=(nil), seq=0
+[2016-01-05 02:55:40.544647][trace]AsyncCmd(0, 0xbfb3ef08) done, ret = 11
+[2016-01-05 02:55:40.547458][warn]freecmd(0, 0xbfb3ef08) failed, ret=-1
+[2016-01-05 02:55:40.552585][trace]AsyncCmd(0xbfb3ef08) free. parent=(nil), child=(nil), seq=0
+[2016-01-05 02:56:04.589731][trace]AsyncCmd(0, 0xbfc940f8) done, ret = 11
+[2016-01-05 02:56:04.597704][warn]freecmd(0, 0xbfc940f8) failed, ret=-1
+[2016-01-05 02:56:04.601585][trace]AsyncCmd(0xbfc940f8) free. parent=(nil), child=(nil), seq=0
+[2016-01-05 02:57:06.872444][trace]AsyncCmd(0, 0xbfd06948) done, ret = 11
+[2016-01-05 02:57:06.875592][warn]freecmd(0, 0xbfd06948) failed, ret=-1
+[2016-01-05 02:57:06.881648][trace]AsyncCmd(0xbfd06948) free. parent=(nil), child=(nil), seq=0
+[2016-01-05 02:58:36.758080][trace]AsyncCmd(0, 0xbf92e568) done, ret = 11
+[2016-01-05 02:58:36.762013][warn]freecmd(0, 0xbf92e568) failed, ret=-1
+[2016-01-05 02:58:36.777935][trace]AsyncCmd(0xbf92e568) free. parent=(nil), child=(nil), seq=0
+[2016-01-05 03:00:15.203740][trace]AsyncCmd(0, 0xbface128) done, ret = 11
+[2016-01-05 03:00:15.215019][warn]freecmd(0, 0xbface128) failed, ret=-1
+[2016-01-05 03:00:15.219534][trace]AsyncCmd(0xbface128) free. parent=(nil), child=(nil), seq=0
+[2016-01-05 03:11:00.358387][trace]AsyncCmd(0, 0xbfbea1a8) done, ret = 11
+[2016-01-05 03:11:00.382217][warn]freecmd(0, 0xbfbea1a8) failed, ret=-1
+[2016-01-05 03:11:00.388879][trace]AsyncCmd(0xbfbea1a8) free. parent=(nil), child=(nil), seq=0
+[2016-01-05 03:14:18.321971][trace]AsyncCmd(0xbfd265d8) free. parent=(nil), child=(nil), seq=0
+[2016-01-05 03:14:45.252621][trace]AsyncCmd(0, 0xbf994858) done, ret = 0
+[2016-01-05 03:14:45.257814][warn]freecmd(0, 0xbf994858) failed, ret=-1
+[2016-01-05 03:14:45.260929][trace]AsyncCmd(0xbf994858) free. parent=(nil), child=(nil), seq=0
+[2016-01-05 03:22:22.238457][trace]AsyncCmd(0, 0xbfb681c8) done, ret = 11
+[2016-01-05 03:22:22.242528][warn]freecmd(0, 0xbfb681c8) failed, ret=-1
+[2016-01-05 03:23:51.507748][trace]AsyncCmd(0, 0xbff7ba28) done, ret = 11
+[2016-01-05 03:23:51.523267][warn]freecmd(0, 0xbff7ba28) failed, ret=-1
+[2016-01-05 03:23:51.533759][trace]AsyncCmd(0xbff7ba28) free. parent=(nil), child=(nil), seq=0
+[2016-01-05 03:33:46.668865][trace]AsyncCmd(0, 0xbf978538) done, ret = 11
+[2016-01-05 03:33:46.680587][warn]freecmd(0, 0xbf978538) failed, ret=-1
+[2016-01-05 03:33:46.687277][trace]AsyncCmd(0xbf978538) free. parent=(nil), child=(nil), seq=0
+[2016-01-05 03:37:09.518016][trace]AsyncCmd(0, 0xbfb4e538) done, ret = 11
+[2016-01-05 03:37:09.533228][warn]freecmd(0, 0xbfb4e538) failed, ret=-1
+[2016-01-05 03:37:09.536946][trace]AsyncCmd(0xbfb4e538) free. parent=(nil), child=(nil), seq=0
+[2016-01-05 07:53:49.166206][trace]AsyncCmd(0, 0xbf970208) done, ret = 11
+[2016-01-05 07:53:49.215237][warn]freecmd(0, 0xbf970208) failed, ret=-1
+[2016-01-05 07:53:49.227299][trace]AsyncCmd(0xbf970208) free. parent=(nil), child=(nil), seq=0
+[2016-01-05 07:55:43.732819][trace]AsyncCmd(0, 0xbf81f2a8) done, ret = 0
+[2016-01-05 07:55:43.738726][warn]freecmd(0, 0xbf81f2a8) failed, ret=-1
+[2016-01-05 07:55:43.745583][trace]AsyncCmd(0xbf81f2a8) free. parent=(nil), child=(nil), seq=0
+[2016-01-05 07:56:42.120217][trace]AsyncCmd(0, 0xbfdf31c8) done, ret = 0
+[2016-01-05 07:56:42.124134][warn]freecmd(0, 0xbfdf31c8) failed, ret=-1
+[2016-01-05 07:56:42.133153][trace]AsyncCmd(0xbfdf31c8) free. parent=(nil), child=(nil), seq=0
+[2016-01-05 08:07:23.985940][trace]AsyncCmd(0, 0xbfee5738) done, ret = 0
+[2016-01-05 08:07:24.010976][warn]freecmd(0, 0xbfee5738) failed, ret=-1
+[2016-01-05 08:07:24.014618][trace]AsyncCmd(0xbfee5738) free. parent=(nil), child=(nil), seq=0

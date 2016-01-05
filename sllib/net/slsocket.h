@@ -477,6 +477,9 @@ namespace sl
 				}
 				else
 				{
+					int status;
+					socklen_t slen;
+					getsockopt(m_iSocket, SOL_SOCKET, SO_ERROR, (void *) &status, &slen);
 					int iErrNo = SL_WSA_ERRNO;
 					if (iErrNo == EINTR)
 					{

@@ -17,7 +17,7 @@ int main()
 	CClientHeartbeatCmd heartbeatCmd;
 	heartbeatCmd.Init(0, stReq);
 	heartbeatCmd.Do(NULL);
-	while (!SL_CLIENT->Recv());
+	while(!SL_CLIENT->Recv());
 	CTime stNow((time_t)heartbeatCmd.m_Ans.m_iNow);
 	char szTimeBuf[32] = {0};
 	stNow.Format(SL_STRSIZE(szTimeBuf), "%Y-%m-%d %H:%M:%S");

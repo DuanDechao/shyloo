@@ -8,7 +8,7 @@
 namespace sl
 {
 	#define CODE_STREAM_LENGTH 1024
-	#define SERVER_IP "127.0.0.1"
+	#define SERVER_IP "59.71.135.252"
 	#define SERVER_PORT 18912
 	class CClientInf
 	{
@@ -33,6 +33,7 @@ namespace sl
 			CCodeStream s(m_stSendBuffer);
 			s.InitConvert();
 			int iRet = CodeConvert(s, stHead, NULL, bin_encode());
+
 			CHECK_RETURN(iRet);
 
 			iRet = CodeConvert(s, stData, NULL, bin_encode());
@@ -40,6 +41,7 @@ namespace sl
 
 			iRet = m_stSendBuffer.Append(s.m_iPos);
 			CHECK_RETURN(iRet);
+			
 			return SendToServer(m_stSendBuffer.GetUsedBuf(), m_stSendBuffer.GetUsedLen());
 		}
 
@@ -109,6 +111,27 @@ namespace sl
 				return iRet;
 			}
 			SOCKET stSocket = m_stSocket.GetSocket();
+			
+			int iRecvBufferSize = 65534;
+			iRet = setsockopt(stSocket, SOL_SOCKET, SO_RCVBUF, (char *)&iRecvBufferSize, sizeof(iRecvBufferSize));
+			if(iRet)
+			{
+				SL_ERROR("Set Socket Recvive Buffer Fail： errno=%d", SL_ERRNO);
+				return iRet;
+			}
+
+			//设置发送缓冲区
+			int iSendBufferSize = 65534;
+			iRet = setsockopt(stSocket, SOL_SOCKET, SO_SNDBUF,(char *)&iSendBufferSize, sizeof(iSendBufferSize));
+			if (iRet)
+			{
+				SL_ERROR("Set Socket Send Buffer Fail: errno=%d", SL_ERRNO);
+				return iRet;
+			}
+
+			int sndbuf = 0;
+			socklen_t optlen = sizeof(sndbuf);
+			iRet = getsockopt(stSocket,SOL_SOCKET, SO_SNDBUF, &sndbuf, &optlen);
 			int iNoDelay = 1;
 			//设置NoDelay
 			iRet = setsockopt(stSocket, IPPROTO_TCP, TCP_NODELAY, (char *)&iNoDelay, sizeof(iNoDelay));
@@ -161,11 +184,12 @@ namespace sl
 			}
 			int iRet = 0;
 			int iSendLen = 0;
-			iRet = m_stSocket.SendEx(m_stSendBuffer.GetUsedBuf(), m_stSendBuffer.GetUsedLen(), iSendLen);
+			iRet = m_stSocket.Send(m_stSendBuffer.GetUsedBuf(), m_stSendBuffer.GetUsedLen(), iSendLen);
 			m_stSendBuffer.Remove(iSendLen);
 
 			if(iRet)
 			{
+				printf("error:%d",iRet);
 				return iRet;
 			}
 		}
