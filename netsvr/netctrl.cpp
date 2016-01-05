@@ -244,7 +244,6 @@ void CNetCtrl::HandleShmQueueMsg()
 		{
 			return;
 		}
-		SL_INFO("have code...........................");
 		//接收消息
 		int iCodeLen = 0;
 
@@ -325,8 +324,8 @@ void CNetCtrl::HandleShmQueueMsg()
 		memcpy(pstClient->m_stNetHead.m_Key, stHead.m_Key, sizeof(pstClient->m_stNetHead.m_Key));
 		
 		SL_TRACE("get msg from shmqueue. handle=%d datalen=%d seq=%u", iIndex, stHead.m_iDataLength, stHead.m_HandleSeq);
-		//DumpNetHead(stHead);
-		//DumpHandleInfo(pstClient);
+		DumpNetHead(stHead);
+		DumpHandleInfo(pstClient);
 
 		iRet = AllocSendBuffer(pstClient);
 		if(iRet)
@@ -895,15 +894,15 @@ void CNetCtrl::DumpNetHead(CNetHead& stHead)
 	struct in_addr in;
 	in.s_addr = stHead.m_RemoteIP;
 	SL_TRACE("%-16s = %s", "RemoteIP", inet_ntoa(in));
-	SL_TRACE("%-16s = %s", "RemotePort", stHead.m_RemotePort);
-	SL_TRACE("%-16s = %s", "Handle", stHead.m_Handle);
-	SL_TRACE("%-16s = %s", "HandleSeq", stHead.m_HandleSeq);
-	SL_TRACE("%-16s = %s", "CreateTime", stHead.m_CreateTime);
-	SL_TRACE("%-16s = %s", "LastTime", stHead.m_LastTime);
-	SL_TRACE("%-16s = %s", "Reserve1", stHead.m_Act1);
-	SL_TRACE("%-16s = %s", "Reserve2", stHead.m_Act2);
-	SL_TRACE("%-16s = %s", "LiveFlag", stHead.m_LiveFlag);
-	SL_TRACE("%-16s = %s", "DataLength", stHead.m_iDataLength);
+	SL_TRACE("%-16s = %u", "RemotePort", stHead.m_RemotePort);
+	SL_TRACE("%-16s = %u", "Handle", stHead.m_Handle);
+	SL_TRACE("%-16s = %u", "HandleSeq", stHead.m_HandleSeq);
+	SL_TRACE("%-16s = %u", "CreateTime", stHead.m_CreateTime);
+	SL_TRACE("%-16s = %u", "LastTime", stHead.m_LastTime);
+	SL_TRACE("%-16s = %u", "Reserve1", stHead.m_Act1);
+	SL_TRACE("%-16s = %u", "Reserve2", stHead.m_Act2);
+	SL_TRACE("%-16s = %u", "LiveFlag", stHead.m_LiveFlag);
+	SL_TRACE("%-16s = %u", "DataLength", stHead.m_iDataLength);
 	SL_TRACE("%s", "---- EndDumpNetHead ----");
 }
 
@@ -915,18 +914,18 @@ void CNetCtrl::DumpHandleInfo(CNetClient* pstClient)
 	struct in_addr in;
 	in.s_addr = pstClient->m_stNetHead.m_RemoteIP;
 	SL_TRACE("%-16s = %s", "RemoteIP", inet_ntoa(in));
-	SL_TRACE("%-16s = %s", "RemotePort", pstClient->m_stNetHead.m_RemotePort);
-	SL_TRACE("%-16s = %s", "Socket", pstClient->m_stSocket.GetSocket());
-	SL_TRACE("%-16s = %s", "HandleSeq", pstClient->m_stNetHead.m_HandleSeq);
-	SL_TRACE("%-16s = %s", "CreateTime", pstClient->m_stNetHead.m_CreateTime);
-	SL_TRACE("%-16s = %s", "LastTime", pstClient->m_stNetHead.m_LastTime);
-	SL_TRACE("%-16s = %s", "Reserve1", pstClient->m_stNetHead.m_Act1);
-	SL_TRACE("%-16s = %s", "Reserve2", pstClient->m_stNetHead.m_Act2);
-	SL_TRACE("%-16s = %s", "LiveFlag", pstClient->m_stNetHead.m_LiveFlag);
-	SL_TRACE("%-16s = %s", "RecvBufAct", pstClient->m_stRecvBuf.Act());
-	SL_TRACE("%-16s = %s", "RecvBufLen", pstClient->m_stRecvBuf.GetUsedLen());
-	SL_TRACE("%-16s = %s", "SendBufAct", pstClient->m_stSendBuf.Act());
-	SL_TRACE("%-16s = %s", "SendBufLen", pstClient->m_stSendBuf.GetUsedLen());
+	SL_TRACE("%-16s = %u", "RemotePort", pstClient->m_stNetHead.m_RemotePort);
+	SL_TRACE("%-16s = %u", "Socket", pstClient->m_stSocket.GetSocket());
+	SL_TRACE("%-16s = %u", "HandleSeq", pstClient->m_stNetHead.m_HandleSeq);
+	SL_TRACE("%-16s = %u", "CreateTime", pstClient->m_stNetHead.m_CreateTime);
+	SL_TRACE("%-16s = %u", "LastTime", pstClient->m_stNetHead.m_LastTime);
+	SL_TRACE("%-16s = %u", "Reserve1", pstClient->m_stNetHead.m_Act1);
+	SL_TRACE("%-16s = %u", "Reserve2", pstClient->m_stNetHead.m_Act2);
+	SL_TRACE("%-16s = %u", "LiveFlag", pstClient->m_stNetHead.m_LiveFlag);
+	SL_TRACE("%-16s = %u", "RecvBufAct", pstClient->m_stRecvBuf.Act());
+	SL_TRACE("%-16s = %u", "RecvBufLen", pstClient->m_stRecvBuf.GetUsedLen());
+	SL_TRACE("%-16s = %u", "SendBufAct", pstClient->m_stSendBuf.Act());
+	SL_TRACE("%-16s = %u", "SendBufLen", pstClient->m_stSendBuf.GetUsedLen());
 	SL_TRACE("%s","---- EndDumpHandleInfo ----");
 }
 
