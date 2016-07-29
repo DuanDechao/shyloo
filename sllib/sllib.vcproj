@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="sllib"
 	ProjectGUID="{AF4E3DBB-1249-4EF4-9852-C339E3586749}"
+	RootNamespace="sllib"
 	>
 	<Platforms>
 		<Platform
@@ -177,10 +178,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\slassert.h"
-				>
-			</File>
-			<File
 				RelativePath=".\slasync_cmd.h"
 				>
 			</File>
@@ -233,14 +230,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\slfile.h"
-				>
-			</File>
-			<File
-				RelativePath=".\slfile_utils.h"
-				>
-			</File>
-			<File
 				RelativePath=".\slini_config.h"
 				>
 			</File>
@@ -257,15 +246,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\slmulti_object_mgr.h"
-				>
-			</File>
-			<File
 				RelativePath=".\slobj_reload_check.h"
-				>
-			</File>
-			<File
-				RelativePath=".\slobject_mgr.h"
 				>
 			</File>
 			<File
@@ -281,14 +262,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\slsingleton.h"
-				>
-			</File>
-			<File
-				RelativePath=".\slsize_string.h"
-				>
-			</File>
-			<File
 				RelativePath=".\slstat.h"
 				>
 			</File>
@@ -298,10 +271,6 @@
 			</File>
 			<File
 				RelativePath=".\slsvr_base_frame.h"
-				>
-			</File>
-			<File
-				RelativePath=".\sltime.h"
 				>
 			</File>
 			<File

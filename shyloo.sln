@@ -11,6 +11,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "slproject_common", "slproje
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cgi_standin", "cgi_standin\cgi_standin.vcproj", "{A9088A91-9686-43DA-819F-C40FADA01001}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libs", "libs", "{786DF0AA-DA6B-4C57-B502-07DE34E64648}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "network", "libs\network\network.vcproj", "{A3127871-0F13-4E65-9912-6A5AB558A15A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "common", "libs\common\common.vcproj", "{7B458DDD-E7E8-4F0A-85FD-120ACF94D7E6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -37,8 +43,20 @@ Global
 		{A9088A91-9686-43DA-819F-C40FADA01001}.Debug|Win32.Build.0 = Debug|Win32
 		{A9088A91-9686-43DA-819F-C40FADA01001}.Release|Win32.ActiveCfg = Release|Win32
 		{A9088A91-9686-43DA-819F-C40FADA01001}.Release|Win32.Build.0 = Release|Win32
+		{A3127871-0F13-4E65-9912-6A5AB558A15A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A3127871-0F13-4E65-9912-6A5AB558A15A}.Debug|Win32.Build.0 = Debug|Win32
+		{A3127871-0F13-4E65-9912-6A5AB558A15A}.Release|Win32.ActiveCfg = Release|Win32
+		{A3127871-0F13-4E65-9912-6A5AB558A15A}.Release|Win32.Build.0 = Release|Win32
+		{7B458DDD-E7E8-4F0A-85FD-120ACF94D7E6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7B458DDD-E7E8-4F0A-85FD-120ACF94D7E6}.Debug|Win32.Build.0 = Debug|Win32
+		{7B458DDD-E7E8-4F0A-85FD-120ACF94D7E6}.Release|Win32.ActiveCfg = Release|Win32
+		{7B458DDD-E7E8-4F0A-85FD-120ACF94D7E6}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A3127871-0F13-4E65-9912-6A5AB558A15A} = {786DF0AA-DA6B-4C57-B502-07DE34E64648}
+		{7B458DDD-E7E8-4F0A-85FD-120ACF94D7E6} = {786DF0AA-DA6B-4C57-B502-07DE34E64648}
 	EndGlobalSection
 EndGlobal
