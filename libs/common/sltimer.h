@@ -59,6 +59,8 @@ namespace sl
 			this->DecTimerRegisterCount();
 			this->OnRelease(handle, pUser);
 		}
+
+	private:
 		int			m_iNumTimesRegistered;
 	};
 

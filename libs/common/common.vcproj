@@ -208,11 +208,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\slmutex.h"
+				>
+			</File>
+			<File
 				RelativePath=".\slobj_reload_check.h"
 				>
 			</File>
 			<File
 				RelativePath=".\slobject_mgr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\slobjectpool.h"
 				>
 			</File>
 			<File
