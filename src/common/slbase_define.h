@@ -15,6 +15,7 @@
 #include <map>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <unordered_map>
 #include "slconfig.h"
 using namespace std;
 
@@ -27,12 +28,12 @@ using namespace std;
 
 	#ifndef _WINSOCKAPI_
 	#define _WINSOCKAPI_
-	#define ECONNREFUSED 10061
 	#endif
-	#include <Windows.h>
 	#include <WinSock2.h>
+	#include <Windows.h>
 	#include <io.h>
 	#include <WinDef.h>
+	#include <memory>
 #else
 	#include <fcntl.h>
 	#include <ctype.h>
@@ -120,6 +121,25 @@ namespace sl
 	#define	sl_remove			remove
 #endif
 
+//定义引擎字节序
+#define SLENGINE_LITTLE_ENDIAN			0
+#define SLENGINE_BIG_ENDIAN				1
+#if !defined(SLENGINE_ENDIAN)
+	#if defined (USE_BIG_ENDIAN)
+		#define SLENGINE_ENDIAN SLENGINE_BIG_ENDIAN
+	#else
+		#define SLENGINE_ENDIAN SLENGINE_LITTLE_ENDIAN
+	#endif
+#endif
+
+
+//ip字符串的最大长度
+#define	MAX_IP					50
+
+
+#define SLShared_ptr			std::tr1::shared_ptr
+#define SLUnordered_map			std::tr1::unordered_map
 #define sl_vsnprintf			CPlatForm::_sl_vsnprintf	
 #define sl_snprintf				CPlatForm::_sl_snprintf
+
 #endif //_SL_BASE_DEFINE_H_

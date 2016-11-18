@@ -21,5 +21,10 @@ ENDIF(WIN32)
 SET(LIBS
 	#"${PROJECT_SOURCE_DIR}/src/libs/common/slassert.h"
 	)
+SET(COMMON
+	"${PROJECT_SOURCE_DIR}/src/common/slassert.h"
+)
 
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/libs)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/common)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic)

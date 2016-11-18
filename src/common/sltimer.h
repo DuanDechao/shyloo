@@ -22,9 +22,9 @@ namespace sl
 	{
 	public:
 		explicit TimerHandle(TimeBase* pTime = NULL):m_pTime(pTime){}
-		bool IsSet() const {return m_pTime != NULL;}
-		TimeBase* GetTime() const {return m_pTime;}
-		void Cancel();
+		bool isSet() const {return m_pTime != NULL;}
+		TimeBase* getTime() const {return m_pTime;}
+		void cancel();
 
 		friend bool operator==(TimerHandle tHandle1, TimerHandle tHandle2);
 	
@@ -44,20 +44,20 @@ namespace sl
 	public:
 		TimerHandler():m_iNumTimesRegistered(0){}
 		virtual ~TimerHandler(){}
-		virtual void HandlerTimeOut() = 0; 
+		virtual void handlerTimeOut(TimerHandle handle, void* pUser) = 0; 
 
 	protected:
-		virtual void OnRelease(TimerHandle handle, void* pUser){}
+		virtual void onRelease(TimerHandle handle, void* pUser){}
 	private:
 		friend class TimeBase;
 
-		void IncTimerRegisterCount() {++m_iNumTimesRegistered;}
-		void DecTimerRegisterCount() {--m_iNumTimesRegistered;}
+		void incTimerRegisterCount() {++m_iNumTimesRegistered;}
+		void decTimerRegisterCount() {--m_iNumTimesRegistered;}
 
-		void Release(TimerHandle handle, void* pUser)
+		void release(TimerHandle handle, void* pUser)
 		{
-			this->DecTimerRegisterCount();
-			this->OnRelease(handle, pUser);
+			this->decTimerRegisterCount();
+			this->onRelease(handle, pUser);
 		}
 
 	private:
@@ -72,12 +72,12 @@ namespace sl
 			void* pUserData);
 		virtual ~TimeBase();
 
-		void Cancel();
+		void cancel();
 
-		void* GetUserData() const {return m_pUserData;}
+		void* getUserData() const {return m_pUserData;}
 
-		bool IsCancelled() const {return m_stState == TIME_CANCELLED;}
-		bool IsExecting() const {return m_stState == TIME_EXECUTING;}
+		bool isCancelled() const {return m_stState == TIME_CANCELLED;}
+		bool isExecting() const {return m_stState == TIME_EXECUTING;}
 	protected:
 		enum TimeState
 		{
@@ -95,7 +95,7 @@ namespace sl
 	class TimersBase
 	{
 	public:
-		virtual void OnCancel() = 0;
+		virtual void onCancel() = 0;
 	};
 
 	template<class TIME_STAMP>
@@ -107,27 +107,27 @@ namespace sl
 		TimersT();
 		virtual ~TimersT();
 
-		inline UINT32 Size() const {return m_TimeQueue.Size();}
-		inline bool Empty() const {return m_TimeQueue.Empty();}
+		inline UINT32 size() const {return m_TimeQueue.size();}
+		inline bool empty() const {return m_TimeQueue.empty();}
 
-		int Process(TimeStamp now);
+		int process(TimeStamp now);
 		bool legal(TimerHandle handle) const;
 
 		TimeStamp nextExp(TimeStamp now) const;
-		void Clear(bool shouldCallCancel = true);
+		void clear(bool shouldCallCancel = true);
 
-		bool GetTimerInfo(TimerHandle handle, TimeStamp& time, TimeStamp& interval,
+		bool getTimerInfo(TimerHandle handle, TimeStamp& time, TimeStamp& interval,
 			void*& pUserData) const;
 
-		TimerHandle Add(TimeStamp startTime, TimeStamp interval, TimerHandler* pHandler, void* pUser);
+		TimerHandle add(TimeStamp startTime, TimeStamp interval, TimerHandler* pHandler, void* pUser);
 
 
 	private:
 		typedef std::vector<sl::TimeBase*> TimeContainer;
 		TimeContainer		m_TimeContainer;
 
-		void PurgeCanelledTimes();
-		void OnCancel();
+		void purgeCanelledTimes();
+		void onCancel();
 
 		class Time: public TimeBase
 		{
@@ -138,10 +138,10 @@ namespace sl
 			Time(const Time&);
 			Time& operator=(const Time&);
 		public:
-			TimeStamp	GetTime() const {return m_Time; }
-			TimeStamp	GetInterval() const {return m_Interval;}
+			TimeStamp	getTime() const {return m_Time; }
+			TimeStamp	getInterval() const {return m_Interval;}
 
-			void TriggerTimer();
+			void triggerTimer();
 		private:
 			TimeStamp			m_Time;
 			TimeStamp			m_Interval;
@@ -152,7 +152,7 @@ namespace sl
 		public:
 			bool operator()(const Time* a, const Time* b)
 			{
-				return a->GetTime() > b->GetTime();
+				return a->getTime() > b->getTime();
 			}
 		};
 
@@ -164,33 +164,33 @@ namespace sl
 			typedef typename Container::value_type value_type;
 			typedef typename Container::size_type  size_type;
 
-			bool Empty() const {return m_TimeContainer.empty();}
-			size_type Size() const {return m_TimeContainer.size();}
+			bool empty() const {return m_TimeContainer.empty();}
+			size_type size() const {return m_TimeContainer.size();}
 
-			const value_type& Top() const {return m_TimeContainer.front();}
+			const value_type& top() const {return m_TimeContainer.front();}
 
-			void Push(const value_type& x)
+			void push(const value_type& x)
 			{
 				m_TimeContainer.push_back(x);
 				std::push_heap(m_TimeContainer.begin(), m_TimeContainer.end(), Comparator());
 			}
 
-			void Pop()
+			void pop()
 			{
 				std::pop_heap(m_TimeContainer.begin(), m_TimeContainer.end(),Comparator());
 				m_TimeContainer.pop_back();
 			}
 
-			Time* UnsafePopBack()
+			Time* unsafePopBack()
 			{
 				Time* pTime = m_TimeContainer.back();
 				m_TimeContainer.pop_back();
 				return pTime;
 			}
 
-			Container& GetContainer() {return m_TimeContainer;}
+			Container& getContainer() {return m_TimeContainer;}
 
-			void MakeHeap()
+			void makeHeap()
 			{
 				std::make_heap(m_TimeContainer.begin(), m_TimeContainer.end(),Comparator());
 			}
@@ -207,6 +207,9 @@ namespace sl
 		TimersT& operator=(const TimersT&);
 
 	};
+
+	typedef TimersT<uint32>  Timers;
+	typedef TimersT<uint64>  Timers64;
 
 }// namespace sl
 #endif
