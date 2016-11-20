@@ -12,7 +12,7 @@
 
 #ifndef _SL_TASKS_H_
 #define _SL_TASKS_H_
-
+#include "slbase.h"
 #include "sltask.h"
 namespace sl
 {

@@ -24,8 +24,7 @@ namespace sl
 		explicit TimerHandle(TimeBase* pTime = NULL):m_pTime(pTime){}
 		bool isSet() const {return m_pTime != NULL;}
 		TimeBase* getTime() const {return m_pTime;}
-		void cancel();
-
+		inline void cancel();
 		friend bool operator==(TimerHandle tHandle1, TimerHandle tHandle2);
 	
 	
@@ -70,7 +69,7 @@ namespace sl
 	public:
 		TimeBase(TimersBase& Owner, TimerHandler* pHandler,
 			void* pUserData);
-		virtual ~TimeBase();
+		virtual ~TimeBase(){};
 
 		void cancel();
 
@@ -212,4 +211,5 @@ namespace sl
 	typedef TimersT<uint64>  Timers64;
 
 }// namespace sl
+#include "sltimer.inl"
 #endif

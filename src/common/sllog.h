@@ -13,7 +13,7 @@
 
 #ifndef _SL_LOG_H_
 #define _SL_LOG_H_
-#include "slbase_define.h"
+#include "slsingleton.h"
 #include "slplatform.h"
 #include "slstring_utils.h"
 #include "sltime.h"
@@ -566,13 +566,22 @@ namespace sl
 	};
 
 	typedef CLogT<CNullMutex> CLog;
+	
+	class CNLog : public CLog, public CSingleton<CNLog>{};
+	class CELog : public CLog, public CSingleton<CELog>{};
+	class CSLog : public CLog, public CSingleton<CSLog>{};
+
+	
+	SL_SINGLETON_INIT(CNLog);
+	SL_SINGLETON_INIT(CELog);
+	SL_SINGLETON_INIT(CSLog);
 
 }  // namespace sl
 
 //全局日志
-#define SL_NLOG			(CSingleton<CLog>::Instance())
-#define SL_ELOG			(CSingleton<CLog, 1>::Instance())
-#define SL_STAT			(CSingleton<CLog, 2>::Instance())
+#define SL_NLOG			(CNLog::getSingletonPtr())
+#define SL_ELOG			(CELog::getSingletonPtr())
+#define SL_STAT			(CSLog::getSingletonPtr())
 
 #define SL_LOG(...) do {  CLog* pLog = SL_NLOG; \
     if(pLog->GetFormat() & EFileLine) { \

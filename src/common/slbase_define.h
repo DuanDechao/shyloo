@@ -17,7 +17,7 @@
 #include <sys/stat.h>
 #include <unordered_map>
 #include "slconfig.h"
-using namespace std;
+//using namespace std;
 
 #ifdef SL_OS_WINDOWS
 	#pragma warning(disable: 4503)  // 屏蔽关于超出修饰名的长度，名称被截断的WARNING

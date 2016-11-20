@@ -12,6 +12,7 @@
 
 #ifndef _SL_MEMORYSTREAM_H_
 #define _SL_MEMORYSTREAM_H_
+#include "slcommon.h"
 #include "slobjectpool.h"
 #include "slmemorystream_converter.h"
 namespace sl
@@ -71,6 +72,8 @@ public:
 	static MemoryStream* createPoolObject();
 	static void reclaimPoolObject(MemoryStream* obj);
 	static void destroyObjPool();
+	virtual void onReclaimObject();
+	virtual size_t getPoolObjectBytes();
 
 public:
 	const static size_t DEFAULT_SIZE = 0x100;
