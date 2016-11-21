@@ -9,6 +9,7 @@
 #include "slpacket_filter.h"
 #include "slobjectpool.h"
 #include "sladdress.h"
+#include "slnet.h"
 namespace sl
 {
 namespace network
@@ -22,7 +23,7 @@ class PacketReceiver;
 //class PacketFilter;
 class EventDispatcher;
 
-class Channel:public TimerHandler, public PoolObject
+class Channel:public TimerHandler, public PoolObject, public ISLChannel
 {
 public:
 	typedef SLShared_ptr<SmartPoolObject<Channel>> SmartPoolObjectPtr;
@@ -65,6 +66,8 @@ public:
 		ChannelID id = CHANNEL_ID_NULL);
 
 	virtual ~Channel();
+
+	virtual void SLAPI Send(MessageID msgID, const char* pBuf, int dwLen);
 
 	static Channel* get(NetworkInterface& networkInterface,
 		const Address& addr);
@@ -110,6 +113,7 @@ public:
 	void stopSend();
 
 	void send(Bundle* pBundle = NULL);
+	
 	void delayedSend();
 
 	inline PacketReader* getPacketReader() const;
@@ -168,6 +172,8 @@ public:
 		ChannelID id = CHANNEL_ID_NULL);
 
 	bool finalise();
+
+	inline void setSession(ISLSession* poSession) {m_pSession = poSession;}
 
 private:
 	enum Flags
@@ -233,6 +239,8 @@ private:
 	sl::network::MessageHandlers* m_pMsgHandlers;
 
 	uint32						m_flags;
+
+	ISLSession*					m_pSession;
 };
 
 }

@@ -1,6 +1,7 @@
 #include "slnetwork_interface.h"
 #include "sllistener_receiver.h"
 #include "slevent_dispatcher.h"
+#include "slnet.h"
 namespace sl
 {
 namespace network
@@ -21,7 +22,8 @@ NetworkInterface::NetworkInterface(EventDispatcher* pDispatcher,
 		 m_pChannelTimeOutHandler(NULL),
 		 m_pChannelDeregisterHandler(NULL),
 		 m_isExternal(extlisteningPort_min != -1),
-		 m_numExtChannels(0)
+		 m_numExtChannels(0),
+		 m_pSessionFactory(NULL)
 {
 	if(isExternal())
 	{
@@ -69,6 +71,11 @@ NetworkInterface::~NetworkInterface()
 	//SAFE_RELEASE();
 	SAFE_RELEASE(m_pExtListenerReceiver);
 	SAFE_RELEASE(m_pIntListenerReceiver);
+}
+
+void NetworkInterface::stop()
+{
+	this->closeSocket();
 }
 
 void NetworkInterface::closeSocket()
@@ -254,6 +261,21 @@ bool NetworkInterface::registerChannel(Channel* pChannel)
 	if(pChannel->isExternal())
 		m_numExtChannels++;
 
+	if(m_pSessionFactory == NULL){
+		SL_ERROR("network inferface have no sessionfactory");
+		return false;
+	}
+
+	ISLSession* poSession = m_pSessionFactory->createSession(pChannel);
+	if(NULL == poSession)
+	{
+		SL_ERROR("create session failed");
+		deregisterChannel(pChannel);
+		return false;
+	}
+
+	pChannel->setSession(poSession);
+
 	return true;
 }
 
@@ -331,18 +353,17 @@ void NetworkInterface::processChannels(MessageHandlers* pMsgHandlers)
 	}
 }
 
-
-inline const Address& NetworkInterface::extaddr() const
+const Address& NetworkInterface::extaddr() const
 {
 	return m_extEndPoint.addr();
 }
 
-inline const Address& NetworkInterface::intaddr() const
+const Address& NetworkInterface::intaddr() const
 {
 	return m_intEndPoint.addr();
 }
 
-inline int32 NetworkInterface::numExtChannels() const
+int32 NetworkInterface::numExtChannels() const
 {
 	return m_numExtChannels;
 }

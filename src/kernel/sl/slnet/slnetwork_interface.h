@@ -6,7 +6,7 @@
 #include "slbase.h"
 #include "sltimer.h"
 #include "slendpoint.h"
-
+#include "slnet.h"
 namespace sl
 {
 namespace network
@@ -25,12 +25,12 @@ class MessageHandlers;
 class NetworkInterface: public TimerHandler
 {
 public:
-	typedef std::map<Address, Channel*>		ChannelMap;
+	typedef std::map<Address, Channel*>			ChannelMap;
 
 	NetworkInterface(EventDispatcher* pDispatcher,
 		int32 extlisteningPort_min = -1, int32 extlisteningPort_max = -1, const char* extlisteningInterface="",
 		uint32 extrbuffer = 0, uint32 extwbuffer = 0,
-		int32 intlisteningPort = 0, const char* intlisteningInterface = "",
+		int32 intlisteningPort = -1, const char* intlisteningInterface = "",
 		uint32 intrbuffer = 0, uint32 intwbuffer = 0);
 
 	~NetworkInterface();
@@ -80,6 +80,14 @@ public:
 	void processChannels(MessageHandlers* pMsgHandlers);
 	inline int32 numExtChannels() const;
 
+	virtual void handlerTimeOut(TimerHandle handle, void* pUser){}
+
+	void stop(void);
+
+	inline void setSessionFactory(ISLSessionFactory* poSessionFactory){
+		m_pSessionFactory = poSessionFactory;
+	}
+
 private:
 	virtual void handleTimeout(TimerHandle handle, void * arg);
 	void closeSocket();
@@ -105,6 +113,8 @@ private:
 	const bool						m_isExternal;
 
 	int32							m_numExtChannels;
+
+	ISLSessionFactory*				m_pSessionFactory;
 };
 }
 }

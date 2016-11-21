@@ -380,6 +380,19 @@ void Channel::handlerTimeOut(TimerHandle, void* pUser)
 	}
 }
 
+void Channel::Send(MessageID msgID, const char* pBuf, int dwLen)
+{
+	Bundle* pBundle = Bundle::createPoolObject();
+	
+	MessageHandler msgHandler;
+	msgHandler.msgID = msgID;
+	msgHandler.msgLen = NETWORK_VARIABLE_MESSAGE;
+
+	(*pBundle).newMessage(msgHandler);
+	(*pBundle) << pBuf;
+	send(pBundle);
+}
+
 void Channel::send(Bundle* pBundle /* = NULL */)
 {
 	if(isDestroyed())

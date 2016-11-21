@@ -3,7 +3,8 @@
 #include "slmemorystream.h"
 #include "slsmartpointer.h"
 #include "slnetbase.h"
-
+#include "slnet.h"
+#include <functional>
 namespace sl
 {
 namespace network
@@ -46,12 +47,21 @@ public:
 	MessageHandler();
 	virtual ~MessageHandler();
 
+	/*virtual void SLAPI registerExtMessageHandler(MessageID mId, msgHandlerCB& func) 
+	{
+		msgID = mId;
+		msgLen = NETWORK_VARIABLE_MESSAGE;
+		msgCB = func;
+
+	}*/
+
 	std::string name;
 	MessageID	msgID;
 	MessageArgs* pArgs;
 	int32		msgLen;		///< 如果長度為-1則為非固定長度消息
 	bool		exposed;
 	MessageHandlers* pMessageHandlers;
+	msgHandlerCB msgCB;
 
 	///stats
 	volatile mutable uint32 send_size;
@@ -81,7 +91,9 @@ public:
 
 	virtual void handle(Channel* pChannel, MemoryStream& s)
 	{
-		pArgs->createFromStream(s);
+		//pArgs->createFromStream(s);
+		if(msgCB)
+			msgCB(NULL, 1);
 	}
 };
 
@@ -96,6 +108,7 @@ public:
 
 	MessageHandler* add(std::string ihName, MessageArgs* args, int32 msgLen, MessageHandler* msgHandler);
 	bool pushExposedMessage(std::string msgname);
+	bool add(MessageHandler* msgHandler);
 
 	MessageHandler* find(MessageID msgID);
 

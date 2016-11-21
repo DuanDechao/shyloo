@@ -2,7 +2,7 @@
 #include "slchannel.h"
 #include "slnetwork_interface.h"
 #include "slpacket_receiver.h"
-#include "../common/slcommon.h"
+#include "slcommon.h"
 #include "slfixed_messages.h"
 namespace sl
 {
@@ -76,6 +76,18 @@ bool MessageHandlers::initializeWatcher()
 		CPlatForm::_sl_snprintf(buf, MAX_BUF*2, "network/messages/%s/id", iter->second->name.c_str());
 
 	}
+	return true;
+}
+
+bool MessageHandlers::add(MessageHandler* msgHandler)
+{
+	if(NULL == msgHandler)
+		return false;
+
+	if(m_msgHandlers.find(msgHandler->msgID) != m_msgHandlers.end())
+		return false;
+
+	m_msgHandlers[msgHandler->msgID] = msgHandler;
 	return true;
 }
 MessageHandler* MessageHandlers::add(std::string ihName, MessageArgs* args, int32 msgLen, MessageHandler* msgHandler)
