@@ -1,11 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 
-INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/src/kernel/sl/api")
-INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/src/kernel/sl/public")
-INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/src/kernel/sl/slnet")
-
 INCLUDE_DIRECTORIES(
-	"${PROJECT_SOURCE_DIR}/src/common"
+	"${PROJECT_SOURCE_DIR}/src/kernel/sl/api"
+	"${PROJECT_SOURCE_DIR}/src/kernel/sl/public"
+	"${PROJECT_SOURCE_DIR}/src/kernel/sl/public"
 )
 
 IF(WIN32)
@@ -75,10 +73,12 @@ SET(SLNET
 )
 
 SOURCE_GROUP(api FILES ${API})
+SOURCE_GROUP(public FILES ${PUBLIC})
 SOURCE_GROUP(\\ FILES ${SLNET})
 
 ADD_LIBRARY(slnet SHARED
 	${API}
+	${PUBLIC}
 	${SLNET}
 )
 
