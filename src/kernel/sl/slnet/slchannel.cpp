@@ -43,8 +43,7 @@ size_t Channel::getPoolObjectBytes()
 		sizeof(m_lastReceivedTime) + (m_bufferedReceives.size() * sizeof(Packet*)) + sizeof(m_pPacketReader) 
 		+ sizeof(m_flags) + sizeof(m_numBytesSent) + sizeof(m_numBytesReceived) + sizeof(m_numPacketsSent) + sizeof(m_numPacketsReceived)
 		+ sizeof(m_lastTickBytesReceived) + sizeof(m_lastTickBytesSent) + sizeof(m_pFilter) + sizeof(m_pEndPoint) + sizeof(m_pPacketReceiver) + sizeof(m_pPacketSender)
-		+ sizeof(m_proxyID) + sizeof(m_channelType)
-		+ sizeof(m_componentID) + sizeof(m_pMsgHandlers);
+		+ sizeof(m_channelType);
 
 	return bytes;
 }
@@ -81,10 +80,7 @@ Channel::Channel(NetworkInterface& networkInterface,
 				  m_pEndPoint(NULL),
 				  m_pPacketReceiver(NULL),
 				  m_pPacketSender(NULL),
-				  m_proxyID(0),
 				  m_channelType(CHANNEL_NORMAL),
-				  m_componentID(UNKNOWN_COMPONENT_TYPE),
-				  m_pMsgHandlers(NULL),
 				  m_flags(0)
 {
 	this->clearBundle();
@@ -111,10 +107,7 @@ Channel::Channel()
 	 m_pEndPoint(NULL),
 	 m_pPacketReceiver(NULL),
 	 m_pPacketSender(NULL),
-	 m_proxyID(0),
 	 m_channelType(CHANNEL_NORMAL),
-	 m_componentID(UNKNOWN_COMPONENT_TYPE),
-	 m_pMsgHandlers(NULL),
 	 m_flags(0)
 {
 	this->clearBundle();
@@ -210,6 +203,27 @@ Channel* Channel::get(NetworkInterface& networkInterface, const EndPoint* pEndPo
 	return networkInterface.findChannel(pEndPoint->addr());
 }
 
+void Channel::send(const char* pBuf, int dwLen)
+{
+	Bundle* pBundle = Bundle::createPoolObject();
+
+
+	/*MessageHandler msgHandler;
+	msgHandler.msgID = msgID;
+	msgHandler.msgLen = NETWORK_VARIABLE_MESSAGE;*/
+	MessageID msgID = *(MessageID*)pBuf;
+
+	(*pBundle).newMessage(msgID);
+	(*pBundle) << pBuf+sizeof(msgID);
+	send(pBundle);
+}
+
+void Channel::disconnect()
+{
+	destroy();
+	condemn();
+}
+
 void Channel::startInactivityDetection(float inactivityPeriod, float checkPeriod /* = 1.f */)
 {
 	stopInactivityDetection();
@@ -283,7 +297,6 @@ void Channel::clearState(bool warnOnDiscard /* = false */)
 	m_numBytesSent = 0;
 	m_numBytesReceived = 0;
 	m_lastTickBytesReceived = 0;
-	m_proxyID = 0;
 	m_channelType = CHANNEL_NORMAL;
 
 	if(m_pEndPoint && m_protocolType == PROTOCOL_TCP && !this->isDestroyed())
@@ -378,19 +391,6 @@ void Channel::handlerTimeOut(TimerHandle, void* pUser)
 		default:
 			break;
 	}
-}
-
-void Channel::Send(MessageID msgID, const char* pBuf, int dwLen)
-{
-	Bundle* pBundle = Bundle::createPoolObject();
-	
-	MessageHandler msgHandler;
-	msgHandler.msgID = msgID;
-	msgHandler.msgLen = NETWORK_VARIABLE_MESSAGE;
-
-	(*pBundle).newMessage(msgHandler);
-	(*pBundle) << pBuf;
-	send(pBundle);
 }
 
 void Channel::send(Bundle* pBundle /* = NULL */)
@@ -523,13 +523,13 @@ void Channel::handshake()
 	}
 }
 
-void Channel::processPackets(MessageHandlers* pMsgHandlers)
+void Channel::processPackets(/*MessageHandlers* pMsgHandlers*/)
 {
 	m_lastTickBytesReceived = 0;
 	m_lastTickBytesSent = 0;
 
-	if(m_pMsgHandlers != NULL)
-		pMsgHandlers = m_pMsgHandlers;
+	/*if(m_pMsgHandlers != NULL)
+	pMsgHandlers = m_pMsgHandlers;*/
 
 	if(this->isDestroyed())
 	{
@@ -550,7 +550,7 @@ void Channel::processPackets(MessageHandlers* pMsgHandlers)
 	for (; packetIter != m_bufferedReceives.end(); ++packetIter)
 	{
 		Packet* pPacket = (*packetIter);
-		m_pPacketReader->processMessages(pMsgHandlers, pPacket);
+		m_pPacketReader->processMessages(/*pMsgHandlers, */pPacket);
 		RECLAIM_PACKET(pPacket->IsTCPPacket(), pPacket);
 	}
 
@@ -579,7 +579,7 @@ Bundle* Channel::createSendBundle()
 			//ÏÈÄê ÁÐÖÐ„h³ý
 			m_bundles.pop_back();
 			pBundle->setChannel(this);
-			pBundle->setCurrMsgHandler(NULL);
+			//pBundle->setCurrMsgHandler(NULL);
 			pBundle->setCurrMsgPacketCount(0);
 			pBundle->setCurrMsgLength(0);
 			pBundle->setCurrMsgLengthPos(0);

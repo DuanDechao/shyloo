@@ -24,7 +24,7 @@ public:
 
 	virtual void reset();
 
-	virtual void processMessages(sl::network::MessageHandlers* pMsgHandlers, Packet* pPacket);
+	virtual void processMessages(/*sl::network::MessageHandlers* pMsgHandlers, */Packet* pPacket);
 
 	network::MessageID	currMsgID() const {return m_currMsgID;}
 	network::MessageLength	currMsgLen() const {return m_currMsgLen;}

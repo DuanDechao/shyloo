@@ -77,7 +77,7 @@ public:
 	void onChannelTimeOut(Channel* pChannel);
 
 	//处理所有channels
-	void processChannels(MessageHandlers* pMsgHandlers);
+	void processChannels(/*MessageHandlers* pMsgHandlers*/);
 	inline int32 numExtChannels() const;
 
 	virtual void handlerTimeOut(TimerHandle handle, void* pUser){}

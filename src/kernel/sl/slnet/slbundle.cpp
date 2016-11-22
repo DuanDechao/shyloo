@@ -29,8 +29,8 @@ void Bundle::destoryObjPool()
 
 size_t Bundle::getPoolObjectBytes()
 {
-	size_t bytes = sizeof(m_pCurrMsgHandler) + sizeof(m_isTCPPacket) + 
-		sizeof(m_currMsgLengthPos) + sizeof(m_currMsgHandlerLength) + sizeof(m_currMsgLength)+
+	size_t bytes = sizeof(m_isTCPPacket) + 
+		sizeof(m_currMsgLengthPos)  + sizeof(m_currMsgLength)+
 		sizeof(m_currMsgPacketCount) + sizeof(m_currMsgID) + sizeof(m_numMessages) + sizeof(m_pChannel)+
 		(m_packets.size() * sizeof(Packet*));
 	return bytes;
@@ -48,12 +48,12 @@ Bundle::Bundle(Channel* pChannel /* = NULL */, ProtocolType pt /* = PROTOCOL_TCP
 	 m_currMsgID(0),
 	 m_currMsgPacketCount(0),
 	 m_currMsgLength(0),
-	 m_currMsgHandlerLength(0),
+	 //m_currMsgHandlerLength(0),
 	 m_currMsgLengthPos(0),
 	 m_packets(),
 	 m_isTCPPacket(pt == PROTOCOL_TCP),
-	 m_packetMaxSize(0),
-	 m_pCurrMsgHandler(NULL)
+	 m_packetMaxSize(0)
+	// m_pCurrMsgHandler(NULL)
 {
 	calcPacketMaxSize();
 	newPacket();
@@ -63,7 +63,7 @@ Bundle::Bundle(const Bundle& bundle)
 {
 	m_isTCPPacket = bundle.m_isTCPPacket;
 	m_pChannel = bundle.m_pChannel;
-	m_pCurrMsgHandler = bundle.m_pCurrMsgHandler;
+	//m_pCurrMsgHandler = bundle.m_pCurrMsgHandler;
 	m_currMsgID = bundle.m_currMsgID;
 	
 	Packets::const_iterator iter= bundle.m_packets.begin();
@@ -84,7 +84,7 @@ Bundle::Bundle(const Bundle& bundle)
 	m_numMessages = bundle.m_numMessages;
 	m_currMsgPacketCount = bundle.m_currMsgPacketCount;
 	m_currMsgLength = bundle.m_currMsgLength;
-	m_currMsgHandlerLength = bundle.m_currMsgHandlerLength;
+	//m_currMsgHandlerLength = bundle.m_currMsgHandlerLength;
 	m_currMsgLengthPos = bundle.m_currMsgLengthPos;
 	calcPacketMaxSize();
 }
@@ -195,7 +195,7 @@ void Bundle::clear(bool isRecl)
 	m_currMsgPacketCount = 0;
 	m_currMsgLength = 0;
 	m_currMsgLengthPos = 0;
-	m_pCurrMsgHandler = NULL;
+	//m_pCurrMsgHandler = NULL;
 	calcPacketMaxSize();
 }
 
@@ -215,9 +215,9 @@ void Bundle::clearPackets()
 	m_packets.clear();
 }
 
-void Bundle::newMessage(const MessageHandler& msgHandler)
+void Bundle::newMessage(/*const MessageHandler& msgHandler*/ const MessageID msgID)
 {
-	m_pCurrMsgHandler = &msgHandler;
+	//m_pCurrMsgHandler = &msgHandler;
 
 	if(m_pCurrPacket == NULL)
 	{
@@ -242,21 +242,21 @@ void Bundle::newMessage(const MessageHandler& msgHandler)
 	finiMessage(false);
 	SL_ASSERT(m_pCurrPacket != NULL);
 
-	(*this)<<msgHandler.msgID;
-	m_pCurrPacket->SetMessageID(msgHandler.msgID);
+	(*this)<<msgID;
+	m_pCurrPacket->SetMessageID(msgID);
 
 	//此處對於非固定長度的消息來說需要設置它的消息長度位為0，到最後需要填充長度
-	if(msgHandler.msgLen == NETWORK_VARIABLE_MESSAGE)
-	{
-		MessageLength msgLen = 0;
-		m_currMsgLengthPos = m_pCurrPacket->wpos();
-		(*this) << msgLen;
-	}
+	//if(msgHandler.msgLen == NETWORK_VARIABLE_MESSAGE)
+	//{
+	MessageLength msgLen = 0;
+	m_currMsgLengthPos = m_pCurrPacket->wpos();
+	(*this) << msgLen;
+	//}
 
 	++m_numMessages;
-	m_currMsgID = msgHandler.msgID;
+	m_currMsgID = msgID;
 	m_currMsgPacketCount = 0;
-	m_currMsgHandlerLength = msgHandler.msgLen;
+	//m_currMsgHandlerLength = msgHandler.msgLen;
 }
 
 void Bundle::finiMessage(bool isSend /* = true */)
@@ -271,15 +271,15 @@ void Bundle::finiMessage(bool isSend /* = true */)
 	}
 
 	//对消息进行跟踪
-	if(m_pCurrMsgHandler){
-		if(isSend || m_numMessages > 1)
-		{
-			//Ne
-		}
-	}
+	//if(m_pCurrMsgHandler){
+	//	if(isSend || m_numMessages > 1)
+	//	{
+	//		//Ne
+	//	}
+	//}
 
 	//此处对于非固定长度的消息来说需要设置它的最终长度信息
-	if(m_currMsgID > 0 && (m_currMsgHandlerLength < 0))
+	if(m_currMsgID > 0 /*&& (m_currMsgHandlerLength < 0)*/)
 	{
 		Packet* pPacket = m_pCurrPacket;
 		if(m_currMsgPacketCount > 0)
@@ -322,7 +322,7 @@ void Bundle::finiMessage(bool isSend /* = true */)
 
 	if(isSend)
 	{
-		m_currMsgHandlerLength = 0;
+		//m_currMsgHandlerLength = 0;
 		m_pCurrPacket = NULL;
 	}
 
@@ -459,13 +459,13 @@ bool Bundle::revokeMessage(int32 size)
 	}
 
 	--m_numMessages;
-	m_currMsgHandlerLength = 0;
+	//m_currMsgHandlerLength = 0;
 
 	m_currMsgID = 0;
 	m_currMsgPacketCount = 0;
 	m_currMsgLength = 0;
 	m_currMsgLengthPos = 0;
-	m_pCurrMsgHandler = NULL;
+	//m_pCurrMsgHandler = NULL;
 
 	return size == 0;
 }

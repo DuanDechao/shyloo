@@ -35,7 +35,7 @@ void PacketReader::reset()
 	m_pFragmentStream = NULL;
 }
 
-void PacketReader::processMessages(sl::network::MessageHandlers* pMsgHandlers, Packet* pPacket)
+void PacketReader::processMessages(/*sl::network::MessageHandlers* pMsgHandlers,*/ Packet* pPacket)
 {
 	while(pPacket->length() > 0 || m_pFragmentStream != NULL)
 	{
@@ -54,24 +54,24 @@ void PacketReader::processMessages(sl::network::MessageHandlers* pMsgHandlers, P
 				pPacket->SetMessageID(m_currMsgID);
 			}
 
-			network::MessageHandler* pMsgHandler = pMsgHandlers->find(m_currMsgID);
+			//network::MessageHandler* pMsgHandler = pMsgHandlers->find(m_currMsgID);
 
-			if(pMsgHandler == NULL)
-			{
-				MemoryStream* pPacket1 = m_pFragmentStream != NULL ? m_pFragmentStream : pPacket;
-				//TRACE_MESSAGE_PACKET
+			//if(pMsgHandler == NULL)
+			//{
+			//	MemoryStream* pPacket1 = m_pFragmentStream != NULL ? m_pFragmentStream : pPacket;
+			//	//TRACE_MESSAGE_PACKET
 
-				//用于调试时比对
-				uint32 rpos = pPacket1->rpos();
-				pPacket1->rpos(0);
-				//TRACE_MESSAGE_PACKET
-				pPacket1->rpos(rpos);
+			//	//用于调试时比对
+			//	uint32 rpos = pPacket1->rpos();
+			//	pPacket1->rpos(0);
+			//	//TRACE_MESSAGE_PACKET
+			//	pPacket1->rpos(rpos);
 
-				m_currMsgID = 0;
-				m_currMsgLen = 0;
-				m_pChannel->condemn();
-				break;
-			}
+			//	m_currMsgID = 0;
+			//	m_currMsgLen = 0;
+			//	m_pChannel->condemn();
+			//	break;
+			//}
 
 			//如果没有可操作的数据则退出等待下一包处理
 			//可能是一个无参数数据包
@@ -80,8 +80,8 @@ void PacketReader::processMessages(sl::network::MessageHandlers* pMsgHandlers, P
 			if(m_currMsgLen == 0)
 			{
 				//如果长度信息是可变的或者配置了永远包含长度信息选项时，从流中分析长度数据
-				if(pMsgHandler->msgLen == NETWORK_VARIABLE_MESSAGE)
-				{
+				/*if(pMsgHandler->msgLen == NETWORK_VARIABLE_MESSAGE)
+				{*/
 					//如果长度信息不完整，则等待下一包处理
 					if(pPacket->length() < NETWORK_MESSAGE_LENGTH_SIZE)
 					{
@@ -112,11 +112,11 @@ void PacketReader::processMessages(sl::network::MessageHandlers* pMsgHandlers, P
 							}
 						}
 					}
-				}
+				/*}
 				else
 				{
 					m_currMsgLen = pMsgHandler->msgLen;
-				}
+				}*/
 			}
 
 			if(this->m_pChannel->isExternal() && 
@@ -141,7 +141,13 @@ void PacketReader::processMessages(sl::network::MessageHandlers* pMsgHandlers, P
 			if(m_pFragmentStream != NULL)
 			{
 				//TRACE_MESSAGE_PACKET
-				pMsgHandler->handle(m_pChannel, *m_pFragmentStream);
+				//pMsgHandler->handle(m_pChannel, *m_pFragmentStream);
+				ISLSession* poSession = this->m_pChannel->getSession();
+				if(NULL == poSession){
+					m_pChannel->condemn();
+					break;
+				}
+				poSession->onRecv((const char*)m_pFragmentStream->data(), m_pFragmentStream->length());
 				MemoryStream::reclaimPoolObject(m_pFragmentStream);
 				m_pFragmentStream = NULL;
 			}
@@ -159,7 +165,12 @@ void PacketReader::processMessages(sl::network::MessageHandlers* pMsgHandlers, P
 				pPacket->wpos(frpos);
 
 				//TRACE_MESSAGE_PACKET
-				pMsgHandler->handle(m_pChannel, *pPacket);
+				ISLSession* poSession = this->m_pChannel->getSession();
+				if(NULL == poSession){
+					m_pChannel->condemn();
+					break;
+				}
+				poSession->onRecv((const char*)m_pFragmentStream->data(), m_pFragmentStream->length());
 
 				//如果handler没有处理完数据则输出一个警告
 				if(m_currMsgLen > 0)

@@ -9,7 +9,17 @@ class ISLSessionFactory;
 class ISLChannel
 {
 public:
-	virtual void SLAPI Send(MessageID msgID, const char* pBuf, int dwLen) = 0;
+	virtual bool SLAPI isConnected(void) = 0;
+	virtual void SLAPI send(const char* pBuf, int dwLen) = 0;
+	virtual void SLAPI disconnect(void) = 0;
+	
+	virtual const UINT SLAPI getRemoteIP(void) = 0;
+	virtual const char* SLAPI getRemoteIPStr(void) = 0;
+	virtual const short SLAPI getRemotePort(void) = 0;
+
+	virtual const UINT SLAPI getLocalIP(void) = 0;
+	virtual const char* SLAPI getLocalIPStr(void) = 0;
+	virtual const short SLAPI getLocalPort(void) = 0;
 };
 
 class ISLListener
@@ -32,6 +42,7 @@ class ISLSession
 public:
 	virtual void SLAPI setChannel(ISLChannel* poChannel) = 0;
 	virtual void SLAPI release(void) = 0;
+	virtual void SLAPI onRecv(const char* pBuf, int dwLen) = 0;
 };
 
 class ISLSessionFactory

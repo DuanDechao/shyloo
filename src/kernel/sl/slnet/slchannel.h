@@ -67,7 +67,9 @@ public:
 
 	virtual ~Channel();
 
-	virtual void SLAPI Send(MessageID msgID, const char* pBuf, int dwLen);
+	virtual void SLAPI send(const char* pBuf, int dwLen);
+
+	virtual void SLAPI disconnect(void);
 
 	static Channel* get(NetworkInterface& networkInterface,
 		const Address& addr);
@@ -144,23 +146,23 @@ public:
 
 	BufferedReceives& bufferedReceives() {return m_bufferedReceives;}
 
-	void processPackets(network::MessageHandlers* pMsgHandlers);
+	void processPackets(/*network::MessageHandlers* pMsgHandlers*/);
 
 	bool isCondemn() const {return (m_flags & FLAG_CONDEMN) > 0;}
 	void condemn();
 
 	bool hasHandshake() const {return (m_flags & FLAG_HANDSHAKE) > 0;}
 
-	ENTITY_ID getProxyID() const {return m_proxyID;}
-	void setProxyID(ENTITY_ID pid){m_proxyID = pid;}
+	//ENTITY_ID getProxyID() const {return m_proxyID;}
+	//void setProxyID(ENTITY_ID pid){m_proxyID = pid;}
 
-	COMPONENT_ID getComponentID() const {return m_componentID;}
-	void setComponentID(COMPONENT_ID cid) {m_componentID = cid;}
+	//COMPONENT_ID getComponentID() const {return m_componentID;}
+	//void setComponentID(COMPONENT_ID cid) {m_componentID = cid;}
 
 	virtual void handshake();
 
-	MessageHandlers* getMsgHandlers() const {return m_pMsgHandlers;}
-	void setMsgHandlers(MessageHandlers* pMsgHandlers) {m_pMsgHandlers = pMsgHandlers;}
+	//MessageHandlers* getMsgHandlers() const {return m_pMsgHandlers;}
+	//void setMsgHandlers(MessageHandlers* pMsgHandlers) {m_pMsgHandlers = pMsgHandlers;}
 
 	bool waitSend();
 
@@ -174,6 +176,7 @@ public:
 	bool finalise();
 
 	inline void setSession(ISLSession* poSession) {m_pSession = poSession;}
+	inline ISLSession* getSession() {return m_pSession;}
 
 private:
 	enum Flags
@@ -228,15 +231,15 @@ private:
 	PacketSender*				m_pPacketSender;
 
 	///如果是外部通道且代理了一个前端则会绑定前端代理ID
-	ENTITY_ID					m_proxyID;
+	//ENTITY_ID					m_proxyID;
 
 	//通道类别
 	ChannelTypes				m_channelType;
 
-	COMPONENT_ID				m_componentID;
+	//COMPONENT_ID				m_componentID;
 
 	//支持指定某个通道使用的某个消息handlers
-	sl::network::MessageHandlers* m_pMsgHandlers;
+	//sl::network::MessageHandlers* m_pMsgHandlers;
 
 	uint32						m_flags;
 

@@ -78,7 +78,7 @@ public:
 	Bundle(const Bundle& bundle);
 	virtual ~Bundle();
 
-	void newMessage(const MessageHandler& msgHandler);
+	void newMessage(/*const MessageHandler& msgHandler*/ const MessageID msgID);
 	void finiMessage(bool isSend = true);
 
 	void clearPackets();
@@ -350,7 +350,7 @@ private:
 	bool				m_isTCPPacket;
 	int32				m_packetMaxSize;
 	
-	const network::MessageHandler* m_pCurrMsgHandler;
+	//const network::MessageHandler* m_pCurrMsgHandler;
 };
 }
 }

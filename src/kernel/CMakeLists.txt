@@ -1,9 +1,13 @@
 
 IF(WIN32)
 INCLUDE_DIRECTORIES(
+	"${PROJECT_SOURCE_DIR}/src/api"
+	"${PROJECT_SOURCE_DIR}/src/public"
+	"${PROJECT_SOURCE_DIR}/src/kernel/interface"
 	"${PROJECT_SOURCE_DIR}/src/kernel/sl/api"
 	"${PROJECT_SOURCE_DIR}/src/kernel/sl/public"
 	"${PROJECT_SOURCE_DIR}/src/kernel/sl/slnet"
+	"${PROJECT_SOURCE_DIR}/src/kernel"
 )
 ENDIF(WIN32)
 
@@ -106,17 +110,40 @@ SET(KERNEL_SL_NET
 	"${PROJECT_SOURCE_DIR}/src/kernel/sl/slnet/slnet_module.cpp"
 )
 
+SET(KERNEL_INTERFACE
+	"${PROJECT_SOURCE_DIR}/src/kernel/interface/slicore.h"
+	"${PROJECT_SOURCE_DIR}/src/kernel/interface/slinet_engine.h"
+)
+
+SET(KERNEL_NET
+	"${PROJECT_SOURCE_DIR}/src/kernel/net/slnet_engine.h"
+	"${PROJECT_SOURCE_DIR}/src/kernel/net/slnet_engine.cpp"
+	"${PROJECT_SOURCE_DIR}/src/kernel/net/slnet_session.h"
+	"${PROJECT_SOURCE_DIR}/src/kernel/net/slnet_session.cpp"
+	"${PROJECT_SOURCE_DIR}/src/kernel/net/slnet_session_factory.h"
+	"${PROJECT_SOURCE_DIR}/src/kernel/net/slnet_session_factory.cpp"
+)
 
 SET(KERNEL
 	"${PROJECT_SOURCE_DIR}/src/kernel/slkernel.h"
 	"${PROJECT_SOURCE_DIR}/src/kernel/slkernel.cpp"
 	"${PROJECT_SOURCE_DIR}/src/kernel/slmain.cpp"
 )
+SOURCE_GROUP(api FILES ${API})
+SOURCE_GROUP(public FILES ${PUBLIC})
+SOURCE_GROUP(src\\interface FILES ${KERNEL_INTERFACE})
+SOURCE_GROUP(src\\net FILES ${KERNEL_NET})
 SOURCE_GROUP(src\\sl\\api FILES ${KERNEL_SL_API})
 SOURCE_GROUP(src\\sl\\public FILES ${KERNEL_SL_PUBLIC})
 SOURCE_GROUP(src\\sl\\slnet FILES ${KERNEL_SL_NET})
+SOURCE_GROUP(\\ FILES ${KERNEL})
+
 IF(WIN32)
 ADD_EXECUTABLE(shyloo
+	${API}
+	${PUBLIC}
+	${KERNEL_INTERFACE}
+	${KERNEL_NET}
 	${KERNEL_SL_API}
 	${KERNEL_SL_PUBLIC}
 	${KERNEL_SL_NET}
@@ -127,3 +154,4 @@ ENDIF(WIN32)
 IF(WIN32)
 SET(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/build/windows")
 ENDIF(WIN32)
+TARGET_LINK_LIBRARIES(shyloo "ws2_32.lib" "Iphlpapi.lib")

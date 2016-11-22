@@ -327,7 +327,7 @@ void NetworkInterface::onChannelTimeOut(Channel* pChannel)
 	}
 }
 
-void NetworkInterface::processChannels(MessageHandlers* pMsgHandlers)
+void NetworkInterface::processChannels(/*MessageHandlers* pMsgHandlers*/)
 {
 	ChannelMap::iterator iter = m_channelMap.begin();
 	for (; iter != m_channelMap.end();)
@@ -347,7 +347,7 @@ void NetworkInterface::processChannels(MessageHandlers* pMsgHandlers)
 		}
 		else
 		{
-			pChannel->processPackets(pMsgHandlers);
+			pChannel->processPackets(/*pMsgHandlers*/);
 			++iter;
 		}
 	}

@@ -24,20 +24,20 @@ inline MessageLength1 Bundle::getCurrMsgLength() const
 	return m_currMsgLength;
 }
 
-inline void Bundle::setCurrMsgHandler(const network::MessageHandler* pMsgHandler)
-{
-	m_pCurrMsgHandler = pMsgHandler;
-    
-	if(m_pCurrMsgHandler)
-		m_currMsgID = pMsgHandler->msgID;
-	else
-		m_currMsgID = 0;
-}
+//inline void Bundle::setCurrMsgHandler(const network::MessageHandler* pMsgHandler)
+//{
+//	m_pCurrMsgHandler = pMsgHandler;
+//    
+//	if(m_pCurrMsgHandler)
+//		m_currMsgID = pMsgHandler->msgID;
+//	else
+//		m_currMsgID = 0;
+//}
 
-inline const network::MessageHandler* Bundle::getCurrMsgHandler() const
-{
-	return m_pCurrMsgHandler;
-}
+//inline const network::MessageHandler* Bundle::getCurrMsgHandler() const
+//{
+//	return m_pCurrMsgHandler;
+//}
 
 inline Bundle::Packets& Bundle::packets()
 {
