@@ -22,17 +22,19 @@ SET(LIBS
 	#"${PROJECT_SOURCE_DIR}/src/libs/common/slassert.h"
 	)
 
-SET(API
-	"${PROJECT_SOURCE_DIR}/src/api/slikernel.h"
-	"${PROJECT_SOURCE_DIR}/src/api/slimodule.h"
+SET(SL_KERNEL_API
+	"${PROJECT_SOURCE_DIR}/src/kernel/api/slikernel.h"
+	"${PROJECT_SOURCE_DIR}/src/kernel/api/slimodule.h"
+)
+
+SET(SL_LIB_API
+	"${PROJECT_SOURCE_DIR}/src/sllib/api/slnet.h"
 )
 SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/slassert.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slbase.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slbase_define.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slcode_convert.h"
-	"${PROJECT_SOURCE_DIR}/src/public/slcommon.h"
-	"${PROJECT_SOURCE_DIR}/src/public/slcommon.cpp"
 	"${PROJECT_SOURCE_DIR}/src/public/slconfig.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slfile.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slfile_utils.h"
@@ -64,3 +66,4 @@ SET(PUBLIC
 
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/kernel)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/sllib)

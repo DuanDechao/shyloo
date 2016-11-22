@@ -1,0 +1,1 @@
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/sllib/slnet)

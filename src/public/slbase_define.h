@@ -16,6 +16,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unordered_map>
+
 #include "slconfig.h"
 //using namespace std;
 
@@ -141,5 +142,13 @@ namespace sl
 #define SLUnordered_map			std::tr1::unordered_map
 #define sl_vsnprintf			CPlatForm::_sl_vsnprintf	
 #define sl_snprintf				CPlatForm::_sl_snprintf
+
+#define MAX_BUF	256
+#define SAFE_RELEASE(i)			\
+	if(i)						\
+	{                           \
+		delete i;				\
+		i = NULL;				\
+	}
 
 #endif //_SL_BASE_DEFINE_H_

@@ -1,5 +1,6 @@
 #include "slnet_session.h"
 #include "slkernel.h"
+#include "slassert.h"
 namespace sl
 {
 namespace network
@@ -62,7 +63,7 @@ void NetSession::release()
 	NetSession::reclaimPoolObject(this);
 }
 
-void NetSession::onRecv(const char* pBuf, int dwLen)
+void NetSession::onRecv(const char* pBuf, uint32 dwLen)
 {
 	m_pTcpSession->onRecv(core::Kernel::getSingletonPtr(), pBuf, dwLen);
 }
@@ -82,7 +83,7 @@ ISLSession* ServerSessionFactory::createSession(ISLChannel* poChannel)
 	if(NULL == m_pServer)
 		return NULL;
 
-	ITcpSession* pTcpSession = m_pServer->mallocTcpSession();
+	ITcpSession* pTcpSession = m_pServer->mallocTcpSession(core::Kernel::getSingletonPtr());
 	if(NULL == pTcpSession)
 	{
 		SL_ASSERT(false);

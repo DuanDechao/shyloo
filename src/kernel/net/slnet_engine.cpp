@@ -8,22 +8,22 @@ namespace network
 bool NetEngine::initialize()
 {
 	m_pSLNetModule = SLNetGetModule();
-	if(NULL == m_pSLNetModule)
+	if(nullptr == m_pSLNetModule)
 		return false;
 	return true;
 }
 
 bool NetEngine::addTcpServer(sl::api::ITcpServer* server, const char* ip, const short port, int sendSize, int recvSize)
 {
-	if(NULL == m_pSLNetModule)
+	if(nullptr == m_pSLNetModule)
 		return false;
 
 	m_pListener = m_pSLNetModule->CreateListener();
-	if(NULL == m_pListener)
+	if(nullptr == m_pListener)
 		return false;
 
 	m_pListener->setBufferSize(recvSize, sendSize);
-	m_pListener->setSessionFactory();
+	m_pListener->setSessionFactory(nullptr);
 	if(!m_pListener->start(ip, port)){
 		//SL_ASSERT(false);
 		return false;
@@ -32,7 +32,7 @@ bool NetEngine::addTcpServer(sl::api::ITcpServer* server, const char* ip, const 
 }
 bool NetEngine::adddTcpClient(sl::api::ITcpSession* session, const char* ip, const short port, int sendSize, int recvSize)
 {
-
+	return true;
 }
 
 }

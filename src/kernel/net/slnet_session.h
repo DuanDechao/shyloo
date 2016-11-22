@@ -12,6 +12,7 @@ using namespace api;
 class NetSession: public ISLSession, public api::IPipe, public PoolObject
 {
 public:
+	NetSession(){}
 	NetSession(ITcpSession* pTcpSession);
 	virtual ~NetSession();
 
@@ -26,7 +27,7 @@ public:
 
 	virtual void SLAPI setChannel(ISLChannel* pChannel);
 	virtual void SLAPI release();
-	virtual void SLAPI onRecv(const char* pBuf, int dwLen);
+	virtual void SLAPI onRecv(const char* pBuf, uint32 dwLen);
 
 	virtual void send(const void* pContext, int dwLen);
 	virtual void close();

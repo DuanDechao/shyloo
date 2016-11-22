@@ -23,6 +23,4 @@
 #include "slstring_utils.h"
 #include "slobj_reload_check.h"
 
-//float g_channelInternalTimeout = 300;
-//float g_channelExternalTimeout = 300;
 #endif

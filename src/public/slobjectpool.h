@@ -16,8 +16,8 @@
 #include <queue>
 #include <list>
 #include <map>
-#include "../common/slcommon.h"
 #include "sltimestamp.h"
+#include "sltype.h"
 namespace sl
 {
 #define OBJECT_POOL_INIT_SIZE			16

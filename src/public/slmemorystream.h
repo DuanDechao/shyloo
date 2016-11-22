@@ -12,7 +12,6 @@
 
 #ifndef _SL_MEMORYSTREAM_H_
 #define _SL_MEMORYSTREAM_H_
-#include "slcommon.h"
 #include "slobjectpool.h"
 #include "slmemorystream_converter.h"
 namespace sl
