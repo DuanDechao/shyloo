@@ -20,33 +20,32 @@ TimersT::~TimersT()
 }
 
 
-bool TimersT::startTimer(ISLTimer* pTimer, int64 delay, int32 count, int64 interval)
+ISLTimer* TimersT::startTimer(int64 delay, int32 count, int64 interval)
 {
 	CSLTimerBase* pTimerBase = CSLTimerBase::createPoolObject();
 	if(nullptr == pTimerBase)
 		return false;
 
-	pTimerBase->setTimerObj(pTimer);
-
-	pTimerBase->setExpire(timestamp() + uint64( (double)(delay / 1000) * stampsPerSecondD()));
+	pTimerBase->initialize(pTimer, delay, count, interval);
 
 	if(!pTimerBase->good())
 		return false;
 
 	pTimerBase->onInit();
-
 }
 
-template<class TIME_STAMP>
-TimerHandle TimersT<TIME_STAMP>::add(TimeStamp startTime, TimeStamp interval, TimerHandler* pHandler, void* pUser)
+bool TimersT::killTimer(ISLTimer* pTimer)
 {
-	Time* pTime = new Time(*this, startTime, interval, pHandler, pUser);
-	m_TimeQueue.push(pTime);
-	return TimerHandle(pTime);
+	
 }
 
-template <class TIME_STAMP>
-void TimersT<TIME_STAMP>::onCancel()
+void TimersT::add(CSLTimerBase* pTimerBase)
+{
+	Timer* pTimer = new Timer(*this, pTimerBase);
+	m_TimeQueue.push(pTimer);
+}
+
+void TimersT::onCancel()
 {
 	++m_iNumCanceled;
 
@@ -56,16 +55,15 @@ void TimersT<TIME_STAMP>::onCancel()
 	}
 }
 
-template<class TIME_STAMP>
-void TimersT<TIME_STAMP>::clear(bool shouldCallCancel)
+void TimersT::clear(bool shouldCallCancel)
 {
 	int iMaxLoopCount = (int)m_TimeQueue.size();
 	while(!m_TimeQueue.empty())
 	{
-		Time* pTime = m_TimeQueue.unsafePopBack();
-		if(NULL == pTime)
+		Timer* pTimer = m_TimeQueue.unsafePopBack();
+		if(nullptr == pTimer)
 			continue;
-		if(!pTime->isCancelled() && shouldCallCancel)
+		if(!pTimer->isCancelled() && shouldCallCancel)
 		{
 			--m_iNumCanceled;
 			pTime->cancel();
@@ -116,29 +114,34 @@ void TimersT<TIME_STAMP>::purgeCanelledTimes()
 	m_TimeQueue.makeHeap();
 }
 
-template<class TIME_STAMP>
-int TimersT<TIME_STAMP>::process(TimeStamp now)
+int TimersT::process(TimeStamp now)
 {
 	int numFired = 0;
 	while(!(m_TimeQueue.empty()) && 
-		(m_TimeQueue.top()->getTime() <= now || m_TimeQueue.top()->isCancelled()))
+		(m_TimeQueue.top()->getExpireTime() <= now || m_TimeQueue.top()->isCancelled()))
 	{
-		Time* pTime = m_pProcessingNode = m_TimeQueue.top();
+		Timer* pTimer = m_pProcessingNode = m_TimeQueue.top();
 		m_TimeQueue.pop();
-		if(!pTime->isCancelled())
+
+		++numFired;
+		pTimer->getTimerState(pTimer->pollTimer());
+
+		if(pTimer->getTimerState() == CSLTimerBase::TimerState::TIME_RECREATE)
 		{
-			++numFired;
-			pTime->triggerTimer();
+			
 		}
-		if(!pTime->isCancelled())
+		if(pTimer->getTimerState() == CSLTimerBase::TimerState::TIME_PAUSED)
 		{
 			m_TimeQueue.push(pTime);
 		}
-		else
+
+		if(pTimer->getTimerState() == CSLTimerBase::TimerState::TIME_DESTORY)
 		{
-			delete pTime;
+			pTimer->release();
 			--m_iNumCanceled;
 		}
+		
+		
 	}
 	m_pProcessingNode = NULL;
 	m_lastProcessTime = now;

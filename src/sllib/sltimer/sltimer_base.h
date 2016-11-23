@@ -32,15 +32,15 @@ public:
 	void onReclaimObject();
 	virtual size_t getPoolObjectBytes();
 
-	void setTimerObj(ISLTimer* pTimer) {m_pTimerObj = pTimer;}
+	void initialize(ISLTimer* pTimer,int64 delay, int32 count, int64 interval);
 	
 	TimerState getTimerState() const {return m_stat;}
 	void setTimerState(TimerState stat) {m_stat = stat;}
 
 	TimerState updateState();
 
-	void setExpire(uint64 expireStamp){m_expireStamp = expireStamp;}
-	uint64 getExpire() const {return m_expireStamp;}
+	void setExpire(TimeStamp expireStamp){m_expireStamp = expireStamp;}
+	TimeStamp getExpire() const {return m_expireStamp;}
 
 	void onInit();
 	void onStart();
@@ -51,11 +51,12 @@ public:
 
 private:
 	TimerState		m_stat;
-	uint64			m_pauseStamp;
+	TimeStamp		m_pauseStamp;
 	ISLTimer*		m_pTimerObj;
-	uint64			m_expireStamp;
+	TimeStamp		m_expireStamp;
 	bool			m_bDelay;
 	int32			m_iCount;
+	TimeStamp		m_intervalStamp;
 };
 }
 }

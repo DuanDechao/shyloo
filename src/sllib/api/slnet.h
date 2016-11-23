@@ -60,7 +60,7 @@ public:
 	virtual ISLListener* SLAPI createListener() = 0;
 };
 
-ISLNet* __cdecl getSLNetModule(void);
+ISLNet* SLAPI getSLNetModule(void);
 }
 }
 

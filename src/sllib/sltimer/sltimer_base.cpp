@@ -49,6 +49,14 @@ void CSLTimerBase::onReclaimObject()
 	m_iCount = 0;
 }
 
+void CSLTimerBase::initialize(ISLTimer* pTimer, int64 delay, int32 count, int64 interval)
+{
+	m_pTimerObj = pTimer;
+	setExpire(timestamp() + TimeStamp::fromSeconds((double)(delay / 1000)));
+	m_iCount = count;
+	m_intervalStamp = interval;
+}
+
 CSLTimerBase::TimerState CSLTimerBase::updateState()
 {
 	if(!good())
@@ -61,7 +69,8 @@ CSLTimerBase::TimerState CSLTimerBase::updateState()
 		return TimerState::TIME_RECREATE;
 	}
 	else{
-		onTimer();
+		if(m_iCount != 0)
+			onTimer();
 
 		if(m_iCount > 0)
 			--m_iCount;

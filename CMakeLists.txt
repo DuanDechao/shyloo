@@ -60,8 +60,8 @@ SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/sltime.h"
 	"${PROJECT_SOURCE_DIR}/src/public/sltimer1.h"
 	"${PROJECT_SOURCE_DIR}/src/public/sltimer1.cpp"
-	"${PROJECT_SOURCE_DIR}/src/public/sltimestamp.h"
-	"${PROJECT_SOURCE_DIR}/src/public/sltimestamp.cpp"
+	"${PROJECT_SOURCE_DIR}/src/public/sltimestamp1.h"
+	"${PROJECT_SOURCE_DIR}/src/public/sltimestamp1.cpp"
 	"${PROJECT_SOURCE_DIR}/src/public/sltype.h"	
 )
 

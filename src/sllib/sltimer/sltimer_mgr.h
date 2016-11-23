@@ -18,7 +18,7 @@ class TimersT: public TimersBase, public ISLTimerMgr
 {
 
 public:
-	virtual bool SLAPI startTimer(ISLTimer* pTimer, int64 delay, int32 count, int64 interval) = 0;
+	virtual bool SLAPI startTimer(int64 delay, int32 count, int64 interval) = 0;
 	virtual bool SLAPI killTimer(ISLTimer* pTimer) = 0;
 	virtual void SLAPI pauseTimer(ISLTimer* pTimer) = 0;
 	virtual void SLAPI resumeTimer(ISLTimer* pTimer) = 0;
@@ -41,47 +41,56 @@ public:
 	bool getTimerInfo(TimerHandle handle, TimeStamp& time, TimeStamp& interval,
 		void*& pUserData) const;
 
-	//TimerHandle add(TimeStamp startTime, TimeStamp interval, TimerHandler* pHandler, void* pUser);
-	//virtual startTimer()
+	void add(CSLTimerBase* pTimerBase);
 
 private:
-	typedef std::vector<TimeBase*> TimeContainer;
-	TimeContainer		m_TimeContainer;
 
 	void purgeCanelledTimes();
 	void onCancel();
 
-	class Time: public TimeBase
+	class Timer
 	{
 	public:
-		Time(TimersBase& owner, TimeStamp startTime, TimeStamp interval,
-			TimerHandler* pHandler, void* pUserData);
+		Timer(TimersBase& owner, CSLTimerBase* pTimeBase);
 	private:
-		Time(const Time&);
-		Time& operator=(const Time&);
+		Timer(const Timer&);
+		Timer& operator=(const Timer&);
 	public:
-		TimeStamp	getTime() const {return m_Time; }
-		TimeStamp	getInterval() const {return m_Interval;}
+		TimeStamp	getExpireTime() const {return m_pTimeBase->getExpire(); }
+		CSLTimerBase::TimerState pollTimer() {return m_pTimeBase->updateState();}
+		CSLTimerBase::TimerState getTimerState() {return m_pTimeBase->getTimerState();}
+		void getTimerState(CSLTimerBase::TimerState stat) {m_pTimeBase->setTimerState(stat);}
+		void release() 
+		{
+			m_pTimeBase->onEnd();
+			m_Owner.onCancel();
+			m_pTimeBase = nullptr;
+			delete this;
+		}
 
-		void triggerTimer();
+		//TimeStamp	getInterval() const {return m_pTimeBase->get;}
+
+		//void triggerTimer();
 	private:
+		TimersBase&			m_Owner;
 		TimeStamp			m_Time;
-		TimeStamp			m_Interval;
+		//TimeStamp			m_Interval;
+		CSLTimerBase*		m_pTimeBase;
 	};
 
 	class Comparator
 	{
 	public:
-		bool operator()(const Time* a, const Time* b)
+		bool operator()(const Timer* a, const Timer* b)
 		{
-			return a->getTime() > b->getTime();
+			return a->getExpireTime() > b->getExpireTime();
 		}
 	};
 
 	class PriorityQueue
 	{
 	public:
-		typedef std::vector<Time*> Container;
+		typedef std::vector<Timer*> Container;
 
 		typedef typename Container::value_type value_type;
 		typedef typename Container::size_type  size_type;
@@ -103,11 +112,11 @@ private:
 			m_TimeContainer.pop_back();
 		}
 
-		Time* unsafePopBack()
+		Timer* unsafePopBack()
 		{
-			Time* pTime = m_TimeContainer.back();
+			Timer* pTimer = m_TimeContainer.back();
 			m_TimeContainer.pop_back();
-			return pTime;
+			return pTimer;
 		}
 
 		Container& getContainer() {return m_TimeContainer;}
@@ -120,8 +129,11 @@ private:
 		Container		m_TimeContainer;
 	};
 
+	typedef std::vector<Timer*> TimeContainer;
+	TimeContainer		m_TimeContainer;
+
 	PriorityQueue	m_TimeQueue;
-	Time*			m_pProcessingNode;
+	Timer*			m_pProcessingNode;
 	TimeStamp		m_lastProcessTime;
 	int				m_iNumCanceled;
 
