@@ -7,7 +7,7 @@ namespace network
 
 bool NetEngine::initialize()
 {
-	m_pSLNetModule = SLNetGetModule();
+	m_pSLNetModule = network::getSLNetModule();
 	if(nullptr == m_pSLNetModule)
 		return false;
 	return true;
@@ -18,7 +18,7 @@ bool NetEngine::addTcpServer(sl::api::ITcpServer* server, const char* ip, const 
 	if(nullptr == m_pSLNetModule)
 		return false;
 
-	m_pListener = m_pSLNetModule->CreateListener();
+	m_pListener = m_pSLNetModule->createListener();
 	if(nullptr == m_pListener)
 		return false;
 

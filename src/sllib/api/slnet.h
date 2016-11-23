@@ -1,8 +1,10 @@
 #ifndef SL_SLNET_H
 #define SL_SLNET_H
 #include "sltype.h"
-namespace sl{
-namespace network{
+namespace sl
+{
+namespace network
+{
 class ISLSession;
 class ISLSessionFactory;
 
@@ -55,10 +57,10 @@ class ISLNet
 {
 public:
 
-	virtual ISLListener* SLAPI CreateListener() = 0;
+	virtual ISLListener* SLAPI createListener() = 0;
 };
 
-ISLNet* SLAPI SLNetGetModule();
+ISLNet* __cdecl getSLNetModule(void);
 }
 }
 

@@ -1,4 +1,5 @@
 #ifndef KERNEL_INET_ENGINE_H
+#define KERNEL_INET_ENGINE_H
 #include "slicore.h"
 #include "slikernel.h"
 namespace sl

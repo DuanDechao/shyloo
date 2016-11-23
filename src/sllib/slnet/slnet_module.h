@@ -6,8 +6,6 @@
 #include "slnetwork_interface.h"
 #include "slevent_dispatcher.h"
 
-
-
 namespace sl
 {
 namespace network

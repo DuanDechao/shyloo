@@ -18,7 +18,7 @@ typedef signed long long    int64;          ///< 64位有符号整数
 
 typedef wchar_t				wchar;          ///< 宽符号
 typedef void*				pointer;        ///< 无类型指针
-using std::string;                          ///< 引用STL的String类型
+//using std::string;                          ///< 引用STL的String类型
 
 typedef int64				datetime_t;     ///< 64位的时间类型
 typedef uint64				uid_t;          ///< 用户ID类型

@@ -9,6 +9,15 @@ INCLUDE_DIRECTORIES(
 )
 ENDIF(WIN32)
 
+IF(WIN32)
+	SET(SL_LIB_DEBUG
+		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/slnet"
+	)
+	SET(SL_LIB_RELEASE
+		optimized "${PROJECT_SOURCE_DIR}/src/sllib/libs/Release/slnet"
+	)
+ENDIF(WIN32)
+
 SET(SL_KERNEL_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/kernel/interface/slicore.h"
 	"${PROJECT_SOURCE_DIR}/src/kernel/interface/slinet_engine.h"
@@ -19,8 +28,6 @@ SET(SL_KERNEL_NET
 	"${PROJECT_SOURCE_DIR}/src/kernel/net/slnet_engine.cpp"
 	"${PROJECT_SOURCE_DIR}/src/kernel/net/slnet_session.h"
 	"${PROJECT_SOURCE_DIR}/src/kernel/net/slnet_session.cpp"
-	"${PROJECT_SOURCE_DIR}/src/kernel/net/slnet_session_factory.h"
-	"${PROJECT_SOURCE_DIR}/src/kernel/net/slnet_session_factory.cpp"
 )
 
 SET(SL_KERNEL
@@ -43,7 +50,11 @@ ADD_EXECUTABLE(shyloo
 	${SL_KERNEL}
 )
 ENDIF(WIN32)
-
+TARGET_LINK_LIBRARIES(shyloo
+	${SL_LIB_DEBUG}
+	${SL_LIB_RELEASE}
+)
+TARGET_LINK_LIBRARIES(shyloo "ws2_32.lib" "Iphlpapi.lib")
 IF(WIN32)
 SET(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/build/windows")
 ENDIF(WIN32)

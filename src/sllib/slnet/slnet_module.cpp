@@ -6,7 +6,7 @@ SL_SINGLETON_INIT(network::CSLNetModule);
 namespace network
 {
 
-ISLNet* SLNetGetModule()
+ISLNet* __cdecl getSLNetModule()
 {
 	return CSLNetModule::getSingletonPtr();
 }

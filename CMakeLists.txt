@@ -29,6 +29,7 @@ SET(SL_KERNEL_API
 
 SET(SL_LIB_API
 	"${PROJECT_SOURCE_DIR}/src/sllib/api/slnet.h"
+	"${PROJECT_SOURCE_DIR}/src/sllib/api/sltimer.h"
 )
 SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/slassert.h"
@@ -57,13 +58,13 @@ SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/sltasks.h"
 	"${PROJECT_SOURCE_DIR}/src/public/sltasks.cpp"
 	"${PROJECT_SOURCE_DIR}/src/public/sltime.h"
-	"${PROJECT_SOURCE_DIR}/src/public/sltimer.h"
-	"${PROJECT_SOURCE_DIR}/src/public/sltimer.cpp"
+	"${PROJECT_SOURCE_DIR}/src/public/sltimer1.h"
+	"${PROJECT_SOURCE_DIR}/src/public/sltimer1.cpp"
 	"${PROJECT_SOURCE_DIR}/src/public/sltimestamp.h"
 	"${PROJECT_SOURCE_DIR}/src/public/sltimestamp.cpp"
 	"${PROJECT_SOURCE_DIR}/src/public/sltype.h"	
 )
 
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/sllib)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/kernel)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/sllib)
