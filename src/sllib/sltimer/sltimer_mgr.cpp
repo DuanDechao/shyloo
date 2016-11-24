@@ -1,9 +1,17 @@
 #include "sltimer_mgr.h"
 namespace sl
 {
+SL_SINGLETON_INIT(timer::TimersT);
+
 namespace timer
 {
-
+ISLTimerMgr* SLAPI getSLTimerModule()
+{
+	TimersT* g_timersPtr = TimersT::getSingletonPtr();
+	if(g_timersPtr == NULL)
+		g_timersPtr = new TimersT();
+	return TimersT::getSingletonPtr();
+}
 
 TimersT::TimersT()
 	:m_TimeQueue(),
@@ -20,31 +28,53 @@ TimersT::~TimersT()
 }
 
 
-ISLTimer* TimersT::startTimer(int64 delay, int32 count, int64 interval)
+SLTimerHandle TimersT::startTimer(ISLTimer* pTimer, int64 delay, int32 count, int64 interval)
 {
-	CSLTimerBase* pTimerBase = CSLTimerBase::createPoolObject();
-	if(nullptr == pTimerBase)
+	CSLTimerBase* pMgrTimerObj = CSLTimerBase::createPoolObject();
+	if(nullptr == pMgrTimerObj)
 		return false;
-
-	pTimerBase->initialize(pTimer, delay, count, interval);
-
-	if(!pTimerBase->good())
-		return false;
-
-	pTimerBase->onInit();
-}
-
-bool TimersT::killTimer(ISLTimer* pTimer)
-{
 	
+	pMgrTimerObj->initialize(this, pTimer, delay, count, interval);
+	if(!pMgrTimerObj->good())
+		return false;
+
+	m_TimeQueue.push(pMgrTimerObj);
+	
+	pMgrTimerObj->onInit();
+
+	return pMgrTimerObj;
 }
 
-void TimersT::add(CSLTimerBase* pTimerBase)
+bool TimersT::killTimer(SLTimerHandle pTimer)
 {
-	Timer* pTimer = new Timer(*this, pTimerBase);
-	m_TimeQueue.push(pTimer);
+	CSLTimerBase* pTimerBase = (CSLTimerBase*)pTimer;
+	if(!pTimerBase->good() || !legal(pTimerBase))
+		return false;
+
+	pTimerBase->release();
+	return true;
 }
 
+void TimersT::pauseTimer(SLTimerHandle pTimer)
+{
+	CSLTimerBase* pTimerBase = (CSLTimerBase*)pTimer;
+	if(!pTimerBase->good() || !legal(pTimerBase))
+		return;
+	pTimerBase->setTimerState(CSLTimerBase::TimerState::TIME_PAUSED);
+	pTimerBase->setPauseTime(timestamp());
+	pTimerBase->onPause();
+}
+void TimersT::resumeTimer(SLTimerHandle pTimer)
+{
+	CSLTimerBase* pTimerBase = (CSLTimerBase*)pTimer;
+	if(!pTimerBase->good() || pTimerBase->getTimerState() != CSLTimerBase::TimerState::TIME_PAUSED)
+		return;
+
+	pTimerBase->setTimerState(CSLTimerBase::TimerState::TIME_RECREATE);
+	pTimerBase->setExpireTime(pTimerBase->getPauseTime() + pTimerBase->getExpireTime() - pTimerBase->getPauseTime());
+	m_TimeQueue.push(pTimerBase);
+	pTimerBase->onResume();
+}
 void TimersT::onCancel()
 {
 	++m_iNumCanceled;
@@ -60,26 +90,26 @@ void TimersT::clear(bool shouldCallCancel)
 	int iMaxLoopCount = (int)m_TimeQueue.size();
 	while(!m_TimeQueue.empty())
 	{
-		Timer* pTimer = m_TimeQueue.unsafePopBack();
+		CSLTimerBase* pTimer = m_TimeQueue.unsafePopBack();
 		if(nullptr == pTimer)
 			continue;
-		if(!pTimer->isCancelled() && shouldCallCancel)
+		if(!pTimer->isDestoryed() && shouldCallCancel)
 		{
 			--m_iNumCanceled;
-			pTime->cancel();
+			pTimer->release();
 			if(--iMaxLoopCount == 0)
 			{
 				shouldCallCancel = false;
 			}
 		}
-		else if(pTime->isCancelled())
+		else if(pTimer->isDestoryed())
 		{
 			--m_iNumCanceled;
 		}
-		delete pTime;
+		delete pTimer;
 	}
 	m_iNumCanceled = 0;
-	m_TimeQueue = PriorityQueue();
+	m_TimeQueue.clear();
 }
 
 template <class TIME>
@@ -88,57 +118,66 @@ class IsNotCancelled
 public:
 	bool operator()(const TIME* pTime)
 	{
-		return !pTime->isCancelled();
+		return !pTime->isDestoryed();
 	}
 };
 
-template<class TIME_STAMP>
-void TimersT<TIME_STAMP>::purgeCanelledTimes()
+void TimersT::purgeCanelledTimes()
 {
-	typename PriorityQueue::Container& stTimeContainer = m_TimeQueue.getContainer();
-	typename PriorityQueue::Container::iterator PartIter =
-		std::partition(stTimeContainer.begin(), stTimeContainer.end(), IsNotCancelled<Time>());
+	TimerPriorityQueue::Container& stTimeContainer = m_TimeQueue.getContainer();
+	TimerPriorityQueue::Container::iterator PartIter =
+		std::partition(stTimeContainer.begin(), stTimeContainer.end(), IsNotCancelled<CSLTimerBase>());
 
-	typename PriorityQueue::Container::iterator iter = PartIter;
+	TimerPriorityQueue::Container::iterator iter = PartIter;
 	for (; iter != stTimeContainer.end(); ++iter)
 	{
 		if(NULL == *iter)
 			continue;
-		delete *iter;
+		CSLTimerBase::reclaimPoolObject(*iter);
 	}
 
-	const int iNumPurged = stTimeContainer.end() - PartIter;
+	int32 iNumPurged = stTimeContainer.end() - PartIter;
 	m_iNumCanceled -= iNumPurged;
 
 	stTimeContainer.erase(PartIter, stTimeContainer.end());
 	m_TimeQueue.makeHeap();
 }
 
-int TimersT::process(TimeStamp now)
+int TimersT::process(uint64 now)
 {
 	int numFired = 0;
 	while(!(m_TimeQueue.empty()) && 
-		(m_TimeQueue.top()->getExpireTime() <= now || m_TimeQueue.top()->isCancelled()))
+		(m_TimeQueue.top()->getExpireTime() <= now || m_TimeQueue.top()->isDestoryed()))
 	{
-		Timer* pTimer = m_pProcessingNode = m_TimeQueue.top();
+		CSLTimerBase* pTimer = m_pProcessingNode = m_TimeQueue.top();
 		m_TimeQueue.pop();
 
-		++numFired;
-		pTimer->getTimerState(pTimer->pollTimer());
-
-		if(pTimer->getTimerState() == CSLTimerBase::TimerState::TIME_RECREATE)
+		if(pTimer->isDestoryed())
 		{
-			
-		}
-		if(pTimer->getTimerState() == CSLTimerBase::TimerState::TIME_PAUSED)
-		{
-			m_TimeQueue.push(pTime);
-		}
-
-		if(pTimer->getTimerState() == CSLTimerBase::TimerState::TIME_DESTORY)
-		{
-			pTimer->release();
 			--m_iNumCanceled;
+			CSLTimerBase::reclaimPoolObject(pTimer);
+			continue;
+		}
+
+		if(pTimer->isPaused())
+		{
+			continue;
+		}
+
+		++numFired;
+		pTimer->setTimerState(pTimer->pollTimer());
+
+		if(pTimer->needRecreated())
+		{
+			pTimer->setExpireTime(timestamp() + pTimer->getIntervalTime());
+			m_TimeQueue.push(pTimer);
+		}
+
+		if(pTimer->isDestoryed())
+		{
+			--m_iNumCanceled;
+			pTimer->release();
+			CSLTimerBase::reclaimPoolObject(pTimer);
 		}
 		
 		
@@ -149,21 +188,19 @@ int TimersT::process(TimeStamp now)
 }
 
 
-template<class TIME_STAMP>
-bool TimersT<TIME_STAMP>::legal(TimerHandle handle) const
+bool TimersT::legal(CSLTimerBase* pTimer) const
 {
-	Time* pTime = static_cast<Time*>(handle.GetTime());
-	if(NULL == pTime)
+	if(NULL == pTimer)
 	{
 		return false;
 	}
-	if(pTime == m_pProcessingNode)
+	if(pTimer == m_pProcessingNode)
 	{
 		return true;
 	}
-	for (size_t i = 0; i < m_TimeQueue.Size(); i++)
+	for (size_t i = 0; i < m_TimeQueue.size(); i++)
 	{
-		if(pTime == m_TimeQueue[i])
+		if(pTimer == m_TimeQueue[i])
 		{
 			return true;
 		}
@@ -171,65 +208,14 @@ bool TimersT<TIME_STAMP>::legal(TimerHandle handle) const
 	return false;
 }
 
-template<class TIME_STAMP>
-TIME_STAMP TimersT<TIME_STAMP>::nextExp(TimeStamp now) const
+TimeStamp TimersT::nextExp(TimeStamp now) const
 {
-	if(m_TimeQueue.empty() || now > m_TimeQueue.top()->getTime())
+	if(m_TimeQueue.empty() || now > m_TimeQueue.top()->getExpireTime())
 	{
 		return 0;
 	}
-	return m_TimeQueue.top()->getTime() - now;
+	return m_TimeQueue.top()->getExpireTime() - now;
 }
 
-template<class TIME_STAMP>
-bool TimersT<TIME_STAMP>::getTimerInfo(TimerHandle handle, 
-	TimeStamp& time,
-	TimeStamp& interval, 
-	void*& pUserData) const
-{
-	Time* pTime = static_cast<Time*>(handle.getTime());
-	if(NULL == pTime)
-	{
-		return false;
-	}
-	if(!pTime->isCancelled())
-	{
-		time = pTime->getTime();
-		interval = pTime->getInterval();
-		pUser = pTime->getUserData();
-		return true;
-	}
-	return false;
-}
-
-template<class TIME_STAMP>
-TimersT<TIME_STAMP>::Time::Time(TimersBase& owner, 
-	TimeStamp startTime, TimeStamp interval, 
-	TimerHandler* pHandler, void* pUserData)
-	:TimeBase(owner, pHandler, pUserData),
-	m_Time(startTime),
-	m_Interval(interval)
-{}
-
-template<class TIME_STAMP>
-void TimersT<TIME_STAMP>::Time::triggerTimer()
-{
-	if(!this->isCancelled())
-	{
-		m_stState = TIME_EXECUTING;
-		m_pHandler->handlerTimeOut(TimerHandle(this), m_pUserData);
-
-		if((m_Interval == 0) && !this->isCancelled())
-		{
-			this->cancel();
-		}
-	}
-
-	if(!this->isCancelled())
-	{
-		m_Time += m_Interval;
-		m_stState = TIME_PENDING;
-	}
-}
 }
 }

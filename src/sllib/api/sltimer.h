@@ -5,6 +5,7 @@ namespace sl
 {
 namespace timer
 {
+
 class ISLTimer
 {
 public:
@@ -16,14 +17,19 @@ public:
 	virtual void SLAPI onResume(int64 timetick) = 0;
 };
 
+typedef void* SLTimerHandle;
+
 class ISLTimerMgr
 {
 public:
-	virtual bool SLAPI startTimer(ISLTimer* pTimer, int64 delay, int32 count, int64 interval) = 0;
-	virtual bool SLAPI killTimer(ISLTimer* pTimer) = 0;
-	virtual void SLAPI pauseTimer(ISLTimer* pTimer) = 0;
-	virtual void SLAPI resumeTimer(ISLTimer* pTimer) = 0;
+	virtual SLTimerHandle SLAPI startTimer(ISLTimer* pTimer, int64 delay, int32 count, int64 interval) = 0;
+	virtual bool SLAPI killTimer(SLTimerHandle pTimer) = 0;
+	virtual void SLAPI pauseTimer(SLTimerHandle pTimer) = 0;
+	virtual void SLAPI resumeTimer(SLTimerHandle pTimer) = 0;
+	virtual int SLAPI process(uint64 now) = 0;
 };
+
+ISLTimerMgr* SLAPI getSLTimerModule(void);
 }
 }
 #endif

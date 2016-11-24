@@ -9,8 +9,12 @@ namespace sl
 {
 namespace timer
 {
+class TimersBase;
 class CSLTimerBase: public PoolObject
 {
+private:
+	CSLTimerBase(const CSLTimerBase&);
+	CSLTimerBase& operator=(const CSLTimerBase&);
 public:
 	enum TimerState
 	{
@@ -18,8 +22,9 @@ public:
 		TIME_PAUSED,
 		TIME_DESTORY
 	};
+	CSLTimerBase(){}
 
-	CSLTimerBase();
+	CSLTimerBase(TimersBase* owner, ISLTimer* pTimer, int64 delay, int32 count, int64 interval);
 
 	virtual ~CSLTimerBase() {}
 
@@ -32,31 +37,46 @@ public:
 	void onReclaimObject();
 	virtual size_t getPoolObjectBytes();
 
-	void initialize(ISLTimer* pTimer,int64 delay, int32 count, int64 interval);
-	
+	void initialize(TimersBase* owner, ISLTimer* pTimer, int64 delay, int32 count, int64 interval);
+
 	TimerState getTimerState() const {return m_stat;}
 	void setTimerState(TimerState stat) {m_stat = stat;}
 
-	TimerState updateState();
+	TimerState pollTimer();
 
-	void setExpire(TimeStamp expireStamp){m_expireStamp = expireStamp;}
-	TimeStamp getExpire() const {return m_expireStamp;}
+	void setExpireTime(TimeStamp expireStamp){m_expireStamp = expireStamp;}
+	TimeStamp getExpireTime() const {return m_expireStamp;}
+
+	void setPauseTime(TimeStamp pauseStamp){m_pauseStamp = pauseStamp;}
+	TimeStamp getPauseTime() const {return m_pauseStamp;}
+
+	TimeStamp getIntervalTime() const {return m_intervalStamp;}
 
 	void onInit();
 	void onStart();
 	void onTimer();
+	void onPause();
+	void onResume();
 	void onEnd();
 
 	bool good(){return m_pTimerObj != nullptr;}
 
-private:
+	bool isDestoryed() const {return m_stat == TIME_DESTORY;}
+	bool isPaused() const {return m_stat == TIME_PAUSED;}
+	bool needRecreated() const {return m_stat == TIME_RECREATE;}
+
+	void release();
+
+protected:
 	TimerState		m_stat;
 	TimeStamp		m_pauseStamp;
 	ISLTimer*		m_pTimerObj;
 	TimeStamp		m_expireStamp;
 	bool			m_bDelay;
+	//bool			m_bCanceled;
 	int32			m_iCount;
 	TimeStamp		m_intervalStamp;
+	TimersBase*		m_Owner;
 };
 }
 }

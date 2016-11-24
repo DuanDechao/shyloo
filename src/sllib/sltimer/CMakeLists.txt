@@ -13,15 +13,12 @@ ENDIF(WIN32)
 
 
 SET(SL_LIB_TIMER
-	"${PROJECT_SOURCE_DIR}/src/sllib/sltimer/sltime_stamp.h"
-	"${PROJECT_SOURCE_DIR}/src/sllib/sltimer/sltime_stamp.cpp"
 	"${PROJECT_SOURCE_DIR}/src/sllib/sltimer/sltimer_base.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/sltimer/sltimer_base.cpp"
-	"${PROJECT_SOURCE_DIR}/src/sllib/sltimer/sltimer1.h"
-	"${PROJECT_SOURCE_DIR}/src/sllib/sltimer/sltimer1.inl"
-	"${PROJECT_SOURCE_DIR}/src/sllib/sltimer/sltimer1.cpp"
 	"${PROJECT_SOURCE_DIR}/src/sllib/sltimer/sltimer_mgr.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/sltimer/sltimer_mgr.cpp"
+	#"${PROJECT_SOURCE_DIR}/src/sllib/sltimer/slpriority_queue.h"
+	#"${PROJECT_SOURCE_DIR}/src/sllib/sltimer/main.cpp"
 )
 
 SOURCE_GROUP(api FILES ${SL_LIB_API})

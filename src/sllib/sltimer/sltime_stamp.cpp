@@ -1,4 +1,4 @@
-#include "sltimestamp.h"
+#include "sltime_stamp.h"
 
 namespace sl
 {
@@ -35,11 +35,11 @@ const char* getTimingMethodName()
 #include <Windows.h>
 
 #ifdef SL_USE_RDTSC
-static UINT64 calcStampsPerSecond()
+static uint64 calcStampsPerSecond()
 {
 	LARGE_INTEGER tvBefore, tvAfter;
 	DWORD		  tvSleep = 500;
-	UINT64 stampBefore, stampAfter;
+	uint64 stampBefore, stampAfter;
 
 	Sleep(100);
 
@@ -57,16 +57,16 @@ static UINT64 calcStampsPerSecond()
 
 	stampAfter = timestamp();
 
-	UINT64 countDelta = tvAfter.QuadPart - tvBefore.QuadPart;
-	UINT64 stampDelta = stampAfter - stampBefore;
+	uint64 countDelta = tvAfter.QuadPart - tvBefore.QuadPart;
+	uint64 stampDelta = stampAfter - stampBefore;
 
 	LARGE_INTEGER frequency;
 	QueryPerformanceFrequency(&frequency);
 
-	return (UINT64)((stampDelta * UINT64(frequency.QuadPart)) /countDelta);
+	return (uint64)((stampDelta * uint64(frequency.QuadPart)) /countDelta);
 }
 #else // SL_USE_RDTSC
-static UINT64 calcStampsPerSecond()
+static uint64 calcStampsPerSecond()
 {
 	LARGE_INTEGER rate;
 	QueryPerformanceFrequency(&rate);
@@ -81,10 +81,10 @@ static UINT64 calcStampsPerSecond()
 #include <unistd.h>
 
 #ifdef SL_USE_RDTSC
-static UINT64 calcStampsPerSecond_rdtsc()
+static uint64 calcStampsPerSecond_rdtsc()
 {
 	struct timeval tvBefore, tvSleep = {0, 500000}, tvAfter;
-	UINT64 stampsBefore, stampsAfter;
+	uint64 stampsBefore, stampsAfter;
 
 	gettimeofday(&tvBefore, NULL);
 	gettimeofday(&tvBefore, NULL);
@@ -100,25 +100,25 @@ static UINT64 calcStampsPerSecond_rdtsc()
 	
 	stampsAfter = timestamp();
 
-	UINT64 microDelta = (tvAfter.tv_usec + 1000000 - tvBefore.tv_usec) % 1000000;
+	uint64 microDelta = (tvAfter.tv_usec + 1000000 - tvBefore.tv_usec) % 1000000;
 
-	UINT64 stampsDelta = stampsAfter - stampsBefore;
+	uint64 stampsDelta = stampsAfter - stampsBefore;
 
 	return (stampsDelta * 1000000ULL) / microDelta;
 }
 #else
-static UINT64 calcStampsPerSecond_gettime()
+static uint64 calcStampsPerSecond_gettime()
 {
 	return 1000000000ULL;
 }
 #endif
 
-static UINT64 calcStampsPerSecond_gettimeofday()
+static uint64 calcStampsPerSecond_gettimeofday()
 {
 	return 1000000ULL;
 }
 
-static UINT64 calcStampsPerSecond()
+static uint64 calcStampsPerSecond()
 {
 	static bool firstTime = true;
 	if(firstTime)
@@ -164,9 +164,9 @@ static UINT64 calcStampsPerSecond()
 #endif
 }
 
-UINT64 stampsPerSecond_rdtsc()
+uint64 stampsPerSecond_rdtsc()
 {
-	static UINT64 stampsPerSecondCache = calcStampsPerSecond_rdtsc();
+	static uint64 stampsPerSecondCache = calcStampsPerSecond_rdtsc();
 	return stampsPerSecondCache;
 }
 
@@ -176,9 +176,9 @@ double stampsPerSecondD_rdtsc()
 	return stampsPerSecondCacheD;
 }
 
-UINT64 stampsPerSecond_gettimeofday()
+uint64 stampsPerSecond_gettimeofday()
 {
-	static UINT64 stampsPerSecondCache = calcStampsPerSecond_gettimeofday();
+	static uint64 stampsPerSecondCache = calcStampsPerSecond_gettimeofday();
 	return stampsPerSecondCache;
 }
 
@@ -191,9 +191,9 @@ double stampsPerSecondD_gettimeofday()
 #endif
 
 // 每秒cpu所耗时间
-UINT64 stampsPerSecond()
+uint64 stampsPerSecond()
 {
-	static UINT64 _stampsPerSecondCache = calcStampsPerSecond();
+	static uint64 _stampsPerSecondCache = calcStampsPerSecond();
 	return _stampsPerSecondCache;
 }
 

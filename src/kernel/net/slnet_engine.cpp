@@ -1,8 +1,8 @@
 #include "slnet_engine.h"
 namespace sl
 {
-SL_SINGLETON_INIT(network::NetEngine);
-namespace network
+SL_SINGLETON_INIT(core::NetEngine);
+namespace core
 {
 
 bool NetEngine::initialize()

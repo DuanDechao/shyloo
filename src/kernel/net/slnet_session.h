@@ -5,10 +5,10 @@
 #include "slobjectpool.h"
 namespace sl
 {
-namespace network
+namespace core
 {
 using namespace api;
-
+using namespace network;
 class NetSession: public ISLSession, public api::IPipe, public PoolObject
 {
 public:

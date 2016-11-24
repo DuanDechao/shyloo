@@ -58,13 +58,24 @@ SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/sltasks.h"
 	"${PROJECT_SOURCE_DIR}/src/public/sltasks.cpp"
 	"${PROJECT_SOURCE_DIR}/src/public/sltime.h"
-	"${PROJECT_SOURCE_DIR}/src/public/sltimer1.h"
-	"${PROJECT_SOURCE_DIR}/src/public/sltimer1.cpp"
-	"${PROJECT_SOURCE_DIR}/src/public/sltimestamp1.h"
-	"${PROJECT_SOURCE_DIR}/src/public/sltimestamp1.cpp"
-	"${PROJECT_SOURCE_DIR}/src/public/sltype.h"	
+	"${PROJECT_SOURCE_DIR}/src/public/sltime_stamp.h"
+	"${PROJECT_SOURCE_DIR}/src/public/sltime_stamp.cpp"
+	"${PROJECT_SOURCE_DIR}/src/public/sltype.h"
+	"${PROJECT_SOURCE_DIR}/src/public/slpriority_queue.h"		
 )
+
+IF(WIN32)
+	SET(SL_LIB_DEBUG
+		#debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/slnet"
+		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/sltimer"
+	)
+	SET(SL_LIB_RELEASE
+		optimized "${PROJECT_SOURCE_DIR}/src/sllib/libs/Release/slnet"
+		optimized "${PROJECT_SOURCE_DIR}/src/sllib/libs/Release/sltimer"
+	)
+ENDIF(WIN32)
 
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/sllib)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/kernel)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/test)

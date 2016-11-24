@@ -3,7 +3,7 @@
 #include "slassert.h"
 namespace sl
 {
-namespace network
+namespace core
 {
 
 static CObjectPool<NetSession> g_objPool("NetSession");

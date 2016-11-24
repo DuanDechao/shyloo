@@ -4,9 +4,9 @@
 #include "slikernel.h"
 namespace sl
 {
-namespace network
+namespace core
 {
-class INetEngine: public core::ICore
+class INetEngine: public ICore
 {
 public:
 	virtual bool addTcpServer(sl::api::ITcpServer* server, const char* ip, const short port, int sendSize, int recvSize) = 0;

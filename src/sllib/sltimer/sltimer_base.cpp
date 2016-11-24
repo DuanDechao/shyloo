@@ -1,9 +1,10 @@
 #include "sltimer_base.h"
+#include "sltimer_mgr.h"
 namespace sl
 {
 namespace timer
 {
-static CObjectPool<CSLTimerBase> g_objPool("Channel");
+static CObjectPool<CSLTimerBase> g_objPool("CSLTimerBase");
 CObjectPool<CSLTimerBase>& CSLTimerBase::ObjPool()
 {
 	return g_objPool;
@@ -26,8 +27,8 @@ void CSLTimerBase::destroyObjPool()
 
 size_t CSLTimerBase::getPoolObjectBytes()
 {
-	size_t bytes = sizeof(m_stat) + sizeof(m_pauseStamp) +
-		sizeof(m_pTimerObj) + sizeof(m_expireStamp) + sizeof(m_bDelay) + sizeof(m_iCount);
+	size_t bytes = sizeof(m_stat) + sizeof(m_pauseStamp) + sizeof(m_pTimerObj) +
+		sizeof(m_expireStamp) + sizeof(m_bDelay) + sizeof(m_iCount) + sizeof(m_intervalStamp);
 
 	return bytes;
 }
@@ -37,6 +38,18 @@ CSLTimerBase::SmartPoolObjectPtr CSLTimerBase::createSmartPoolObj()
 	return SmartPoolObjectPtr(new SmartPoolObject<CSLTimerBase>(ObjPool().FetchObj(), g_objPool));
 }
 
+CSLTimerBase::CSLTimerBase(TimersBase* owner, ISLTimer* pTimer, int64 delay, int32 count, int64 interval)
+	:m_Owner(owner),
+	 m_stat(TIME_RECREATE),
+	 m_pauseStamp(0),
+	 m_pTimerObj(pTimer),
+	 m_expireStamp(0),
+	 m_bDelay(true),
+	 m_iCount(count),
+	 m_intervalStamp(interval)
+{
+	setExpireTime(timestamp() + TimeStamp::fromSeconds((double)(delay / 1000)));
+}
 
 
 void CSLTimerBase::onReclaimObject()
@@ -47,17 +60,19 @@ void CSLTimerBase::onReclaimObject()
 	m_expireStamp = 0;
 	m_bDelay = true;
 	m_iCount = 0;
+	m_intervalStamp = 0;
 }
 
-void CSLTimerBase::initialize(ISLTimer* pTimer, int64 delay, int32 count, int64 interval)
+void CSLTimerBase::initialize(TimersBase* owner, ISLTimer* pTimer, int64 delay, int32 count, int64 interval)
 {
+	m_Owner = owner;
 	m_pTimerObj = pTimer;
-	setExpire(timestamp() + TimeStamp::fromSeconds((double)(delay / 1000)));
+	setExpireTime(timestamp() + TimeStamp::fromSeconds((double)(delay / 1000)));
 	m_iCount = count;
-	m_intervalStamp = interval;
+	m_intervalStamp = TimeStamp::fromSeconds((double)(interval / 1000));
 }
 
-CSLTimerBase::TimerState CSLTimerBase::updateState()
+CSLTimerBase::TimerState CSLTimerBase::pollTimer()
 {
 	if(!good())
 		return TimerState::TIME_DESTORY;
@@ -101,12 +116,29 @@ void CSLTimerBase::onTimer()
 	m_pTimerObj->onTime(nowTime);
 }
 
+void CSLTimerBase::onPause()
+{
+	uint64 nowTime = timestamp() / stampsPerSecond();
+	m_pTimerObj->onPause(nowTime);
+}
+
+void CSLTimerBase::onResume()
+{
+	uint64 nowTime = timestamp() / stampsPerSecond();
+	m_pTimerObj->onResume(nowTime);
+}
+
 void CSLTimerBase::onEnd()
 {
 	uint64 nowTime = timestamp() / stampsPerSecond();
 	m_pTimerObj->onTerminate(nowTime);
+}
 
-	CSLTimerBase::reclaimPoolObject(this);
+void CSLTimerBase::release() 
+{
+	m_Owner->onCancel();
+	m_stat = TIME_DESTORY;
+	onEnd();
 }
 
 

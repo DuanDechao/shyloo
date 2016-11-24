@@ -19,7 +19,7 @@ public:
 };
 int main()
 {
-	
+
 	ISLTimerMgr* timerMgr = getSLTimerModule();
 	TestTimer * pTestTimer = new TestTimer();
 	timerMgr->startTimer(pTestTimer, 5000, 3, 5000);

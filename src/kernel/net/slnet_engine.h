@@ -5,7 +5,7 @@
 #include "slnet.h"
 namespace sl
 {
-namespace network
+namespace core
 {
 class NetEngine: public INetEngine, public CSingleton<NetEngine>
 {
