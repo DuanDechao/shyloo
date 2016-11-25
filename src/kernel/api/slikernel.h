@@ -54,7 +54,8 @@ public:
 	virtual void onPause(IKernel* pKernel, int64 timetick) = 0;
 	virtual void onResume(IKernel* pKernel, int64 timetick) = 0;
 
-	virtual void setITimerBase(ITimerBase* pITimerBase){
+	virtual void setITimerBase(ITimerBase* pITimerBase)
+	{
 		m_pITimerBase = pITimerBase;
 	}
 private:

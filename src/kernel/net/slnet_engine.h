@@ -21,9 +21,11 @@ public:
 	virtual bool addTcpServer(sl::api::ITcpServer* server, const char* ip, const short port, int sendSize, int recvSize);
 	virtual bool adddTcpClient(sl::api::ITcpSession* session, const char* ip, const short port, int sendSize, int recvSize);
 
+
+	virtual int64 processing();
 private:
-	ISLNet*			m_pSLNetModule;
-	ISLListener*	m_pListener;
+	network::ISLNet*			m_pSLNetModule;
+	network::ISLListener*		m_pListener;
 };
 }
 }

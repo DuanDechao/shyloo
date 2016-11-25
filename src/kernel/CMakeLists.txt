@@ -12,6 +12,7 @@ ENDIF(WIN32)
 SET(SL_KERNEL_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/kernel/interface/slicore.h"
 	"${PROJECT_SOURCE_DIR}/src/kernel/interface/slinet_engine.h"
+	"${PROJECT_SOURCE_DIR}/src/kernel/interface/slitimer_engine.h"
 )
 
 SET(SL_KERNEL_NET

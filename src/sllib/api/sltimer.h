@@ -17,15 +17,15 @@ public:
 	virtual void SLAPI onResume(int64 timetick) = 0;
 };
 
-typedef void* SLTimerHandle;
+typedef void* SLTimerHandler;
 
 class ISLTimerMgr
 {
 public:
-	virtual SLTimerHandle SLAPI startTimer(ISLTimer* pTimer, int64 delay, int32 count, int64 interval) = 0;
-	virtual bool SLAPI killTimer(SLTimerHandle pTimer) = 0;
-	virtual void SLAPI pauseTimer(SLTimerHandle pTimer) = 0;
-	virtual void SLAPI resumeTimer(SLTimerHandle pTimer) = 0;
+	virtual SLTimerHandler SLAPI startTimer(ISLTimer* pTimer, int64 delay, int32 count, int64 interval) = 0;
+	virtual bool SLAPI killTimer(SLTimerHandler pTimer) = 0;
+	virtual void SLAPI pauseTimer(SLTimerHandler pTimer) = 0;
+	virtual void SLAPI resumeTimer(SLTimerHandler pTimer) = 0;
 	virtual int SLAPI process(uint64 now) = 0;
 };
 

@@ -29,10 +29,10 @@ class TimersT: public TimersBase, public ISLTimerMgr, public CSingleton<TimersT>
 {
 
 public:
-	virtual SLTimerHandle SLAPI startTimer(ISLTimer* pTimer, int64 delay, int32 count, int64 interval);
-	virtual bool SLAPI killTimer(SLTimerHandle pTimer);
-	virtual void SLAPI pauseTimer(SLTimerHandle pTimer);
-	virtual void SLAPI resumeTimer(SLTimerHandle pTimer);
+	virtual SLTimerHandler SLAPI startTimer(ISLTimer* pTimer, int64 delay, int32 count, int64 interval);
+	virtual bool SLAPI killTimer(SLTimerHandler pTimer);
+	virtual void SLAPI pauseTimer(SLTimerHandler pTimer);
+	virtual void SLAPI resumeTimer(SLTimerHandler pTimer);
 	virtual int SLAPI process(uint64 now);
 
 public:
