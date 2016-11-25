@@ -1,7 +1,6 @@
 #ifndef _SL_NETWORKCHANNEL_H_
 #define _SL_NETWORKCHANNEL_H_
 #include "sltimer.h"
-#include "sltimestamp.h"
 #include "slpacket.h"
 #include "slendpoint.h"
 #include "slnetbase.h"
@@ -22,7 +21,7 @@ class PacketReceiver;
 //class PacketFilter;
 class EventDispatcher;
 
-class Channel:public TimerHandler, public PoolObject, public ISLChannel
+class Channel:public PoolObject, public ISLChannel
 {
 public:
 	typedef SLShared_ptr<SmartPoolObject<Channel>> SmartPoolObjectPtr;
@@ -160,16 +159,7 @@ public:
 
 	bool hasHandshake() const {return (m_flags & FLAG_HANDSHAKE) > 0;}
 
-	//ENTITY_ID getProxyID() const {return m_proxyID;}
-	//void setProxyID(ENTITY_ID pid){m_proxyID = pid;}
-
-	//COMPONENT_ID getComponentID() const {return m_componentID;}
-	//void setComponentID(COMPONENT_ID cid) {m_componentID = cid;}
-
 	virtual void handshake();
-
-	//MessageHandlers* getMsgHandlers() const {return m_pMsgHandlers;}
-	//void setMsgHandlers(MessageHandlers* pMsgHandlers) {m_pMsgHandlers = pMsgHandlers;}
 
 	bool waitSend();
 
@@ -199,7 +189,6 @@ private:
 		TIMEOUT_INACTIVITY_CHECK
 	};
 
-	virtual void handlerTimeOut(TimerHandle, void* pUser);
 	void clearState(bool warnOnDiscard = false);
 	EventDispatcher& dispatcher();
 
@@ -209,8 +198,6 @@ private:
 	ProtocolType				m_protocolType;
 
 	ChannelID					m_id;
-
-	TimerHandle					m_inactivityTimerHandle;
 
 	uint64						m_inactivityExceptionPeriod;
 
@@ -237,16 +224,8 @@ private:
 	PacketReceiver*				m_pPacketReceiver;
 	PacketSender*				m_pPacketSender;
 
-	///如果是外部通道且代理了一个前端则会绑定前端代理ID
-	//ENTITY_ID					m_proxyID;
-
 	//通道类别
 	ChannelTypes				m_channelType;
-
-	//COMPONENT_ID				m_componentID;
-
-	//支持指定某个通道使用的某个消息handlers
-	//sl::network::MessageHandlers* m_pMsgHandlers;
 
 	uint32						m_flags;
 

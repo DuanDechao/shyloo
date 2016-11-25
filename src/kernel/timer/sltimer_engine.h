@@ -26,6 +26,8 @@ public:
 	virtual bool resumeTimer(api::ITimer* pTimer);
 	virtual int64 processing();
 
+	timer::SLTimerHandler getTimerHander(api::ITimer* pTimer);
+
 private:
 	timer::ISLTimerMgr*		m_pTimerMgr;
 

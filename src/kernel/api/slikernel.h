@@ -35,6 +35,7 @@ public:
 	virtual ITcpSession* mallocTcpSession(IKernel* pKernel) = 0;
 };
 
+class ITimer;
 class ITimerBase
 {
 public:
@@ -53,6 +54,8 @@ public:
 	virtual void onTerminate(IKernel* pKernel, int64 timetick) = 0;
 	virtual void onPause(IKernel* pKernel, int64 timetick) = 0;
 	virtual void onResume(IKernel* pKernel, int64 timetick) = 0;
+
+	virtual ITimerBase* getITimerBase() const {return m_pITimerBase;}
 
 	virtual void setITimerBase(ITimerBase* pITimerBase)
 	{

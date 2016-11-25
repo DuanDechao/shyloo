@@ -24,6 +24,12 @@ void CKrTimer::destroyObjPool()
 	g_objPool.Destroy();
 }
 
+void CKrTimer::onReclaimObject()
+{
+	m_pITimer = nullptr;
+	m_timerHander = INVALID_TIMER_HANDER;
+}
+
 size_t CKrTimer::getPoolObjectBytes()
 {
 	size_t bytes = sizeof(m_pITimer);

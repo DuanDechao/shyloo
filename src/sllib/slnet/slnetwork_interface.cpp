@@ -218,11 +218,6 @@ bool NetworkInterface::recreateListeningSocket(const char* pEndPointName, uint16
 	return true;
 }
 
-void NetworkInterface::handleTimeout(TimerHandle handle, void * arg)
-{
-
-}
-
 Channel* NetworkInterface::findChannel(const Address& addr)
 {
 	if(addr.m_ip == 0)

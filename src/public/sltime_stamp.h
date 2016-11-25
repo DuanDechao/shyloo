@@ -86,8 +86,6 @@ inline double stampsToSeconds(uint64 stamps)
 	return double(stamps)/stampsPerSecondD();
 }
 
-namespace timer
-{
 class TimeStamp
 {
 public:
@@ -138,9 +136,6 @@ inline TimeStamp TimeStamp::ageInStamps() const
 inline double TimeStamp::ageInSeconds() const
 {
 	return toSeconds(this->ageInStamps());
-}
-
-
 }
 
 }// namespace sl

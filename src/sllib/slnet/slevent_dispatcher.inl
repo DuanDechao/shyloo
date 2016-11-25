@@ -2,11 +2,6 @@
 namespace sl { 
 namespace network
 {
-inline TimerHandle EventDispatcher::addTimer(int64 microseconds,
-	TimerHandler * handler, void * arg)
-{
-	return this->addTimerCommon(microseconds, handler, arg, true);
-}
 
 inline void EventDispatcher::breakProcessing(bool breakState)
 {

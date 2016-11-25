@@ -4,7 +4,7 @@
 #include "slinterfaces.h"
 #include "sltimer.h"
 #include "sltasks.h"
-#include "sltimestamp.h"
+
 namespace sl
 {
 namespace network
@@ -46,8 +46,6 @@ public:
 	bool registerWriteFileDescriptor(int fd, OutputNotificationHandler* handler);
 	bool deregisterWriteFileDescriptor(int fd);
 
-	inline TimerHandle addTimer(int64 microseconds, TimerHandler* handler, void* arg = NULL);
-
 	uint64 getSpareTime() const;
 	void clearSpareTime();
 
@@ -59,9 +57,6 @@ public:
 	int processNetwork(bool shouldIdle);
 
 private:
-	TimerHandle addTimerCommon(int64 microseconds, TimerHandler* handler, void* arg,
-		bool recurrent);
-
 	void processTasks();
 	void processTimers();
 	void processStats();
@@ -73,14 +68,13 @@ protected:
 	uint32			m_numTimeCalls;
 
 	///statistics
-	TimeStamp		m_accSpareTime;
+	/*TimeStamp		m_accSpareTime;
 	TimeStamp		m_oldSpareTime;
 	TimeStamp		m_totSpareTime;
-	TimeStamp		m_lastStatisticsGathered;
+	TimeStamp		m_lastStatisticsGathered;*/
 
 	Tasks*			m_pTasks;
 	ErrorReporter*	m_pErrorReporter;
-	Timers64*		m_pTimers;
 	EventPoller*	m_pPoller;
 
 };

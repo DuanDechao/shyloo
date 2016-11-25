@@ -39,7 +39,8 @@ public:
 
 	void setITimer(api::ITimer* pITimer);
 
-	void setTimerHandler(timer::SLTimerHandler timerHander) {m_}
+	void setTimerHandler(timer::SLTimerHandler timerHander) {m_timerHander = timerHander;}
+	timer::SLTimerHandler getTimerHandler() const {return m_timerHander;}
 
 private:
 	api::ITimer*				m_pITimer;

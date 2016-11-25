@@ -30,6 +30,9 @@ TimersT::~TimersT()
 
 SLTimerHandler TimersT::startTimer(ISLTimer* pTimer, int64 delay, int32 count, int64 interval)
 {
+	if(nullptr == pTimer)
+		return false;
+
 	CSLTimerBase* pMgrTimerObj = CSLTimerBase::createPoolObject();
 	if(nullptr == pMgrTimerObj)
 		return false;
@@ -47,6 +50,9 @@ SLTimerHandler TimersT::startTimer(ISLTimer* pTimer, int64 delay, int32 count, i
 
 bool TimersT::killTimer(SLTimerHandler pTimer)
 {
+	if(INVALID_TIMER_HANDER == pTimer)
+		return false;
+
 	CSLTimerBase* pTimerBase = (CSLTimerBase*)pTimer;
 	if(!pTimerBase->good() || !legal(pTimerBase))
 		return false;
@@ -57,6 +63,9 @@ bool TimersT::killTimer(SLTimerHandler pTimer)
 
 void TimersT::pauseTimer(SLTimerHandler pTimer)
 {
+	if(INVALID_TIMER_HANDER == pTimer)
+		return;
+
 	CSLTimerBase* pTimerBase = (CSLTimerBase*)pTimer;
 	if(!pTimerBase->good() || !legal(pTimerBase))
 		return;
@@ -67,6 +76,9 @@ void TimersT::pauseTimer(SLTimerHandler pTimer)
 
 void TimersT::resumeTimer(SLTimerHandler pTimer)
 {
+	if(INVALID_TIMER_HANDER == pTimer)
+		return;
+
 	CSLTimerBase* pTimerBase = (CSLTimerBase*)pTimer;
 	if(!pTimerBase->good() || pTimerBase->getTimerState() != CSLTimerBase::TimerState::TIME_PAUSED)
 		return;

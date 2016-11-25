@@ -18,6 +18,7 @@ public:
 };
 
 typedef void* SLTimerHandler;
+#define INVALID_TIMER_HANDER nullptr
 
 class ISLTimerMgr
 {

@@ -22,7 +22,7 @@ class Packet;
 class EventDispatcher;
 class MessageHandlers;
 
-class NetworkInterface: public TimerHandler
+class NetworkInterface
 {
 public:
 	typedef std::map<Address, Channel*>			ChannelMap;
@@ -80,8 +80,6 @@ public:
 	void processChannels(/*MessageHandlers* pMsgHandlers*/);
 	inline int32 numExtChannels() const;
 
-	virtual void handlerTimeOut(TimerHandle handle, void* pUser){}
-
 	void stop(void);
 
 	inline void setSessionFactory(ISLSessionFactory* poSessionFactory){
@@ -89,7 +87,6 @@ public:
 	}
 
 private:
-	virtual void handleTimeout(TimerHandle handle, void * arg);
 	void closeSocket();
 
 private:

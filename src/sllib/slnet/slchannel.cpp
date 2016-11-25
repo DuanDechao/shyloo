@@ -39,7 +39,7 @@ void Channel::destroyObjPool()
 size_t Channel::getPoolObjectBytes()
 {
 	size_t bytes = sizeof(m_pNetworkInterface) + sizeof(m_traits) +
-		sizeof(m_id) + sizeof(m_inactivityTimerHandle) + sizeof(m_inactivityExceptionPeriod) +
+		sizeof(m_id) + sizeof(m_inactivityExceptionPeriod) +
 		sizeof(m_lastReceivedTime) + (m_bufferedReceives.size() * sizeof(Packet*)) + sizeof(m_pPacketReader) 
 		+ sizeof(m_flags) + sizeof(m_numBytesSent) + sizeof(m_numBytesReceived) + sizeof(m_numPacketsSent) + sizeof(m_numPacketsReceived)
 		+ sizeof(m_lastTickBytesReceived) + sizeof(m_lastTickBytesSent) + sizeof(m_pFilter) + sizeof(m_pEndPoint) + sizeof(m_pPacketReceiver) + sizeof(m_pPacketSender)
@@ -65,7 +65,6 @@ Channel::Channel(NetworkInterface& networkInterface,
 				  m_traits(traits),
 				  m_protocolType(pt),
 				  m_id(id),
-				  m_inactivityTimerHandle(),
 				  m_inactivityExceptionPeriod(0),
 				  m_lastReceivedTime(0),
 				  m_bundles(),
@@ -92,7 +91,6 @@ Channel::Channel()
 	 m_traits(EXTERNAL),
 	 m_protocolType(PROTOCOL_TCP),
 	 m_id(0),
-	 m_inactivityTimerHandle(),
 	 m_inactivityExceptionPeriod(0),
 	 m_lastReceivedTime(0),
 	 m_bundles(),
@@ -233,15 +231,7 @@ void Channel::startInactivityDetection(float inactivityPeriod, float checkPeriod
 		checkPeriod = max(1.f, checkPeriod);
 		m_inactivityExceptionPeriod = uint64(inactivityPeriod * stampsPerSecond()) - uint64(0.05f * stampsPerSecond());
 		m_lastReceivedTime = timestamp();
-
-		m_inactivityTimerHandle = this->dispatcher().addTimer(int(checkPeriod * 1000000),
-			                                          this, (void*)TIMEOUT_INACTIVITY_CHECK);
 	}
-}
-
-void Channel::stopInactivityDetection()
-{
-	m_inactivityTimerHandle.cancel();
 }
 
 void Channel::setEndPoint(const EndPoint* pEndPoint)
@@ -374,23 +364,6 @@ void Channel::clearBundle()
 	}
 
 	m_bundles.clear();
-}
-
-void Channel::handlerTimeOut(TimerHandle, void* pUser)
-{
-	switch(reinterpret_cast<uintptr_t>(pUser))
-	{
-		case TIMEOUT_INACTIVITY_CHECK:
-		{
-			if(timestamp() - m_lastReceivedTime >= m_inactivityExceptionPeriod)
-			{
-				this->getNetworkInterface().onChannelTimeOut(this);
-			}
-			break;
-		}
-		default:
-			break;
-	}
 }
 
 void Channel::send(Bundle* pBundle /* = NULL */)
