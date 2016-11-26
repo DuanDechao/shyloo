@@ -58,15 +58,13 @@ SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/sltasks.h"
 	"${PROJECT_SOURCE_DIR}/src/public/sltasks.cpp"
 	"${PROJECT_SOURCE_DIR}/src/public/sltime.h"
-	"${PROJECT_SOURCE_DIR}/src/public/sltime_stamp.h"
-	"${PROJECT_SOURCE_DIR}/src/public/sltime_stamp.cpp"
 	"${PROJECT_SOURCE_DIR}/src/public/sltype.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slpriority_queue.h"		
 )
 
 IF(WIN32)
 	SET(SL_LIB_DEBUG
-		#debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/slnet"
+		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/slnet"
 		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/sltimer"
 	)
 	SET(SL_LIB_RELEASE

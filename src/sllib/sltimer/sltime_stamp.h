@@ -16,10 +16,8 @@
 #include "sltype.h"
 namespace sl
 {
-#ifdef SL_OS_WINDOWS
-#else
-#endif
-
+namespace timer
+{
 enum SLTimingMethod
 {
 	RDTSC_TIMING_METHOD,		///< 自cpu上电以来所经过的时钟周期数，达到纳秒级的计时精度
@@ -50,8 +48,9 @@ inline uint64 timestamp()
 	return counter.QuadPart;
 }
 #endif
+#endif
 
-#else
+#ifdef SL_OS_LINUX
 inline uint64 timestamp_rdtsc()
 {
 	uint32 rethi, retlo;
@@ -63,12 +62,37 @@ inline uint64 timestamp_rdtsc()
 	return uint64(rethi) << 32 | retlo;
 }
 
-//使用 gettimeofday， 测试大概比RDTSC20倍-600倍
 #include <sys/time.h>
+inline uint64 timestamp_gettimeofday()
+{
+	timespec tv;
+	gettimeofday(&tv, NULL);
+	return 1000000ULL * uint64(tv.tv_sec) + uint64(tv.tv_usec);
+
+}
+
+#include <time.h>
+#include <asm/unistd.h>
+
 inline uint64 timestamp_gettime()
 {
 	timespec tv;
+	assert(syscall(__NR_clock_gettime, CLOCK_MONOTONIC, &tv) == 0)
+	return 1000000000ULL * tv.tv_sec + tv.tv_nsec;
+}
 
+inline uint64 timestamp()
+{
+#ifdef SL_USE_RDTSC
+	return timestamp_rdtsc();
+#else
+	if(g_timingMethod == RDTSC_TIMING_METHOD)
+		return timestamp_rdtsc();
+	else if(g_timingMethod == GET_TIME_OF_DAY_TIMING_METHOD)
+		return timestamp_gettimeofday();
+	else
+		return timestamp_gettime();
+#endif
 }
 #endif
 
@@ -86,8 +110,6 @@ inline double stampsToSeconds(uint64 stamps)
 	return double(stamps)/stampsPerSecondD();
 }
 
-namespace timer
-{
 class TimeStamp
 {
 public:
@@ -97,37 +119,88 @@ public:
 
 	inline uint64 stamp() {return m_llStamp;}
 
-	inline double InSeconds() const;
-	inline void SetInSeconds(double seconds);
+	inline uint64 InSeconds() const;
+	inline uint64 InMilliSeconds() const;
+	inline uint64 InNanoSeconds() const;
+	inline void SetInSeconds(uint64 seconds);
+	inline void SetInMilliSeconds(uint64 milliSeconds);
+	inline void SetInNanoSeconds(uint64 nanoSeconds);
 
 	inline TimeStamp ageInStamps() const;
-	inline double ageInSeconds() const;
+	inline uint64 ageInSeconds() const;
+	inline uint64 ageInMilliSeconds() const;
+	inline uint64 ageNanoSeconds() const;
 
-	inline static double toSeconds(uint64 stamps);
-	inline static TimeStamp fromSeconds(double seconds);
+	inline static uint64 toSeconds(uint64 stamps);
+	inline static uint64 toMilliSeconds(uint64 stamps);
+	inline static uint64 toNanoSeconds(uint64 stamps);
+
+	inline static TimeStamp fromSeconds(uint64 seconds);
+	inline static TimeStamp fromMilliSeconds(uint64 milliSeconds);
+	inline static TimeStamp fromNanoSeconds(uint64 nanoSeconds);
 
 public:
 	uint64			m_llStamp;
 };
 
-inline double TimeStamp::toSeconds(uint64 stamps)
+inline uint64 TimeStamp::toSeconds(uint64 stamps)
 {
-	return double(stamps)/stampsPerSecondD();
+	return (uint64)(stamps/stampsPerSecondD());
 }
 
-inline TimeStamp TimeStamp::fromSeconds(double seconds)
+inline uint64 TimeStamp::toMilliSeconds(uint64 stamps)
+{
+	return (uint64)(((double)(stamps/stampsPerSecondD())) * 1000); 
+}
+
+inline uint64 TimeStamp::toNanoSeconds(uint64 stamps)
+{
+	return (uint64)(((double)(stamps/stampsPerSecondD())) * 1000000000);
+}
+
+inline TimeStamp TimeStamp::fromSeconds(uint64 seconds)
 {
 	return uint64(seconds * stampsPerSecondD());
 }
 
-inline double TimeStamp::InSeconds() const
+inline TimeStamp TimeStamp::fromMilliSeconds(uint64 milliSeconds)
+{
+	return uint64((double)(milliSeconds/1000) * stampsPerSecondD());
+}
+
+inline TimeStamp TimeStamp::fromNanoSeconds(uint64 nanoSeconds)
+{
+	return uint64((double)(nanoSeconds/1000000000) * stampsPerSecondD());
+}
+
+inline uint64 TimeStamp::InSeconds() const
 {
 	return toSeconds(m_llStamp);
 }
 
-inline void TimeStamp::SetInSeconds(double seconds)
+inline uint64 TimeStamp::InMilliSeconds() const
+{
+	return toMilliSeconds(m_llStamp);
+}
+
+inline uint64 TimeStamp::InNanoSeconds() const
+{
+	return toNanoSeconds(m_llStamp);
+}
+
+inline void TimeStamp::SetInSeconds(uint64 seconds)
 {
 	m_llStamp = fromSeconds(seconds);
+}
+
+inline void TimeStamp::SetInMilliSeconds(uint64 milliSeconds)
+{
+	m_llStamp = fromMilliSeconds(milliSeconds);
+}
+
+inline void TimeStamp::SetInNanoSeconds(uint64 nanoSeconds)
+{
+	m_llStamp = fromNanoSeconds(nanoSeconds);
 }
 
 inline TimeStamp TimeStamp::ageInStamps() const
@@ -135,13 +208,20 @@ inline TimeStamp TimeStamp::ageInStamps() const
 	return timestamp() - m_llStamp;
 }
 
-inline double TimeStamp::ageInSeconds() const
+inline uint64 TimeStamp::ageInSeconds() const
 {
 	return toSeconds(this->ageInStamps());
 }
 
-
+inline uint64 TimeStamp::ageInMilliSeconds() const
+{
+	return toMilliSeconds(this->ageInStamps());
 }
 
+inline uint64 TimeStamp::ageNanoSeconds() const
+{
+	return toNanoSeconds(this->ageInStamps());
+}
+}
 }// namespace sl
 #endif

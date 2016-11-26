@@ -4,6 +4,7 @@
 #include "sltimer.h"
 #include "slkernel.h"
 #include "slobjectpool.h"
+#include "slbase_define.h"
 namespace sl
 {
 namespace core

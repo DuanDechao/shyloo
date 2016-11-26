@@ -314,5 +314,20 @@ namespace sl
 
 	};
 
+#ifdef __cplusplus
+	extern "C" {
+#endif // __cplusplus
+		inline void safeMemcpy(void *__restrict __dest, size_t __max, const void *__restrict __src, size_t __n)
+		{
+			memcpy(__dest, __src, (__max >= __n) ? (__n) : (__max));
+		}
+
+		inline void safeMemset(void *__restrict __dest, size_t __max, int val, size_t __n)
+		{
+			memset(__dest, val, (__max >= __n) ? (__n) : (__max));
+		}
+#ifdef __cplusplus
+	}
+#endif // __cplusplus
 }//namespace sl
 #endif

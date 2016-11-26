@@ -2,6 +2,9 @@
 
 namespace sl
 {
+namespace timer
+{
+
 #define SL_USE_RDTSC
 #ifdef SL_USE_RDTSC
 SLTimingMethod g_timingMethod = RDTSC_TIMING_METHOD;
@@ -33,7 +36,6 @@ const char* getTimingMethodName()
 
 #ifdef SL_OS_WINDOWS
 #include <Windows.h>
-
 #ifdef SL_USE_RDTSC
 static uint64 calcStampsPerSecond()
 {
@@ -73,8 +75,9 @@ static uint64 calcStampsPerSecond()
 	return rate.QuadPart;
 }
 #endif //SL_USE_RDSTC
+#endif
 
-#else
+#ifdef SL_OS_LINUX
 
 #include <sys/time.h>
 #include <sys/types.h>
@@ -202,5 +205,7 @@ double stampsPerSecondD()
 {
 	static double _stampsPerSecondCacheD = double(stampsPerSecond());
 	return _stampsPerSecondCacheD;
+}
+
 }
 }

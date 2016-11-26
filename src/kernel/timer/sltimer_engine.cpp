@@ -73,9 +73,9 @@ bool TimerEngine::resumeTimer(api::ITimer* pTimer)
 
 int64 TimerEngine::processing()
 {
-	int64 beginTime = TimeStamp::toSeconds(timestamp());
-	m_pTimerMgr->process(timestamp());
-	int64 endTime = TimeStamp::toSeconds(timestamp());
+	int64 beginTime = getTimeMilliSecond();
+	m_pTimerMgr->process(getTimeMilliSecond());
+	int64 endTime = getTimeMilliSecond();
 	return endTime - beginTime;
 }
 

@@ -172,10 +172,10 @@ bool Channel::initialize(NetworkInterface& networkInterface, const EndPoint* pEn
 	if(m_pPacketSender)
 		m_pPacketSender->SetEndPoint(m_pEndPoint);
 
-	startInactivityDetection((m_traits == INTERNAL) ? g_channelInternalTimeout:
+	/*startInactivityDetection((m_traits == INTERNAL) ? g_channelInternalTimeout:
 													  g_channelExternalTimeout,
 							  (m_traits == INTERNAL) ? g_channelInternalTimeout /2.f:
-							                           g_channelExternalTimeout / 2.f);
+							                           g_channelExternalTimeout / 2.f);*/
 	return true;
 }
 
@@ -222,17 +222,17 @@ void Channel::disconnect()
 	condemn();
 }
 
-void Channel::startInactivityDetection(float inactivityPeriod, float checkPeriod /* = 1.f */)
-{
-	stopInactivityDetection();
-	//如果週期為負數則不檢查
-	if(inactivityPeriod > 0.001f)
-	{
-		checkPeriod = max(1.f, checkPeriod);
-		m_inactivityExceptionPeriod = uint64(inactivityPeriod * stampsPerSecond()) - uint64(0.05f * stampsPerSecond());
-		m_lastReceivedTime = timestamp();
-	}
-}
+//void Channel::startInactivityDetection(float inactivityPeriod, float checkPeriod /* = 1.f */)
+//{
+//	stopInactivityDetection();
+//	//如果週期為負數則不檢查
+//	if(inactivityPeriod > 0.001f)
+//	{
+//		checkPeriod = max(1.f, checkPeriod);
+//		m_inactivityExceptionPeriod = uint64(inactivityPeriod * stampsPerSecond()) - uint64(0.05f * stampsPerSecond());
+//		m_lastReceivedTime = timestamp();
+//	}
+//}
 
 void Channel::setEndPoint(const EndPoint* pEndPoint)
 {
@@ -242,7 +242,7 @@ void Channel::setEndPoint(const EndPoint* pEndPoint)
 		m_pEndPoint = const_cast<EndPoint*>(pEndPoint);
 	}
 
-	m_lastReceivedTime = timestamp();
+	m_lastReceivedTime = getTimeMilliSecond();
 }
 
 void Channel::destroy()
@@ -280,7 +280,7 @@ void Channel::clearState(bool warnOnDiscard /* = false */)
 
 	clearBundle();
 
-	m_lastReceivedTime = timestamp();
+	m_lastReceivedTime = getTimeMilliSecond();
 
 	m_numPacketsSent = 0;
 	m_numPacketsReceived = 0;
@@ -303,7 +303,7 @@ void Channel::clearState(bool warnOnDiscard /* = false */)
 	m_flags = 0;
 	m_pFilter = NULL;
 
-	stopInactivityDetection();
+	//stopInactivityDetection();
 
 	//由于endpoint通常由外部给入，必须释放，频道重新激活时重新赋值
 	if(m_pEndPoint)
@@ -449,7 +449,7 @@ void Channel::onPacketSent(int bytes, bool sendCompleted)
 
 void Channel::onPacketReceived(int bytes)
 {
-	m_lastReceivedTime  = timestamp();
+	m_lastReceivedTime  = getTimeMilliSecond();
 	++m_numPacketsReceived;
 	++g_numPacketsReceived;
 

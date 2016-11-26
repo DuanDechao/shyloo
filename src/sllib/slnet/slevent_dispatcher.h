@@ -58,10 +58,10 @@ public:
 
 private:
 	void processTasks();
-	void processTimers();
-	void processStats();
+	//void processTimers();
+	//void processStats();
 
-	double calculateWait() const;
+	//double calculateWait() const;
 protected:
 	int8			m_breakProcessing;
 	double			m_maxWait;

@@ -103,8 +103,8 @@ void EventDispatcher::processTasks()
 
 int EventDispatcher::processNetwork(bool shouldIdle)
 {
-	double maxWait = shouldIdle ? this->calculateWait() : 0.0;
-	return m_pPoller->processPendingEvents(maxWait);
+	//double maxWait = shouldIdle ? this->calculateWait() : 0.0;
+	return m_pPoller->processPendingEvents(0.0);
 }
 
 void EventDispatcher::processUntilBreak()
@@ -125,11 +125,11 @@ int EventDispatcher::processOnce(bool shouldIdle /* = false */)
 
 	this->processTasks();
 
-	if(m_breakProcessing != EVENT_DISPATCHER_STATUS_BREAK_PROCESSING){
-		this->processTimers();
-	}
+	/*if(m_breakProcessing != EVENT_DISPATCHER_STATUS_BREAK_PROCESSING){
+	this->processTimers();
+	}*/
 
-	this->processStats();
+	//this->processStats();
 
 	if(m_breakProcessing != EVENT_DISPATCHER_STATUS_BREAK_PROCESSING){
 		return this->processNetwork(shouldIdle);

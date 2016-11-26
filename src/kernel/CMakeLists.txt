@@ -13,6 +13,7 @@ SET(SL_KERNEL_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/kernel/interface/slicore.h"
 	"${PROJECT_SOURCE_DIR}/src/kernel/interface/slinet_engine.h"
 	"${PROJECT_SOURCE_DIR}/src/kernel/interface/slitimer_engine.h"
+	"${PROJECT_SOURCE_DIR}/src/kernel/interface/slilogic_engine.h"
 )
 
 SET(SL_KERNEL_NET
@@ -29,6 +30,11 @@ SET(SL_KERNEL_TIMER
 	"${PROJECT_SOURCE_DIR}/src/kernel/timer/sltimer_engine.cpp"
 )
 
+SET(SL_KERNEL_LOGIC
+	"${PROJECT_SOURCE_DIR}/src/kernel/logic/sllogic_engine.h"
+	"${PROJECT_SOURCE_DIR}/src/kernel/logic/sllogic_engine.cpp"
+)
+
 SET(SL_KERNEL
 	"${PROJECT_SOURCE_DIR}/src/kernel/slkernel.h"
 	"${PROJECT_SOURCE_DIR}/src/kernel/slkernel.cpp"
@@ -39,6 +45,7 @@ SOURCE_GROUP(public FILES ${PUBLIC})
 SOURCE_GROUP(src\\interface FILES ${SL_KERNEL_INTERFACE})
 SOURCE_GROUP(src\\net FILES ${SL_KERNEL_NET})
 SOURCE_GROUP(src\\timer FILES ${SL_KERNEL_TIMER})
+SOURCE_GROUP(src\\logic FILES ${SL_KERNEL_LOGIC})
 SOURCE_GROUP(\\ FILES ${SL_KERNEL})
 
 IF(WIN32)
@@ -48,6 +55,7 @@ ADD_EXECUTABLE(shyloo
 	${SL_KERNEL_INTERFACE}
 	${SL_KERNEL_NET}
 	${SL_KERNEL_TIMER}
+	${SL_KERNEL_LOGIC}
 	${SL_KERNEL}
 )
 ENDIF(WIN32)

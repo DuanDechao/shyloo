@@ -16,15 +16,15 @@
 #include <queue>
 #include <list>
 #include <map>
-#include "sltime_stamp.h"
 #include "sltype.h"
+#include "sltime.h"
 namespace sl
 {
 #define OBJECT_POOL_INIT_SIZE			16
 #define OBJECT_POOL_INIT_MAX_SIZE		OBJECT_POOL_INIT_SIZE * 1024
 
 //每5分钟检查一次瘦身
-#define OBJECT_POOL_REDUCING_TIME_OUT	300 * stampsPerSecondD()
+#define OBJECT_POOL_REDUCING_TIME_OUT	5 * 60 * 1000
 
 template<typename T>
 class SmartPoolObject;
@@ -47,7 +47,7 @@ public:
 		 m_name(name),
 		 m_total_allocs(0),
 		 m_obj_count(0),
-		 m_lastReducingCheckTime(timestamp())
+		 m_lastReducingCheckTime(getTimeMilliSecond())
 	{}
 
 	CObjectPool(std::string name, unsigned int preAssignVal, size_t max)
@@ -57,7 +57,7 @@ public:
 		 m_name(name),
 		 m_total_allocs(0),
 		 m_obj_count(0),
-		 m_lastReducingCheckTime(timestamp())
+		 m_lastReducingCheckTime(getTimeMilliSecond())
 	{}
 
 	~CObjectPool()
@@ -226,7 +226,7 @@ protected:
 			}
 		}
 
-		uint64 now_timestamp = timestamp();
+		uint64 now_timestamp = getTimeMilliSecond();
 
 		if(m_obj_count <= OBJECT_POOL_INIT_SIZE)
 		{

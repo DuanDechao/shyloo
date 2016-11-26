@@ -15,6 +15,7 @@
 #define _SL_TIME_H_
 #include "slbase.h"
 #include "slplatform.h"
+#include "sltype.h"
 #if defined(SL_OS_WINDOWS)
 	#include <Windows.h>
 #elif defined(SL_OS_LINUX)
@@ -23,6 +24,7 @@
 	#include <unistd.h>
 #endif
 
+#include <chrono>
 #define CTIME_SECONDS_PRE_DAY		86400			///< 每天最大的秒数
 
 namespace sl
@@ -324,6 +326,16 @@ namespace sl
 		time_t m_time;
 
 	}; //class  CTime
+
+	inline uint64 getTimeMilliSecond()
+	{
+		return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	}
+
+	inline uint64 getTimeNanoSecond()
+	{
+		return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	}
 
 }
 

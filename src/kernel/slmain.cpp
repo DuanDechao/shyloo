@@ -1,6 +1,6 @@
 #include "sltimer.h"
 #include "sltype.h"
-#include "sltime_stamp.h"
+#include "sltime.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -24,7 +24,7 @@ int main()
 	TestTimer * pTestTimer = new TestTimer();
 	timerMgr->startTimer(pTestTimer, 5000, 3, 5000);
 	while(true){
-		timerMgr->process(timestamp());
+		timerMgr->process(getTimeMilliSecond());
 	}
 	delete pTestTimer;
 	return 0;

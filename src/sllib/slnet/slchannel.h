@@ -83,10 +83,10 @@ public:
 	static Channel* get(NetworkInterface& networkInterface,
 		const EndPoint* pSocket);
 
-	void startInactivityDetection(float inactivityPeriod,
-		float checkPeriod = 1.f);
+	/*void startInactivityDetection(float inactivityPeriod,
+		float checkPeriod = 1.f);*/
 
-	void stopInactivityDetection();
+	//void stopInactivityDetection();
 
 	PacketFilterPtr getFilter() const {return m_pFilter;}
 	void setFilter(PacketFilterPtr pFilter) {m_pFilter = pFilter;}
@@ -146,7 +146,7 @@ public:
 	uint32 numBytesReceived() const {return m_numBytesReceived;}
 
 	uint64 lastReceivedTime() const {return m_lastReceivedTime;}
-	void updateLastReceivedTime() {m_lastReceivedTime = timestamp();}
+	void updateLastReceivedTime() {m_lastReceivedTime = getTimeMilliSecond();}
 
 	void addReceiveWindow(Packet* pPacket);
 
