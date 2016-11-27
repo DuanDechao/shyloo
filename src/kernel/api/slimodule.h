@@ -73,7 +73,7 @@ typedef IModule * (*GetModuleFun)(void);
 	static IModule*	plogicModule = NULL; \
 	extern "C" __declspec(dllexport) IModule* __cdecl GET_LOGIC_FUN() {   \
 		return plogicModule;	\
-	}
+	}\
 	BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) { \
 		return true;	\
 	}

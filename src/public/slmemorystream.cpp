@@ -20,7 +20,7 @@ void MemoryStream::reclaimPoolObject(MemoryStream* obj)
 
 void MemoryStream::destroyObjPool()
 {
-	SL_DEBUG("MemoryStream::destoryObjPool() size %d.\n", g_objPool.size());
+	ECHO("MemoryStream::destoryObjPool() size %d.\n", g_objPool.size());
 	g_objPool.Destroy();
 }
 

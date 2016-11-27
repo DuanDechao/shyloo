@@ -3,7 +3,6 @@
 
 #include "slmemorystream.h"
 #include "slnetbase.h"
-#include "slbase.h"
 #include "sltimer.h"
 #include "slendpoint.h"
 #include "slnet.h"

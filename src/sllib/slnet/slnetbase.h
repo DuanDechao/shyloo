@@ -1,6 +1,6 @@
 #ifndef _SL_NETWORK_COMMON_H_
 #define _SL_NETWORK_COMMON_H_
-#include "slbase.h"
+#include "slmulti_sys.h"
 namespace sl
 {
 namespace network
@@ -178,14 +178,14 @@ typedef UINT_PTR			SLSOCKET;
 {																											\
 	EndPoint& ep = ENDPOINT;																				\
 	SEND_BUNDLE_COMMON(ENDPOINT.send(pPacket->data() + pPacket->m_sentSize,									\
-	pPacket->length() - pPacket->m_sentSize), BUNDLE);														\
+	(int32)(pPacket->length() - pPacket->m_sentSize)), BUNDLE);														\
 }																											\
 
 #define SENDTO_BUNDLE(ENDPOINT, ADDR, PORT, BUNDLE)															\
 {																											\
 	EndPoint& ep = ENDPOINT;																				\
 	SEND_BUNDLE_COMMON(ENDPOINT.sendto(pPacket->data() + pPacket->m_sentSize,								\
-	pPacket->length() - pPacket->m_sentSize, PORT, ADDR), BUNDLE);											\
+	(int32)(pPacket->length() - pPacket->m_sentSize), PORT, ADDR), BUNDLE);											\
 }																											\
 
 #define MALLOC_PACKET(outputPacket, isTCPPacket)															\

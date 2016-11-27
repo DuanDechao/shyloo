@@ -1,8 +1,7 @@
 #ifndef _SL_ADDRESS_H_
 #define _SL_ADDRESS_H_
-
+#include "slnetbase.h"
 #include "slobjectpool.h"
-#include "slbase.h"
 namespace sl
 {
 namespace network

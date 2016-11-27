@@ -53,14 +53,14 @@ void UDPPacket::onReclaimObject()
 
 int UDPPacket::recvFromEndPoint(EndPoint& ep, Address* pAddr /* = NULL */)
 {
-	SL_ASSERT(maxBufferSize() > wpos());
+	SLASSERT(maxBufferSize() > wpos(), "wtf");
 
 	//当接收来的大小大于接受缓冲区的时候，recvfrom返回-1
-	int len = ep.recvfrom(data() + wpos(), size() - wpos(), 
+	int len = ep.recvfrom(data() + wpos(), (int32)(size() - wpos()), 
 		(uint16*)&pAddr->m_port, (uint32*)&pAddr->m_ip);
 
 	if(len > 0)
-		wpos(wpos() + len);
+		wpos((int32)(wpos() + len));
 
 	return len;
 

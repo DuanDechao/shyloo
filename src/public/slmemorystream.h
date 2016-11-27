@@ -309,7 +309,7 @@ public:
 
 	size_t rpos() const {return rpos_;}
 
-	size_t rpos(int rpos)
+	size_t rpos(int32 rpos)
 	{
 		if(rpos < 0)
 			rpos = 0;
@@ -320,7 +320,7 @@ public:
 
 	size_t wpos() const {return wpos_;}
 
-	size_t wpos(int wpos)
+	size_t wpos(int32 wpos)
 	{
 		if(wpos < 0)
 			wpos = 0;
@@ -453,7 +453,7 @@ public:
 	{
 		if(!cnt)
 			return;
-		SL_ASSERT(size() < 10000000);
+		SLASSERT(size() < 10000000, "wtf");
 
 		if(data_.size() < wpos_ + cnt)
 			data_.resize(wpos_ + cnt);

@@ -240,7 +240,7 @@ void Bundle::newMessage(/*const MessageHandler& msgHandler*/ const MessageID msg
 	}
 
 	finiMessage(false);
-	SL_ASSERT(m_pCurrPacket != NULL);
+	SLASSERT(m_pCurrPacket != NULL, "wtf");
 
 	(*this)<<msgID;
 	m_pCurrPacket->SetMessageID(msgID);
@@ -261,7 +261,7 @@ void Bundle::newMessage(/*const MessageHandler& msgHandler*/ const MessageID msg
 
 void Bundle::finiMessage(bool isSend /* = true */)
 {
-	SL_ASSERT(m_pCurrPacket != NULL);
+	SLASSERT(m_pCurrPacket != NULL, "wtf");
 	m_pCurrPacket->SetBundle(this);
 
 	if(isSend)
@@ -290,7 +290,7 @@ void Bundle::finiMessage(bool isSend /* = true */)
 		//按照设计一个包最大不能超过NETWORK_MESSAGE_MAX_SIZE
 		/*if(g_componentType == BOTS_TYPE || g_componentType == CLIENT_TYPE)
 		{
-			SL_ASSERT(m_currMsgLength <= NETWORK_MESSAGE_MAX_SIZE);
+			SLASSERT(m_currMsgLength <= NETWORK_MESSAGE_MAX_SIZE);
 		}*/
 
 		//如果消息长度大于等于NETWORK_MESSAGE_MAX_SIZE
@@ -411,7 +411,7 @@ void Bundle::finiMessage(bool isSend /* = true */)
 //		return;
 //	}
 //
-//	SL_ASSERT(currMsgLength == pMemoryStream->length());
+//	SLASSERT(currMsgLength == pMemoryStream->length());
 //
 //	//TRACE_MESSAGE_COMPONENTID
 //
@@ -424,13 +424,13 @@ bool Bundle::revokeMessage(int32 size)
 	{
 		if(size >= (int32)m_pCurrPacket->wpos())
 		{
-			size -= m_pCurrPacket->wpos();
+			size -= (int32)m_pCurrPacket->wpos();
 			RECLAIM_PACKET(m_isTCPPacket, m_pCurrPacket);
 			m_pCurrPacket = NULL;
 		}
 		else
 		{
-			m_pCurrPacket->wpos(m_pCurrPacket->wpos()- size);
+			m_pCurrPacket->wpos((int32)m_pCurrPacket->wpos()- size);
 			size = 0;
 		}
 	}
@@ -440,13 +440,13 @@ bool Bundle::revokeMessage(int32 size)
 		network::Packet* pPacket = m_packets.back();
 		if(pPacket->wpos() > (size_t)size)
 		{
-			pPacket->wpos(pPacket->wpos() - size);
+			pPacket->wpos((int32)pPacket->wpos() - size);
 			size = 0;
 			break;
 		}
 		else
 		{
-			size -= pPacket->length();
+			size -= (int32)pPacket->length();
 			RECLAIM_PACKET(m_isTCPPacket, pPacket);
 			m_packets.pop_back();
 		}

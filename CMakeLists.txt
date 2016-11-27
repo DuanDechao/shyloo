@@ -18,9 +18,6 @@ IF(WIN32)
 	SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 ENDIF(WIN32)
 
-SET(LIBS
-	#"${PROJECT_SOURCE_DIR}/src/libs/common/slassert.h"
-	)
 
 SET(SL_KERNEL_API
 	"${PROJECT_SOURCE_DIR}/src/kernel/api/slikernel.h"
@@ -32,18 +29,12 @@ SET(SL_LIB_API
 	"${PROJECT_SOURCE_DIR}/src/sllib/api/sltimer.h"
 )
 SET(PUBLIC
-	"${PROJECT_SOURCE_DIR}/src/public/slassert.h"
-	"${PROJECT_SOURCE_DIR}/src/public/slbase.h"
-	"${PROJECT_SOURCE_DIR}/src/public/slbase_define.h"
-	"${PROJECT_SOURCE_DIR}/src/public/slcode_convert.h"
-	"${PROJECT_SOURCE_DIR}/src/public/slconfig.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slfile.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slfile_utils.h"
 	"${PROJECT_SOURCE_DIR}/src/public/sllog.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slmemorystream.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slmemorystream.cpp"
 	"${PROJECT_SOURCE_DIR}/src/public/slmemorystream_converter.h"
-	"${PROJECT_SOURCE_DIR}/src/public/slmulti_object_mgr.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slmutex.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slobj_reload_check.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slobject_mgr.h"
@@ -59,7 +50,11 @@ SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/sltasks.cpp"
 	"${PROJECT_SOURCE_DIR}/src/public/sltime.h"
 	"${PROJECT_SOURCE_DIR}/src/public/sltype.h"
-	"${PROJECT_SOURCE_DIR}/src/public/slpriority_queue.h"		
+	"${PROJECT_SOURCE_DIR}/src/public/slpriority_queue.h"
+	"${PROJECT_SOURCE_DIR}/src/public/slmulti_sys.h"
+	"${PROJECT_SOURCE_DIR}/src/public/slmulti_sys.cpp"
+	"${PROJECT_SOURCE_DIR}/src/public/slwin_sys.h"
+	"${PROJECT_SOURCE_DIR}/src/public/sllinux_sys.h"	
 )
 
 IF(WIN32)

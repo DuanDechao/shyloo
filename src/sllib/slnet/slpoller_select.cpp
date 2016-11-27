@@ -20,14 +20,14 @@ void SelectPoller::handleNotifications(int& countReady, fd_set& readFDs, fd_set&
 #ifdef SL_OS_WINDOWS
 	for (unsigned i = 0; i < readFDs.fd_count; i++)
 	{
-		int fd = readFDs.fd_array[i];
+		int32 fd = (int32)readFDs.fd_array[i];
 		--countReady;
 		this->triggerRead(fd);
 	}
 
 	for (unsigned i = 0; i < writeFDs.fd_count; i++)
 	{
-		int fd = writeFDs.fd_array[i];
+		int32 fd = (int32)writeFDs.fd_array[i];
 		--countReady;
 		this->triggerWrite(fd);
 	}

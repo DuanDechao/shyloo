@@ -25,7 +25,7 @@ bool NetEngine::addTcpServer(sl::api::ITcpServer* server, const char* ip, const 
 	m_pListener->setBufferSize(recvSize, sendSize);
 	m_pListener->setSessionFactory(nullptr);
 	if(!m_pListener->start(ip, port)){
-		//SL_ASSERT(false);
+		//SLASSERT(false);
 		return false;
 	}
 	return true;

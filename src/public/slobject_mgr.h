@@ -96,7 +96,7 @@ namespace sl
 		*/
 		virtual int Init(const char* pBuffer, int iObjectCount, int iObjectSize, int iListCount = 2, int iIndexCount = 1, bool bResetShm = true)
 		{
-			SL_ASSERT( !(!pBuffer || iObjectCount <= 0 || iObjectSize <= 0 || iListCount <= 1 || iIndexCount <= 0));
+			SLASSERT( !(!pBuffer || iObjectCount <= 0 || iObjectSize <= 0 || iListCount <= 1 || iIndexCount <= 0));
 			if(!pBuffer || iObjectCount <= 0 || iObjectSize <=0 || iListCount < 2 || iIndexCount <= 0)
 			{
 				return -1;
@@ -244,11 +244,11 @@ namespace sl
 
 			if(stListInfo.iSize > 0)
 			{
-				SL_ASSERT(stListInfo.iHead > -1);
+				SLASSERT(stListInfo.iHead > -1);
 			}
 			else
 			{
-				SL_ASSERT(stListInfo.iHead == -1);
+				SLASSERT(stListInfo.iHead == -1);
 			}
 		}
 
@@ -277,7 +277,7 @@ namespace sl
 			++stListInfo.iSize;
 			if(stListInfo.iSize > 0)
 			{
-				SL_ASSERT(stListInfo.iHead >  -1);
+				SLASSERT(stListInfo.iHead >  -1);
 			}
 		}
 
@@ -449,7 +449,7 @@ namespace sl
 		}
 		CListInfo& ListInfo(int iListID, int iIndexID = 0)
 		{
-			SL_ASSERT( ((iIndexID * m_iListCount + iListID) < (m_iIndexCount * m_iListCount)));
+			SLASSERT( ((iIndexID * m_iListCount + iListID) < (m_iIndexCount * m_iListCount)));
 			return m_pstInfo[iIndexID * m_iListCount + iListID];
 		}
 		const CList& List(int i, int iIndexID = 0) const

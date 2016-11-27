@@ -7,7 +7,6 @@
 #include "slevent_dispatcher.h"
 #include "slnetwork_interface.h"
 #include "slevent_poller.h"
-#include "slnetbase.h"
 namespace sl
 {
 namespace network
@@ -55,7 +54,7 @@ bool UDPPacketReceiver::processRecv(bool expectingPacket)
 	{
 		UDPPacket::reclaimPoolObject(pChannelReceiveWindow);
 		PacketReceiver::RecvState rstate = this->checkSocketErrors(len, expectingPacket);
-		return rstate = PacketReceiver::RECV_STATE_CONTINUE;
+		return rstate == PacketReceiver::RECV_STATE_CONTINUE;
 	}
 
 	Channel* pSrcChannel = m_pNetworkInterface->findChannel(srcAddr);
@@ -82,7 +81,7 @@ bool UDPPacketReceiver::processRecv(bool expectingPacket)
 			return false;
 		}
 	}
-	SL_ASSERT(pSrcChannel != NULL);
+	SLASSERT(pSrcChannel != NULL, "wtf");
 
 	if(pSrcChannel->isCondemn())
 	{

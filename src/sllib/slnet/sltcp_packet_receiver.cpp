@@ -40,7 +40,7 @@ TCPPacketReceiver::~TCPPacketReceiver(){}
 bool TCPPacketReceiver::processRecv(bool expectingPacket)
 {
 	Channel* pChannel = getChannel();
-	SL_ASSERT(pChannel != NULL);
+	SLASSERT(pChannel != NULL, "wtf");
 
 	if(pChannel->isCondemn())
 	{
@@ -61,7 +61,7 @@ bool TCPPacketReceiver::processRecv(bool expectingPacket)
 			onGetError(pChannel);
 			return false;
 		}
-		return rstate = PacketReceiver::RECV_STATE_CONTINUE;
+		return rstate == PacketReceiver::RECV_STATE_CONTINUE;
 	}
 	else if(len == 0)	///Õý³£ÍË³ö
 	{

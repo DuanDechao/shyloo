@@ -1,7 +1,6 @@
 #ifndef SL_SLTYPE_H
 #define SL_SLTYPE_H
-namespace sl
-{
+
 //无符号整数
 typedef unsigned char		uint8;          ///< 字节类型   8位无符号整数
 typedef char				int8;			///< 字节类型   8位符号整数
@@ -24,8 +23,6 @@ typedef int64				datetime_t;     ///< 64位的时间类型
 typedef uint64				uid_t;          ///< 用户ID类型
 
 #define SLAPI __stdcall
-
-}
 
 
 #endif

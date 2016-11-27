@@ -48,7 +48,7 @@ CSLTimerBase::CSLTimerBase(TimersBase* owner, ISLTimer* pTimer, int64 delay, int
 	 m_iCount(count),
 	 m_intervalStamp(interval)
 {
-	setExpireTime(timestamp() + TimeStamp::fromSeconds((double)(delay / 1000)));
+	setExpireTime(timestamp() + TimeStamp::fromMilliSeconds(delay));
 }
 
 
@@ -67,9 +67,9 @@ void CSLTimerBase::initialize(TimersBase* owner, ISLTimer* pTimer, int64 delay, 
 {
 	m_Owner = owner;
 	m_pTimerObj = pTimer;
-	setExpireTime(timestamp() + TimeStamp::fromSeconds((double)(delay / 1000)));
+	setExpireTime(timestamp() + TimeStamp::fromMilliSeconds(delay));
 	m_iCount = count;
-	m_intervalStamp = TimeStamp::fromSeconds((double)(interval / 1000));
+	m_intervalStamp = TimeStamp::fromMilliSeconds(interval);
 }
 
 CSLTimerBase::TimerState CSLTimerBase::pollTimer()

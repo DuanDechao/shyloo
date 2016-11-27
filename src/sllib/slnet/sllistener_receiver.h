@@ -1,7 +1,6 @@
 #ifndef _SL_LISTENER_RECEIVER_H_
 #define _SL_LISTENER_RECEIVER_H_
 
-#include "slbase.h"
 #include "sltimer.h"
 #include "slnetbase.h"
 #include "slinterfaces.h"

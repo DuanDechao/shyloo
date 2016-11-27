@@ -4,7 +4,6 @@
 #include <map>
 #include "slilogic_engine.h"
 #include "slimodule.h"
-#include "slconfig.h"
 namespace sl
 {
 namespace core

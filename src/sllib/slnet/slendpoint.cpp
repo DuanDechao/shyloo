@@ -60,7 +60,7 @@ bool EndPoint::getClosedPort(network::Address& closedPort)
 
 int EndPoint::getBufferSize(int optname) const
 {
-	SL_ASSERT(optname == SO_SNDBUF || optname == SO_RCVBUF);
+	SLASSERT(optname == SO_SNDBUF || optname == SO_RCVBUF, "wtf");
 
 	int recvbuf = -1;
 	socklen_t rbargssize = sizeof(int);
@@ -237,7 +237,7 @@ bool EndPoint::waitSend()
 	FD_ZERO(&fds);
 	FD_SET(m_socket, &fds);
 
-	return select(m_socket + 1, NULL, &fds, NULL, &tv) > 0;
+	return select((int32)(m_socket + 1), NULL, &fds, NULL, &tv) > 0;
 }
 
 void EndPoint::send(Bundle* pBundle)

@@ -129,8 +129,8 @@ bool Channel::initialize(NetworkInterface& networkInterface, const EndPoint* pEn
 	m_pNetworkInterface = &networkInterface;
 	this->setEndPoint(pEndPoint);
 
-	SL_ASSERT(m_pNetworkInterface != NULL);
-	SL_ASSERT(m_pEndPoint != NULL);
+	SLASSERT(m_pNetworkInterface != NULL, "wtf");
+	SLASSERT(m_pEndPoint != NULL, "wtf");
 
 	if(m_protocolType == PROTOCOL_TCP)
 	{
@@ -147,9 +147,9 @@ bool Channel::initialize(NetworkInterface& networkInterface, const EndPoint* pEn
 			m_pPacketReceiver = new TCPPacketReceiver(*m_pEndPoint, *m_pNetworkInterface);
 		}
 
-		SL_ASSERT(m_pPacketReceiver->type() == PacketReceiver::TCP_PACKET_RECEIVER);
+		SLASSERT(m_pPacketReceiver->type() == PacketReceiver::TCP_PACKET_RECEIVER, "wtf");
 
-		m_pNetworkInterface->getDispatcher().registerReadFileDescriptor(*m_pEndPoint, m_pPacketReceiver);
+		m_pNetworkInterface->getDispatcher().registerReadFileDescriptor((int32)*m_pEndPoint, m_pPacketReceiver);
 	}
 	else
 	{
@@ -165,7 +165,7 @@ bool Channel::initialize(NetworkInterface& networkInterface, const EndPoint* pEn
 		{
 			m_pPacketReceiver = new UDPPacketReceiver(*m_pEndPoint, *m_pNetworkInterface);
 		}
-		SL_ASSERT(m_pPacketReceiver->type() == PacketReceiver::UDP_PACKET_RECEIVER);
+		SLASSERT(m_pPacketReceiver->type() == PacketReceiver::UDP_PACKET_RECEIVER, "wtf");
 	}
 
 	m_pPacketReceiver->SetEndPoint(m_pEndPoint);
@@ -296,7 +296,7 @@ void Channel::clearState(bool warnOnDiscard /* = false */)
 		if(m_pNetworkInterface)
 		{
 			if(!this->isDestroyed())
-				m_pNetworkInterface->getDispatcher().deregisterReadFileDescriptor(*m_pEndPoint);
+				m_pNetworkInterface->getDispatcher().deregisterReadFileDescriptor((int32)*m_pEndPoint);
 		}
 	}
 
@@ -343,13 +343,13 @@ void Channel::delayedSend()
 const char* Channel::c_str() const
 {
 	//static char dodgyString[]
-	static char dodgyString[MAX_BUF] = {"None"};
+	static char dodgyString[MAX_BUF] = "None";
 	char tdodgyString[MAX_BUF] = {0};
 
 	if(m_pEndPoint && !m_pEndPoint->addr().isNone())
 		m_pEndPoint->addr().writeToString(tdodgyString, MAX_BUF);
 
-	CPlatForm::_sl_snprintf(dodgyString, MAX_BUF, "%s/%d/%d/%d", tdodgyString, m_id,
+	SafeSprintf(dodgyString, MAX_BUF, "%s/%d/%d/%d", tdodgyString, m_id,
 		this->isCondemn(), this->isDestroyed());
 	
 	return dodgyString;
@@ -408,7 +408,7 @@ void Channel::send(Bundle* pBundle /* = NULL */)
 		if(m_bundles.size() > 0 && !isCondemn() && !isDestroyed())
 		{
 			m_flags |= FLAG_SENDING;
-			m_pNetworkInterface->getDispatcher().registerWriteFileDescriptor(*m_pEndPoint, m_pPacketSender);
+			m_pNetworkInterface->getDispatcher().registerWriteFileDescriptor((int32)(*m_pEndPoint), m_pPacketSender);
 		}
 	}
 }
@@ -420,12 +420,12 @@ void Channel::stopSend()
 
 	m_flags &= ~FLAG_SENDING;
 
-	m_pNetworkInterface->getDispatcher().deregisterWriteFileDescriptor(*m_pEndPoint);
+	m_pNetworkInterface->getDispatcher().deregisterWriteFileDescriptor((int32)*m_pEndPoint);
 }
 
 void Channel::onSendCompleted()
 {
-	SL_ASSERT(m_bundles.size() == 0 && sending());
+	SLASSERT(m_bundles.size() == 0 && sending(), "wtf");
 	stopSend();
 }
 

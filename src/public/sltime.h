@@ -13,18 +13,10 @@
 
 #ifndef _SL_TIME_H_
 #define _SL_TIME_H_
-#include "slbase.h"
-#include "slplatform.h"
-#include "sltype.h"
-#if defined(SL_OS_WINDOWS)
-	#include <Windows.h>
-#elif defined(SL_OS_LINUX)
-	#include <sys/time.h>
-	#include <time.h>
-	#include <unistd.h>
-#endif
+#include "slmulti_sys.h"
 
 #include <chrono>
+#include <string>
 #define CTIME_SECONDS_PRE_DAY		86400			///< 每天最大的秒数
 
 namespace sl
@@ -86,11 +78,11 @@ namespace sl
 			%% - 百分符号
 		*/
 
-		string Format(const char* pszFormat) const
+		std::string Format(const char* pszFormat) const
 		{
 			char szBuffer[32];
 			char ch = 0;
-			string s;
+			std::string s;
 			
 			while((ch = *pszFormat++) != '\0')
 			{
@@ -102,19 +94,19 @@ namespace sl
 						s += ch;
 						break;
 					case 'D':
-						sl_snprintf(SL_STRSIZE(szBuffer), "%04d", GetDays());
+						SafeSprintf(SL_STRSIZE(szBuffer), "%04d", GetDays());
 						s += szBuffer;
 						break;
 					case 'H':
-						sl_snprintf(SL_STRSIZE(szBuffer), "%02d", GetHours());
+						SafeSprintf(SL_STRSIZE(szBuffer), "%02d", GetHours());
 						s += szBuffer;
 						break;
 					case 'M':
-						sl_snprintf(SL_STRSIZE(szBuffer), "%02d", GetMinutes());
+						SafeSprintf(SL_STRSIZE(szBuffer), "%02d", GetMinutes());
 						s+= szBuffer;
 						break;
 					case 'S':
-						sl_snprintf(SL_STRSIZE(szBuffer), "%02d", GetSeconds());
+						SafeSprintf(SL_STRSIZE(szBuffer), "%02d", GetSeconds());
 						s+=szBuffer;
 						break;
 					default:
@@ -158,7 +150,7 @@ namespace sl
 			m_time = mktime(&atm);
 
 		}
-		CTime(const string& strDateTime)
+		CTime(const std::string& strDateTime)
 		{
 			struct tm stTm;
 			const size_t iLen = strDateTime.length();
@@ -219,12 +211,13 @@ namespace sl
 		{
 			if(ptm != NULL)
 			{
-				*ptm = *gmtime(&m_time);
+				gmtime_s(ptm, &m_time);
 				return ptm;
 			}
 			else
 			{
-				return gmtime(&m_time);
+				gmtime_s(ptm, &m_time);
+				return ptm;
 			}
 		}
 
@@ -232,7 +225,8 @@ namespace sl
 		{
 			if(ptm != NULL)
 			{
-				struct tm* ptmTemp = localtime(&m_time);
+				struct tm* ptmTemp;
+				localtime_s(ptmTemp, &m_time);
 				if(ptmTemp == NULL)
 				{
 					return NULL;
@@ -243,14 +237,17 @@ namespace sl
 			}
 			else
 			{
-				return localtime(&m_time);
+				struct tm* ptmTemp;
+				localtime_s(ptmTemp, &m_time);
+				return ptmTemp;
 			}
 		}
 
 		static bool IsSameDay(time_t time1, time_t time2)
 		{
-			struct tm t1 = *localtime(&time1);
-			struct tm t2 = *localtime(&time2);
+			struct tm t1,t2;
+			localtime_s(&t1, &time1);
+			localtime_s(&t1, &time2);
 			return (t1.tm_year == t2.tm_year && t1.tm_mon == t2.tm_mon && t1.tm_mday == t2.tm_mday);
 		}
 
@@ -259,8 +256,9 @@ namespace sl
 			time1 += iDay * 24 * 3600;
 			time_t day1 = static_cast<time_t>(time1);
 			time_t day2 = static_cast<time_t>(time2);
-			struct tm t1 = *localtime(&day1);
-			struct tm t2 = *localtime(&day2);
+			struct tm t1, t2;
+			localtime_s(&t1, &day1);
+			localtime_s(&t2, &day2);
 			if(t1.tm_year > t2.tm_year)
 			{
 				return true;
@@ -315,7 +313,8 @@ namespace sl
 		char* Format(char* pszBuffer, int iMaxLen, const char* pszFormat) const
 		{
 			time_t time = m_time;
-			struct tm* ptmTemp = localtime(&time);
+			struct tm * ptmTemp = nullptr;
+			localtime_s(ptmTemp, &time);
 			if(ptmTemp == NULL || !strftime(pszBuffer, iMaxLen, pszFormat, ptmTemp))
 			{
 				pszBuffer[0] = '\0';
@@ -327,6 +326,8 @@ namespace sl
 
 	}; //class  CTime
 
+	
+
 	inline uint64 getTimeMilliSecond()
 	{
 		return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -335,6 +336,14 @@ namespace sl
 	inline uint64 getTimeNanoSecond()
 	{
 		return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	}
+
+	inline const char* getCurrentTimeStr()
+	{
+		CTime time((time_t)(getTimeMilliSecond()/1000));
+		char buff[128] ={0};
+		time.Format(buff, 127, "%d-%b-%Y %H:%M:%S");
+		return std::string(buff).c_str();
 	}
 
 }

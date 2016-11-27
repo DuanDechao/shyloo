@@ -3,7 +3,6 @@
 #include "slnet.h"
 #include "slikernel.h"
 #include "slobjectpool.h"
-#include "slbase_define.h"
 namespace sl
 {
 namespace core

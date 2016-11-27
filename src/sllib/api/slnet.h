@@ -12,7 +12,7 @@ class ISLChannel
 {
 public:
 	virtual bool SLAPI isConnected(void) = 0;
-	virtual void SLAPI send(const char* pBuf, unsigned int dwLen) = 0;
+	virtual void SLAPI send(const char* pBuf, uint32 dwLen) = 0;
 	virtual void SLAPI disconnect(void) = 0;
 	
 	virtual const unsigned int SLAPI getRemoteIP(void) = 0;
@@ -29,9 +29,9 @@ class ISLListener
 public:
 	virtual void SLAPI setSessionFactory(ISLSessionFactory* poSessionFactory) = 0;
 
-	virtual void SLAPI setBufferSize(unsigned int dwRecvBufSize, unsigned int dwSendBufSize) = 0;
+	virtual void SLAPI setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize) = 0;
 
-	virtual bool SLAPI start(const char* pszIP, unsigned short wPort, bool bReUseAddr = true) = 0;
+	virtual bool SLAPI start(const char* pszIP, uint16 wPort, bool bReUseAddr = true) = 0;
 
 	virtual bool SLAPI stop(void) = 0;
 	
@@ -44,7 +44,7 @@ class ISLSession
 public:
 	virtual void SLAPI setChannel(ISLChannel* poChannel) = 0;
 	virtual void SLAPI release(void) = 0;
-	virtual void SLAPI onRecv(const char* pBuf, unsigned int dwLen) = 0;
+	virtual void SLAPI onRecv(const char* pBuf, uint32 dwLen) = 0;
 };
 
 class ISLSessionFactory

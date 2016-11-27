@@ -52,7 +52,7 @@ int Address::writeToString(char* str, int length) const
 {
 	uint32 uip = ntohl(m_ip);
 	uint16 uport = ntohs(m_port);
-	return CPlatForm::_sl_snprintf(str, length, "%d.%d.%d.%d:%d",
+	return SafeSprintf(str, length, "%d.%d.%d.%d:%d",
 		(int)(uint8)(uip >> 24),
 		(int)(uint8)(uip >> 16),
 		(int)(uint8)(uip >> 8),
@@ -71,7 +71,7 @@ const char* Address::ipAsString() const
 {
 	uint32 uip = ntohl(m_ip);
 	char* buf = Address::nextStringBuf();
-	CPlatForm::_sl_snprintf(buf, 32, "%d.%d.%d.%d",
+	SafeSprintf(buf, 32, "%d.%d.%d.%d",
 		(int)(uint8)(uip >> 24),
 		(int)(uint8)(uip >> 16),
 		(int)(uint8)(uip >> 8),
@@ -112,11 +112,11 @@ int Address::ip2string(uint32 address, char* str)
 {
 	address = ntohl(address);
 
-	return sprintf(str, "%d.%d.%d.%d",
-		(int)(uint8)(address>>24),
-		(int)(uint8)(address>>16),
-		(int)(uint8)(address>>8),
-		(int)(uint8)address);
+	return SafeSprintf(str, (int32)strlen(str), "%d.%d.%d.%d",
+		(int32)(uint8)(address>>24),
+		(int32)(uint8)(address>>16),
+		(int32)(uint8)(address>>8),
+		(int32)(uint8)address);
 }
 
 }

@@ -41,10 +41,10 @@ public:
 	inline double maxWait() const;
 	inline void maxWait(double seconds);
 
-	bool registerReadFileDescriptor(int fd, InputNotificationHandler* handler);
-	bool deregisterReadFileDescriptor(int fd);
-	bool registerWriteFileDescriptor(int fd, OutputNotificationHandler* handler);
-	bool deregisterWriteFileDescriptor(int fd);
+	bool registerReadFileDescriptor(int32 fd, InputNotificationHandler* handler);
+	bool deregisterReadFileDescriptor(int32 fd);
+	bool registerWriteFileDescriptor(int32 fd, OutputNotificationHandler* handler);
+	bool deregisterWriteFileDescriptor(int32 fd);
 
 	uint64 getSpareTime() const;
 	void clearSpareTime();

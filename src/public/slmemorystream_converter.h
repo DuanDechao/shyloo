@@ -12,7 +12,7 @@
 
 #ifndef _SL_MEMORYSTREAM_CONVERTER_H_
 #define _SL_MEMORYSTREAM_CONVERTER_H_
-#include "slbase.h"
+#include "slmulti_sys.h"
 
 namespace sl
 {

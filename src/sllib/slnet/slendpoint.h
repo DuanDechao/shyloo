@@ -8,6 +8,7 @@ namespace sl
 {
 namespace network
 {
+#pragma comment(lib,"Iphlpapi.lib")
 class Bundle;
 class EndPoint: public PoolObject
 {
@@ -40,53 +41,53 @@ public:
 
 	inline void setFileDescriptor(int fd);
 
-	inline int joinMulticastGroup(uint32 networkAddr);
-	inline int quitMulticastGroup(uint32 networkAddr);
+	inline int32 joinMulticastGroup(uint32 networkAddr);
+	inline int32 quitMulticastGroup(uint32 networkAddr);
 
-	inline int close();
+	inline int32 close();
 
-	inline int setnonblocking(bool nonblocking);
-	inline int setbroadcast(bool broadcast);
-	inline int setreuseaddr(bool reuseaddr);
-	inline int setkeepalive(bool keepalive);
-	inline int setnodelay(bool nodelay = true);
-	inline int setlinger(uint16 onoff, uint16 linger);
+	inline int32 setnonblocking(bool nonblocking);
+	inline int32 setbroadcast(bool broadcast);
+	inline int32 setreuseaddr(bool reuseaddr);
+	inline int32 setkeepalive(bool keepalive);
+	inline int32 setnodelay(bool nodelay = true);
+	inline int32 setlinger(uint16 onoff, uint16 linger);
 
-	inline int bind(uint16 networkPort = 0, uint32 networkAddr = INADDR_ANY);
+	inline int32 bind(uint16 networkPort = 0, uint32 networkAddr = INADDR_ANY);
 
-	inline int listen(int backlog = 5);
+	inline int32 listen(int32 backlog = 5);
 
-	inline int connect(uint16 networkport, uint32 networkAddr = INADDR_BROADCAST, bool autosetflags = true);
-	inline int connect(bool autosetflags = true);
+	inline int32 connect(uint16 networkport, uint32 networkAddr = INADDR_BROADCAST, bool autosetflags = true);
+	inline int32 connect(bool autosetflags = true);
 
 	inline EndPoint* accept(uint16* networkPort = NULL, uint32* networkAddr = NULL, bool autosetflags = true);
 
-	inline int send(const void* gramData, int gramSize);
+	inline int32 send(const void* gramData, int32 gramSize);
 	void send(Bundle* pBundle);
 	void sendto(Bundle* pBundle, uint16 networkPort, uint32 networkAddr = BROADCAST);
 
-	inline int recv(void* gramData, int gramSize);
-	bool recvAll(void* gramData, int gramSize);
+	inline int32 recv(void* gramData, int32 gramSize);
+	bool recvAll(void* gramData, int32 gramSize);
 
 	inline uint32 getRTT();
 
-	inline int getInterfaceFlags(char* name, int& flag);
-	inline int getInterfaceAddress(const char* name, uint32& address);
-	inline int getInterfaceNetmask(const char* name, uint32& netmask);
+	inline int32 getInterfaceFlags(char* name, int32& flag);
+	inline int32 getInterfaceAddress(const char* name, uint32& address);
+	inline int32 getInterfaceNetmask(const char* name, uint32& netmask);
 	bool getInterfaces(std::map<uint32, std::string>& interfaces);
 
-	int findIndicatedInterface(const char* spec, uint32& address);
-	int findDefaultInterface(char* name, int bufSize);
+	int32 findIndicatedInterface(const char* spec, uint32& address);
+	int32 findDefaultInterface(char* name, int32 bufSize);
 
-	int getInterfaceAddressByName(const char* name, uint32& address);
-	int getInterfaceAddressByMAC(const char* mac, uint32& address){return 0;}
-	int getDefaultInterfaceAddress(uint32& address){return 0;}
+	int32 getInterfaceAddressByName(const char* name, uint32& address);
+	int32 getInterfaceAddressByMAC(const char* mac, uint32& address){return 0;}
+	int32 getDefaultInterfaceAddress(uint32& address){return 0;}
 
-	int getBufferSize(int optname) const;
-	bool setBufferSize(int optname, int size);
+	int32 getBufferSize(int32 optname) const;
+	bool setBufferSize(int32 optname, int32 size);
 
-	inline int getlocaladdress(uint16* networkPort, uint32* networkAddr) const;
-	inline int getremoteaddress(uint16* networkPort, uint32* networkAddr) const;
+	inline int32 getlocaladdress(uint16* networkPort, uint32* networkAddr) const;
+	inline int32 getremoteaddress(uint16* networkPort, uint32* networkAddr) const;
 
 	network::Address getlocalAddress() const;
 	network::Address getremoteAddress() const;
@@ -94,12 +95,12 @@ public:
 	bool getClosedPort(network::Address& closedPort);
 
 	inline const char* c_str() const;
-	inline int getremotehostname(std::string* name) const;
+	inline int32 getremotehostname(std::string* name) const;
 
-	inline int sendto(void* gramData, int gramSize, uint16 networkPort, uint32 networkAddr = BROADCAST);
-	inline int sendto(void* gramData, int gramSize, struct sockaddr_in& sin);
-	inline int recvfrom(void* gramData, int gramSize, uint16* networkPort, uint32* networkAddr);
-	inline int recvfrom(void* gramData, int gramSize, struct sockaddr_in& sin);
+	inline int32 sendto(void* gramData, int32 gramSize, uint16 networkPort, uint32 networkAddr = BROADCAST);
+	inline int32 sendto(void* gramData, int32 gramSize, struct sockaddr_in& sin);
+	inline int32 recvfrom(void* gramData, int32 gramSize, uint16* networkPort, uint32* networkAddr);
+	inline int32 recvfrom(void* gramData, int32 gramSize, struct sockaddr_in& sin);
 
 	inline const Address& addr() const;
 	inline void addr(const Address& newAddress);

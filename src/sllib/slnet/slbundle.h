@@ -1,7 +1,6 @@
 #ifndef _SL_NETWORK_BUNDLE_H_
 #define _SL_NETWORK_BUNDLE_H_
 #include "slobjectpool.h"
-#include "slbase.h"
 #include "slpacket.h"
 #include "slnetbase.h"
 namespace sl
@@ -12,7 +11,7 @@ class Channel;
 class NetworkInterface;
 
 #define PACKET_OUT_VALUE(v, expectSize)																		\
-	SL_ASSERT(packetsLength() >= (int32)expectSize);														\
+	SLASSERT(packetsLength() >= (int32)expectSize);														\
 																											\
 	size_t currSize = 0;																					\
 	size_t reclaimCount = 0;																				\
@@ -260,7 +259,7 @@ public:
 
 	Bundle& append(Bundle* pBundle)
 	{
-		SL_ASSERT(pBundle != NULL);
+		SLASSERT(pBundle != NULL, "wtf");
 		return append(*pBundle);
 	}
 
@@ -280,7 +279,7 @@ public:
 
 	Bundle& append(MemoryStream* s)
 	{
-		SL_ASSERT(s != NULL);
+		SLASSERT(s != NULL, "wtf");
 		return append(*s);
 	}
 

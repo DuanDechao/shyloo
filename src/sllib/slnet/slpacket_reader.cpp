@@ -127,7 +127,7 @@ void PacketReader::processMessages(/*sl::network::MessageHandlers* pMsgHandlers,
 				//TRACE_MESSAGE_PACKET
 
 				//用做调试时比对
-				uint32 rpos = pPacket1->rpos();
+				uint32 rpos = (uint32)pPacket1->rpos();
 				pPacket1->rpos(0);
 				//TRACE_MESSAGE_PACKET
 				pPacket1->rpos(rpos);
@@ -146,7 +146,7 @@ void PacketReader::processMessages(/*sl::network::MessageHandlers* pMsgHandlers,
 					m_pChannel->condemn();
 					break;
 				}
-				poSession->onRecv((const char*)m_pFragmentStream->data(), m_pFragmentStream->length());
+				poSession->onRecv((const char*)m_pFragmentStream->data(), (uint32)m_pFragmentStream->length());
 				MemoryStream::reclaimPoolObject(m_pFragmentStream);
 				m_pFragmentStream = NULL;
 			}
@@ -161,7 +161,7 @@ void PacketReader::processMessages(/*sl::network::MessageHandlers* pMsgHandlers,
 				//临时设置有效读取位，防止接口中溢出操作
 				size_t wpos = pPacket->wpos();
 				size_t frpos = pPacket->rpos() + m_currMsgLen;
-				pPacket->wpos(frpos);
+				pPacket->wpos((int32)frpos);
 
 				//TRACE_MESSAGE_PACKET
 				ISLSession* poSession = this->m_pChannel->getSession();
@@ -169,17 +169,17 @@ void PacketReader::processMessages(/*sl::network::MessageHandlers* pMsgHandlers,
 					m_pChannel->condemn();
 					break;
 				}
-				poSession->onRecv((const char*)m_pFragmentStream->data(), m_pFragmentStream->length());
+				poSession->onRecv((const char*)m_pFragmentStream->data(), (uint32)m_pFragmentStream->length());
 
 				//如果handler没有处理完数据则输出一个警告
 				if(m_currMsgLen > 0)
 				{
 					if(frpos != pPacket->rpos())
 					{
-						pPacket->rpos(frpos);
+						pPacket->rpos((int32)frpos);
 					}
 				}
-				pPacket->wpos(wpos);
+				pPacket->wpos((int32)wpos);
 			}
 
 			m_currMsgID = 0;
@@ -194,14 +194,14 @@ void PacketReader::processMessages(/*sl::network::MessageHandlers* pMsgHandlers,
 
 void PacketReader::writeFragmentMessage(FragmentDataTypes fragmentDataFlag, Packet* packet, uint32 datasize)
 {
-	SL_ASSERT(m_pFragmentDatas == NULL);
+	SLASSERT(m_pFragmentDatas == NULL, "wtf");
 
 	size_t opsize = packet->length();
-	m_pFragmentDatasRemain = datasize - opsize;
+	m_pFragmentDatasRemain = (uint32)(datasize - opsize);
 	m_pFragmentDatas = new uint8[opsize + m_pFragmentDatasRemain + 1];
 
 	m_pFragmentDatasType = fragmentDataFlag;
-	m_pFragmentDatasWpos = opsize;
+	m_pFragmentDatasWpos = (uint32)opsize;
 
 	if(packet->length() > 0)
 	{
@@ -219,9 +219,9 @@ void PacketReader::mergeFragmentMessage(Packet* pPacket)
 	if(pPacket->length() >= m_pFragmentDatasRemain)
 	{
 		memcpy(m_pFragmentDatas + m_pFragmentDatasWpos, pPacket->data() + pPacket->rpos(), m_pFragmentDatasRemain);
-		pPacket->rpos(pPacket->rpos() + m_pFragmentDatasRemain);
+		pPacket->rpos((int32)(pPacket->rpos() + m_pFragmentDatasRemain));
 
-		SL_ASSERT(m_pFragmentStream == NULL);
+		SLASSERT(m_pFragmentStream == NULL, "wtf");
 
 		switch(m_pFragmentDatasType)
 		{
@@ -253,9 +253,9 @@ void PacketReader::mergeFragmentMessage(Packet* pPacket)
 	else
 	{
 		memcpy(m_pFragmentDatas + m_pFragmentDatasWpos, pPacket->data(), opsize);
-		m_pFragmentDatasRemain -= opsize;
-		m_pFragmentDatasWpos += opsize;
-		pPacket->rpos(pPacket->rpos() + opsize);
+		m_pFragmentDatasRemain -= (uint32)opsize;
+		m_pFragmentDatasWpos += (uint32)opsize;
+		pPacket->rpos((int32)(pPacket->rpos() + opsize));
 	}
 }
 

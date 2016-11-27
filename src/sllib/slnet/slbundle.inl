@@ -72,7 +72,7 @@ inline int32 Bundle::packetMaxSize() const
 inline int32 Bundle::lastPacketSpace()
 {
 	if(m_packets.size() > 0)
-		return packetMaxSize() - m_packets.back()->wpos();
+		return (int32)(packetMaxSize() - (int32)m_packets.back()->wpos());
 
 	return 0;
 }

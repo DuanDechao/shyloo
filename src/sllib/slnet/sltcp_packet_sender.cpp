@@ -56,7 +56,7 @@ bool TCPPacketSender::processSend(Channel* pChannel)
 		pChannel = getChannel();
 	}
 
-	SL_ASSERT(pChannel != NULL);
+	SLASSERT(pChannel != NULL, "wtf");
 
 	if(pChannel->isCondemn())
 	{
@@ -120,7 +120,7 @@ Reason TCPPacketSender::processFilterPacket(Channel* pChannel, Packet* pPacket)
 	}
 
 	EndPoint* pEndPoint = pChannel->getEndPoint();
-	int len = pEndPoint->send(pPacket->data() + pPacket->m_sentSize, pPacket->length() - pPacket->m_sentSize);
+	int32 len = pEndPoint->send(pPacket->data() + pPacket->m_sentSize, (int32)(pPacket->length() - pPacket->m_sentSize));
 
 	if(len > 0)
 	{

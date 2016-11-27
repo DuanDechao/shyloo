@@ -66,7 +66,7 @@ EventDispatcher& BundleBroadcast::dispatcher()
 	return m_networkInterface.getDispatcher();
 }
 
-void BundleBroadcast::addBroadCastAddress(string addr)
+void BundleBroadcast::addBroadCastAddress(std::string addr)
 {
 	m_machine_addresses.push_back(addr);
 }
@@ -88,9 +88,9 @@ bool BundleBroadcast::broadcast(uint16 port /* = 0 */)
 	}
 
 	this->finiMessage();
-	SL_ASSERT(packets().size() == 1);
+	SLASSERT(packets().size() == 1, "wtf");
 
-	m_epBroadcast.sendto(packets()[0]->data(), packets()[0]->length(), htons(port), network::BROADCAST);
+	m_epBroadcast.sendto(packets()[0]->data(), (int32)packets()[0]->length(), htons(port), network::BROADCAST);
 
 	//如果制定了地址池，则向所有地址发送消息
 	std::vector<std::string>::iterator addr_iter = m_machine_addresses.begin();
@@ -105,7 +105,7 @@ bool BundleBroadcast::broadcast(uint16 port /* = 0 */)
 
 		uint32 uaddress;
 		network::Address::string2ip((*addr_iter).c_str(), uaddress);
-		ep.sendto(packets()[0]->data(), packets()[0]->length(), htons(SL_MACHINE_BROADCAST_SEND_PORT), uaddress);
+		ep.sendto(packets()[0]->data(), (int32)packets()[0]->length(), htons(SL_MACHINE_BROADCAST_SEND_PORT), uaddress);
 	}
 
 	return true;
@@ -129,8 +129,8 @@ bool BundleBroadcast::receive(/*MessageArgs* recvArgs, */sockaddr_in* psin /* = 
 	while(1)
 	{
 		FD_ZERO(&fds);
-		FD_SET((int)m_epListen, &fds);
-		int selgot = select(m_epListen + 1, &fds, NULL, NULL, &tv);
+		FD_SET((int32)m_epListen, &fds);
+		int32 selgot = select((int32)(m_epListen + 1), &fds, NULL, NULL, &tv);
 
 		if(selgot == 0)
 		{

@@ -149,7 +149,7 @@ void TimersT::purgeCanelledTimes()
 		CSLTimerBase::reclaimPoolObject(*iter);
 	}
 
-	int32 iNumPurged = stTimeContainer.end() - PartIter;
+	int32 iNumPurged = (int32)(stTimeContainer.end() - PartIter);
 	m_iNumCanceled -= iNumPurged;
 
 	stTimeContainer.erase(PartIter, stTimeContainer.end());

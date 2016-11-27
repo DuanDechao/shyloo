@@ -1,9 +1,8 @@
 #ifndef SL_SLTIMER_BASE_H
 #define SL_SLTIMER_BASE_H
+#include "slmulti_sys.h"
 #include "sltimer.h"
 #include "slobjectpool.h"
-#include "sltype.h"
-#include "slbase.h"
 #include "sltime_stamp.h"
 namespace sl
 {

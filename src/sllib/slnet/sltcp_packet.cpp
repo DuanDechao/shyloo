@@ -53,7 +53,7 @@ namespace sl
 
 		int TCPPacket::recvFromEndPoint(EndPoint& ep, Address* pAddr /* = NULL */)
 		{
-			SL_ASSERT(maxBufferSize() > wpos());
+			SLASSERT(maxBufferSize() > wpos(), "wtf");
 
 			int len = ep.recv(data() + wpos(), (int)(size() - wpos()));
 

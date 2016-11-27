@@ -1,8 +1,9 @@
 //shyloo字符串常用函数封装类
 #ifndef _SL_STRING_UTILS_
 #define _SL_STRING_UTILS_
-#include "slbase_define.h"
-#include "slplatform.h"
+#include "slmulti_sys.h"
+#include <vector>
+#include <string>
 using namespace std;
 namespace sl
 {
@@ -11,75 +12,15 @@ namespace sl
 	{
 	public:
 
-		/**
-        * 格式化字符串.
-        * 根据参数pszFormat字符串来转换并格式化数据，然后将结果复制到参数str所指的字符串中，直到字符串结束为止
-        * @return 返回格式化后字符串的长度
-        */
-        static int Format(string& str, const char* pszFormat, ...)
-        {
-            va_list ap;
-            va_start(ap, pszFormat);
-            int iRet = FormatV(str, pszFormat, ap);
-            va_end(ap);
-            return iRet;
-        }
-
-
-		 /**
-        * 格式化字符串.
-        * 根据参数pszFormat字符串来转换并格式化数据，然后将结果复制到参数str所指的字符串中，直到字符串结束为止
-        * @return 返回格式化后字符串的长度
-        */
-        static int FormatV(string& str, const char* pszFormat, va_list ap)
-        {
-            va_list apcopy;
-#ifndef SL_OS_WINDOWS
-            va_copy(apcopy, ap);
-#else
-            apcopy = ap;
-            //assert(false && "函数 va_copy() 无法执行！");
-#endif
-            
-            int iSize = sl_vsnprintf(NULL, 0, pszFormat, ap);   // 计算需要的内存空间
-            if (iSize <= 0)
-            {
-                return iSize;
-            }
-            ++ iSize;
-
-            int iLen = 0;
-            char* pszBuf = new char[iSize];
-            if (!pszBuf)
-            {
-                return -1;
-            }        
-            iLen = sl_vsnprintf(pszBuf, iSize, pszFormat, apcopy);
-            va_end(apcopy);
-
-            if (iLen < 0 || iLen >= iSize)
-            {
-                delete[] pszBuf;
-                return iLen;
-            }
-
-            pszBuf[iLen] = 0;
-            str.assign(pszBuf, iLen);
-            delete[] pszBuf;
-
-            return iLen;
-        }
-
-
 		/*
 			删除字符串中某些字符串外的字符
 			@return	 返回删除的次数
 		*/
-		static int RemoveNot(string& str, const char* pszTrim)
+		static int RemoveNot(std::string& str, const char* pszTrim)
 		{
 			size_t iIndex = str.find_first_not_of(pszTrim);
 			int iCount = 0;
-			while(iIndex != string::npos)
+			while(iIndex != std::string::npos)
 			{
 				str.erase(iIndex, 1);
 				iIndex = str.find_first_not_of(pszTrim);
@@ -93,7 +34,7 @@ namespace sl
 			把字符串分割成多个字符串，可以有多个分割符
 			@note 这种方式会忽略重复的分隔符
 		*/
-		static void Split(const string& strBuf, const string& strDel, vector<string>& aryStringList)
+		static void Split(const string& strBuf, const string& strDel, std::vector<std::string>& aryStringList)
 		{
 			size_t pos1 = 0, pos2 = 0;
 			while(true)
@@ -168,14 +109,6 @@ namespace sl
 			transform(str.begin(), str.end(), str.begin(), static_cast<int(*)(int)>(tolower));
 			return str;
 		}
-
-		/**
-        * 字符串比较，不区分大小写
-        */
-        static int CompareNoCase(const string& str1, const string& str2)
-        {
-            return strcasecmp(str1.c_str(), str2.c_str());
-        }
 
 		/**
         * 严格的十进制整数转换模扳函数.
@@ -311,23 +244,7 @@ namespace sl
             }
             return (sign < 0 ? 0 - ret : ret);
         }
-
 	};
 
-#ifdef __cplusplus
-	extern "C" {
-#endif // __cplusplus
-		inline void safeMemcpy(void *__restrict __dest, size_t __max, const void *__restrict __src, size_t __n)
-		{
-			memcpy(__dest, __src, (__max >= __n) ? (__n) : (__max));
-		}
-
-		inline void safeMemset(void *__restrict __dest, size_t __max, int val, size_t __n)
-		{
-			memset(__dest, val, (__max >= __n) ? (__n) : (__max));
-		}
-#ifdef __cplusplus
-	}
-#endif // __cplusplus
 }//namespace sl
 #endif

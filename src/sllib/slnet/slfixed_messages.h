@@ -2,6 +2,8 @@
 #define _SL_FIXED_NETWORK_MESSAGES_H_
 #include "slsingleton.h"
 #include "slnetbase.h"
+#include <string>
+#include <unordered_map>
 namespace sl
 {
 namespace network

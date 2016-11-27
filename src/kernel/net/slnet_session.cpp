@@ -1,6 +1,5 @@
 #include "slnet_session.h"
 #include "slkernel.h"
-#include "slassert.h"
 namespace sl
 {
 namespace core
@@ -86,13 +85,13 @@ ISLSession* ServerSessionFactory::createSession(ISLChannel* poChannel)
 	ITcpSession* pTcpSession = m_pServer->mallocTcpSession(core::Kernel::getSingletonPtr());
 	if(NULL == pTcpSession)
 	{
-		SL_ASSERT(false);
+		SLASSERT(false, "wtf");
 		return NULL;
 	}
 	NetSession* pNetSession = NetSession::createPoolObject();
 	if(NULL == pNetSession)
 	{
-		SL_ASSERT(false);
+		SLASSERT(false, "wtf");
 		return NULL;
 	}
 

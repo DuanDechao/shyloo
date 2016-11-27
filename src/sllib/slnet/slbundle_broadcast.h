@@ -3,7 +3,7 @@
 #include "slnetbase.h"
 #include "slbundle.h"
 #include "slendpoint.h"
-#include "slbase.h"
+#include <string>
 namespace sl{
 namespace network{
 class NetworkInterface;
@@ -37,7 +37,7 @@ public:
 		m_itry = i;
 	}
 
-	void addBroadCastAddress(string addr);
+	void addBroadCastAddress(std::string addr);
 protected:
 	network::EndPoint m_epListen, m_epBroadcast;
 	NetworkInterface& m_networkInterface;

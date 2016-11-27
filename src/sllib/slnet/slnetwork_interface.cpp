@@ -35,7 +35,7 @@ NetworkInterface::NetworkInterface(EventDispatcher* pDispatcher,
 		//如果配置了对外端口范围，如果范围过小这里extEndpoint可能没有端口可用了
 		if(extlisteningPort_min != -1)
 		{
-			SL_ASSERT(m_extEndPoint.good());
+			SLASSERT(m_extEndPoint.good(), "wtf");
 		}
 	}
 
@@ -82,12 +82,12 @@ void NetworkInterface::closeSocket()
 {
 	if(m_extEndPoint.good())
 	{
-		this->getDispatcher().deregisterReadFileDescriptor(m_extEndPoint);
+		this->getDispatcher().deregisterReadFileDescriptor((int32)m_extEndPoint);
 		m_extEndPoint.close();
 	}
 	if(m_intEndPoint.good())
 	{
-		this->getDispatcher().deregisterReadFileDescriptor(m_intEndPoint);
+		this->getDispatcher().deregisterReadFileDescriptor((int32)m_intEndPoint);
 		m_intEndPoint.close();
 	}
 }
@@ -97,11 +97,11 @@ bool NetworkInterface::recreateListeningSocket(const char* pEndPointName, uint16
 											   EndPoint* pEP, ListenerReceiver* pLR, uint32 rbuffer /* = 0 */, 
 											   uint32 wbuffer /* = 0 */)
 {
-	SL_ASSERT(listeningInterface && pEP && pLR);
+	SLASSERT(listeningInterface && pEP && pLR, "wtf");
 
 	if(pEP->good())
 	{
-		this->getDispatcher().deregisterReadFileDescriptor(*pEP);
+		this->getDispatcher().deregisterReadFileDescriptor((int32)*pEP);
 		pEP->close();
 	}
 
@@ -115,7 +115,7 @@ bool NetworkInterface::recreateListeningSocket(const char* pEndPointName, uint16
 		return false;
 	}
 
-	this->getDispatcher().registerReadFileDescriptor(*pEP, pLR);
+	this->getDispatcher().registerReadFileDescriptor((int32)*pEP, pLR);
 	uint32 ifIPAddr = INADDR_ANY;
 	bool listeningInterfaceEmpty = (listeningInterface == NULL || listeningInterface[0] == 0);
 
@@ -243,8 +243,8 @@ Channel* NetworkInterface::findChannel(int fd)
 bool NetworkInterface::registerChannel(Channel* pChannel)
 {
 	const Address& addr = pChannel->addr();
-	SL_ASSERT(addr.m_ip != 0);
-	SL_ASSERT(&pChannel->getNetworkInterface() == this);
+	SLASSERT(addr.m_ip != 0, "wtf");
+	SLASSERT(&pChannel->getNetworkInterface() == this, "wtf");
 	ChannelMap::iterator iter = m_channelMap.find(addr);
 	Channel* pExisting = iter != m_channelMap.end() ? iter->second : NULL;
 
@@ -257,14 +257,14 @@ bool NetworkInterface::registerChannel(Channel* pChannel)
 		m_numExtChannels++;
 
 	if(m_pSessionFactory == NULL){
-		SL_ERROR("network inferface have no sessionfactory");
+		ECHO_ERROR("network inferface have no sessionfactory");
 		return false;
 	}
 
 	ISLSession* poSession = m_pSessionFactory->createSession(pChannel);
 	if(NULL == poSession)
 	{
-		SL_ERROR("create session failed");
+		ECHO_ERROR("create session failed");
 		deregisterChannel(pChannel);
 		return false;
 	}
@@ -294,7 +294,7 @@ bool NetworkInterface::deregisterAllChannels()
 bool NetworkInterface::deregisterChannel(Channel* pChannel)
 {
 	const Address& addr = pChannel->addr();
-	SL_ASSERT(pChannel->getEndPoint() != NULL);
+	SLASSERT(pChannel->getEndPoint() != NULL, "wtf");
 
 	if(pChannel->isExternal())
 		m_numExtChannels--;

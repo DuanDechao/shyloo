@@ -44,44 +44,44 @@ inline SLSOCKET EndPoint::socket() const
 	return m_socket;
 }
 
-inline void EndPoint::setFileDescriptor(int fd)
+inline void EndPoint::setFileDescriptor(int32 fd)
 {
 	m_socket = fd;
 }
 
-inline void EndPoint::socket(int type)
+inline void EndPoint::socket(int32 type)
 {
-	this->setFileDescriptor((int)::socket(AF_INET, type, 0));
+	this->setFileDescriptor((int32)::socket(AF_INET, type, 0));
 	if((m_socket == INVALID_SOCKET) && (WSAGetLastError() == WSANOTINITIALISED))
 	{
 		EndPoint::initNetwork();
-		this->setFileDescriptor((int)::socket(AF_INET, type, 0));
+		this->setFileDescriptor((int32)::socket(AF_INET, type, 0));
 	}
 }
 
-inline int EndPoint::setnodelay(bool nodelay /* = true */)
+inline int32 EndPoint::setnodelay(bool nodelay /* = true */)
 {
-	int arg = int(nodelay);
+	int32 arg = int32(nodelay);
 	return setsockopt(m_socket, IPPROTO_TCP, TCP_NODELAY, (char*)&arg, sizeof(int));
 }
 
-inline int EndPoint::setnonblocking(bool nonblocking)
+inline int32 EndPoint::setnonblocking(bool nonblocking)
 {
 #ifdef SL_OS_WINDOWS
 	u_long val = nonblocking ? 1: 0;
 	return ::ioctlsocket(m_socket, FIONBIO, &val);
 #else
-	int val = nonblocking ? O_NONBLOCK : 0;
+	int32 val = nonblocking ? O_NONBLOCK : 0;
 	return ::fcntl(m_socket, F_SETFL, val);
 #endif
 }
 
-inline int EndPoint::setbroadcast(bool broadcast)
+inline int32 EndPoint::setbroadcast(bool broadcast)
 {
 #ifdef SL_OS_WINDOWS
 	 bool val;
 #else
-	int val;
+	int32 val;
 	if(broadcast)
 	{
 		val  = 2;
@@ -92,7 +92,7 @@ inline int EndPoint::setbroadcast(bool broadcast)
 	return ::setsockopt(m_socket, SOL_SOCKET, SO_BROADCAST, (char*)&val, sizeof(val));
 }
 
-inline int EndPoint::setreuseaddr(bool reuseaddr)
+inline int32 EndPoint::setreuseaddr(bool reuseaddr)
 {
 #ifdef SL_OS_WINDOWS
 	bool val;
@@ -103,7 +103,7 @@ inline int EndPoint::setreuseaddr(bool reuseaddr)
 	return setsockopt(m_socket, SOL_SOCKET, SO_REUSEADDR, (char*)&val, sizeof(val));
 }
 
-inline int EndPoint::setlinger(uint16 onoff, uint16 linger)
+inline int32 EndPoint::setlinger(uint16 onoff, uint16 linger)
 {
 	struct linger l = {0};
 	l.l_onoff = onoff;
@@ -111,7 +111,7 @@ inline int EndPoint::setlinger(uint16 onoff, uint16 linger)
 	return setsockopt(m_socket, SOL_SOCKET, SO_LINGER, (const char*)&l, sizeof(l));
 }
 
-inline int EndPoint::setkeepalive(bool keepalive)
+inline int32 EndPoint::setkeepalive(bool keepalive)
 {
 #ifdef SL_OS_WINDOWS
 	bool val;
@@ -122,7 +122,7 @@ inline int EndPoint::setkeepalive(bool keepalive)
 	return setsockopt(m_socket, SOL_SOCKET, SO_KEEPALIVE, (char*)&val, sizeof(val));
 }
 
-inline int EndPoint::bind(uint16 networkPort, uint32 networkAddr)
+inline int32 EndPoint::bind(uint16 networkPort, uint32 networkAddr)
 {
 	sockaddr_in sin;
 	memset(&sin, 0, sizeof(sockaddr_in));
@@ -132,7 +132,7 @@ inline int EndPoint::bind(uint16 networkPort, uint32 networkAddr)
 	return ::bind(m_socket, (struct sockaddr*)&sin, sizeof(sin));
 }
 
-inline int EndPoint::joinMulticastGroup(uint32 networkAddr)
+inline int32 EndPoint::joinMulticastGroup(uint32 networkAddr)
 {
 #ifdef SL_OS_WINDOWS
 	return -1;
@@ -141,7 +141,7 @@ inline int EndPoint::joinMulticastGroup(uint32 networkAddr)
 #endif
 }
 
-inline int EndPoint::quitMulticastGroup(uint32 networkAddr)
+inline int32 EndPoint::quitMulticastGroup(uint32 networkAddr)
 {
 #ifdef SL_OS_WINDOWS
 	return -1;
@@ -150,16 +150,16 @@ inline int EndPoint::quitMulticastGroup(uint32 networkAddr)
 #endif
 }
 
-inline int EndPoint::close()
+inline int32 EndPoint::close()
 {
 	if(m_socket == -1)
 	{
 		return 0;
 	}
 #ifdef SL_OS_LINUX
-	int ret = close(m_socket);
+	int32 ret = close(m_socket);
 #else
-	int ret = closesocket(m_socket);
+	int32 ret = closesocket(m_socket);
 #endif
 
 	if(ret == 0)
@@ -170,7 +170,7 @@ inline int EndPoint::close()
 	return ret;
 }
 
-inline int EndPoint::getlocaladdress(uint16* networkPort, uint32* networkAddr) const
+inline int32 EndPoint::getlocaladdress(uint16* networkPort, uint32* networkAddr) const
 {
 	sockaddr_in		sin;
 	socklen_t		sinLen = sizeof(sin);
@@ -189,7 +189,7 @@ inline int EndPoint::getremoteaddress(uint16* networkPort, uint32* networkAddr) 
 	sockaddr_in		sin;
 	socklen_t		sinLen = sizeof(sin);
 
-	int ret = ::getpeername(m_socket, (struct sockaddr*)&sin, &sinLen);
+	int32 ret = ::getpeername(m_socket, (struct sockaddr*)&sin, &sinLen);
 	if(ret == 0)
 	{
 		if(networkAddr != NULL) *networkAddr = sin.sin_addr.s_addr;
@@ -219,12 +219,12 @@ inline void EndPoint::addr(uint16 newNeteorkPort, uint32 newNetworkAddress)
 	m_address.m_ip = newNetworkAddress;
 }
 
-inline int EndPoint::getremotehostname(std::string* host) const
+inline int32 EndPoint::getremotehostname(std::string* host) const
 {
 	sockaddr_in sin;
 	socklen_t sinlen = sizeof(sin);
 
-	int ret = getpeername(m_socket, (struct sockaddr*)&sin, &sinlen);
+	int32 ret = getpeername(m_socket, (struct sockaddr*)&sin, &sinlen);
 	if(ret == 0)
 	{
 		hostent* h = gethostbyaddr((char*)&sin.sin_addr, sizeof(sin.sin_addr), AF_INET);
@@ -241,7 +241,7 @@ inline int EndPoint::getremotehostname(std::string* host) const
 	return ret;
 }
 
-inline int EndPoint::sendto(void* gramData, int gramSize, uint16 networkPort, uint32 networkAddr)
+inline int32 EndPoint::sendto(void* gramData, int32 gramSize, uint16 networkPort, uint32 networkAddr)
 {
 	sockaddr_in sin;
 	sin.sin_family = AF_INET;
@@ -251,15 +251,15 @@ inline int EndPoint::sendto(void* gramData, int gramSize, uint16 networkPort, ui
 	return this->sendto(gramData, gramSize, sin);
 }
 
-inline int EndPoint::sendto(void* gramData, int gramSize, struct sockaddr_in& sin)
+inline int32 EndPoint::sendto(void* gramData, int32 gramSize, struct sockaddr_in& sin)
 {
 	return ::sendto(m_socket, (char*)gramData, gramSize, 0, (sockaddr*)&sin, sizeof(sin)); 
 }
 
-inline int EndPoint::recvfrom(void* gramData, int gramSize, uint16* networkPort, uint32* networkAddr)
+inline int32 EndPoint::recvfrom(void* gramData, int32 gramSize, uint16* networkPort, uint32* networkAddr)
 {
 	sockaddr_in sin;
-	int result = this->recvfrom(gramData, gramSize, sin);
+	int32 result = this->recvfrom(gramData, gramSize, sin);
 
 	if(result >= 0)
 	{
@@ -269,31 +269,31 @@ inline int EndPoint::recvfrom(void* gramData, int gramSize, uint16* networkPort,
 	return result;
 }
 
-inline int EndPoint::recvfrom(void* gramData, int gramSize, struct sockaddr_in& sin)
+inline int32 EndPoint::recvfrom(void* gramData, int32 gramSize, struct sockaddr_in& sin)
 {
 	socklen_t sinlen = sizeof(sin);
 	int ret = ::recvfrom(m_socket, (char*)gramData, gramSize, 0, (sockaddr*)&sin, &sinlen);
 	return ret;
 }
 
-inline int EndPoint::listen(int backlog)
+inline int32 EndPoint::listen(int32 backlog)
 {
 	return ::listen(m_socket, backlog);
 }
 
-inline int EndPoint::connect(bool autosetflags /* = true */)
+inline int32 EndPoint::connect(bool autosetflags /* = true */)
 {
 	return connect(m_address.m_port, m_address.m_ip, autosetflags);
 }
 
-inline int EndPoint::connect(uint16 networkport, uint32 networkAddr /* = INADDR_BROADCAST */, bool autosetflags /* = true */)
+inline int32 EndPoint::connect(uint16 networkport, uint32 networkAddr /* = INADDR_BROADCAST */, bool autosetflags /* = true */)
 {
 	sockaddr_in sin;
 	sin.sin_family = AF_INET;
 	sin.sin_port  = networkport;
 	sin.sin_addr.s_addr = networkAddr;
 
-	int ret = ::connect(m_socket, (sockaddr*)&sin, sizeof(sin));
+	int32 ret = ::connect(m_socket, (sockaddr*)&sin, sizeof(sin));
 	if(autosetflags)
 	{
 		setnonblocking(true);
@@ -305,7 +305,7 @@ inline EndPoint* EndPoint::accept(uint16* networkPort /* = NULL */, uint32* netw
 {
 	sockaddr_in sin;
 	socklen_t sinLen = sizeof(sin);
-	int ret = (int)::accept(m_socket, (sockaddr*)&sin, &sinLen);
+	int32 ret = (int32)::accept(m_socket, (sockaddr*)&sin, &sinLen);
 #ifdef SL_OS_LINUX
 	if(ret < 0) return NULL;
 #else
@@ -328,23 +328,23 @@ inline EndPoint* EndPoint::accept(uint16* networkPort /* = NULL */, uint32* netw
 	return pNew;
 }
 
-inline int EndPoint::send(const void* gramData, int gramSize)
+inline int32 EndPoint::send(const void* gramData, int32 gramSize)
 {
 	return ::send(m_socket, (char*)gramData, gramSize, 0);
 }
 
-inline int EndPoint::recv(void* gramData, int gramSize)
+inline int32 EndPoint::recv(void* gramData, int32 gramSize)
 {
 	return ::recv(m_socket, (char*)gramData, gramSize, 0);
 }
 
 #ifdef SL_OS_LINUX
-inline int EndPoint::getInterfaceFlags(char* name, int& flag)
+inline int32 EndPoint::getInterfaceFlags(char* name, int32& flag)
 {
 
 }
 #else
-inline int EndPoint::getInterfaceFlags(char* name, int& flag)
+inline int32 EndPoint::getInterfaceFlags(char* name, int32& flag)
 {
 	if(!strcmp(name, "eth0"))
 	{
@@ -362,7 +362,7 @@ inline int EndPoint::getInterfaceFlags(char* name, int& flag)
 	return -1;
 }
 
-inline int EndPoint::getInterfaceAddress(const char* name, uint32& address)
+inline int32 EndPoint::getInterfaceAddress(const char* name, uint32& address)
 {
 	if(!strcmp(name, "eth0"))
 	{

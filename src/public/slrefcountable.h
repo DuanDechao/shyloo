@@ -1,6 +1,6 @@
 #ifndef _SL_REFCOUNTABLE_H_
 #define _SL_REFCOUNTABLE_H_
-#include "slbase.h"
+#include "slmulti_sys.h"
 
 namespace sl
 {
