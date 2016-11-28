@@ -62,6 +62,8 @@ SET(SL_LIB_NET
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/sllistener.cpp"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slnet_module.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slnet_module.cpp"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slconnector.h"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slconnector.cpp"
 
 )
 

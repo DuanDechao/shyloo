@@ -20,6 +20,7 @@ class ListenerReceiver;
 class Packet;
 class EventDispatcher;
 class MessageHandlers;
+class TCPPacketReceiver;
 
 class NetworkInterface
 {
@@ -39,6 +40,8 @@ public:
 
 	bool recreateListeningSocket(const char* pEndPointName, uint16 listeningPort_min, uint16 listeningPort_max,
 		const char* listeningInterface, EndPoint* pEP, ListenerReceiver* pLR, uint32 rbuffer = 0, uint32 wbuffer = 0);
+
+	bool createConnectingSocket(const char* serverIp, uint16 serverPort, EndPoint* pEP, TCPPacketReceiver* pRvr, uint32 rbuffer = 0, uint32 wbuffer = 0);
 
 	bool registerChannel(Channel* pChannel);
 	bool deregisterChannel(Channel* pChannel);

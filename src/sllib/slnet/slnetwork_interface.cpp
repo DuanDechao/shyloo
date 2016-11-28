@@ -1,5 +1,6 @@
 #include "slnetwork_interface.h"
 #include "sllistener_receiver.h"
+#include "sltcp_packet_receiver.h"
 #include "slevent_dispatcher.h"
 #include "slnet.h"
 namespace sl
@@ -215,6 +216,50 @@ bool NetworkInterface::recreateListeningSocket(const char* pEndPointName, uint16
 		return false;
 	}
 
+	return true;
+}
+
+bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serverPort,  EndPoint* pEP, TCPPacketReceiver* pRvr, uint32 rbuffer /*= 0*/, uint32 wbuffer /*= 0*/)
+{
+	SLASSERT(pEP && pRvr, "wtf");
+	if(pEP->good())
+	{
+		this->getDispatcher().deregisterReadFileDescriptor((int32)*pEP);
+		pEP->close();
+	}
+	Address address;
+	Address::string2ip(serverIp, address.m_ip);
+	address.m_port = serverPort;
+
+	pEP->socket(SOCK_STREAM);
+	if(!pEP->good())
+	{
+		return false;
+	}
+
+	this->getDispatcher().registerReadFileDescriptor((int32)*pEP, pRvr);
+
+	if(rbuffer > 0)
+	{
+		if(!pEP->setBufferSize(SO_RCVBUF, rbuffer))
+		{
+
+		}
+	}
+	if(wbuffer > 0)
+	{
+		if(!pEP->setBufferSize(SO_SNDBUF, wbuffer))
+		{
+
+		}
+	}
+
+	pEP->addr(address);
+	if(pEP->connect() == -1)
+	{
+		pEP->close();
+		return false;
+	}
 	return true;
 }
 
