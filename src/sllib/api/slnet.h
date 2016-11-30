@@ -24,6 +24,21 @@ public:
 	virtual const unsigned short SLAPI getLocalPort(void) = 0;
 };
 
+class ISLConnector
+{
+public:
+
+	virtual void SLAPI setSession(ISLSession* pSession) = 0;
+
+	virtual bool SLAPI connect(const char* pszIP, uint16 wPort) = 0;
+
+	virtual bool SLAPI reConnect(void) = 0;
+
+	virtual void SLAPI setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize) = 0;
+
+	virtual void SLAPI release(void) = 0;
+};
+
 class ISLListener
 {
 public:
@@ -43,7 +58,13 @@ class ISLSession
 {
 public:
 	virtual void SLAPI setChannel(ISLChannel* poChannel) = 0;
+
+	virtual void SLAPI onEstablish(void) = 0;
+
+	virtual void SLAPI onTerminate(void) = 0;
+
 	virtual void SLAPI release(void) = 0;
+
 	virtual void SLAPI onRecv(const char* pBuf, uint32 dwLen) = 0;
 };
 
@@ -58,6 +79,7 @@ class ISLNet
 public:
 
 	virtual ISLListener* SLAPI createListener() = 0;
+	virtual ISLConnector* SLAPI createConnector() = 0;
 };
 
 ISLNet* SLAPI getSLNetModule(void);

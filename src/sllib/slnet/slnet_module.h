@@ -14,6 +14,7 @@ class CSLNetModule: public ISLNet, public CSingleton<CSLNetModule>
 {
 public:
 	virtual ISLListener* SLAPI createListener();
+	virtual ISLConnector* SLAPI createConnector(){return nullptr;}
 
 	inline EventDispatcher* getEventDispatcher() {return &m_dispatcher;}
 private:

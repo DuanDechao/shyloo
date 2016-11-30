@@ -80,7 +80,8 @@ Channel::Channel(NetworkInterface& networkInterface,
 				  m_pPacketReceiver(NULL),
 				  m_pPacketSender(NULL),
 				  m_channelType(CHANNEL_NORMAL),
-				  m_flags(0)
+				  m_flags(0),
+				  m_bIsConnected(false)
 {
 	this->clearBundle();
 	initialize(networkInterface, pEndPoint, traits, pt, pFilter, id);

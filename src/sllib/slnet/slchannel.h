@@ -230,6 +230,8 @@ private:
 	uint32						m_flags;
 
 	ISLSession*					m_pSession;
+
+	bool						m_bIsConnected;
 };
 
 }

@@ -8,6 +8,9 @@ namespace network
 
 ISLNet* SLAPI getSLNetModule()
 {
+	CSLNetModule* g_netModulePtr = CSLNetModule::getSingletonPtr();
+	if(g_netModulePtr == NULL)
+		g_netModulePtr = new CSLNetModule();
 	return CSLNetModule::getSingletonPtr();
 }
 
