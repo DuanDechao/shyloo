@@ -28,6 +28,8 @@ private:
 	ISLSession*			m_pSession;
 	EventDispatcher*	m_pEventDispatcher;
 	EndPoint*			m_pEndPoint;
+	uint32				m_dwRecvBufSize;
+	uint32				m_dwSendBufSize;
 	bool				m_bConnected;
 };
 }

@@ -32,6 +32,7 @@ bool CSLConnector::connect(const char* pszIP, uint16 wPort)
 		return false;
 
 	m_pEndPoint = EndPoint::createPoolObject();
+	SLASSERT(m_pEndPoint, "wtf");
 
 	Address addr;
 	Address::string2ip(pszIP, addr.m_ip);
@@ -44,10 +45,12 @@ bool CSLConnector::connect(const char* pszIP, uint16 wPort)
 	}
 
 	m_pSvrChannel = Channel::createPoolObject();
+	SLASSERT(m_pSvrChannel, "wtf");
 	m_pSvrChannel->setEndPoint(m_pEndPoint);
 	
 	TCPPacketReceiver* pTcpPacketReceiver = TCPPacketReceiver::createPoolObject();
-	//m_pEventDispatcher->registerReadFileDescriptor((int32)*m_pEndPoint, )
+	SLASSERT(pTcpPacketReceiver, "wtf");
+	
 }
 
 }
