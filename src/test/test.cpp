@@ -1,31 +1,15 @@
-#include "slmulti_sys.h"
-#include "slikernel.h"
-#include "sltime.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
+#include "slnet.h"
 using namespace sl;
-using namespace sl::timer;
+using namespace sl::network;
 
-class TestTimer : public ISLTimer
-{
-public:
-	virtual void SLAPI onInit(int64 timetick){printf("onInit() %lld", timetick);}
-	virtual void SLAPI onStart(int64 timetick){printf("onStart %lld",timetick );}
-	virtual void SLAPI onTime(int64 timetick) {printf("onTime %lld",timetick );}
-	virtual void SLAPI onTerminate(int64 timetick) {printf("onTerminate %lld",timetick );}
-	virtual void SLAPI onPause(int64 timetick) {printf("onPause %lld",timetick );}
-	virtual void SLAPI onResume(int64 timetick) {printf("onResume %lld",timetick );}
-};
+
+
 int main()
 {
 
-	ISLTimerMgr* timerMgr = getSLTimerModule();
-	TestTimer * pTestTimer = new TestTimer();
-	timerMgr->startTimer(pTestTimer, 5000, 3, 5000);
-	while(true){
-		timerMgr->process(getTimeMilliSecond());
-	}
-	delete pTestTimer;
+	ISLNet* pNetModule = getSLNetModule();
+	ISLListener* pListener = pNetModule->createListener();
+	pListener->start("127.0.0.1", 7011);
+	while(true){};
 	return 0;
 }

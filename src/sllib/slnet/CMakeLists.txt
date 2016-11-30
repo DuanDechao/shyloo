@@ -60,10 +60,13 @@ SET(SL_LIB_NET
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/sludp_packet_receiver.cpp"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/sllistener.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/sllistener.cpp"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slconnector.h"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slconnector.cpp"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slnet_module.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slnet_module.cpp"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slconnector.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slconnector.cpp"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/test.cpp"
 
 )
 
@@ -71,7 +74,7 @@ SOURCE_GROUP(api FILES ${SL_LIB_API})
 SOURCE_GROUP(public FILES ${PUBLIC})
 SOURCE_GROUP(\\ FILES ${SL_LIB_NET})
 
-ADD_LIBRARY(slnet STATIC
+ADD_EXECUTABLE(slnet
 	${SL_LIB_API}
 	${PUBLIC}
 	${SL_LIB_NET}

@@ -1,22 +1,18 @@
 #include "slconnector.h"
 #include "slnet_module.h"
-#include "slchannel.h"
-#include ""
+#include "sladdress.h"
+#include "sltcp_packet_receiver.h"
+
 namespace sl
 {
 namespace network
 {
 CSLConnector::CSLConnector()
-	:m_pNetworkInterface(nullptr),
-	 m_pSession(nullptr),
-	 m_dwRecvBufSize(0),
-	 m_dwSendBufSize(0),
-	 m_connEndPoint()
-{}
-
-CSLConnector::~CSLConnector()
+	:m_pSession(nullptr),
+	 m_pSvrChannel(nullptr),
+	 m_bConnected(false)
 {
-
+	m_pEventDispatcher = CSLNetModule::getSingletonPtr()->getEventDispatcher();
 }
 
 void CSLConnector::setSession(ISLSession* pSession)
@@ -30,26 +26,29 @@ void CSLConnector::setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize)
 	m_dwSendBufSize = dwSendBufSize;
 }
 
-bool CSLConnector::connect(const char* pszIp, uint16 wPort)
+bool CSLConnector::connect(const char* pszIP, uint16 wPort)
 {
-	m_pNetworkInterface = new NetworkInterface(CSLNetModule::getSingletonPtr()->getEventDispatcher());
-	Channel* pChannel = Channel::createPoolObject();
-	m_tcpPacketReceiver = new TCPPacketReceiver(m_connEndPoint, *m_pNetworkInterface);
-	bool ret = pChannel->initialize(*m_pNetworkInterface, &m_connEndPoint, Channel::Traits::INTERNAL);
-	if(!ret)
-	{
-		pChannel->destroy();
-		Channel::reclaimPoolObject(pChannel);
+	if(m_bConnected)
+		return false;
+
+	m_pEndPoint = EndPoint::createPoolObject();
+
+	Address addr;
+	Address::string2ip(pszIP, addr.m_ip);
+	addr.m_port = wPort;
+	m_pEndPoint->addr(addr);
+
+	if(m_pEndPoint->connect() == -1){
+		EndPoint::reclaimPoolObject(m_pEndPoint);
 		return false;
 	}
 
-	if(!m_pNetworkInterface->registerChannel(pChannel))
-	{
-		pChannel->destroy();
-		Channel::reclaimPoolObject(pChannel);
-		return false;
-	}
-	return m_pNetworkInterface->createConnectingSocket(pszIp, wPort, &m_connEndPoint, m_tcpPacketReceiver, m_dwRecvBufSize, m_dwSendBufSize);
+	m_pSvrChannel = Channel::createPoolObject();
+	m_pSvrChannel->setEndPoint(m_pEndPoint);
+	
+	TCPPacketReceiver* pTcpPacketReceiver = TCPPacketReceiver::createPoolObject();
+	//m_pEventDispatcher->registerReadFileDescriptor((int32)*m_pEndPoint, )
 }
+
 }
 }

@@ -1,10 +1,8 @@
 #ifndef SL_SLNET_CONNECTOR_H
 #define SL_SLNET_CONNECTOR_H
-#include "sltype.h"
+
 #include "slnet.h"
-#include "slendpoint.h"
-#include "slnetwork_interface.h"
-#include "sltcp_packet_receiver.h"
+#include "slchannel.h"
 namespace sl
 {
 namespace network
@@ -15,24 +13,23 @@ public:
 	CSLConnector();
 	virtual ~CSLConnector();
 
-	virtual void SLAPI setSession(ISLSession* pSession);
+	virtual void SLAPI setSession(ISLSession* pSession) = 0;
 
-	virtual void SLAPI setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize);
+	virtual bool SLAPI connect(const char* pszIP, uint16 wPort) = 0;
 
-	virtual bool SLAPI connect(const char* pszIp, uint16 wPort);
+	virtual bool SLAPI reConnect(void) = 0;
 
-	virtual bool SLAPI reConnect(void);
+	virtual void SLAPI setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize) = 0;
 
-	virtual void SLAPI release(void);
+	virtual void SLAPI release(void) = 0;
+
 private:
-	NetworkInterface*		m_pNetworkInterface;
-	ISLSession*				m_pSession;
-	int32					m_dwRecvBufSize;
-	int32					m_dwSendBufSize;
-	EndPoint				m_connEndPoint;
-	TCPPacketReceiver*		m_tcpPacketReceiver;
+	Channel*			m_pSvrChannel;
+	ISLSession*			m_pSession;
+	EventDispatcher*	m_pEventDispatcher;
+	EndPoint*			m_pEndPoint;
+	bool				m_bConnected;
 };
 }
 }
-
 #endif
