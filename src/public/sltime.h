@@ -313,9 +313,9 @@ namespace sl
 		char* Format(char* pszBuffer, int iMaxLen, const char* pszFormat) const
 		{
 			time_t time = m_time;
-			struct tm * ptmTemp = nullptr;
-			localtime_s(ptmTemp, &time);
-			if(ptmTemp == NULL || !strftime(pszBuffer, iMaxLen, pszFormat, ptmTemp))
+			struct tm ptmTemp;
+			localtime_s(&ptmTemp, &time);
+			if(!strftime(pszBuffer, iMaxLen, pszFormat, &ptmTemp))
 			{
 				pszBuffer[0] = '\0';
 			}
@@ -343,7 +343,8 @@ namespace sl
 		CTime time((time_t)(getTimeMilliSecond()/1000));
 		char buff[128] ={0};
 		time.Format(buff, 127, "%d-%b-%Y %H:%M:%S");
-		return std::string(buff).c_str();
+		std::string resStr = buff;
+		return resStr.c_str();
 	}
 
 }

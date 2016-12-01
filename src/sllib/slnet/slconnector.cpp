@@ -1,7 +1,7 @@
 #include "slconnector.h"
 #include "slnet_module.h"
 #include "sladdress.h"
-#include "sltcp_packet_receiver.h"
+#include "sltcp_packet_sender.h"
 
 namespace sl
 {
@@ -9,10 +9,15 @@ namespace network
 {
 CSLConnector::CSLConnector()
 	:m_pSession(nullptr),
-	 m_pSvrChannel(nullptr),
-	 m_bConnected(false)
+	 m_pSvrEndPoint(),
+	 m_dwRecvBufSize(0),
+	 m_dwSendBufSize(0)
 {
-	m_pEventDispatcher = CSLNetModule::getSingletonPtr()->getEventDispatcher();
+	m_pNetworkInterface = CSLNetModule::getSingletonPtr()->getNetworkInterface();
+}
+
+CSLConnector::~CSLConnector()
+{
 }
 
 void CSLConnector::setSession(ISLSession* pSession)
@@ -28,30 +33,25 @@ void CSLConnector::setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize)
 
 bool CSLConnector::connect(const char* pszIP, uint16 wPort)
 {
-	if(m_bConnected)
-		return false;
-
-	m_pEndPoint = EndPoint::createPoolObject();
-	SLASSERT(m_pEndPoint, "wtf");
-
-	Address addr;
-	Address::string2ip(pszIP, addr.m_ip);
-	addr.m_port = wPort;
-	m_pEndPoint->addr(addr);
-
-	if(m_pEndPoint->connect() == -1){
-		EndPoint::reclaimPoolObject(m_pEndPoint);
+	if(nullptr == m_pSession || nullptr == m_pNetworkInterface){
+		SLASSERT(false, "wtf");
 		return false;
 	}
-
-	m_pSvrChannel = Channel::createPoolObject();
-	SLASSERT(m_pSvrChannel, "wtf");
-	m_pSvrChannel->setEndPoint(m_pEndPoint);
-	
-	TCPPacketReceiver* pTcpPacketReceiver = TCPPacketReceiver::createPoolObject();
-	SLASSERT(pTcpPacketReceiver, "wtf");
+	return m_pNetworkInterface->createConnectingSocket(pszIP, wPort, &m_pSvrEndPoint, m_pSession, m_dwRecvBufSize, m_dwSendBufSize);
 	
 }
+void CSLConnector::release()
+{
+	if (m_pSvrEndPoint.good())
+	{
+		m_pNetworkInterface->deregisterSocket((int32)m_pSvrEndPoint);
+		m_pSvrEndPoint.close();
+	}
+	m_dwRecvBufSize = 0;
+	m_dwSendBufSize = 0;
+	delete this;
+}
+
 
 }
 }

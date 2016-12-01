@@ -13,24 +13,22 @@ public:
 	CSLConnector();
 	virtual ~CSLConnector();
 
-	virtual void SLAPI setSession(ISLSession* pSession) = 0;
+	virtual void SLAPI setSession(ISLSession* pSession);
 
-	virtual bool SLAPI connect(const char* pszIP, uint16 wPort) = 0;
+	virtual bool SLAPI connect(const char* pszIP, uint16 wPort);
 
-	virtual bool SLAPI reConnect(void) = 0;
+	virtual bool SLAPI reConnect(void){return true;}
 
-	virtual void SLAPI setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize) = 0;
+	virtual void SLAPI setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize);
 
-	virtual void SLAPI release(void) = 0;
+	virtual void SLAPI release(void);
 
 private:
-	Channel*			m_pSvrChannel;
 	ISLSession*			m_pSession;
-	EventDispatcher*	m_pEventDispatcher;
-	EndPoint*			m_pEndPoint;
+	NetworkInterface*	m_pNetworkInterface;
+	EndPoint			m_pSvrEndPoint;
 	uint32				m_dwRecvBufSize;
 	uint32				m_dwSendBufSize;
-	bool				m_bConnected;
 };
 }
 }

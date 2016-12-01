@@ -22,14 +22,17 @@ public:
 	ListenerReceiver(EndPoint& endpoint, Channel::Traits traits, NetworkInterface& networkInterface);
 	~ListenerReceiver();
 
+	void setSessionFactory(ISLSessionFactory* poSessionFactory);
+
 private:
 	virtual int handleInputNotification(int fd);
 	EventDispatcher& dispatcher();
-
+	
 private:
 	EndPoint&			m_endpoint;
 	Channel::Traits		m_traits;
 	NetworkInterface&	m_networkInterface;
+	ISLSessionFactory*	m_pSessionFactory;
 };
 }
 }

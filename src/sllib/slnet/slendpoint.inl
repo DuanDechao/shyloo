@@ -299,6 +299,7 @@ inline int32 EndPoint::connect(uint16 networkport, uint32 networkAddr /* = INADD
 		setnonblocking(true);
 		setnodelay(true);
 	}
+	return ret;
 }
 
 inline EndPoint* EndPoint::accept(uint16* networkPort /* = NULL */, uint32* networkAddr /* = NULL */, bool autosetflags /* = true */)

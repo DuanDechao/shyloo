@@ -23,11 +23,10 @@ public:
 
 private:
 	NetworkInterface*		m_pNetworkInterface;
-	ISLSessionFactory*		m_pSessionFactory;
+	ListenerReceiver*		m_pListenerReceiver;
+	EndPoint			    m_pListenEndPoint;
 	int						m_dwRecvBufSize;
 	int						m_dwSendBufSize;
-	bool					m_bStart;
-
 }; 
 }
 

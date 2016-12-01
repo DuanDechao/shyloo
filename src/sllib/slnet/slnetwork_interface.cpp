@@ -3,49 +3,19 @@
 #include "sltcp_packet_receiver.h"
 #include "slevent_dispatcher.h"
 #include "slnet.h"
+#include "slnet_module.h"
 namespace sl
 {
 namespace network
 {
-NetworkInterface::NetworkInterface(EventDispatcher* pDispatcher, 
-		int32 extlisteningPort_min /* = -1 */, int32 extlisteningPort_max /* = -1 */, const char* extlisteningInterface/* ="" */, 
-		uint32 extrbuffer /* = 0 */, uint32 extwbuffer /* = 0 */, 
-		int32 intlisteningPort /* = 0 */, const char* intlisteningInterface /* = "" */, 
-		uint32 intrbuffer /* = 0 */, uint32 intwbuffer /* = 0 */)
-		:m_extEndPoint(),
-		 m_intEndPoint(),
-		 m_channelMap(),
-		 m_pDispatcher(pDispatcher),
-		 m_pExtensionData(NULL),
-		 m_pExtListenerReceiver(NULL),
-		 m_pIntListenerReceiver(NULL),
-//		 m_pDelayedChannels(new DelayedChannels()),
+NetworkInterface::NetworkInterface(EventDispatcher* pEventDispatcher)
+		:m_channelMap(),
+		 m_pDispatcher(pEventDispatcher),
+		 m_pDelayedChannels(NULL),
 		 m_pChannelTimeOutHandler(NULL),
 		 m_pChannelDeregisterHandler(NULL),
-		 m_isExternal(extlisteningPort_min != -1),
-		 m_numExtChannels(0),
-		 m_pSessionFactory(NULL)
+		 m_numExtChannels(0)
 {
-	if(isExternal())
-	{
-		//m_pExtListenerReceiver = new ListenerReceiver()
-		m_pExtListenerReceiver = new ListenerReceiver(m_extEndPoint, Channel::EXTERNAL, *this);
-		this->recreateListeningSocket("EXTERNAL", htons(extlisteningPort_min), htons(extlisteningPort_max),
-			extlisteningInterface, &m_extEndPoint, m_pExtListenerReceiver, extrbuffer, extwbuffer);
-
-		//如果配置了对外端口范围，如果范围过小这里extEndpoint可能没有端口可用了
-		if(extlisteningPort_min != -1)
-		{
-			SLASSERT(m_extEndPoint.good(), "wtf");
-		}
-	}
-
-	if(intlisteningPort != -1)
-	{
-		m_pIntListenerReceiver = new ListenerReceiver(m_intEndPoint, Channel::INTERNAL, *this);
-		this->recreateListeningSocket("INTERNAL", intlisteningPort, intlisteningPort, intlisteningInterface,
-			&m_intEndPoint, m_pIntListenerReceiver, intrbuffer, intwbuffer);
-	}
 }
 
 NetworkInterface::~NetworkInterface()
@@ -62,47 +32,22 @@ NetworkInterface::~NetworkInterface()
 
 	m_channelMap.clear();
 
-	this->closeSocket();
-
 	if(m_pDispatcher != NULL)
 	{
 		m_pDispatcher = NULL;
 	}
-
-	//SAFE_RELEASE();
-	SAFE_RELEASE(m_pExtListenerReceiver);
-	SAFE_RELEASE(m_pIntListenerReceiver);
+	m_numExtChannels = 0;
 }
 
-void NetworkInterface::stop()
-{
-	this->closeSocket();
-}
-
-void NetworkInterface::closeSocket()
-{
-	if(m_extEndPoint.good())
-	{
-		this->getDispatcher().deregisterReadFileDescriptor((int32)m_extEndPoint);
-		m_extEndPoint.close();
-	}
-	if(m_intEndPoint.good())
-	{
-		this->getDispatcher().deregisterReadFileDescriptor((int32)m_intEndPoint);
-		m_intEndPoint.close();
-	}
-}
-
-bool NetworkInterface::recreateListeningSocket(const char* pEndPointName, uint16 listeningPort_min, 
-											   uint16 listeningPort_max, const char* listeningInterface, 
+bool NetworkInterface::createListeningSocket(const char* listeningInterface, uint16 listeningPort, 
 											   EndPoint* pEP, ListenerReceiver* pLR, uint32 rbuffer /* = 0 */, 
 											   uint32 wbuffer /* = 0 */)
 {
-	SLASSERT(listeningInterface && pEP && pLR, "wtf");
-
+	SLASSERT(listeningInterface && pLR && m_pDispatcher, "wtf");
+	
 	if(pEP->good())
 	{
-		this->getDispatcher().deregisterReadFileDescriptor((int32)*pEP);
+		m_pDispatcher->deregisterReadFileDescriptor((int32)*pEP);
 		pEP->close();
 	}
 
@@ -116,9 +61,8 @@ bool NetworkInterface::recreateListeningSocket(const char* pEndPointName, uint16
 		return false;
 	}
 
-	this->getDispatcher().registerReadFileDescriptor((int32)*pEP, pLR);
+	m_pDispatcher->registerReadFileDescriptor((int32)*pEP, pLR);
 	uint32 ifIPAddr = INADDR_ANY;
-	bool listeningInterfaceEmpty = (listeningInterface == NULL || listeningInterface[0] == 0);
 
 	//查找指定接口名 NIP、MAC、IP是否可用
 	if(pEP->findIndicatedInterface(listeningInterface, ifIPAddr) == 0)
@@ -127,45 +71,14 @@ bool NetworkInterface::recreateListeningSocket(const char* pEndPointName, uint16
 		Address::ip2string(ifIPAddr, szIp);
 	}
 
-	//如果不为空又找不到那么警告用户错误的设置
-	else if(!listeningInterfaceEmpty)
-	{
-		//warning
-	}
-
 	//尝试绑定到端口，如果被占用向后递增
-	bool foundport = false;
-	uint32 listeningPort = listeningPort_min;
-	if(listeningPort_min != listeningPort_max)
-	{
-		for (int IpIdx = ntohs(listeningPort_min); IpIdx <= ntohs(listeningPort_max); ++IpIdx)
-		{
-			listeningPort = htons(IpIdx);
-			if(pEP->bind(listeningPort, ifIPAddr) != 0)
-			{
-				continue;
-			}
-			else
-			{
-				foundport = true;
-				break;
-			}
-		}
-	}
-	else
-	{
-		if(pEP->bind(listeningPort, ifIPAddr) == 0)
-		{
-			foundport = true;
-		}
-	}
-
-	//如果无法绑定到合适的端口那么报错返回，进程将推出
-	if(!foundport)
+	if(pEP->bind(htons(listeningPort), ifIPAddr) != 0)
 	{
 		pEP->close();
+		EndPoint::reclaimPoolObject(pEP);
 		return false;
 	}
+
 
 	//获得当前绑定的地址，如果是INADDR_ANY这里获得的IP是0
 	pEP->getlocaladdress((uint16*)&address.m_port,
@@ -195,14 +108,14 @@ bool NetworkInterface::recreateListeningSocket(const char* pEndPointName, uint16
 	{
 		if(!pEP->setBufferSize(SO_RCVBUF, rbuffer))
 		{
-
+			SLASSERT(false, "wtf");
 		}
 	}
 	if(wbuffer > 0)
 	{
 		if(!pEP->setBufferSize(SO_SNDBUF, wbuffer))
 		{
-
+			SLASSERT(false, "wtf");
 		}
 	}
 
@@ -219,9 +132,9 @@ bool NetworkInterface::recreateListeningSocket(const char* pEndPointName, uint16
 	return true;
 }
 
-bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serverPort,  EndPoint* pEP, TCPPacketReceiver* pRvr, uint32 rbuffer /*= 0*/, uint32 wbuffer /*= 0*/)
+bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serverPort,  EndPoint* pEP, ISLSession* pSession, uint32 rbuffer /*= 0*/, uint32 wbuffer /*= 0*/)
 {
-	SLASSERT(pEP && pRvr, "wtf");
+	SLASSERT(pEP, "wtf");
 	if(pEP->good())
 	{
 		this->getDispatcher().deregisterReadFileDescriptor((int32)*pEP);
@@ -237,22 +150,19 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 		return false;
 	}
 
-	this->getDispatcher().registerReadFileDescriptor((int32)*pEP, pRvr);
-
-	if(rbuffer > 0)
+	Channel* pSvrChannel = Channel::createPoolObject();
+	SLASSERT(pSvrChannel, "w");
+	if(pSvrChannel->initialize(*this, pEP, Channel::Traits::EXTERNAL))
 	{
-		if(!pEP->setBufferSize(SO_RCVBUF, rbuffer))
-		{
-
-		}
+		SLASSERT(false, "wtf");
 	}
-	if(wbuffer > 0)
+
+	if(!this->registerChannel(pSvrChannel))
 	{
-		if(!pEP->setBufferSize(SO_SNDBUF, wbuffer))
-		{
-
-		}
+		pSvrChannel->destroy();
+		Channel::reclaimPoolObject(pSvrChannel);
 	}
+
 
 	pEP->addr(address);
 	if(pEP->connect() == -1)
@@ -260,6 +170,9 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 		pEP->close();
 		return false;
 	}
+
+	pSvrChannel->setSession(pSession);
+	pSession->setChannel(pSvrChannel);
 	return true;
 }
 
@@ -301,21 +214,6 @@ bool NetworkInterface::registerChannel(Channel* pChannel)
 	if(pChannel->isExternal())
 		m_numExtChannels++;
 
-	if(m_pSessionFactory == NULL){
-		ECHO_ERROR("network inferface have no sessionfactory");
-		return false;
-	}
-
-	ISLSession* poSession = m_pSessionFactory->createSession(pChannel);
-	if(NULL == poSession)
-	{
-		ECHO_ERROR("create session failed");
-		deregisterChannel(pChannel);
-		return false;
-	}
-
-	pChannel->setSession(poSession);
-
 	return true;
 }
 
@@ -355,6 +253,13 @@ bool NetworkInterface::deregisterChannel(Channel* pChannel)
 	return true;
 }
 
+bool NetworkInterface::deregisterSocket(int32 fd)
+{
+	bool ret1 = this->getDispatcher().deregisterReadFileDescriptor(fd);
+	bool ret2 = this->getDispatcher().deregisterWriteFileDescriptor(fd);
+	return ret1 || ret2; 
+}
+
 void NetworkInterface::onChannelTimeOut(Channel* pChannel)
 {
 	if(m_pChannelTimeOutHandler)
@@ -365,42 +270,6 @@ void NetworkInterface::onChannelTimeOut(Channel* pChannel)
 	{
 
 	}
-}
-
-void NetworkInterface::processChannels(/*MessageHandlers* pMsgHandlers*/)
-{
-	ChannelMap::iterator iter = m_channelMap.begin();
-	for (; iter != m_channelMap.end();)
-	{
-		network::Channel* pChannel = iter->second;
-
-		if(pChannel->isDestroyed())
-		{
-			++iter;
-		}
-		else if(pChannel->isCondemn())
-		{
-			++iter;
-			deregisterChannel(pChannel);
-			pChannel->destroy();
-			network::Channel::reclaimPoolObject(pChannel);
-		}
-		else
-		{
-			pChannel->processPackets(/*pMsgHandlers*/);
-			++iter;
-		}
-	}
-}
-
-const Address& NetworkInterface::extaddr() const
-{
-	return m_extEndPoint.addr();
-}
-
-const Address& NetworkInterface::intaddr() const
-{
-	return m_intEndPoint.addr();
 }
 
 int32 NetworkInterface::numExtChannels() const

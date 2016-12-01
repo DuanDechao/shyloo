@@ -253,6 +253,11 @@ void Channel::destroy()
 		return;
 	}
 	clearState();
+	
+	if(nullptr != m_pSession)
+	{
+		m_pSession->onTerminate();
+	}
 	m_flags |= FLAG_DESTROYED;
 }
 

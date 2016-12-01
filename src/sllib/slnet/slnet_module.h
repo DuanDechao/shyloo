@@ -13,12 +13,16 @@ namespace network
 class CSLNetModule: public ISLNet, public CSingleton<CSLNetModule>
 {
 public:
+	CSLNetModule();
+	~CSLNetModule();
+public:
 	virtual ISLListener* SLAPI createListener();
-	virtual ISLConnector* SLAPI createConnector(){return nullptr;}
+	virtual ISLConnector* SLAPI createConnector();
 
-	inline EventDispatcher* getEventDispatcher() {return &m_dispatcher;}
+	inline NetworkInterface* getNetworkInterface() {return m_networkInterface;}
 private:
 	EventDispatcher					m_dispatcher;
+	NetworkInterface*				m_networkInterface;
 };
 }
 }

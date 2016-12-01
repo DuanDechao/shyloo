@@ -20,6 +20,20 @@ PacketReceiver::~PacketReceiver(){}
 
 int PacketReceiver::handleInputNotification(int fd)
 {
+	Channel *activeChannel = getChannel();
+	SLASSERT(activeChannel != NULL, "wtf");
+
+	if(activeChannel->isCondemn())
+	{
+		return -1;
+	}
+	if(!activeChannel->isConnected()){
+		ISLSession * pSession = activeChannel->getSession();
+		SLASSERT(pSession, "wtf");
+		pSession->onEstablish();
+		activeChannel->setConnected(true);
+	}
+
 	if(this->processRecv(true))
 	{
 		while(this->processRecv(false))

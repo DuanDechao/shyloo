@@ -65,7 +65,7 @@ public:
 
 	virtual ~Channel();
 
-	virtual bool SLAPI isConnected(void) {return true;}
+	virtual bool SLAPI isConnected(void) {return m_bIsConnected;}
 	virtual void SLAPI send(const char* pBuf, uint32 dwLen);
 	virtual void SLAPI disconnect(void);
 
@@ -82,6 +82,8 @@ public:
 
 	static Channel* get(NetworkInterface& networkInterface,
 		const EndPoint* pSocket);
+
+	void setConnected(bool isOrNo) {m_bIsConnected = isOrNo;}
 
 	/*void startInactivityDetection(float inactivityPeriod,
 		float checkPeriod = 1.f);*/

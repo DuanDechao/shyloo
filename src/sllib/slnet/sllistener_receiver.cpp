@@ -50,9 +50,33 @@ int ListenerReceiver::handleInputNotification(int fd)
 				pChannel->destroy();
 				Channel::reclaimPoolObject(pChannel);
 			}
+
+			//
+			if(m_pSessionFactory == NULL){
+				SLASSERT(false, "wtf");
+				ECHO_ERROR("network inferface have no sessionfactory");
+				return -1;
+			}
+
+			ISLSession* poSession = m_pSessionFactory->createSession(pChannel);
+			if(NULL == poSession)
+			{
+				ECHO_ERROR("create session failed");
+				pChannel->destroy();
+				Channel::reclaimPoolObject(pChannel);
+				return -2;
+			}
+
+			pChannel->setSession(poSession);
+			poSession->setChannel(pChannel);
+			poSession->onEstablish();
+			pChannel->setConnected(true);
 		}
 	}
 	return 0;
+}
+void ListenerReceiver::setSessionFactory(ISLSessionFactory* poSessionFactory){
+	m_pSessionFactory = poSessionFactory;
 }
 
 EventDispatcher& ListenerReceiver::dispatcher()
