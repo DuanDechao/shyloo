@@ -142,17 +142,18 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 	}
 	Address address;
 	Address::string2ip(serverIp, address.m_ip);
-	address.m_port = serverPort;
+	address.m_port = htons(serverPort);
 
 	pEP->socket(SOCK_STREAM);
 	if(!pEP->good())
 	{
 		return false;
 	}
+	pEP->addr(address);
 
 	Channel* pSvrChannel = Channel::createPoolObject();
 	SLASSERT(pSvrChannel, "w");
-	if(pSvrChannel->initialize(*this, pEP, Channel::Traits::EXTERNAL))
+	if(!pSvrChannel->initialize(*this, pEP, Channel::Traits::EXTERNAL))
 	{
 		SLASSERT(false, "wtf");
 	}
@@ -163,8 +164,6 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 		Channel::reclaimPoolObject(pSvrChannel);
 	}
 
-
-	pEP->addr(address);
 	if(pEP->connect() == -1)
 	{
 		pEP->close();
@@ -202,7 +201,7 @@ bool NetworkInterface::registerChannel(Channel* pChannel)
 {
 	const Address& addr = pChannel->addr();
 	SLASSERT(addr.m_ip != 0, "wtf");
-	SLASSERT(&pChannel->getNetworkInterface() == this, "wtf");
+//	SLASSERT(&pChannel->getNetworkInterface() == this, "wtf");
 	ChannelMap::iterator iter = m_channelMap.find(addr);
 	Channel* pExisting = iter != m_channelMap.end() ? iter->second : NULL;
 
