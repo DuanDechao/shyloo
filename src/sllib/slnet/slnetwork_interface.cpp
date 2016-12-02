@@ -140,38 +140,37 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 		this->getDispatcher().deregisterReadFileDescriptor((int32)*pEP);
 		pEP->close();
 	}
-	Address address;
-	Address::string2ip(serverIp, address.m_ip);
-	address.m_port = htons(serverPort);
-
 	pEP->socket(SOCK_STREAM);
 	if(!pEP->good())
 	{
 		return false;
 	}
-	pEP->addr(address);
+	
+	uint32 address;
+	Address::string2ip(serverIp, address);
+	int32 ret = 0;
+	if((ret = pEP->connect(htons(serverPort), address)) == -1)
+	{
+		pEP->close();
+		return false;
+	}
 
+	Address addr(serverIp, serverPort);
+	pEP->addr(addr);
 	Channel* pSvrChannel = Channel::createPoolObject();
 	SLASSERT(pSvrChannel, "w");
 	if(!pSvrChannel->initialize(*this, pEP, Channel::Traits::EXTERNAL))
 	{
 		SLASSERT(false, "wtf");
 	}
+	pSvrChannel->setSession(pSession);
+	pSession->setChannel(pSvrChannel);
 
 	if(!this->registerChannel(pSvrChannel))
 	{
 		pSvrChannel->destroy();
 		Channel::reclaimPoolObject(pSvrChannel);
 	}
-
-	if(pEP->connect() == -1)
-	{
-		pEP->close();
-		return false;
-	}
-
-	pSvrChannel->setSession(pSession);
-	pSession->setChannel(pSvrChannel);
 	return true;
 }
 

@@ -36,5 +36,11 @@ ISLConnector* CSLNetModule::createConnector()
 	return poConnector;
 }
 
+bool CSLNetModule::run()
+{
+	m_dispatcher.processUntilBreak();
+	return true;
+}
+
 }
 }

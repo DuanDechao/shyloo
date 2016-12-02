@@ -3,7 +3,7 @@
 #include "slplatform.h"
 
 #ifdef SL_OS_WINDOWS
-
+#define FD_SETSIZE 8096
 #include <memory>
 #include <WinSock2.h>
 #include <Windows.h>

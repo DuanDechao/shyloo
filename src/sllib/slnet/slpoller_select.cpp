@@ -74,7 +74,7 @@ int SelectPoller::processPendingEvents(double maxWait)
 #endif // SL_OS_WINDOWS
 	else
 	{
-		countReady = select(m_fdLargest + 1, &readFDs, m_fdWriteCount ? &m_fdWriteSet: NULL,
+		countReady = select(m_fdLargest + 1, &readFDs, m_fdWriteCount ? &writeFDs: NULL,
 			NULL, &nextTimeout);
 	}
 
@@ -108,7 +108,7 @@ bool SelectPoller::doRegisterForRead(int fd)
 
 	FD_SET(fd, &m_fdReadSet);
 
-	if(fd < m_fdLargest)
+	if(fd > m_fdLargest)
 	{
 		m_fdLargest = fd;
 	}

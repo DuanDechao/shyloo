@@ -38,15 +38,14 @@ int main()
 	pListener->setBufferSize(1024, 1024);
 	pListener->start("127.0.0.1", 7018);
 
-	::Sleep(10000);
-
+	Sleep(5000);
 	ISLConnector * pConnector = pNetModule->createConnector();
 	ISLSession* pSession = new testSession();
 	pConnector->setSession(pSession);
 	pConnector->setBufferSize(1024, 1024);
 	pConnector->connect("127.0.0.1", 7018);
 
-	while(true){};
+	pNetModule->run();
 	pListener->release();
 	return 0;
 }
