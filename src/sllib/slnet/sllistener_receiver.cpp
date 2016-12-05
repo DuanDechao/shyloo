@@ -66,11 +66,12 @@ int ListenerReceiver::handleInputNotification(int fd)
 				Channel::reclaimPoolObject(pChannel);
 				return -2;
 			}
-
-			pChannel->setSession(poSession);
-			poSession->setChannel(pChannel);
-			poSession->onEstablish();
-			pChannel->setConnected(true);
+			if(!pChannel->isConnected()){
+				pChannel->setSession(poSession);
+				poSession->setChannel(pChannel);
+				poSession->onEstablish();
+				pChannel->setConnected(true);
+			}
 		}
 	}
 	return 0;

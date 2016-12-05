@@ -14,11 +14,9 @@ namespace network
 {
 class Bundle;
 class NetworkInterface;
-//class MessageHandlers;
 class PacketReader;
 class PacketSender;
 class PacketReceiver;
-//class PacketFilter;
 class EventDispatcher;
 
 class Channel:public PoolObject, public ISLChannel

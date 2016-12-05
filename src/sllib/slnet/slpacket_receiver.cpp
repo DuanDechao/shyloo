@@ -27,12 +27,6 @@ int PacketReceiver::handleInputNotification(int fd)
 	{
 		return -1;
 	}
-	if(!activeChannel->isConnected()){
-		ISLSession * pSession = activeChannel->getSession();
-		SLASSERT(pSession, "wtf");
-		pSession->onEstablish();
-		activeChannel->setConnected(true);
-	}
 
 	if(this->processRecv(true))
 	{

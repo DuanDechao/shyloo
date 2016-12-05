@@ -75,13 +75,10 @@ public:
 	Bundle(const Bundle& bundle);
 	virtual ~Bundle();
 
-	void newMessage(/*const MessageHandler& msgHandler*/ const MessageID msgID);
+	void newMessage(const MessageID msgID);
 	void finiMessage(bool isSend = true);
 
 	void clearPackets();
-
-//	inline void setCurrMsgHandler(const network::MessageHandler* pMsgHandler);
-	//inline const network::MessageHandler* getCurrMsgHandler() const;
 
 	///計算所有包包括當前還未寫完的包得總長度
 	int32 packetsLength(bool calccurr = true);
@@ -205,20 +202,6 @@ public:
 		(*m_pCurrPacket)<<value;
 		return *this;
 	}
-
-	//Bundle& operator<<(COMPONENT_TYPE value)
-	//{
-	//	onPacketAppend(sizeof(COMPONENT_TYPE));
-	//	(*m_pCurrPacket) << value;
-	//	return *this;
-	//}
-
-	/*Bundle& operator<<(ENTITY_MAILBOX_TYPE value)
-	{
-		onPacketAppend(sizeof(ENTITY_MAILBOX_TYPE));
-		(*m_pCurrPacket) << value;
-		return *this;
-	}*/
 
 	Bundle& operator<<(bool value)
 	{
@@ -346,8 +329,6 @@ private:
 
 	bool				m_isTCPPacket;
 	int32				m_packetMaxSize;
-	
-	//const network::MessageHandler* m_pCurrMsgHandler;
 };
 }
 }

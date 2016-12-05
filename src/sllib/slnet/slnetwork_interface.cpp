@@ -162,15 +162,24 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 	if(!pSvrChannel->initialize(*this, pEP, Channel::Traits::EXTERNAL))
 	{
 		SLASSERT(false, "wtf");
+		return false;
 	}
-	pSvrChannel->setSession(pSession);
-	pSession->setChannel(pSvrChannel);
+	
 
 	if(!this->registerChannel(pSvrChannel))
 	{
 		pSvrChannel->destroy();
 		Channel::reclaimPoolObject(pSvrChannel);
+		return false;
 	}
+
+	if(!pSvrChannel->isConnected()){
+		pSvrChannel->setSession(pSession);
+		pSession->setChannel(pSvrChannel);
+		pSession->onEstablish();
+		pSvrChannel->setConnected(true);
+	}
+
 	return true;
 }
 
@@ -275,6 +284,32 @@ int32 NetworkInterface::numExtChannels() const
 	return m_numExtChannels;
 }
 
+//void NetworkInterface::processChannels()
+//{
+//	ChannelMap::iterator iter = m_channelMap.begin();
+//	for(; iter != m_channelMap.end(); )
+//	{
+//		Channel* pChannel = iter->second;
+//
+//		if(pChannel->isDestroyed())
+//		{
+//			++iter;
+//		}
+//		else if(pChannel->isCondemn())
+//		{
+//			++iter;
+//
+//			deregisterChannel(pChannel);
+//			pChannel->destroy();
+//			Channel::reclaimPoolObject(pChannel);
+//		}
+//		else
+//		{
+//			pChannel->processPackets();
+//			++iter;
+//		}
+//	}
+//}
 
 }
 }

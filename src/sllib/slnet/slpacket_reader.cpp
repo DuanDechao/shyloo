@@ -53,75 +53,46 @@ void PacketReader::processMessages(/*sl::network::MessageHandlers* pMsgHandlers,
 				pPacket->SetMessageID(m_currMsgID);
 			}
 
-			//network::MessageHandler* pMsgHandler = pMsgHandlers->find(m_currMsgID);
-
-			//if(pMsgHandler == NULL)
-			//{
-			//	MemoryStream* pPacket1 = m_pFragmentStream != NULL ? m_pFragmentStream : pPacket;
-			//	//TRACE_MESSAGE_PACKET
-
-			//	//用于调试时比对
-			//	uint32 rpos = pPacket1->rpos();
-			//	pPacket1->rpos(0);
-			//	//TRACE_MESSAGE_PACKET
-			//	pPacket1->rpos(rpos);
-
-			//	m_currMsgID = 0;
-			//	m_currMsgLen = 0;
-			//	m_pChannel->condemn();
-			//	break;
-			//}
-
 			//如果没有可操作的数据则退出等待下一包处理
 			//可能是一个无参数数据包
 			
 			//如果长度信息没有获得，则等待获取长度信息
 			if(m_currMsgLen == 0)
 			{
-				//如果长度信息是可变的或者配置了永远包含长度信息选项时，从流中分析长度数据
-				/*if(pMsgHandler->msgLen == NETWORK_VARIABLE_MESSAGE)
-				{*/
-					//如果长度信息不完整，则等待下一包处理
-					if(pPacket->length() < NETWORK_MESSAGE_LENGTH_SIZE)
-					{
-						writeFragmentMessage(FRAGMENT_DATA_MESSAGE_LENGTH, pPacket, NETWORK_MESSAGE_LENGTH_SIZE);
-						break;
-					}
-					else
-					{
-						//此处获得了长度信息
-						network::MessageLength currlen;
-						(*pPacket) >> currlen;
-						m_currMsgLen = currlen;
-
-						//如果长度占满说明了使用扩展长度，我们还需要等待扩展长度信息
-						if(m_currMsgLen == NETWORK_MESSAGE_MAX_SIZE)
-						{
-							if(pPacket->length() < NETWORK_MESSAGE_LENGTH1_SIZE)
-							{
-								//如果长度信息不完整，则等待下一包处理
-								writeFragmentMessage(FRAGMENT_DATA_MESSAGE_LENGTH1, pPacket, NETWORK_MESSAGE_LENGTH1_SIZE);
-								break;
-							}
-							else
-							{
-								//此处获得了扩展长度信息
-								(*pPacket) >> m_currMsgLen;
-
-							}
-						}
-					}
-				/*}
+				
+				//如果长度信息不完整，则等待下一包处理
+				if(pPacket->length() < NETWORK_MESSAGE_LENGTH_SIZE)
+				{
+					writeFragmentMessage(FRAGMENT_DATA_MESSAGE_LENGTH, pPacket, NETWORK_MESSAGE_LENGTH_SIZE);
+					break;
+				}
 				else
 				{
-					m_currMsgLen = pMsgHandler->msgLen;
-				}*/
+					//此处获得了长度信息
+					network::MessageLength currlen;
+					(*pPacket) >> currlen;
+					m_currMsgLen = currlen;
+
+					//如果长度占满说明了使用扩展长度，我们还需要等待扩展长度信息
+					if(m_currMsgLen == NETWORK_MESSAGE_MAX_SIZE)
+					{
+						if(pPacket->length() < NETWORK_MESSAGE_LENGTH1_SIZE)
+						{
+							//如果长度信息不完整，则等待下一包处理
+							writeFragmentMessage(FRAGMENT_DATA_MESSAGE_LENGTH1, pPacket, NETWORK_MESSAGE_LENGTH1_SIZE);
+							break;
+						}
+						else
+						{
+							//此处获得了扩展长度信息
+							(*pPacket) >> m_currMsgLen;
+
+						}
+					}
+				}
 			}
 
-			if(this->m_pChannel->isExternal()/* && 
-				g_componentType != BOTS_TYPE &&
-				g_componentType != CLIENT_TYPE &&*/
-				&& m_currMsgLen > NETWORK_MESSAGE_MAX_SIZE)
+			if(this->m_pChannel->isExternal() && m_currMsgLen > NETWORK_MESSAGE_MAX_SIZE)
 			{
 				MemoryStream* pPacket1 = m_pFragmentStream != NULL ? m_pFragmentStream : pPacket;
 				//TRACE_MESSAGE_PACKET
@@ -140,7 +111,6 @@ void PacketReader::processMessages(/*sl::network::MessageHandlers* pMsgHandlers,
 			if(m_pFragmentStream != NULL)
 			{
 				//TRACE_MESSAGE_PACKET
-				//pMsgHandler->handle(m_pChannel, *m_pFragmentStream);
 				ISLSession* poSession = this->m_pChannel->getSession();
 				if(NULL == poSession){
 					m_pChannel->condemn();
@@ -248,7 +218,6 @@ void PacketReader::mergeFragmentMessage(Packet* pPacket)
 
 		m_pFragmentDatasType = FRAGMENT_DATA_UNKNOW;
 		m_pFragmentDatasRemain = 0;
-		//SAFE_RELEASE_ARRAY
 	}
 	else
 	{

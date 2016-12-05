@@ -37,13 +37,6 @@ int PacketSender::handleOutputNotification(int fd)
 	{
 		return -1;
 	}
-	if(!activeChannel->isConnected()){
-		ISLSession * pSession = activeChannel->getSession();
-		SLASSERT(pSession, "wtf");
-		pSession->onEstablish();
-		activeChannel->setConnected(true);
-	}
-	
 
 	processSend(NULL);
 	return 0;

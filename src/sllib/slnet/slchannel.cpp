@@ -109,7 +109,8 @@ Channel::Channel()
 	 m_pPacketSender(NULL),
 	 m_channelType(CHANNEL_NORMAL),
 	 m_flags(0),
-	 m_pSession(nullptr)
+	 m_pSession(nullptr),
+	 m_bIsConnected(false)
 {
 	this->clearBundle();
 }
@@ -296,7 +297,7 @@ void Channel::clearState(bool warnOnDiscard /* = false */)
 	m_numBytesReceived = 0;
 	m_lastTickBytesReceived = 0;
 	m_channelType = CHANNEL_NORMAL;
-
+	m_bIsConnected = false;
 	if(m_pEndPoint && m_protocolType == PROTOCOL_TCP && !this->isDestroyed())
 	{
 		this->stopSend();
@@ -475,8 +476,6 @@ void Channel::addReceiveWindow(Packet* pPacket)
 {
 	m_bufferedReceives.push_back(pPacket);
 	uint32 size = (uint32)m_bufferedReceives.size();
-
-	//if(network::g_)
 }
 
 void Channel::condemn()
@@ -504,13 +503,10 @@ void Channel::handshake()
 	}
 }
 
-void Channel::processPackets(/*MessageHandlers* pMsgHandlers*/)
+void Channel::processPackets()
 {
 	m_lastTickBytesReceived = 0;
 	m_lastTickBytesSent = 0;
-
-	/*if(m_pMsgHandlers != NULL)
-	pMsgHandlers = m_pMsgHandlers;*/
 
 	if(this->isDestroyed())
 	{
@@ -531,7 +527,7 @@ void Channel::processPackets(/*MessageHandlers* pMsgHandlers*/)
 	for (; packetIter != m_bufferedReceives.end(); ++packetIter)
 	{
 		Packet* pPacket = (*packetIter);
-		m_pPacketReader->processMessages(/*pMsgHandlers, */pPacket);
+		m_pPacketReader->processMessages(pPacket);
 		RECLAIM_PACKET(pPacket->IsTCPPacket(), pPacket);
 	}
 
@@ -560,7 +556,6 @@ Bundle* Channel::createSendBundle()
 			//ÏÈÄê ÁÐÖÐ„h³ý
 			m_bundles.pop_back();
 			pBundle->setChannel(this);
-			//pBundle->setCurrMsgHandler(NULL);
 			pBundle->setCurrMsgPacketCount(0);
 			pBundle->setCurrMsgLength(0);
 			pBundle->setCurrMsgLengthPos(0);

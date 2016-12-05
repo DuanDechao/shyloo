@@ -88,6 +88,7 @@ Reason TCPPacketReceiver::processFilteredPacket(Channel* pChannel, Packet* pPack
 	if(pPacket)
 	{
 		pChannel->addReceiveWindow(pPacket);
+		pChannel->processPackets();
 	}
 
 	return REASON_SUCCESS;

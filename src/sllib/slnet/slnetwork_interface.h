@@ -62,6 +62,8 @@ public:
 
 	inline int32 numExtChannels() const;
 
+	//void processChannels();
+
 private:
 
 	ChannelMap						m_channelMap;
