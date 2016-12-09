@@ -29,7 +29,7 @@ public:
 	TCPPacketReceiver(EndPoint& endpoint, NetworkInterface& networkInterface);
 	~TCPPacketReceiver();
 
-	Reason processFilteredPacket(Channel* pChannel, Packet* pPacket);
+	Reason processRecievePacket(Channel* pChannel, Packet* pPacket);
 
 protected:
 	virtual bool processRecv(bool expectingPacket);

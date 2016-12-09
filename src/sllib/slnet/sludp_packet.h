@@ -18,7 +18,7 @@ public:
 	static void destroyObjPool();
 	static size_t maxBufferSize();
 
-	UDPPacket(MessageID msgID = 0, size_t res = 0);
+	UDPPacket(size_t res = 0);
 	virtual ~UDPPacket(void);
 
 	int recvFromEndPoint(EndPoint& ep, Address* pAddr = NULL);

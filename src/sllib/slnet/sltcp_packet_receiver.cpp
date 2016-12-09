@@ -58,6 +58,7 @@ bool TCPPacketReceiver::processRecv(bool expectingPacket)
 
 		if(rstate == PacketReceiver::RECV_STATE_INTERRUPT)
 		{
+			TCPPacket::reclaimPoolObject(pReceiveWindow);
 			onGetError(pChannel);
 			return false;
 		}
@@ -83,8 +84,8 @@ void TCPPacketReceiver::onGetError(Channel* pChannel)
 	pChannel->condemn();
 }
 
-Reason TCPPacketReceiver::processFilteredPacket(Channel* pChannel, Packet* pPacket)
-{
+Reason TCPPacketReceiver::processRecievePacket(Channel* pChannel, Packet* pPacket){
+	
 	if(pPacket)
 	{
 		pChannel->addReceiveWindow(pPacket);
@@ -93,6 +94,7 @@ Reason TCPPacketReceiver::processFilteredPacket(Channel* pChannel, Packet* pPack
 
 	return REASON_SUCCESS;
 }
+
 
 PacketReceiver::RecvState TCPPacketReceiver::checkSocketErrors(int len, bool expectingPacket)
 {
@@ -119,7 +121,10 @@ PacketReceiver::RecvState TCPPacketReceiver::checkSocketErrors(int len, bool exp
 		return RECV_STATE_BREAK;
 	}
 #else
-
+	if(wsaErr == WSAECONNRESET || wsaErr == WSAECONNABORTED)
+	{
+		return RECV_STATE_INTERRUPT;
+	}
 #endif //  SL_OS_LINUX
 
 	return RECV_STATE_CONTINUE;

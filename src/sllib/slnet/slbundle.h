@@ -75,7 +75,7 @@ public:
 	Bundle(const Bundle& bundle);
 	virtual ~Bundle();
 
-	void newMessage(const MessageID msgID);
+	void newMessage();
 	void finiMessage(bool isSend = true);
 
 	void clearPackets();
@@ -103,30 +103,12 @@ public:
 	inline Packet* getCurrPacket() const;
 	inline void setCurrPacket(Packet* p);
 
-	inline void finiCurrPacket();
-
 	Packet* newPacket();
 
 	inline void setChannel(Channel* pChannel);
 	inline Channel* getChannel() const;
 
-	inline MessageID getMessageID() const;
-	inline void setMessageID(MessageID id);
-
 	inline int32 numMessages() const;
-
-	inline void setCurrMsgPacketCount(uint32 v);
-	inline uint32 getCurrMsgPacketCount() const;
-
-	inline void setCurrMsgLength(MessageLength1 v);
-	inline MessageLength1 getCurrMsgLength() const;
-
-	inline void setCurrMsgLengthPos(size_t v);
-	inline size_t getCurrMsgLengthPos() const;
-
-	/*static void debugCurrentMessages(MessageID currMsgID, const network::MessageHandler* pCurrMsgHandler,
-		network::Packet* pCurrPacket, Bundle::Packets& packets, MessageLength1 currMsgLength,
-		network::Channel* pChannel);*/
 
 protected:
 	void calcPacketMaxSize();
@@ -319,14 +301,8 @@ private:
 	int32				m_numMessages;
 
 	Packet*				m_pCurrPacket;
-	MessageID			m_currMsgID;
-	uint32				m_currMsgPacketCount;
-	MessageLength1		m_currMsgLength;
-	int32				m_currMsgHandlerLength;
-	size_t				m_currMsgLengthPos;
 
 	Packets				m_packets;
-
 	bool				m_isTCPPacket;
 	int32				m_packetMaxSize;
 };

@@ -4,6 +4,7 @@
 #include "slevent_dispatcher.h"
 #include "slnet.h"
 #include "slnet_module.h"
+#include "sltcp_packet_sender.h"
 namespace sl
 {
 namespace network
@@ -132,7 +133,8 @@ bool NetworkInterface::createListeningSocket(const char* listeningInterface, uin
 	return true;
 }
 
-bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serverPort,  EndPoint* pEP, ISLSession* pSession, uint32 rbuffer /*= 0*/, uint32 wbuffer /*= 0*/)
+bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serverPort,  EndPoint* pEP, ISLSession* pSession,
+											  ISLPacketParser* poPacketParser, uint32 rbuffer /*= 0*/, uint32 wbuffer /*= 0*/)
 {
 	SLASSERT(pEP, "wtf");
 	if(pEP->good())
@@ -151,15 +153,19 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 	int32 ret = 0;
 	if((ret = pEP->connect(htons(serverPort), address)) == -1)
 	{
-		pEP->close();
-		return false;
+		int32 error = WSAGetLastError();
+		if(error != WSAEWOULDBLOCK && 0 != error){
+			SLASSERT(false, "wtf");
+			pEP->close();
+			return false;
+		}
 	}
 
 	Address addr(serverIp, serverPort);
 	pEP->addr(addr);
 	Channel* pSvrChannel = Channel::createPoolObject();
 	SLASSERT(pSvrChannel, "w");
-	if(!pSvrChannel->initialize(*this, pEP, Channel::Traits::EXTERNAL))
+	if(!pSvrChannel->initialize(*this, pEP, poPacketParser))
 	{
 		SLASSERT(false, "wtf");
 		return false;
@@ -173,11 +179,13 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 		return false;
 	}
 
-	if(!pSvrChannel->isConnected()){
-		pSvrChannel->setSession(pSession);
-		pSession->setChannel(pSvrChannel);
-		pSession->onEstablish();
-		pSvrChannel->setConnected(true);
+	pSvrChannel->setSession(pSession);
+	pSession->setChannel(pSvrChannel);
+
+	if(pSvrChannel->getPacketSender() == nullptr)
+	{
+		TCPPacketSender* pPackerSender = new TCPPacketSender(*pEP, *this);
+		getDispatcher().registerWriteFileDescriptor((int32)(*pEP), pPackerSender);
 	}
 
 	return true;
@@ -209,7 +217,6 @@ bool NetworkInterface::registerChannel(Channel* pChannel)
 {
 	const Address& addr = pChannel->addr();
 	SLASSERT(addr.m_ip != 0, "wtf");
-//	SLASSERT(&pChannel->getNetworkInterface() == this, "wtf");
 	ChannelMap::iterator iter = m_channelMap.find(addr);
 	Channel* pExisting = iter != m_channelMap.end() ? iter->second : NULL;
 
@@ -218,8 +225,7 @@ bool NetworkInterface::registerChannel(Channel* pChannel)
 		return false;
 	}
 	m_channelMap[addr] = pChannel;
-	if(pChannel->isExternal())
-		m_numExtChannels++;
+	m_numExtChannels++;
 
 	return true;
 }
@@ -246,8 +252,7 @@ bool NetworkInterface::deregisterChannel(Channel* pChannel)
 	const Address& addr = pChannel->addr();
 	SLASSERT(pChannel->getEndPoint() != NULL, "wtf");
 
-	if(pChannel->isExternal())
-		m_numExtChannels--;
+	m_numExtChannels--;
 
 	if(m_channelMap.erase(addr))
 	{
@@ -283,33 +288,6 @@ int32 NetworkInterface::numExtChannels() const
 {
 	return m_numExtChannels;
 }
-
-//void NetworkInterface::processChannels()
-//{
-//	ChannelMap::iterator iter = m_channelMap.begin();
-//	for(; iter != m_channelMap.end(); )
-//	{
-//		Channel* pChannel = iter->second;
-//
-//		if(pChannel->isDestroyed())
-//		{
-//			++iter;
-//		}
-//		else if(pChannel->isCondemn())
-//		{
-//			++iter;
-//
-//			deregisterChannel(pChannel);
-//			pChannel->destroy();
-//			Channel::reclaimPoolObject(pChannel);
-//		}
-//		else
-//		{
-//			pChannel->processPackets();
-//			++iter;
-//		}
-//	}
-//}
 
 }
 }

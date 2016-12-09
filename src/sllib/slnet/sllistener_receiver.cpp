@@ -10,11 +10,12 @@ namespace sl
 {
 namespace network
 {
-ListenerReceiver::ListenerReceiver(EndPoint& endpoint, Channel::Traits traits, 
+ListenerReceiver::ListenerReceiver(EndPoint& endpoint, 
 								   NetworkInterface& networkInterface)
 								   :m_endpoint(endpoint),
-								    m_traits(traits),
-									m_networkInterface(networkInterface)
+									m_networkInterface(networkInterface),
+									m_pSessionFactory(nullptr),
+									m_pPacketParser(nullptr)
 {}
 
 ListenerReceiver::~ListenerReceiver(){}
@@ -36,8 +37,10 @@ int ListenerReceiver::handleInputNotification(int fd)
 		}
 		else
 		{
+			pNewEndPoint->setnonblocking(true);
+			pNewEndPoint->setnodelay(true);
 			Channel* pChannel = Channel::createPoolObject();
-			bool ret = pChannel->initialize(m_networkInterface, pNewEndPoint, m_traits);
+			bool ret = pChannel->initialize(m_networkInterface, pNewEndPoint, m_pPacketParser);
 			if(!ret)
 			{
 				pChannel->destroy();
@@ -70,7 +73,7 @@ int ListenerReceiver::handleInputNotification(int fd)
 				pChannel->setSession(poSession);
 				poSession->setChannel(pChannel);
 				poSession->onEstablish();
-				pChannel->setConnected(true);
+				pChannel->setConnected();
 			}
 		}
 	}
@@ -78,6 +81,10 @@ int ListenerReceiver::handleInputNotification(int fd)
 }
 void ListenerReceiver::setSessionFactory(ISLSessionFactory* poSessionFactory){
 	m_pSessionFactory = poSessionFactory;
+}
+
+void ListenerReceiver::setPacketParser(ISLPacketParser* poPacketParser){
+	m_pPacketParser = poPacketParser;
 }
 
 EventDispatcher& ListenerReceiver::dispatcher()

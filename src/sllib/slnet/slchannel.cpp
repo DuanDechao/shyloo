@@ -38,11 +38,10 @@ void Channel::destroyObjPool()
 
 size_t Channel::getPoolObjectBytes()
 {
-	size_t bytes = sizeof(m_pNetworkInterface) + sizeof(m_traits) +
-		sizeof(m_id) + sizeof(m_inactivityExceptionPeriod) +
-		sizeof(m_lastReceivedTime) + (m_bufferedReceives.size() * sizeof(Packet*)) + sizeof(m_pPacketReader) 
+	size_t bytes = sizeof(m_pNetworkInterface) +
+		sizeof(m_id) + sizeof(m_lastReceivedTime) + (m_bufferedReceives.size() * sizeof(Packet*)) + sizeof(m_pPacketReader) 
 		+ sizeof(m_flags) + sizeof(m_numBytesSent) + sizeof(m_numBytesReceived) + sizeof(m_numPacketsSent) + sizeof(m_numPacketsReceived)
-		+ sizeof(m_lastTickBytesReceived) + sizeof(m_lastTickBytesSent) + sizeof(m_pFilter) + sizeof(m_pEndPoint) + sizeof(m_pPacketReceiver) + sizeof(m_pPacketSender)
+		+ sizeof(m_lastTickBytesReceived) + sizeof(m_lastTickBytesSent) + sizeof(m_pEndPoint) + sizeof(m_pPacketReceiver) + sizeof(m_pPacketSender)
 		+ sizeof(m_channelType);
 
 	return bytes;
@@ -59,13 +58,11 @@ void Channel::onReclaimObject()
 }
 
 Channel::Channel(NetworkInterface& networkInterface,
-				 const EndPoint* pEndPoint, Traits traits, ProtocolType pt,
-				 PacketFilterPtr pFilter, ChannelID id)
+				 const EndPoint* pEndPoint, ISLPacketParser* poPacketParser, ProtocolType pt,
+				 ChannelID id)
 				 :m_pNetworkInterface(NULL),
-				  m_traits(traits),
 				  m_protocolType(pt),
 				  m_id(id),
-				  m_inactivityExceptionPeriod(0),
 				  m_lastReceivedTime(0),
 				  m_bundles(),
 				  m_pPacketReader(0),
@@ -75,25 +72,22 @@ Channel::Channel(NetworkInterface& networkInterface,
 				  m_numBytesReceived(0),
 				  m_lastTickBytesReceived(0),
 				  m_lastTickBytesSent(0),
-				  m_pFilter(pFilter),
 				  m_pEndPoint(NULL),
 				  m_pPacketReceiver(NULL),
 				  m_pPacketSender(NULL),
 				  m_channelType(CHANNEL_NORMAL),
 				  m_flags(0),
-				  m_bIsConnected(false),
-				  m_pSession(nullptr)
+				  m_pSession(nullptr),
+				  m_pPacketParser(poPacketParser)
 {
 	this->clearBundle();
-	initialize(networkInterface, pEndPoint, traits, pt, pFilter, id);
+	initialize(networkInterface, pEndPoint, poPacketParser, pt, id);
 }
 
 Channel::Channel()
 	:m_pNetworkInterface(NULL),
-	 m_traits(EXTERNAL),
 	 m_protocolType(PROTOCOL_TCP),
 	 m_id(0),
-	 m_inactivityExceptionPeriod(0),
 	 m_lastReceivedTime(0),
 	 m_bundles(),
 	 m_pPacketReader(),
@@ -103,14 +97,13 @@ Channel::Channel()
 	 m_numBytesReceived(0),
 	 m_lastTickBytesReceived(0),
 	 m_lastTickBytesSent(0),
-	 m_pFilter(NULL),
 	 m_pEndPoint(NULL),
 	 m_pPacketReceiver(NULL),
 	 m_pPacketSender(NULL),
 	 m_channelType(CHANNEL_NORMAL),
 	 m_flags(0),
 	 m_pSession(nullptr),
-	 m_bIsConnected(false)
+	 m_pPacketParser(nullptr)
 {
 	this->clearBundle();
 }
@@ -122,15 +115,13 @@ Channel::~Channel()
 
 
 bool Channel::initialize(NetworkInterface& networkInterface, const EndPoint* pEndPoint,
-						 Traits traits, ProtocolType pt /* = PROTOCOL_TCP */, 
-						 PacketFilterPtr pFilter /* = NULL */, 
+						 ISLPacketParser* poPacketParser, ProtocolType pt /* = PROTOCOL_TCP */, 
 						 ChannelID id /* = CHANNEL_ID_NULL */)
 {
 	m_id = id;
 	m_protocolType = pt;
-	m_traits = traits;
-	m_pFilter = pFilter;
 	m_pNetworkInterface = &networkInterface;
+	m_pPacketParser = poPacketParser;
 	this->setEndPoint(pEndPoint);
 
 	SLASSERT(m_pNetworkInterface != NULL, "wtf");
@@ -176,10 +167,6 @@ bool Channel::initialize(NetworkInterface& networkInterface, const EndPoint* pEn
 	if(m_pPacketSender)
 		m_pPacketSender->SetEndPoint(m_pEndPoint);
 
-	/*startInactivityDetection((m_traits == INTERNAL) ? g_channelInternalTimeout:
-													  g_channelExternalTimeout,
-							  (m_traits == INTERNAL) ? g_channelInternalTimeout /2.f:
-							                           g_channelExternalTimeout / 2.f);*/
 	return true;
 }
 
@@ -208,35 +195,23 @@ Channel* Channel::get(NetworkInterface& networkInterface, const EndPoint* pEndPo
 void Channel::send(const char* pBuf, uint32 dwLen)
 {
 	Bundle* pBundle = Bundle::createPoolObject();
+	
+	if(dwLen > (uint32)(pBundle->packetMaxSize()))
+	{
+		SLASSERT(false, "wtf");
+		condemn();
+		return;
+	}
 
-
-	/*MessageHandler msgHandler;
-	msgHandler.msgID = msgID;
-	msgHandler.msgLen = NETWORK_VARIABLE_MESSAGE;*/
-	MessageID msgID = *(MessageID*)pBuf;
-
-	(*pBundle).newMessage(msgID);
-	(*pBundle) << pBuf+sizeof(msgID);
+	pBundle->newMessage();
+	pBundle->append(pBuf, dwLen);
 	send(pBundle);
 }
 
 void Channel::disconnect()
 {
-	destroy();
 	condemn();
 }
-
-//void Channel::startInactivityDetection(float inactivityPeriod, float checkPeriod /* = 1.f */)
-//{
-//	stopInactivityDetection();
-//	//如果週期為負數則不檢查
-//	if(inactivityPeriod > 0.001f)
-//	{
-//		checkPeriod = max(1.f, checkPeriod);
-//		m_inactivityExceptionPeriod = uint64(inactivityPeriod * stampsPerSecond()) - uint64(0.05f * stampsPerSecond());
-//		m_lastReceivedTime = timestamp();
-//	}
-//}
 
 void Channel::setEndPoint(const EndPoint* pEndPoint)
 {
@@ -297,7 +272,6 @@ void Channel::clearState(bool warnOnDiscard /* = false */)
 	m_numBytesReceived = 0;
 	m_lastTickBytesReceived = 0;
 	m_channelType = CHANNEL_NORMAL;
-	m_bIsConnected = false;
 	if(m_pEndPoint && m_protocolType == PROTOCOL_TCP && !this->isDestroyed())
 	{
 		this->stopSend();
@@ -310,9 +284,6 @@ void Channel::clearState(bool warnOnDiscard /* = false */)
 	}
 
 	m_flags = 0;
-	m_pFilter = NULL;
-
-	//stopInactivityDetection();
 
 	//由于endpoint通常由外部给入，必须释放，频道重新激活时重新赋值
 	if(m_pEndPoint)
@@ -450,10 +421,6 @@ void Channel::onPacketSent(int bytes, bool sendCompleted)
 	g_numBytesSent += bytes;
 	m_lastTickBytesSent += bytes;
 
-	if(this->isExternal())
-	{
-		//if()
-	}
 }
 
 void Channel::onPacketReceived(int bytes)
@@ -466,10 +433,6 @@ void Channel::onPacketReceived(int bytes)
 	m_lastTickBytesReceived += bytes;
 	g_numBytesReceived += bytes;
 
-	if(this->isExternal())
-	{
-
-	}
 }
 
 void Channel::addReceiveWindow(Packet* pPacket)
@@ -484,23 +447,6 @@ void Channel::condemn()
 		return;
 
 	m_flags |= FLAG_CONDEMN;
-}
-
-void Channel::handshake()
-{
-	if(hasHandshake())
-		return;
-
-	if(m_bufferedReceives.size() > 0)
-	{
-		BufferedReceives::iterator packetIter = m_bufferedReceives.begin();
-		Packet* pPacket = (*packetIter);
-
-		m_flags |= FLAG_HANDSHAKE;
-
-		//此處判定是否為websocket或者其他協議的握手
-		
-	}
 }
 
 void Channel::processPackets()
@@ -518,10 +464,11 @@ void Channel::processPackets()
 		return;
 	}
 
-	if(!hasHandshake())
+	if(m_pPacketReader == nullptr)
 	{
-		handshake();
+		m_pPacketReader = new PacketReader(this, m_pPacketParser);
 	}
+	SLASSERT(m_pPacketReader, "wtf");
 
 	BufferedReceives::iterator packetIter = m_bufferedReceives.begin();
 	for (; packetIter != m_bufferedReceives.end(); ++packetIter)
@@ -556,9 +503,6 @@ Bundle* Channel::createSendBundle()
 			//先從隊列中刪除
 			m_bundles.pop_back();
 			pBundle->setChannel(this);
-			pBundle->setCurrMsgPacketCount(0);
-			pBundle->setCurrMsgLength(0);
-			pBundle->setCurrMsgLengthPos(0);
 			return pBundle;
 		}
 	}

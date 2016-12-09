@@ -21,6 +21,8 @@ public:
 
 	virtual void SLAPI setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize);
 
+	virtual void SLAPI setPacketParser(ISLPacketParser* poPacketParser);
+
 	virtual void SLAPI release(void);
 
 private:
@@ -29,6 +31,7 @@ private:
 	EndPoint			m_pSvrEndPoint;
 	uint32				m_dwRecvBufSize;
 	uint32				m_dwSendBufSize;
+	ISLPacketParser*	m_pPacketParser;
 };
 }
 }

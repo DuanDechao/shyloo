@@ -10,7 +10,7 @@ CSLListener::CSLListener()
 	m_dwSendBufSize(0)
 {
 	m_pNetworkInterface = CSLNetModule::getSingletonPtr()->getNetworkInterface();
-	m_pListenerReceiver = new ListenerReceiver(m_pListenEndPoint, Channel::EXTERNAL, *m_pNetworkInterface);
+	m_pListenerReceiver = new ListenerReceiver(m_pListenEndPoint, *m_pNetworkInterface);
 }
 
 CSLListener::~CSLListener(){}
@@ -42,6 +42,11 @@ bool CSLListener::stop()
 		m_pListenEndPoint.close();
 	}
 	return true;
+}
+
+void CSLListener::setPacketParser(ISLPacketParser* poPacketParser)
+{
+	m_pListenerReceiver->setPacketParser(poPacketParser);
 }
 
 void CSLListener::release()

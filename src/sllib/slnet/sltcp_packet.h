@@ -20,7 +20,7 @@ public:
 
 	static size_t maxBufferSize();
 
-	TCPPacket(MessageID msgID = 0, size_t res = 0);
+	TCPPacket(size_t res = 0);
 	virtual ~TCPPacket(void);
 
 	int recvFromEndPoint(EndPoint& ep, Address* pAddr = NULL);

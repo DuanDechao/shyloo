@@ -63,6 +63,10 @@ bool TCPPacketSender::processSend(Channel* pChannel)
 		return false;
 	}
 
+	if(!pChannel->isConnected()){
+		return false;
+	}
+
 	Channel::Bundles& bundles = pChannel->bundles();
 	Reason reason = REASON_SUCCESS;
 
@@ -112,7 +116,7 @@ bool TCPPacketSender::processSend(Channel* pChannel)
 
 }
 
-Reason TCPPacketSender::processFilterPacket(Channel* pChannel, Packet* pPacket)
+Reason TCPPacketSender::processSendPacket(Channel* pChannel, Packet* pPacket)
 {
 	if(pChannel->isCondemn())
 	{

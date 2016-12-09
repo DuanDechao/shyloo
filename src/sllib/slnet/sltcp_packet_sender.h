@@ -31,7 +31,7 @@ public:
 	virtual bool processSend(Channel* pChannel);
 
 protected:
-	virtual Reason processFilterPacket(Channel* pChannel, Packet* pPacket);
+	virtual Reason processSendPacket(Channel* pChannel, Packet* pPacket);
 };
 }
 }

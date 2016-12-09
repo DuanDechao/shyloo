@@ -7,7 +7,7 @@ namespace network
 {
 class ISLSession;
 class ISLSessionFactory;
-
+class ISLPacketParser;
 class ISLChannel
 {
 public:
@@ -36,6 +36,8 @@ public:
 
 	virtual void SLAPI setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize) = 0;
 
+	virtual void SLAPI setPacketParser(ISLPacketParser* poPacketParser) = 0;
+
 	virtual void SLAPI release(void) = 0;
 };
 
@@ -45,6 +47,8 @@ public:
 	virtual void SLAPI setSessionFactory(ISLSessionFactory* poSessionFactory) = 0;
 
 	virtual void SLAPI setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize) = 0;
+
+	virtual void SLAPI setPacketParser(ISLPacketParser* poPacketParser) = 0;
 
 	virtual bool SLAPI start(const char* pszIP, uint16 wPort, bool bReUseAddr = true) = 0;
 
@@ -75,13 +79,19 @@ public:
 	virtual ISLSession* SLAPI createSession(ISLChannel* poChannel) = 0;
 };
 
+class ISLPacketParser
+{
+public:
+	virtual int32 SLAPI parsePacket(const char* pDataBuf, int32 len) = 0;
+};
+
 class ISLNet
 {
 public:
 
 	virtual ISLListener* SLAPI createListener() = 0;
 	virtual ISLConnector* SLAPI createConnector() = 0;
-	virtual bool SLAPI run() = 0;
+	virtual bool SLAPI run(int64 overtime) = 0;
 };
 
 ISLNet* SLAPI getSLNetModule(void);

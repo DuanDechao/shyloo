@@ -37,7 +37,7 @@ bool CSLConnector::connect(const char* pszIP, uint16 wPort)
 		SLASSERT(false, "wtf");
 		return false;
 	}
-	return m_pNetworkInterface->createConnectingSocket(pszIP, wPort, &m_pSvrEndPoint, m_pSession, m_dwRecvBufSize, m_dwSendBufSize);
+	return m_pNetworkInterface->createConnectingSocket(pszIP, wPort, &m_pSvrEndPoint, m_pSession, m_pPacketParser, m_dwRecvBufSize, m_dwSendBufSize);
 	
 }
 void CSLConnector::release()
@@ -50,6 +50,10 @@ void CSLConnector::release()
 	m_dwRecvBufSize = 0;
 	m_dwSendBufSize = 0;
 	delete this;
+}
+
+void CSLConnector::setPacketParser(ISLPacketParser* poPacketParser){
+	m_pPacketParser = poPacketParser;
 }
 
 

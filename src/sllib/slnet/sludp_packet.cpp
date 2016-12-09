@@ -31,8 +31,8 @@ UDPPacket::SmartPoolObjectPtr UDPPacket::createSmartPoolObj()
 	return SmartPoolObjectPtr(new SmartPoolObject<UDPPacket>(ObjPool().FetchObj(), g_objPool));
 }
 
-UDPPacket::UDPPacket(MessageID msgID /* = 0 */, size_t res /* = 0 */)
-	:Packet(msgID, false, res)
+UDPPacket::UDPPacket(size_t res /* = 0 */)
+	:Packet(false, res)
 {
 	data_resize(maxBufferSize());
 	wpos(0);

@@ -5,15 +5,11 @@ namespace sl
 namespace network
 {
 
-PacketReader::PacketReader(Channel* pChannel)
-	:m_pFragmentDatas(NULL),
-	 m_pFragmentDatasWpos(0),
-	 m_pFragmentDatasRemain(0),
-	 m_pFragmentDatasType(FRAGMENT_DATA_UNKNOW),
-	 m_pFragmentStream(NULL),
-	 m_currMsgID(0),
-	 m_currMsgLen(0),
-	 m_pChannel(pChannel)
+PacketReader::PacketReader(Channel* pChannel, ISLPacketParser* poPacketParser)
+	:m_pFragmentStream(NULL),
+	 m_pChannel(pChannel),
+	 m_pPacketParser(poPacketParser),
+	 m_pFragmentStreamLength(0)
 {}
 
 PacketReader::~PacketReader()
@@ -24,208 +20,94 @@ PacketReader::~PacketReader()
 
 void PacketReader::reset()
 {
-	m_pFragmentDatasType = FRAGMENT_DATA_UNKNOW;
-	m_pFragmentDatasWpos = 0;
-	m_pFragmentDatasRemain = 0;
-	m_currMsgID = 0;
-	m_currMsgLen = 0;
-
 	MemoryStream::reclaimPoolObject(m_pFragmentStream);
 	m_pFragmentStream = NULL;
+	m_pFragmentStreamLength = 0;
 }
 
-void PacketReader::processMessages(/*sl::network::MessageHandlers* pMsgHandlers,*/ Packet* pPacket)
+void PacketReader::processMessages( Packet* pPacket)
 {
+	ISLSession* poSession = this->m_pChannel->getSession();
+	if(NULL == poSession){
+		m_pChannel->condemn();
+		return;
+	}
+
 	while(pPacket->length() > 0 || m_pFragmentStream != NULL)
 	{
-		if(m_pFragmentDatasType == FRAGMENT_DATA_UNKNOW)
+		if(m_pFragmentStream != NULL)
 		{
-			//如果没有ID消息 先获取OD
-			if(m_currMsgID == 0)
-			{
-				if(NETWORK_MESSAGE_ID_SIZE > 1 && pPacket->length() < NETWORK_MESSAGE_ID_SIZE)
-				{
-					writeFragmentMessage(FRAGMENT_DATA_MESSAGE_ID, pPacket, NETWORK_MESSAGE_ID_SIZE);
-					break;
-				}
-
-				(*pPacket) >> m_currMsgID;
-				pPacket->SetMessageID(m_currMsgID);
-			}
-
-			//如果没有可操作的数据则退出等待下一包处理
-			//可能是一个无参数数据包
-			
-			//如果长度信息没有获得，则等待获取长度信息
-			if(m_currMsgLen == 0)
-			{
-				
-				//如果长度信息不完整，则等待下一包处理
-				if(pPacket->length() < NETWORK_MESSAGE_LENGTH_SIZE)
-				{
-					writeFragmentMessage(FRAGMENT_DATA_MESSAGE_LENGTH, pPacket, NETWORK_MESSAGE_LENGTH_SIZE);
-					break;
-				}
-				else
-				{
-					//此处获得了长度信息
-					network::MessageLength currlen;
-					(*pPacket) >> currlen;
-					m_currMsgLen = currlen;
-
-					//如果长度占满说明了使用扩展长度，我们还需要等待扩展长度信息
-					if(m_currMsgLen == NETWORK_MESSAGE_MAX_SIZE)
-					{
-						if(pPacket->length() < NETWORK_MESSAGE_LENGTH1_SIZE)
-						{
-							//如果长度信息不完整，则等待下一包处理
-							writeFragmentMessage(FRAGMENT_DATA_MESSAGE_LENGTH1, pPacket, NETWORK_MESSAGE_LENGTH1_SIZE);
-							break;
-						}
-						else
-						{
-							//此处获得了扩展长度信息
-							(*pPacket) >> m_currMsgLen;
-
-						}
-					}
-				}
-			}
-
-			if(this->m_pChannel->isExternal() && m_currMsgLen > NETWORK_MESSAGE_MAX_SIZE)
-			{
-				MemoryStream* pPacket1 = m_pFragmentStream != NULL ? m_pFragmentStream : pPacket;
-				//TRACE_MESSAGE_PACKET
-
-				//用做调试时比对
-				uint32 rpos = (uint32)pPacket1->rpos();
-				pPacket1->rpos(0);
-				//TRACE_MESSAGE_PACKET
-				pPacket1->rpos(rpos);
-
-				m_currMsgLen = 0;
+			const char* pDataBuf = (const char* )m_pFragmentStream->data() + m_pFragmentStream->rpos();
+			int32 parserLen = m_pPacketParser->parsePacket(pDataBuf, (int32)m_pFragmentStream->length());
+			if(parserLen < 0){
 				m_pChannel->condemn();
-				break;
+				return;
 			}
 
-			if(m_pFragmentStream != NULL)
-			{
-				//TRACE_MESSAGE_PACKET
-				ISLSession* poSession = this->m_pChannel->getSession();
-				if(NULL == poSession){
+			if(parserLen == 0){
+				int32 mergeLen = mergeFragmentMessage(pPacket);
+				if(mergeLen < 0){
 					m_pChannel->condemn();
+					return;
+				}
+				if(mergeLen == 0){
+					m_pFragmentStreamLength += (uint32)pPacket->length();
+					pPacket->done();
 					break;
 				}
-				poSession->onRecv((const char*)m_pFragmentStream->data(), (uint32)m_pFragmentStream->length());
+			}
+			if(parserLen > 0){
+				poSession->onRecv((const char*)(m_pFragmentStream->data()+m_pFragmentStream->rpos()), (uint32)parserLen);
 				MemoryStream::reclaimPoolObject(m_pFragmentStream);
 				m_pFragmentStream = NULL;
+				pPacket->read_skip(parserLen);
+				m_pFragmentStreamLength = 0;
 			}
-			else
-			{
-				if(pPacket->length() < m_currMsgLen)
-				{
-					writeFragmentMessage(FRAGMENT_DATA_MESSAGE_BODY, pPacket, m_currMsgLen);
-					break;
-				}
-
-				//临时设置有效读取位，防止接口中溢出操作
-				size_t wpos = pPacket->wpos();
-				size_t frpos = pPacket->rpos() + m_currMsgLen;
-				pPacket->wpos((int32)frpos);
-
-				//TRACE_MESSAGE_PACKET
-				ISLSession* poSession = this->m_pChannel->getSession();
-				if(NULL == poSession){
-					m_pChannel->condemn();
-					break;
-				}
-				poSession->onRecv((const char*)m_pFragmentStream->data(), (uint32)m_pFragmentStream->length());
-
-				//如果handler没有处理完数据则输出一个警告
-				if(m_currMsgLen > 0)
-				{
-					if(frpos != pPacket->rpos())
-					{
-						pPacket->rpos((int32)frpos);
-					}
-				}
-				pPacket->wpos((int32)wpos);
-			}
-
-			m_currMsgID = 0;
-			m_currMsgLen = 0;
 		}
 		else
 		{
-			mergeFragmentMessage(pPacket);
+			const char* pDataBuf = (const char* )pPacket->data() + pPacket->rpos();
+			int32 parserLen = m_pPacketParser->parsePacket(pDataBuf, (int32)pPacket->length());
+			if(parserLen < 0){
+				m_pChannel->condemn();
+				return;
+			}
+			if(parserLen == 0){
+				int32 mergeLen = mergeFragmentMessage(pPacket);
+				if(mergeLen < 0){
+					m_pChannel->condemn();
+					return;
+				}
+
+				if(mergeLen == 0){
+					m_pFragmentStreamLength += (uint32)pPacket->length();
+					pPacket->done();
+					break;
+				}
+			}
+			if(parserLen > 0){
+				poSession->onRecv((const char*)(pPacket->data()+ pPacket->rpos()), (uint32)parserLen);
+				pPacket->read_skip(parserLen);
+				m_pFragmentStreamLength = 0;
+			}
 		}
+
 	}
 }
 
-void PacketReader::writeFragmentMessage(FragmentDataTypes fragmentDataFlag, Packet* packet, uint32 datasize)
-{
-	SLASSERT(m_pFragmentDatas == NULL, "wtf");
-
-	size_t opsize = packet->length();
-	m_pFragmentDatasRemain = (uint32)(datasize - opsize);
-	m_pFragmentDatas = new uint8[opsize + m_pFragmentDatasRemain + 1];
-
-	m_pFragmentDatasType = fragmentDataFlag;
-	m_pFragmentDatasWpos = (uint32)opsize;
-
-	if(packet->length() > 0)
-	{
-		memcpy(m_pFragmentDatas, packet->data() + packet->rpos(), opsize);
-		packet->done();
-	}
-}
-
-void PacketReader::mergeFragmentMessage(Packet* pPacket)
+int32 PacketReader::mergeFragmentMessage(Packet* pPacket)
 {
 	size_t opsize = pPacket->length();
 	if(opsize == 0)
-		return;
+		return 0;
 
-	if(pPacket->length() >= m_pFragmentDatasRemain)
-	{
-		memcpy(m_pFragmentDatas + m_pFragmentDatasWpos, pPacket->data() + pPacket->rpos(), m_pFragmentDatasRemain);
-		pPacket->rpos((int32)(pPacket->rpos() + m_pFragmentDatasRemain));
-
-		SLASSERT(m_pFragmentStream == NULL, "wtf");
-
-		switch(m_pFragmentDatasType)
-		{
-		case FRAGMENT_DATA_MESSAGE_ID:		///消息ID信息不全
-			memcpy(&m_currMsgID, m_pFragmentDatas, NETWORK_MESSAGE_ID_SIZE);
-			break;
-			
-		case FRAGMENT_DATA_MESSAGE_LENGTH:	///< 消息长度信息不全
-			memcpy(&m_currMsgLen, m_pFragmentDatas, NETWORK_MESSAGE_LENGTH_SIZE);
-			break;
-
-		case FRAGMENT_DATA_MESSAGE_LENGTH1:	///< 消息长度信息不全
-			memcpy(&m_currMsgLen, m_pFragmentDatas, NETWORK_MESSAGE_LENGTH1_SIZE);
-			break;
-
-		case FRAGMENT_DATA_MESSAGE_BODY:	///< 消息内容信息不全
-			m_pFragmentStream = MemoryStream::createPoolObject();
-			m_pFragmentStream->append(m_pFragmentDatas, m_currMsgLen);
-			break;
-
-		default:
-			break;
-		}
-
-		m_pFragmentDatasType = FRAGMENT_DATA_UNKNOW;
-		m_pFragmentDatasRemain = 0;
-	}
-	else
-	{
-		memcpy(m_pFragmentDatas + m_pFragmentDatasWpos, pPacket->data(), opsize);
-		m_pFragmentDatasRemain -= (uint32)opsize;
-		m_pFragmentDatasWpos += (uint32)opsize;
-		pPacket->rpos((int32)(pPacket->rpos() + opsize));
-	}
+	if(m_pFragmentStream == nullptr)
+		m_pFragmentStream = MemoryStream::createPoolObject();
+	
+	m_pFragmentStream->append(pPacket->data() + pPacket->rpos(), pPacket->length());
+	
+	const char* pDataBuf = (const char*)(m_pFragmentStream->data() + m_pFragmentStream->rpos());
+	return m_pPacketParser->parsePacket(pDataBuf, (int32)m_pFragmentStream->length());
 }
 
 }

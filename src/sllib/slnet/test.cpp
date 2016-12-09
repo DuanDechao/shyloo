@@ -45,7 +45,7 @@ int main()
 	pConnector->setBufferSize(1024, 1024);
 	pConnector->connect("127.0.0.1", 7018);
 
-	pNetModule->run();
+	pNetModule->run(20);
 	pListener->release();
 	return 0;
 }

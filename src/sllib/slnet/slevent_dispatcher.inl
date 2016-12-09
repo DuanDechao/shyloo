@@ -26,16 +26,6 @@ inline bool EventDispatcher::waitingBreakProcessing() const
 	return m_breakProcessing == EVENT_DISPATCHER_STATUS_WAITING_BREAK_PROCESSING; 
 }
 
-inline double EventDispatcher::maxWait() const
-{
-	return m_maxWait;
-}
-
-inline void EventDispatcher::maxWait(double seconds)
-{
-	m_maxWait = seconds;
-}
-
 } // namespace Network
 }
 // event_dispatcher.inl

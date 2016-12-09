@@ -36,9 +36,9 @@ ISLConnector* CSLNetModule::createConnector()
 	return poConnector;
 }
 
-bool CSLNetModule::run()
+bool CSLNetModule::run(int64 overtime)
 {
-	m_dispatcher.processUntilBreak();
+	m_dispatcher.processOnce();
 	return true;
 }
 

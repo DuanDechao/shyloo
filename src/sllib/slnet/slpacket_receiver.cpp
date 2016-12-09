@@ -40,17 +40,11 @@ int PacketReceiver::handleInputNotification(int fd)
 
 Reason PacketReceiver::processPacket(Channel* pChannel, Packet* pPacket)
 {
-	if(pChannel != NULL)
+	if(pChannel)
 	{
 		pChannel->onPacketReceived((int)pPacket->length());
-
-		if(pChannel->getFilter())
-		{
-			return pChannel->getFilter()->recv(pChannel, *this, pPacket);
-		}
 	}
-
-	return this->processFilteredPacket(pChannel, pPacket);
+	return processRecievePacket(pChannel, pPacket);
 }
 
 EventDispatcher& PacketReceiver::dispatcher()

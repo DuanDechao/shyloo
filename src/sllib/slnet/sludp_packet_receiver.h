@@ -30,7 +30,7 @@ public:
 	UDPPacketReceiver(EndPoint& endpoint, NetworkInterface& networkInterface);
 	~UDPPacketReceiver();
 
-	Reason processFilteredPacket(Channel* pChannel, Packet* pPacket);
+	Reason processRecievePacket(Channel* pChannel, Packet* pPacket);
 
 	virtual PacketReceiver::PACKET_RECEIVER_TYPE type() const
 	{

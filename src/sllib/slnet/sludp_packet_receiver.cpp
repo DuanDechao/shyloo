@@ -64,7 +64,7 @@ bool UDPPacketReceiver::processRecv(bool expectingPacket)
 		pNewEndPoint->addr(srcAddr.m_port, srcAddr.m_ip);
 
 		pSrcChannel = network::Channel::createPoolObject();
-		bool ret = pSrcChannel->initialize(*m_pNetworkInterface, pNewEndPoint, Channel::EXTERNAL, PROTOCOL_UDP);
+		bool ret = pSrcChannel->initialize(*m_pNetworkInterface, pNewEndPoint, nullptr, PROTOCOL_UDP);
 		if(!ret)
 		{
 			pSrcChannel->destroy();
@@ -102,7 +102,7 @@ bool UDPPacketReceiver::processRecv(bool expectingPacket)
 	return true;
 }
 
-Reason UDPPacketReceiver::processFilteredPacket(Channel* pChannel, Packet * pPacket)
+Reason UDPPacketReceiver::processRecievePacket(Channel* pChannel, Packet * pPacket)
 {
 	// 如果为None， 则可能是被过滤器过滤掉了(过滤器正在按照自己的规则组包解密)
 	if(pPacket)

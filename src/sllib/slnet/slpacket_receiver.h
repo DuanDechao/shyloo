@@ -35,7 +35,7 @@ public:
 	virtual ~PacketReceiver();
 
 	virtual Reason processPacket(Channel* pChannel, Packet* pPacket);
-	virtual Reason processFilteredPacket(Channel* pChannel, Packet* pPacket) = 0;
+	virtual Reason processRecievePacket(Channel* pChannel, Packet* pPacket) = 0;
 	EventDispatcher& dispatcher();
 
 	void onReclaimObject()

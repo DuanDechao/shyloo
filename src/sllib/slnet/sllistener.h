@@ -15,6 +15,8 @@ public:
 
 	virtual void SLAPI setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize);
 
+	virtual void SLAPI setPacketParser(ISLPacketParser* poPacketParser);
+
 	virtual bool SLAPI start(const char* pszIP, uint16 wPort, bool bReUseAddr = true);
 
 	virtual bool SLAPI stop(void);

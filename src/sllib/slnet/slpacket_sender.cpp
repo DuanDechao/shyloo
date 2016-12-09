@@ -38,6 +38,13 @@ int PacketSender::handleOutputNotification(int fd)
 		return -1;
 	}
 
+	if(!activeChannel->isConnected()){
+		ISLSession* poSession = activeChannel->getSession();
+		poSession->onEstablish();
+		activeChannel->setConnected();
+		return 0;
+	}
+
 	processSend(NULL);
 	return 0;
 }
@@ -46,13 +53,10 @@ Reason PacketSender::processPacket(Channel* pChannel, Packet* pPacket)
 {
 	if(pChannel != NULL)
 	{
-		if(pChannel->getFilter())
-		{
-			return pChannel->getFilter()->send(pChannel, *this, pPacket);
-		}
+		pChannel->onPacketSent((int32)pPacket->length(), false);
 	}
 
-	return this->processFilterPacket(pChannel, pPacket);
+	return this->processSendPacket(pChannel, pPacket);
 }
 
 EventDispatcher& PacketSender::dispatcher()

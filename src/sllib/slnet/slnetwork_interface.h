@@ -35,7 +35,7 @@ public:
 		EndPoint* pLEP, ListenerReceiver* pLR, uint32 rbuffer = 0, uint32 wbuffer = 0);
 
 	bool createConnectingSocket(const char* serverIp, uint16 serverPort, EndPoint* pEP,
-		ISLSession* pSession, uint32 rbuffer = 0, uint32 wbuffer = 0);
+		ISLSession* pSession, ISLPacketParser* poPacketParser, uint32 rbuffer = 0, uint32 wbuffer = 0);
 
 	bool registerChannel(Channel* pChannel);
 	bool deregisterChannel(Channel* pChannel);
@@ -61,8 +61,6 @@ public:
 	void onChannelTimeOut(Channel* pChannel);
 
 	inline int32 numExtChannels() const;
-
-	//void processChannels();
 
 private:
 

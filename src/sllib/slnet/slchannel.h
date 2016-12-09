@@ -4,7 +4,6 @@
 #include "slpacket.h"
 #include "slendpoint.h"
 #include "slnetbase.h"
-#include "slpacket_filter.h"
 #include "slobjectpool.h"
 #include "sladdress.h"
 #include "slnet.h"
@@ -31,15 +30,6 @@ public:
 	void onReclaimObject();
 	virtual size_t getPoolObjectBytes();
 
-	enum Traits
-	{
-		//server to server
-		INTERNAL = 0,
-
-		//client to server
-		EXTERNAL = 1,
-	};
-
 	enum ChannelTypes
 	{
 		//普通通道
@@ -56,14 +46,13 @@ public:
 
 	Channel(NetworkInterface& networkInterface,
 		const EndPoint* pEndPoint,
-		Traits traits,
+		ISLPacketParser* poPacketParser,
 		ProtocolType pt = PROTOCOL_TCP,
-		PacketFilterPtr pFilter = NULL,
 		ChannelID id = CHANNEL_ID_NULL);
 
 	virtual ~Channel();
 
-	virtual bool SLAPI isConnected(void) {return m_bIsConnected;}
+	virtual bool SLAPI isConnected(void) { return (m_flags & FLAG_CONNECTED) > 0;}
 	virtual void SLAPI send(const char* pBuf, uint32 dwLen);
 	virtual void SLAPI disconnect(void);
 
@@ -81,15 +70,7 @@ public:
 	static Channel* get(NetworkInterface& networkInterface,
 		const EndPoint* pSocket);
 
-	void setConnected(bool isOrNo) {m_bIsConnected = isOrNo;}
-
-	/*void startInactivityDetection(float inactivityPeriod,
-		float checkPeriod = 1.f);*/
-
-	//void stopInactivityDetection();
-
-	PacketFilterPtr getFilter() const {return m_pFilter;}
-	void setFilter(PacketFilterPtr pFilter) {m_pFilter = pFilter;}
+	void setConnected() {m_flags |= FLAG_CONNECTED;}
 
 	void destroy();
 
@@ -129,10 +110,6 @@ public:
 	inline void setPacketSender(PacketSender* pPacketSender);
 	inline PacketReceiver* getPacketReceiver() const;
 
-	Traits traits() const {return m_traits;}
-	bool isExternal() const {return m_traits == EXTERNAL;}
-	bool isInternal() const {return m_traits == INTERNAL;}
-
 	void onPacketReceived(int bytes);
 	void onPacketSent(int bytes, bool sendCompleted);
 	void onSendCompleted();
@@ -152,22 +129,17 @@ public:
 
 	BufferedReceives& bufferedReceives() {return m_bufferedReceives;}
 
-	void processPackets(/*network::MessageHandlers* pMsgHandlers*/);
+	void processPackets();
 
 	bool isCondemn() const {return (m_flags & FLAG_CONDEMN) > 0;}
 	void condemn();
-
-	bool hasHandshake() const {return (m_flags & FLAG_HANDSHAKE) > 0;}
-
-	virtual void handshake();
 
 	bool waitSend();
 
 	bool initialize(NetworkInterface& networkInterface,
 		const EndPoint* pEndPoint,
-		Traits traits,
+		ISLPacketParser* poPacketParser,
 		ProtocolType pt = PROTOCOL_TCP,
-		PacketFilterPtr pFilter = NULL,
 		ChannelID id = CHANNEL_ID_NULL);
 
 	bool finalise();
@@ -180,13 +152,8 @@ private:
 	{
 		FLAG_SENDING	=	0x00000001,			///< 发送信息中
 		FLAG_DESTROYED	=	0x00000002,			///< 通道已经销毁
-		FLAG_HANDSHAKE	=	0x00000004,			///< 已经握手过
-		FLAG_CONDEMN	=	0x00000008,			///< 该频道已经变得不合法
-	};
-
-	enum TimeOutType
-	{
-		TIMEOUT_INACTIVITY_CHECK
+		FLAG_CONDEMN	=	0x00000004,			///< 该频道已经变得不合法
+		FLAG_CONNECTED	=	0x00000008,			///< 通道建立连接
 	};
 
 	void clearState(bool warnOnDiscard = false);
@@ -194,20 +161,16 @@ private:
 
 private:
 	NetworkInterface*			m_pNetworkInterface;
-	Traits						m_traits;
+
 	ProtocolType				m_protocolType;
 
 	ChannelID					m_id;
-
-	uint64						m_inactivityExceptionPeriod;
 
 	uint64						m_lastReceivedTime;
 
 	Bundles						m_bundles;
 
 	BufferedReceives			m_bufferedReceives;
-
-	PacketReader*				m_pPacketReader;
 
 	///statistics
 
@@ -218,20 +181,18 @@ private:
 	uint32						m_lastTickBytesReceived;
 	uint32						m_lastTickBytesSent;
 
-	PacketFilterPtr				m_pFilter;
-
 	EndPoint*					m_pEndPoint;
+	PacketReader*				m_pPacketReader;
 	PacketReceiver*				m_pPacketReceiver;
 	PacketSender*				m_pPacketSender;
 
-	//通道类别
+	ISLSession*					m_pSession;
+
+	ISLPacketParser*			m_pPacketParser;
+
 	ChannelTypes				m_channelType;
 
 	uint32						m_flags;
-
-	ISLSession*					m_pSession;
-
-	bool						m_bIsConnected;
 };
 
 }

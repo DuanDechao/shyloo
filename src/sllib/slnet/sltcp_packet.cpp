@@ -31,8 +31,8 @@ namespace sl
 			return SmartPoolObjectPtr(new SmartPoolObject<TCPPacket>(ObjPool().FetchObj(), g_objPool));
 		}
 
-		TCPPacket::TCPPacket(MessageID msgID /* = 0 */, size_t res /* = 0 */)
-			:Packet(msgID, true, res)
+		TCPPacket::TCPPacket(size_t res /* = 0 */)
+			:Packet(true, res)
 		{
 			data_resize(maxBufferSize());
 			wpos(0);
