@@ -6,39 +6,6 @@ namespace sl
 namespace network
 {
 
-static CObjectPool<Bundle> g_objPool("Bundle");
-CObjectPool<Bundle>& Bundle::ObjPool()
-{
-	return g_objPool;
-}
-
-Bundle* Bundle::createPoolObject()
-{
-	return g_objPool.FetchObj();
-}
-
-void Bundle::reclaimPoolObject(Bundle* obj)
-{
-	g_objPool.ReleaseObj(obj);
-}
-
-void Bundle::destoryObjPool()
-{
-	g_objPool.Destroy();
-}
-
-size_t Bundle::getPoolObjectBytes()
-{
-	size_t bytes = sizeof(m_isTCPPacket) + sizeof(m_numMessages) + sizeof(m_pChannel)+
-		(m_packets.size() * sizeof(Packet*));
-	return bytes;
-}
-
-Bundle::SmartPoolObjectPtr Bundle::createSmartPoolObj()
-{
-	return SmartPoolObjectPtr(new SmartPoolObject<Bundle>(ObjPool().FetchObj(), g_objPool));
-}
-
 Bundle::Bundle(Channel* pChannel /* = NULL */, ProtocolType pt /* = PROTOCOL_TCP */)
 	:m_pChannel(pChannel),
 	 m_numMessages(0),
@@ -77,11 +44,6 @@ Bundle::Bundle(const Bundle& bundle)
 }
 
 Bundle::~Bundle()
-{
-	clear(false);
-}
-
-void Bundle::onReclaimObject()
 {
 	clear(true);
 }

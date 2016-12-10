@@ -21,7 +21,11 @@ PacketSender::PacketSender(EndPoint& endpoint, NetworkInterface& networkInterfac
 	 m_pNetworkInterface(&networkInterface)
 {}
 
-PacketSender::~PacketSender(){}
+PacketSender::~PacketSender()
+{
+	m_pEndPoint = NULL;
+	m_pNetworkInterface = NULL;
+}
 
 Channel* PacketSender::getChannel()
 {

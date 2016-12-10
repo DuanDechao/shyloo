@@ -191,17 +191,17 @@ typedef UINT_PTR			SLSOCKET;
 #define MALLOC_PACKET(outputPacket, isTCPPacket)															\
 {																											\
 	if(isTCPPacket)																							\
-	outputPacket = TCPPacket::createPoolObject();															\
+	outputPacket = CREATE_POOL_OBJECT(TCPPacket);															\
 	else																									\
-	outputPacket = UDPPacket::createPoolObject();															\
+	outputPacket = CREATE_POOL_OBJECT(UDPPacket);															\
 }																											\
 
 #define RECLAIM_PACKET(isTCPPacket, pPacket)																\
 {																											\
 	if(isTCPPacket)																							\
-	TCPPacket::reclaimPoolObject(static_cast<TCPPacket*>(pPacket));											\
+	RELEASE_POOL_OBJECT(TCPPacket, static_cast<TCPPacket*>(pPacket));										\
 	else																									\
-	UDPPacket::reclaimPoolObject(static_cast<UDPPacket*>(pPacket));											\
+	RELEASE_POOL_OBJECT(UDPPacket, static_cast<UDPPacket*>(pPacket));										\
 }																											\
 
 //network stats

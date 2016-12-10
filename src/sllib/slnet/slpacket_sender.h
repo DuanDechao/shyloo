@@ -14,7 +14,7 @@ class Address;
 class NetworkInterface;
 class EventDispatcher;
 
-class PacketSender: public PoolObject, public OutputNotificationHandler
+class PacketSender: public OutputNotificationHandler
 {
 public:
 	PacketSender();
@@ -22,12 +22,6 @@ public:
 	virtual ~PacketSender();
 
 	EventDispatcher& dispatcher();
-
-	void onReclaimObject()
-	{
-		m_pEndPoint = NULL;
-		m_pNetworkInterface = NULL;
-	}
 
 	void SetEndPoint(EndPoint* pEndPoint)
 	{

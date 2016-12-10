@@ -8,42 +8,17 @@ namespace network
 {
 
 static bool g_networkInitted = false;
-static CObjectPool<EndPoint> g_objPool("EndPoint");
-CObjectPool<EndPoint>& EndPoint::ObjPool()
-{
-	return g_objPool;
-}
 
-EndPoint* EndPoint::createPoolObject()
-{
-	return g_objPool.FetchObj();
-}
-
-void EndPoint::reclaimPoolObject(EndPoint* obj)
-{
-	g_objPool.ReleaseObj(obj);
-}
-
-void EndPoint::destroyObjPool()
-{
-	g_objPool.Destroy();
-}
-
-EndPoint::SmartPoolObjectPtr EndPoint::createSmartPoolObj()
-{
-	return SmartPoolObjectPtr(new SmartPoolObject<EndPoint>(ObjPool().FetchObj(), g_objPool));
-}
-
-void EndPoint::onReclaimObject()
-{
-#ifdef SL_OS_WINDOWS
-	m_socket = INVALID_SOCKET;
-#else
-	m_socket = -1;
-#endif
-
-	m_address = Address::NONE;
-}
+//void EndPoint::onReclaimObject()
+//{
+//#ifdef SL_OS_WINDOWS
+//	m_socket = INVALID_SOCKET;
+//#else
+//	m_socket = -1;
+//#endif
+//
+//	m_address = Address::NONE;
+//}
 
 //---------------------------------------------------------------
 

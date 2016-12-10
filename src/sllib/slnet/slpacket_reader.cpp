@@ -20,7 +20,7 @@ PacketReader::~PacketReader()
 
 void PacketReader::reset()
 {
-	MemoryStream::reclaimPoolObject(m_pFragmentStream);
+	RELEASE_POOL_OBJECT(MemoryStream, m_pFragmentStream);
 	m_pFragmentStream = NULL;
 	m_pFragmentStreamLength = 0;
 }
@@ -58,7 +58,7 @@ void PacketReader::processMessages( Packet* pPacket)
 			}
 			if(parserLen > 0){
 				poSession->onRecv((const char*)(m_pFragmentStream->data()+m_pFragmentStream->rpos()), (uint32)parserLen);
-				MemoryStream::reclaimPoolObject(m_pFragmentStream);
+				RELEASE_POOL_OBJECT(MemoryStream, m_pFragmentStream);
 				m_pFragmentStream = NULL;
 				pPacket->read_skip(parserLen);
 				m_pFragmentStreamLength = 0;
@@ -101,9 +101,10 @@ int32 PacketReader::mergeFragmentMessage(Packet* pPacket)
 	if(opsize == 0)
 		return 0;
 
-	if(m_pFragmentStream == nullptr)
-		m_pFragmentStream = MemoryStream::createPoolObject();
-	
+	if(m_pFragmentStream == nullptr){
+		m_pFragmentStream = CREATE_POOL_OBJECT(MemoryStream);
+	}
+
 	m_pFragmentStream->append(pPacket->data() + pPacket->rpos(), pPacket->length());
 	
 	const char* pDataBuf = (const char*)(m_pFragmentStream->data() + m_pFragmentStream->rpos());

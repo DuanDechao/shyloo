@@ -57,17 +57,9 @@ class NetworkInterface;
 #define DELETE_BUNDLE(obj) {network::Bundle::reclaimPoolObject(obj); obj = NULL;}
 #define RECLAIM_BUNDLE(obj) {network::Bundle::reclaimPoolObject(obj);}
 
-class Bundle: public PoolObject
+class Bundle
 {
 public:
-	typedef SLShared_ptr<SmartPoolObject<Bundle>> SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPoolObj();
-	static CObjectPool<Bundle>& ObjPool();
-	static Bundle* createPoolObject();
-	static void reclaimPoolObject(Bundle* obj);
-	static void destoryObjPool();
-	virtual void onReclaimObject();
-	virtual size_t getPoolObjectBytes();
 
 	typedef std::vector<Packet*> Packets;
 
@@ -306,6 +298,8 @@ private:
 	bool				m_isTCPPacket;
 	int32				m_packetMaxSize;
 };
+
+CREATE_OBJECT_POOL(Bundle);
 }
 }
 #include "slbundle.inl"

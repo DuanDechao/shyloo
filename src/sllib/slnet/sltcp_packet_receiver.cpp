@@ -5,30 +5,6 @@ namespace sl
 {
 namespace network
 {
-static CObjectPool<TCPPacketReceiver> g_objPool("TCPPacketReceiver");
-CObjectPool<TCPPacketReceiver>& TCPPacketReceiver::ObjPool()
-{
-	return g_objPool;
-}
-TCPPacketReceiver* TCPPacketReceiver::createPoolObject()
-{
-	return g_objPool.FetchObj();
-}
-
-void TCPPacketReceiver::reclaimPoolObject(TCPPacketReceiver* obj)
-{
-	return g_objPool.ReleaseObj(obj);
-}
-
-void TCPPacketReceiver::destroyObjPool()
-{
-	g_objPool.Destroy();
-}
-
-TCPPacketReceiver::SmartPoolObjectPtr TCPPacketReceiver::createSmartPoolObj()
-{
-	return SmartPoolObjectPtr(new SmartPoolObject<TCPPacketReceiver>(ObjPool().FetchObj(), g_objPool));
-}
 
 TCPPacketReceiver::TCPPacketReceiver(EndPoint& endpoint,
 									 NetworkInterface& networkInterface)
@@ -47,18 +23,18 @@ bool TCPPacketReceiver::processRecv(bool expectingPacket)
 		return false;
 	}
 
-	TCPPacket* pReceiveWindow = TCPPacket::createPoolObject();
+	TCPPacket* pReceiveWindow = CREATE_POOL_OBJECT(TCPPacket);
 	int len = pReceiveWindow->recvFromEndPoint(*m_pEndPoint);
 
 	if(len < 0)
 	{
-		TCPPacket::reclaimPoolObject(pReceiveWindow);
+		RELEASE_POOL_OBJECT(TCPPacket, pReceiveWindow);
 
 		PacketReceiver::RecvState rstate = this->checkSocketErrors(len, expectingPacket);
 
 		if(rstate == PacketReceiver::RECV_STATE_INTERRUPT)
 		{
-			TCPPacket::reclaimPoolObject(pReceiveWindow);
+			
 			onGetError(pChannel);
 			return false;
 		}
@@ -66,7 +42,7 @@ bool TCPPacketReceiver::processRecv(bool expectingPacket)
 	}
 	else if(len == 0)	///Õý³£ÍË³ö
 	{
-		TCPPacket::reclaimPoolObject(pReceiveWindow);
+		RELEASE_POOL_OBJECT(TCPPacket, pReceiveWindow);
 		onGetError(pChannel);
 		return false;
 	}

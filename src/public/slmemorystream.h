@@ -57,22 +57,8 @@ private:
 			printf("»¹Ô­£º%lld, %d, %d, %s", x, n, n1, a.c_str());
 */
 
-class MemoryStream: public PoolObject
+class MemoryStream
 {
-public:
-	union PackFloatXType
-	{
-		float	fv;
-		UINT32	uv;
-		int		iv;
-	};
-
-	static CObjectPool<MemoryStream>& ObjPool();
-	static MemoryStream* createPoolObject();
-	static void reclaimPoolObject(MemoryStream* obj);
-	static void destroyObjPool();
-	virtual void onReclaimObject();
-	virtual size_t getPoolObjectBytes();
 
 public:
 	const static size_t DEFAULT_SIZE = 0x100;
@@ -366,11 +352,6 @@ public:
 		rpos_ += len;
 	}
 
-
-
-
-
-
 	uint8* data() {return &data_[0];}
 	const uint8* data() const {return &data_[0];}
 
@@ -501,6 +482,7 @@ protected:
 	std::vector<uint8> data_;
 };
 
+CREATE_OBJECT_POOL(MemoryStream);
 
 }//namesapce sl
 #endif

@@ -7,33 +7,30 @@
 	file ext:	h
 	author:		ddc
 	
-	purpose:	
+	purpose:    一些对象会频繁的创建。如：MemoeryStream，Bundle，TCPPacket等等
+				这个对象池对通过服务器峰值有效的预估提前创建出的一些对象缓存起来，用到时直接
+				在对象池中获取一个未被使用的对象即可
 ******************************************************************/
+
 #ifndef _SL_OBJECT_POOL_H_
 #define _SL_OBJECT_POOL_H_
+
+#include "slmulti_sys.h"
+#include "sltime.h"
 #include <set>
 #include <string>
 #include <queue>
 #include <list>
 #include <map>
-#include "sltype.h"
-#include "sltime.h"
+
 namespace sl
 {
 #define OBJECT_POOL_INIT_SIZE			16
 #define OBJECT_POOL_INIT_MAX_SIZE		OBJECT_POOL_INIT_SIZE * 1024
 
 //每5分钟检查一次瘦身
-#define OBJECT_POOL_REDUCING_TIME_OUT	5 * 60 * 1000
+#define OBJECT_POOL_REDUCING_TIME_OUT	5 * MINUTE
 
-template<typename T>
-class SmartPoolObject;
-
-/*
-	一些对象会频繁的创建。如：MemoeryStream，Bundle，TCPPacket等等
-	这个对象池对通过服务器峰值有效的预估提前创建出的一些对象缓存起来，用到时直接
-	在对象池中获取一个未被使用的对象即可
-*/
 template<typename T>
 class CObjectPool
 {
@@ -42,15 +39,15 @@ public:
 
 	CObjectPool(std::string name)
 		:m_objects(),
-		 m_max(OBJECT_POOL_INIT_MAX_SIZE),
-		 m_isDestroyed(false),
-		 m_name(name),
-		 m_total_allocs(0),
-		 m_obj_count(0),
-		 m_lastReducingCheckTime(getTimeMilliSecond())
+		m_max(OBJECT_POOL_INIT_MAX_SIZE),
+		m_isDestroyed(false),
+		m_name(name),
+		m_total_allocs(0),
+		m_obj_count(0),
+		m_lastReducingCheckTime(getTimeMilliSecond())
 	{}
 
-	CObjectPool(std::string name, unsigned int preAssignVal, size_t max)
+	CObjectPool(std::string name, uint32 preAssignVal, uint32 max)
 		:m_objects(),
 		 m_max(max == 0 ? 1 : max),
 		 m_isDestroyed(false),
@@ -62,19 +59,25 @@ public:
 
 	~CObjectPool()
 	{
-		
+		destroy();
 	}
 
-	void Destroy()
+	uint32 maxSize() const {return m_max;}
+	uint32 totalAllocs() const {return m_total_allocs;}
+	bool isDestroyed() const {return m_isDestroyed;}
+	uint32 size(void) const {return m_obj_count;}
+
+public:
+
+	void destroy()
 	{
 		m_isDestroyed = true;
 		typename OBJECTS::iterator iter = m_objects.begin();
 		for (; iter != m_objects.end(); ++iter)
 		{
-			if(!(*iter)->destructorPoolObject()){
-				delete (*iter);
-			}
+			delete (*iter);
 		}
+
 		m_objects.clear();
 		m_obj_count = 0;
 	}
@@ -95,35 +98,13 @@ public:
 	}
 
 	/*
-		强制创建一个指定类型的对象，如果缓冲里已经创建则返回现有的，否则
-		创建一个新的，这个对象必须是继承自T的
-	*/
-
-	template<typename T1>
-	T* FetchObj(void)
-	{
-		while(true)
-		{
-			if(m_obj_count > 0)
-			{
-				T* t = static_cast<T1*>(*m_objects.begin());
-				m_objects.pop_front();
-				--m_obj_count;
-				t->onEnabledPoolObject();
-				return t;
-			}
-			assignObjs();
-		}
-
-		return NULL;
-	}
-
-	/*
 	  创建一个对象，如果缓冲里已经创建则返回现有的，否则
 	  创建新的
 	*/
-	T* FetchObj(void)
+	template<typename... Args> 
+	T* fetchObj(Args... args)
 	{
+		
 		while(true)
 		{
 			if(m_obj_count > 0)
@@ -131,10 +112,8 @@ public:
 				T* t = static_cast<T*>(*m_objects.begin());
 				m_objects.pop_front();
 				--m_obj_count;
-				t->onEnabledPoolObject();
-				return t;
+				return new(t) T(args...);
 			}
-
 			assignObjs();
 		}
 
@@ -144,65 +123,20 @@ public:
 	/*
 		回收一个对象
 	*/
-	void ReleaseObj(T* obj)
+	void releaseObj(T* obj)
 	{
 		reclaimObject_(obj);
 	}
-
-	/*
-		回收一个对象容器
-	*/
-	void ReleaseObj(std::list<T*>& objs)
-	{
-		typename std::list<T*>::iterator iter = objs.begin();
-		for (; iter != objs.end(); ++iter)
-		{
-			reclaimObject_((*iter));
-		}
-
-		objs.clear();
-	}
-
-	/*
-		回收一个对象容器
-	*/
-	void ReleaseObj(std::vector<T*>& objs)
-	{
-		typename std::vector<T*>::iterator iter = objs.begin();
-		for (; iter != objs.end(); ++iter)
-		{
-			reclaimObject_((*iter));
-		}
-		objs.clear();
-	}
-
-	/*
-		回收一个对象容器
-	*/
-	void ReleaseObj(std::queue<T*>& objs)
-	{
-		while(!objs.empty())
-		{
-			T* t = objs.front();
-			objs.pop();
-			reclaimObject_(t);
-		}
-	}
-
-	size_t size(void) const {return m_obj_count;}
 
 	std::string c_str()
 	{
 		char buf[1024];
 
 		sprintf_s(buf, "CObjectPool::c_str(): name=%s, objs=%d/%d, isDestroyed=%s.\n",
-			m_name.c_str(), (int)m_obj_count, (int)m_max, (isDestroyed() ? "true" : "false"));
+			m_name.c_str(), m_obj_count, m_max, (isDestroyed() ? "true" : "false"));
 		return buf;
 	}
-	size_t maxSize() const {return m_max;}
-	size_t totalAllocs() const {return m_total_allocs;}
-	bool isDestroyed() const {return m_isDestroyed;}
-
+	
 protected:
 	/*
 		回收一个对象
@@ -212,7 +146,7 @@ protected:
 		if(NULL != obj)
 		{
 			//先重置状态
-			obj->onReclaimObject();
+			obj->~T();
 
 			if(size() >= m_max || m_isDestroyed)
 			{
@@ -236,7 +170,9 @@ protected:
 		else if(m_lastReducingCheckTime - now_timestamp > OBJECT_POOL_REDUCING_TIME_OUT)
 		{
 			//长时间大于OBJECT_POOL_INIT_SIZE未使用的对象则开始做清理工作
-			size_t reducing = min(m_objects.size(), min((size_t)OBJECT_POOL_INIT_SIZE, (size_t)(m_obj_count - OBJECT_POOL_INIT_SIZE)));
+			uint32 reducing = min((uint32)m_objects.size(), min((uint32)OBJECT_POOL_INIT_SIZE, 
+				(uint32)(m_obj_count - OBJECT_POOL_INIT_SIZE)));
+
 			while(reducing-- > 0)
 			{
 				T* t = static_cast<T*>(*m_objects.begin());
@@ -245,94 +181,38 @@ protected:
 
 				--m_obj_count;
 			}
+
 			m_lastReducingCheckTime = now_timestamp;
 		}
 	}
 		 
 protected:
 	OBJECTS			m_objects;
-	size_t			m_max;
+	uint32			m_max;
 	bool			m_isDestroyed;
-
 	std::string		m_name;
-
-	size_t			m_total_allocs;
+	uint32			m_total_allocs;
 
 	//Linux环境中，list.size()使用的是std::distance(begin(), end())方式获得
 	//影响性能,这里对size做个记录
-	size_t			m_obj_count;
+	uint32			m_obj_count;
 
 	//最后一次瘦身检查时间
 	//如果长达OBJECT_POOL_REDUCING_TIME_OUT大于OBJECT_POOL_INIT_SIZE,则最多瘦身OBJECT_POOL_INIT_SIZE
 	uint64			m_lastReducingCheckTime;
 };
 
+#define CREATE_OBJECT_POOL(CLASSNAME) \
+	static CObjectPool<CLASSNAME> g_objPool##CLASSNAME("obj"#CLASSNAME)
 
-//池对象，所有使用池的对象必须实现回收功能
-class PoolObject
-{
-public:
-	virtual ~PoolObject() {}
-	virtual void onReclaimObject() = 0;
-	virtual void onEnabledPoolObject(){}
+#define CREATE_POOL_OBJECT(CLASSNAME, ...) \
+	g_objPool##CLASSNAME.fetchObj(__VA__ARGS__)
+	
+#define RELEASE_POOL_OBJECT(CLASSNAME, OBJECT) \
+	g_objPool##CLASSNAME.releaseObj(OBJECT)
 
-	virtual size_t getPoolObjectBytes(){return 0;}
-
-	virtual bool destructorPoolObject()
-	{
-		return false;
-	}
-};
-
-template<typename T>
-class SmartObjectPool: public CObjectPool<T>
-{
-public:
-};
-
-template<typename T>
-class SmartPoolObject
-{
-public:
-	SmartPoolObject(T* pPoolObject, CObjectPool<T>& objectPool)
-		:m_pPoolObject(pPoolObject),
-			m_objectPool(objectPool)
-	{}
-
-	~SmartPoolObject()
-	{
-		onReclaimObject();	
-	}
-
-	void onReclaimObject()
-	{
-		if(m_pPoolObject != NULL)
-		{
-			m_objectPool.ReleaseObj(m_pPoolObject);
-			m_pPoolObject = NULL;
-		}
-	}
-
-	T* Get()
-	{
-		return m_pPoolObject;
-	}
-
-	T* operator->()
-	{
-		return m_pPoolObject;
-	}
-
-	T& operator*()
-	{
-		return *m_pPoolObject;
-	}
-
-
-private:
-	T*		m_pPoolObject;
-	CObjectPool<T>& m_objectPool;
-};
+#define DESTROY_OBJECT_POOL(CLASSNAME)	\
+	g_objPool##CLASSNAME.destroy()
 
 } //namespace sl
 #endif

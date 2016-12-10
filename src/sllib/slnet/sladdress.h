@@ -6,25 +6,10 @@ namespace sl
 {
 namespace network
 {
-class Address: public PoolObject
+class Address
 {
 public:
 	static const Address NONE;
-
-	typedef SLShared_ptr<SmartPoolObject<Address>> SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPollObj();
-	static CObjectPool<Address>& ObjPool();
-	static Address* createPoolObject();
-	static void reclaimPoolObject(Address* obj);
-	static void destroyObjPool();
-	void onReclaimObject();
-
-
-	virtual size_t getPoolObjectBytes()
-	{
-		size_t bytes = sizeof(m_port) + sizeof(m_ip);
-		return bytes;
-	}
 
 	Address();
 	Address(uint32 ip, uint16 port);
@@ -53,6 +38,7 @@ private:
 	static char* nextStringBuf();
 
 };
+CREATE_OBJECT_POOL(Address);
 
 inline Address::Address()
 	:m_ip(0),

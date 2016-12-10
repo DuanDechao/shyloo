@@ -16,14 +16,6 @@ class EventDispatcher;
 class TCPPacketReceiver: public PacketReceiver
 {
 public:
-	typedef SLShared_ptr<SmartPoolObject<TCPPacketReceiver>> SmartPoolObjectPtr;
-
-	static SmartPoolObjectPtr createSmartPoolObj();
-	static CObjectPool<TCPPacketReceiver>& ObjPool();
-	static TCPPacketReceiver* createPoolObject();
-	static void reclaimPoolObject(TCPPacketReceiver* obj);
-	static void destroyObjPool();
-
 	TCPPacketReceiver():PacketReceiver() {}
 
 	TCPPacketReceiver(EndPoint& endpoint, NetworkInterface& networkInterface);
@@ -36,6 +28,8 @@ protected:
 	PacketReceiver::RecvState checkSocketErrors(int len, bool expectingPacket);
 	virtual void onGetError(Channel* pChannel);
 };
+CREATE_OBJECT_POOL(TCPPacketReceiver);
+
 }
 }
 #endif

@@ -76,7 +76,7 @@ bool NetworkInterface::createListeningSocket(const char* listeningInterface, uin
 	if(pEP->bind(htons(listeningPort), ifIPAddr) != 0)
 	{
 		pEP->close();
-		EndPoint::reclaimPoolObject(pEP);
+		RELEASE_POOL_OBJECT(EndPoint, pEP);
 		return false;
 	}
 
@@ -163,7 +163,7 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 
 	Address addr(serverIp, serverPort);
 	pEP->addr(addr);
-	Channel* pSvrChannel = Channel::createPoolObject();
+	Channel* pSvrChannel = CREATE_POOL_OBJECT(Channel);
 	SLASSERT(pSvrChannel, "w");
 	if(!pSvrChannel->initialize(*this, pEP, poPacketParser))
 	{
@@ -175,7 +175,7 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 	if(!this->registerChannel(pSvrChannel))
 	{
 		pSvrChannel->destroy();
-		Channel::reclaimPoolObject(pSvrChannel);
+		RELEASE_POOL_OBJECT(Channel, pSvrChannel);
 		return false;
 	}
 
@@ -238,7 +238,7 @@ bool NetworkInterface::deregisterAllChannels()
 		ChannelMap::iterator oldIter = iter++;
 		Channel* pChannel = oldIter->second;
 		pChannel->destroy();
-		network::Channel::reclaimPoolObject(pChannel);
+		RELEASE_POOL_OBJECT(Channel, pChannel);
 	}
 
 	m_channelMap.clear();

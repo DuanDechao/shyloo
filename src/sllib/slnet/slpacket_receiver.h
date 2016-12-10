@@ -13,7 +13,7 @@ class Address;
 class NetworkInterface;
 class EventDispatcher;
 class Packet;
-class PacketReceiver: public InputNotificationHandler, public PoolObject
+class PacketReceiver: public InputNotificationHandler
 {
 public:
 	enum RecvState
@@ -37,12 +37,6 @@ public:
 	virtual Reason processPacket(Channel* pChannel, Packet* pPacket);
 	virtual Reason processRecievePacket(Channel* pChannel, Packet* pPacket) = 0;
 	EventDispatcher& dispatcher();
-
-	void onReclaimObject()
-	{
-		m_pEndPoint = NULL;
-		m_pNetworkInterface = NULL;
-	}
 
 	virtual PacketReceiver::PACKET_RECEIVER_TYPE type() const
 	{

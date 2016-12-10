@@ -11,12 +11,6 @@ class Address;
 class TCPPacket: public Packet
 {
 public:
-	typedef SLShared_ptr<SmartPoolObject<TCPPacket>> SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPoolObj();
-	static CObjectPool<TCPPacket>& ObjPool();
-	static TCPPacket* createPoolObject();
-	static void reclaimPoolObject(TCPPacket* obj);
-	static void destroyObjPool();
 
 	static size_t maxBufferSize();
 
@@ -25,10 +19,9 @@ public:
 
 	int recvFromEndPoint(EndPoint& ep, Address* pAddr = NULL);
 
-	virtual void onReclaimObject();
 };
+CREATE_OBJECT_POOL(TCPPacket);
 
-typedef SmartPointer<TCPPacket> TCPPacketPtr;
 }
 }
 #endif

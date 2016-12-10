@@ -19,20 +19,9 @@ public:
 		 m_sentSize(0)
 	{}
 
-	virtual ~Packet(void){}
-
-	virtual void onReclaimObject()
-	{
-		MemoryStream::onReclaimObject();
-		resetPacket();
-	}
-
-	virtual size_t getPoolObjectBytes()
-	{
-		size_t bytes = sizeof(m_bIsTCPPacket) + sizeof(m_pBundle)
-			+ sizeof(m_sentSize);
-		
-		return MemoryStream::getPoolObjectBytes() + bytes;
+	virtual ~Packet(void)
+	{ 
+		resetPacket(); 
 	}
 
 	Bundle* GetBundle() const {return m_pBundle;}

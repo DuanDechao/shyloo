@@ -8,37 +8,6 @@ char Address::s_stringBuf[2][32] = {{0},{0}};
 int Address::s_curStringBuf = 0;
 const Address Address::NONE(0,0);
 
-static CObjectPool<Address> g_objPool("Address");
-CObjectPool<Address>& Address::ObjPool()
-{
-	return g_objPool;
-}
-
-Address* Address::createPoolObject()
-{
-	return g_objPool.FetchObj();
-}
-
-void Address::reclaimPoolObject(Address* obj)
-{
-	g_objPool.ReleaseObj(obj);
-}
-
-void Address::destroyObjPool()
-{
-	g_objPool.Destroy();
-}
-
-Address::SmartPoolObjectPtr Address::createSmartPollObj()
-{
-	return SmartPoolObjectPtr(new SmartPoolObject<Address>(ObjPool().FetchObj(), g_objPool));
-}
-void Address::onReclaimObject()
-{
-	m_ip = 0;
-	m_port = 0;
-}
-
 Address::Address(std::string ip, uint16 port)
 	:m_ip(0),
 	 m_port(htons(port))

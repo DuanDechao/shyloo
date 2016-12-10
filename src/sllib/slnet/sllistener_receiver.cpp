@@ -39,19 +39,19 @@ int ListenerReceiver::handleInputNotification(int fd)
 		{
 			pNewEndPoint->setnonblocking(true);
 			pNewEndPoint->setnodelay(true);
-			Channel* pChannel = Channel::createPoolObject();
+			Channel* pChannel = CREATE_POOL_OBJECT(Channel);
 			bool ret = pChannel->initialize(m_networkInterface, pNewEndPoint, m_pPacketParser);
 			if(!ret)
 			{
 				pChannel->destroy();
-				Channel::reclaimPoolObject(pChannel);
+				RELEASE_POOL_OBJECT(Channel, pChannel);
 				return 0;
 			}
 
 			if(!m_networkInterface.registerChannel(pChannel))
 			{
 				pChannel->destroy();
-				Channel::reclaimPoolObject(pChannel);
+				RELEASE_POOL_OBJECT(Channel, pChannel);
 			}
 
 			//
@@ -66,7 +66,7 @@ int ListenerReceiver::handleInputNotification(int fd)
 			{
 				ECHO_ERROR("create session failed");
 				pChannel->destroy();
-				Channel::reclaimPoolObject(pChannel);
+				RELEASE_POOL_OBJECT(Channel, pChannel);
 				return -2;
 			}
 			if(!pChannel->isConnected()){

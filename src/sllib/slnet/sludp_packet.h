@@ -10,23 +10,16 @@ class Address;
 class UDPPacket: public Packet
 {
 public:
-	typedef SLShared_ptr<SmartPoolObject<UDPPacket>> SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPoolObj();
-	static CObjectPool<UDPPacket>& ObjPool();
-	static UDPPacket* createPoolObject();
-	static void reclaimPoolObject(UDPPacket* obj);
-	static void destroyObjPool();
 	static size_t maxBufferSize();
 
 	UDPPacket(size_t res = 0);
 	virtual ~UDPPacket(void);
 
 	int recvFromEndPoint(EndPoint& ep, Address* pAddr = NULL);
-
-	virtual void onReclaimObject();
 };
 
-typedef SmartPoolObject<UDPPacket> UDPPacketPtr;
+CREATE_OBJECT_POOL(UDPPacket);
+
 }
 }
 #endif

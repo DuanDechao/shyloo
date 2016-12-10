@@ -10,23 +10,9 @@ namespace network
 {
 #pragma comment(lib,"Iphlpapi.lib")
 class Bundle;
-class EndPoint: public PoolObject
+class EndPoint
 {
 public:
-	typedef SLShared_ptr<SmartPoolObject<EndPoint>> SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPoolObj();
-	static CObjectPool<EndPoint>& ObjPool();
-	static EndPoint* createPoolObject();
-	static void reclaimPoolObject(EndPoint* obj);
-	static void destroyObjPool();
-	void onReclaimObject();
-
-	virtual size_t getPoolObjectBytes()
-	{
-		size_t bytes = sizeof(SLSOCKET) + m_address.getPoolObjectBytes();
-		return bytes;
-	}
-
 	EndPoint(Address address);
 	EndPoint(uint32 networkAddr = 0, uint16 networkport = 0);
 	virtual ~EndPoint();
@@ -113,6 +99,8 @@ protected:
 	Address			m_address;
 
 };
+CREATE_OBJECT_POOL(EndPoint);
+
 }
 }
 #include "slendpoint.inl"

@@ -18,18 +18,9 @@ class PacketSender;
 class PacketReceiver;
 class EventDispatcher;
 
-class Channel:public PoolObject, public ISLChannel
+class Channel:public ISLChannel
 {
 public:
-	typedef SLShared_ptr<SmartPoolObject<Channel>> SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPoolObj();
-	static CObjectPool<Channel>& ObjPool();
-	static Channel* createPoolObject();
-	static void reclaimPoolObject(Channel* obj);
-	static void destroyObjPool();
-	void onReclaimObject();
-	virtual size_t getPoolObjectBytes();
-
 	enum ChannelTypes
 	{
 		//∆’Õ®Õ®µ¿
@@ -194,6 +185,7 @@ private:
 
 	uint32						m_flags;
 };
+CREATE_OBJECT_POOL(Channel);
 
 }
 }

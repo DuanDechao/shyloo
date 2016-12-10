@@ -7,32 +7,6 @@ namespace sl
 {
 namespace network
 {
-static CObjectPool<TCPPacketSender> g_objPool("TCPPacketSender");
-CObjectPool<TCPPacketSender>& TCPPacketSender::objPool()
-{
-	return g_objPool;
-}
-
-TCPPacketSender* TCPPacketSender::createPoolObject()
-{
-	return g_objPool.FetchObj();
-}
-
-void TCPPacketSender::reclaimPoolObject(TCPPacketSender* obj)
-{
-	g_objPool.ReleaseObj(obj);
-}
-
-void TCPPacketSender::destroyObjPool()
-{
-	g_objPool.Destroy();
-}
-
-TCPPacketSender::SmartPoolObjectPtr TCPPacketSender::createSmartPoolObj()
-{
-	return SmartPoolObjectPtr(new SmartPoolObject<TCPPacketSender>(objPool().FetchObj(), g_objPool));
-}
-
 TCPPacketSender::TCPPacketSender(EndPoint& endpoint, NetworkInterface& networkInferface)
 	:PacketSender(endpoint, networkInferface)
 {}
@@ -89,7 +63,7 @@ bool TCPPacketSender::processSend(Channel* pChannel)
 		if(reason == REASON_SUCCESS)
 		{
 			packets.clear();
-			network::Bundle::reclaimPoolObject((*iter));
+			RELEASE_POOL_OBJECT(Bundle, *iter);
 		}
 		else
 		{

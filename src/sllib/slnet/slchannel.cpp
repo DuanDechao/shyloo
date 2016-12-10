@@ -14,49 +14,6 @@ namespace sl
 {
 namespace network
 {
-
-static CObjectPool<Channel> g_objPool("Channel");
-CObjectPool<Channel>& Channel::ObjPool()
-{
-	return g_objPool;
-}
-
-Channel* Channel::createPoolObject()
-{
-	return g_objPool.FetchObj();
-}
-
-void Channel::reclaimPoolObject(Channel* obj)
-{
-	g_objPool.ReleaseObj(obj);
-}
-
-void Channel::destroyObjPool()
-{
-	g_objPool.Destroy();
-}
-
-size_t Channel::getPoolObjectBytes()
-{
-	size_t bytes = sizeof(m_pNetworkInterface) +
-		sizeof(m_id) + sizeof(m_lastReceivedTime) + (m_bufferedReceives.size() * sizeof(Packet*)) + sizeof(m_pPacketReader) 
-		+ sizeof(m_flags) + sizeof(m_numBytesSent) + sizeof(m_numBytesReceived) + sizeof(m_numPacketsSent) + sizeof(m_numPacketsReceived)
-		+ sizeof(m_lastTickBytesReceived) + sizeof(m_lastTickBytesSent) + sizeof(m_pEndPoint) + sizeof(m_pPacketReceiver) + sizeof(m_pPacketSender)
-		+ sizeof(m_channelType);
-
-	return bytes;
-}
-
-Channel::SmartPoolObjectPtr Channel::createSmartPoolObj()
-{
-	return SmartPoolObjectPtr(new SmartPoolObject<Channel>(ObjPool().FetchObj(), g_objPool));
-}
-
-void Channel::onReclaimObject()
-{
-	this->clearState();
-}
-
 Channel::Channel(NetworkInterface& networkInterface,
 				 const EndPoint* pEndPoint, ISLPacketParser* poPacketParser, ProtocolType pt,
 				 ChannelID id)
@@ -177,7 +134,7 @@ bool Channel::finalise()
 	SAFE_RELEASE(m_pPacketReader);
 	SAFE_RELEASE(m_pPacketSender);
 
-	EndPoint::reclaimPoolObject(m_pEndPoint);
+	RELEASE_POOL_OBJECT(EndPoint, m_pEndPoint);
 	m_pEndPoint = NULL;
 	return true;
 }
@@ -194,7 +151,7 @@ Channel* Channel::get(NetworkInterface& networkInterface, const EndPoint* pEndPo
 
 void Channel::send(const char* pBuf, uint32 dwLen)
 {
-	Bundle* pBundle = Bundle::createPoolObject();
+	Bundle* pBundle = CREATE_POOL_OBJECT(Bundle);
 	
 	if(dwLen > (uint32)(pBundle->packetMaxSize()))
 	{
@@ -217,7 +174,7 @@ void Channel::setEndPoint(const EndPoint* pEndPoint)
 {
 	if(m_pEndPoint != pEndPoint)
 	{
-		EndPoint::reclaimPoolObject(m_pEndPoint);
+		RELEASE_POOL_OBJECT(EndPoint, m_pEndPoint);
 		m_pEndPoint = const_cast<EndPoint*>(pEndPoint);
 	}
 
@@ -340,7 +297,7 @@ void Channel::clearBundle()
 	Bundles::iterator iter = m_bundles.begin();
 	for (; iter != m_bundles.end(); ++iter)
 	{
-		Bundle::reclaimPoolObject((*iter));
+		RELEASE_POOL_OBJECT(Bundle, *iter);
 	}
 
 	m_bundles.clear();
@@ -351,16 +308,18 @@ void Channel::send(Bundle* pBundle /* = NULL */)
 	if(isDestroyed())
 	{
 		this->clearBundle();
-		if(pBundle)
-			Bundle::reclaimPoolObject(pBundle);
+		if(pBundle){
+			RELEASE_POOL_OBJECT(Bundle, pBundle);
+		}
 		return;
 	}
 
 	if(isCondemn())
 	{
 		this->clearBundle();
-		if(pBundle)
-			Bundle::reclaimPoolObject(pBundle);
+		if(pBundle){
+			RELEASE_POOL_OBJECT(Bundle, pBundle);
+		}
 		return;
 	}
 
@@ -507,7 +466,7 @@ Bundle* Channel::createSendBundle()
 		}
 	}
 
-	Bundle* pBundle = Bundle::createPoolObject();
+	Bundle* pBundle = CREATE_POOL_OBJECT(Bundle);
 	pBundle->setChannel(this);
 	return pBundle;
 }

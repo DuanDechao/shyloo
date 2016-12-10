@@ -16,7 +16,11 @@ PacketReceiver::PacketReceiver(EndPoint& endpoint, NetworkInterface& networkInte
 	 m_pNetworkInterface(&networkInterface)
 {}
 
-PacketReceiver::~PacketReceiver(){}
+PacketReceiver::~PacketReceiver()
+{
+	m_pEndPoint = NULL;
+	m_pNetworkInterface = NULL;
+}
 
 int PacketReceiver::handleInputNotification(int fd)
 {

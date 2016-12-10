@@ -166,7 +166,14 @@ inline int32 EndPoint::close()
 	{
 		this->setFileDescriptor(-1);
 	}
-	
+
+#ifdef SL_OS_WINDOWS
+	m_socket = INVALID_SOCKET;
+#else
+	m_socket = -1;
+#endif
+	m_address = Address::NONE;
+
 	return ret;
 }
 
@@ -313,7 +320,7 @@ inline EndPoint* EndPoint::accept(uint16* networkPort /* = NULL */, uint32* netw
 	if(ret == INVALID_SOCKET) return NULL;
 #endif
 
-	EndPoint* pNew = EndPoint::createPoolObject();
+	EndPoint* pNew = CREATE_POOL_OBJECT(EndPoint);
 	pNew->setFileDescriptor(ret);
 	pNew->addr(sin.sin_port, sin.sin_addr.s_addr);
 

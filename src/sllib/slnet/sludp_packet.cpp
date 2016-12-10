@@ -5,31 +5,6 @@ namespace sl
 {
 namespace network
 {
-static CObjectPool<UDPPacket> g_objPool("UDPPacket");
-CObjectPool<UDPPacket>& UDPPacket::ObjPool()
-{
-	return g_objPool;
-}
-
-UDPPacket* UDPPacket::createPoolObject()
-{
-	return g_objPool.FetchObj();
-}
-
-void UDPPacket::reclaimPoolObject(UDPPacket* obj)
-{
-	g_objPool.ReleaseObj(obj);
-}
-
-void UDPPacket::destroyObjPool()
-{
-	g_objPool.Destroy();
-}
-
-UDPPacket::SmartPoolObjectPtr UDPPacket::createSmartPoolObj()
-{
-	return SmartPoolObjectPtr(new SmartPoolObject<UDPPacket>(ObjPool().FetchObj(), g_objPool));
-}
 
 UDPPacket::UDPPacket(size_t res /* = 0 */)
 	:Packet(false, res)
@@ -38,17 +13,13 @@ UDPPacket::UDPPacket(size_t res /* = 0 */)
 	wpos(0);
 }
 
-UDPPacket::~UDPPacket(){}
+UDPPacket::~UDPPacket(){
+	data_resize(maxBufferSize());
+}
 
 size_t UDPPacket::maxBufferSize()
 {
 	return PACKET_MAX_SIZE_UDP;
-}
-
-void UDPPacket::onReclaimObject()
-{
-	Packet::onReclaimObject();
-	data_resize(maxBufferSize());
 }
 
 int UDPPacket::recvFromEndPoint(EndPoint& ep, Address* pAddr /* = NULL */)

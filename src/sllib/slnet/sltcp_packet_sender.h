@@ -16,13 +16,6 @@ class EventDispatcher;
 class TCPPacketSender: public PacketSender
 {
 public:
-	typedef SLShared_ptr<SmartPoolObject<TCPPacketSender>> SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPoolObj();
-	static CObjectPool<TCPPacketSender>& objPool();
-	static TCPPacketSender* createPoolObject();
-	static void reclaimPoolObject(TCPPacketSender* obj);
-	static void destroyObjPool();
-
 	TCPPacketSender():PacketSender(){}
 	TCPPacketSender(EndPoint& endpoint, NetworkInterface& networkInferface);
 	~TCPPacketSender();

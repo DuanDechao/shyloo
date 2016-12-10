@@ -19,13 +19,7 @@ class EventDispatcher;
 class UDPPacketReceiver: public PacketReceiver
 {
 public:
-	typedef SLShared_ptr<SmartPoolObject<UDPPacketReceiver>> SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPoolObj();
-	static CObjectPool<UDPPacketReceiver>& ObjPool();
-	static UDPPacketReceiver* createPoolObject();
-	static void reclaimPoolObject(UDPPacketReceiver* obj);
-	static void destroyObjPool();
-
+	
 	UDPPacketReceiver():PacketReceiver(){}
 	UDPPacketReceiver(EndPoint& endpoint, NetworkInterface& networkInterface);
 	~UDPPacketReceiver();
