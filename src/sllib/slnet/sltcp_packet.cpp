@@ -5,7 +5,7 @@ namespace sl
 {
 namespace network
 {
-TCPPacket::TCPPacket(size_t res /* = 0 */)
+TCPPacket::TCPPacket(uint32 res /* = 0 */)
 	:Packet(true, res)
 {
 	data_resize(maxBufferSize());
@@ -17,14 +17,14 @@ TCPPacket::~TCPPacket()
 	data_resize(maxBufferSize());
 }
 
-size_t TCPPacket::maxBufferSize()
+uint32 TCPPacket::maxBufferSize()
 {
 	return PACKET_MAX_SIZE_TCP;
 }
 
 int TCPPacket::recvFromEndPoint(EndPoint& ep, Address* pAddr /* = NULL */)
 {
-	SLASSERT(maxBufferSize() > wpos(), "wtf");
+	SLASSERT((int32)maxBufferSize() > wpos(), "wtf");
 
 	int len = ep.recv(data() + wpos(), (int)(size() - wpos()));
 

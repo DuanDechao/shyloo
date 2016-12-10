@@ -49,7 +49,7 @@ typedef unsigned int pid_t;
 
 #define ECHO_TRACE(format, ...){\
 	char _log[4096] = {0};	\
-	SafeSprintf(_log, sizeof(_log), format, ##__VA__ARGS__);	\
+	SafeSprintf(_log, sizeof(_log), format, ##__VA_ARGS__);	\
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN);	\
 	printf("[trace]%s|%d|%s>>>%s\n", __FILE__, __LINE__, __FUNCTION__, _log);	\
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_INTENSITY | FOREGROUND_INTENSITY);	\

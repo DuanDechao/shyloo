@@ -8,7 +8,6 @@ namespace sl
 namespace network
 {
 class Channel;
-class NetworkInterface;
 
 #define PACKET_OUT_VALUE(v, expectSize)																		\
 	SLASSERT(packetsLength() >= (int32)expectSize);														\
@@ -53,9 +52,9 @@ class NetworkInterface;
 	
 	
 	//从对象池中创建和回收
-#define MALLOC_BUNDLE() network::Bundle::createPoolObject()
-#define DELETE_BUNDLE(obj) {network::Bundle::reclaimPoolObject(obj); obj = NULL;}
-#define RECLAIM_BUNDLE(obj) {network::Bundle::reclaimPoolObject(obj);}
+#define MALLOC_BUNDLE() CREATE_POOL_OBJECT(network::Bundle)
+#define DELETE_BUNDLE(obj) {RELEASE_POOL_OBJECT(network::Bundle, obj); obj = NULL;}
+#define RECLAIM_BUNDLE(obj) {RELEASE_POOL_OBJECT(network::Bundle, obj);}
 
 class Bundle
 {
@@ -231,7 +230,7 @@ public:
 		if(bundle.m_pCurrPacket == NULL)
 			return *this;
 
-		return append(bundle.m_pCurrPacket->data() + bundle.m_pCurrPacket->rpos(), (int)bundle.m_pCurrPacket->length());
+		return append(bundle.m_pCurrPacket->data() + bundle.m_pCurrPacket->rpos(), (int32)bundle.m_pCurrPacket->length());
 	}
 
 	Bundle& append(MemoryStream* s)
@@ -243,7 +242,7 @@ public:
 	Bundle& append(MemoryStream& s)
 	{
 		if(s.length() > 0)
-			return append(s.data() + s.rpos(), (int)s.length());
+			return append(s.data() + s.rpos(), (int32)s.length());
 
 		return *this;
 	}
@@ -264,16 +263,16 @@ public:
 		return assign((char*)str, n);
 	}
 
-	Bundle& append(const uint8* str, int n)
+	Bundle& append(const uint8* str, int32 n)
 	{
 		return assign((char*)str, n);
 	}
-	Bundle& append(const char* str, int n)
+	Bundle& append(const char* str, int32 n)
 	{
 		return assign(str, n);
 	}
 
-	Bundle& assign(const char* str, int n)
+	Bundle& assign(const char* str, int32 n)
 	{
 		int32 len = (int32)n;
 		int32 addtotalsize = 0;
@@ -291,9 +290,7 @@ public:
 private:
 	Channel*			m_pChannel;
 	int32				m_numMessages;
-
 	Packet*				m_pCurrPacket;
-
 	Packets				m_packets;
 	bool				m_isTCPPacket;
 	int32				m_packetMaxSize;

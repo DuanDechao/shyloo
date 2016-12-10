@@ -163,9 +163,6 @@ namespace sl
 			SafeSprintf(str, 127, "%lld", val);
 			return string(str).c_str();
 		}
-
-		
-
 	};
 
 }//namespace sl

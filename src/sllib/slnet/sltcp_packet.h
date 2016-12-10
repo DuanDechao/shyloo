@@ -12,9 +12,9 @@ class TCPPacket: public Packet
 {
 public:
 
-	static size_t maxBufferSize();
+	static uint32 maxBufferSize();
 
-	TCPPacket(size_t res = 0);
+	TCPPacket(uint32 res = 0);
 	virtual ~TCPPacket(void);
 
 	int recvFromEndPoint(EndPoint& ep, Address* pAddr = NULL);

@@ -213,7 +213,8 @@ void Channel::clearState(bool warnOnDiscard /* = false */)
 		}
 		if(hasDiscard > 0 && warnOnDiscard)
 		{
-
+			ECHO_TRACE("Channel::clearState(%s): Discarding %d buffered packet(s)",
+				this->c_str(), hasDiscard);
 		}
 
 		m_bufferedReceives.clear();
@@ -443,11 +444,6 @@ void Channel::processPackets()
 bool Channel::waitSend()
 {
 	return getEndPoint()->waitSend();
-}
-
-EventDispatcher& Channel::dispatcher()
-{
-	return m_pNetworkInterface->getDispatcher();
 }
 
 Bundle* Channel::createSendBundle()

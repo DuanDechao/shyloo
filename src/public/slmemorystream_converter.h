@@ -7,7 +7,7 @@
 	file ext:	h
 	author:		ddc
 	
-	purpose:	
+	purpose:	×Ö½ÚÐò×ª»»
 *********************************************************************/
 
 #ifndef _SL_MEMORYSTREAM_CONVERTER_H_
@@ -36,8 +36,7 @@ namespace MemoryStreamConverter
 
 	inline void convert(char* val, size_t size)
 	{
-		if(size < 2)
-			return;
+		if(size < 2) return;
 
 		std::swap(*val, *(val + size - 1));
 		convert(val + 1, size - 2);

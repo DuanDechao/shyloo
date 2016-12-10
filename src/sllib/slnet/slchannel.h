@@ -1,6 +1,5 @@
 #ifndef _SL_NETWORKCHANNEL_H_
 #define _SL_NETWORKCHANNEL_H_
-#include "sltimer.h"
 #include "slpacket.h"
 #include "slendpoint.h"
 #include "slnetbase.h"
@@ -16,7 +15,6 @@ class NetworkInterface;
 class PacketReader;
 class PacketSender;
 class PacketReceiver;
-class EventDispatcher;
 
 class Channel:public ISLChannel
 {
@@ -55,6 +53,8 @@ public:
 	virtual const char* SLAPI getLocalIPStr(void) {return "";}
 	virtual const uint16 SLAPI getLocalPort(void) {return 0;}
 
+
+public:
 	static Channel* get(NetworkInterface& networkInterface,
 		const Address& addr);
 
@@ -148,21 +148,16 @@ private:
 	};
 
 	void clearState(bool warnOnDiscard = false);
-	EventDispatcher& dispatcher();
 
 private:
-	NetworkInterface*			m_pNetworkInterface;
-
+	
 	ProtocolType				m_protocolType;
-
 	ChannelID					m_id;
-
 	uint64						m_lastReceivedTime;
-
 	Bundles						m_bundles;
-
 	BufferedReceives			m_bufferedReceives;
-
+	ChannelTypes				m_channelType;
+	uint32						m_flags;
 	///statistics
 
 	uint32						m_numPacketsSent;
@@ -172,19 +167,15 @@ private:
 	uint32						m_lastTickBytesReceived;
 	uint32						m_lastTickBytesSent;
 
+	NetworkInterface*			m_pNetworkInterface;
 	EndPoint*					m_pEndPoint;
 	PacketReader*				m_pPacketReader;
 	PacketReceiver*				m_pPacketReceiver;
 	PacketSender*				m_pPacketSender;
-
 	ISLSession*					m_pSession;
-
 	ISLPacketParser*			m_pPacketParser;
-
-	ChannelTypes				m_channelType;
-
-	uint32						m_flags;
 };
+
 CREATE_OBJECT_POOL(Channel);
 
 }

@@ -12,20 +12,18 @@ Address::Address(std::string ip, uint16 port)
 	:m_ip(0),
 	 m_port(htons(port))
 {
-	uint32 addr;
-	network::Address::string2ip(ip.c_str(), addr);
-	m_ip = addr;
+	network::Address::string2ip(ip.c_str(), m_ip);
 }
 
-int Address::writeToString(char* str, int length) const
+int32 Address::writeToString(char* str, int32 length) const
 {
 	uint32 uip = ntohl(m_ip);
 	uint16 uport = ntohs(m_port);
 	return SafeSprintf(str, length, "%d.%d.%d.%d:%d",
-		(int)(uint8)(uip >> 24),
-		(int)(uint8)(uip >> 16),
-		(int)(uint8)(uip >> 8),
-		(int)(uint8)(uip),
+		(int32)(uint8)(uip >> 24),
+		(int32)(uint8)(uip >> 16),
+		(int32)(uint8)(uip >> 8),
+		(int32)(uint8)(uip),
 		uport);
 }
 
@@ -41,10 +39,10 @@ const char* Address::ipAsString() const
 	uint32 uip = ntohl(m_ip);
 	char* buf = Address::nextStringBuf();
 	SafeSprintf(buf, 32, "%d.%d.%d.%d",
-		(int)(uint8)(uip >> 24),
-		(int)(uint8)(uip >> 16),
-		(int)(uint8)(uip >> 8),
-		(int)(uint8)(uip));
+		(int32)(uint8)(uip >> 24),
+		(int32)(uint8)(uip >> 16),
+		(int32)(uint8)(uip >> 8),
+		(int32)(uint8)(uip));
 	return buf;
 }
 

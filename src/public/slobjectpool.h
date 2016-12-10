@@ -47,16 +47,6 @@ public:
 		m_lastReducingCheckTime(getTimeMilliSecond())
 	{}
 
-	CObjectPool(std::string name, uint32 preAssignVal, uint32 max)
-		:m_objects(),
-		 m_max(max == 0 ? 1 : max),
-		 m_isDestroyed(false),
-		 m_name(name),
-		 m_total_allocs(0),
-		 m_obj_count(0),
-		 m_lastReducingCheckTime(getTimeMilliSecond())
-	{}
-
 	~CObjectPool()
 	{
 		destroy();
@@ -101,10 +91,8 @@ public:
 	  创建一个对象，如果缓冲里已经创建则返回现有的，否则
 	  创建新的
 	*/
-	template<typename... Args> 
-	T* fetchObj(Args... args)
+	T* fetchObj(void)
 	{
-		
 		while(true)
 		{
 			if(m_obj_count > 0)
@@ -112,7 +100,7 @@ public:
 				T* t = static_cast<T*>(*m_objects.begin());
 				m_objects.pop_front();
 				--m_obj_count;
-				return new(t) T(args...);
+				return t;
 			}
 			assignObjs();
 		}
@@ -205,8 +193,8 @@ protected:
 #define CREATE_OBJECT_POOL(CLASSNAME) \
 	static CObjectPool<CLASSNAME> g_objPool##CLASSNAME("obj"#CLASSNAME)
 
-#define CREATE_POOL_OBJECT(CLASSNAME, ...) \
-	g_objPool##CLASSNAME.fetchObj(__VA__ARGS__)
+#define CREATE_POOL_OBJECT(CLASSNAME) \
+	g_objPool##CLASSNAME.fetchObj()
 	
 #define RELEASE_POOL_OBJECT(CLASSNAME, OBJECT) \
 	g_objPool##CLASSNAME.releaseObj(OBJECT)

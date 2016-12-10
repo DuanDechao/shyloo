@@ -15,9 +15,13 @@ public:
 	Address(uint32 ip, uint16 port);
 	Address(std::string ip, uint16 port);
 
-	virtual ~Address(){};
+	virtual ~Address()
+	{
+		m_ip = 0;
+		m_port = 0;
+	};
 
-	int writeToString(char* str, int length) const;
+	int32 writeToString(char* str, int32 length) const;
 
 	operator char*() const {return this->c_str();}
 

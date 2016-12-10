@@ -7,7 +7,7 @@
 	file ext:	h
 	author:		ddc
 	
-	purpose:	
+	purpose:	用于网络数据流存储，或其他二进制流数据存储
 *********************************************************************/
 
 #ifndef _SL_MEMORYSTREAM_H_
@@ -16,28 +16,6 @@
 #include "slmemorystream_converter.h"
 namespace sl
 {
-class MemoryStreamException
-{
-public:
-	MemoryStreamException(bool _add, size_t _pos, size_t _esize, size_t _size)
-		:m_bAdd(_add),m_sPos(_pos),m_sESize(_esize),m_sSize(_size)
-	{
-		PrintPosError();
-	}
-
-	void PrintPosError() const
-	{
-		//SL_ERROR("Attempted to %s in MemoryStream (pos:%d size:%d).\n",
-		//	(m_bAdd ? "put" : "get"), m_sPos, m_sSize);
-	}
-private:
-	bool		m_bAdd;
-	size_t		m_sPos;
-	size_t      m_sESize;
-	size_t		m_sSize;
-};
-
-
 /*
 	将常用数据类型二进制序列化与反序列化
 
@@ -61,20 +39,20 @@ class MemoryStream
 {
 
 public:
-	const static size_t DEFAULT_SIZE = 0x100;
+	const static uint32 DEFAULT_SIZE = 0x100;
 	MemoryStream():rpos_(0), wpos_(0)
 	{
 		data_.reserve(DEFAULT_SIZE);
 	}
 
-	MemoryStream(size_t res):rpos_(0), wpos_(0)
+	MemoryStream(uint32 res):rpos_(0), wpos_(0)
 	{
 		if (res > 0)
 			data_.reserve(res);
 	}
 
 	MemoryStream(const MemoryStream& buf)
-		:rpos_(buf.rpos_), wpos_(buf.wpos_),data_(buf.data_)
+		:rpos_(buf.rpos_), wpos_(buf.wpos_), data_(buf.data_)
 	{}
 
 	virtual ~MemoryStream()
@@ -93,30 +71,29 @@ public:
 	template<typename T> void append(T value)
 	{
 		EndianConvert(value);
-		append((byte*)&value, sizeof(value));
+		append((uint8*)&value, sizeof(value));
 	}
 
-	template<typename T> void put(size_t pos, T value)
+	template<typename T> void put(int32 pos, T value)
 	{
 		EndianConvert(value);
-		//put(pos)
-		put(pos, (byte*)&value, sizeof(value));
+		put(pos, (uint8*)&value, sizeof(value));
 	}
 
 	void swap(MemoryStream& s)
 	{
-		size_t rpos = s.rpos(), wpos = s.wpos();
+		int32 rpos = s.rpos(), wpos = s.wpos();
 		std::swap(data_, s.data_);
-		s.rpos((int)rpos_);
-		s.wpos((int)wpos_);
+		s.rpos((int32)rpos_);
+		s.wpos((int32)wpos_);
 
 		rpos_ = rpos;
 		wpos_ = wpos;
 	}
 
-	MemoryStream& operator<<(byte value)
+	MemoryStream& operator<<(uint8 value)
 	{
-		append<byte>(value);
+		append<uint8>(value);
 		return *this;
 	}
 
@@ -176,14 +153,14 @@ public:
 
 	MemoryStream& operator<<(const std::string& value)
 	{
-		append((uint8 const *)value.c_str(), value.length());
+		append((uint8 const *)value.c_str(), (int32)value.length());
 		append((uint8)0);
 		return *this;
 	}
 
 	MemoryStream& operator<<(const char* str)
 	{
-		append((uint8 const*)str, str ? strlen(str) : 0);
+		append((uint8 const*)str, str ? (int32)strlen(str) : 0);
 		append((uint8)0);
 		return *this;
 	}
@@ -284,46 +261,37 @@ public:
 		return *this;
 	}
 
-	uint8 operator[](size_t pos) const
+	uint8 operator[](int32 pos) const
 	{
 		return read<uint8>(pos);
 	}
 
+	int32 rpos() const {return rpos_;}
 
-
-
-
-	size_t rpos() const {return rpos_;}
-
-	size_t rpos(int32 rpos)
+	int32 rpos(int32 rpos)
 	{
-		if(rpos < 0)
-			rpos = 0;
-		
-		rpos_ = rpos;
+		rpos_ = rpos < 0 ? 0 : rpos;
 		return rpos_;
 	}
 
-	size_t wpos() const {return wpos_;}
+	int32 wpos() const {return wpos_;}
 
-	size_t wpos(int32 wpos)
+	int32 wpos(int32 wpos)
 	{
-		if(wpos < 0)
-			wpos = 0;
-		wpos_ = wpos;
+		wpos_ = wpos < 0 ? 0 : wpos;
 		return wpos_;
 	}
 
 	template<typename T>
-	void read_skip() {read_skip(sizeof(T));}
+	void read_skip() { read_skip(sizeof(T)); }
 
-	void read_skip(size_t skip)
+	void read_skip(int32 skip)
 	{
-		if(skip > length())
-			throw MemoryStreamException(false, rpos_, skip, length());
-
+		if(skip > length()){
+			SLASSERT(false, "read skip failed");
+			return;
+		}
 		rpos_ += skip;
-			
 	}
 
 	template<typename T> T read()
@@ -333,20 +301,21 @@ public:
 		return r;
 	}
 
-	template<typename T> T read(size_t pos) const
+	template<typename T> T read(int32 pos) const
 	{
-		if(sizeof(T) > length())
-			throw MemoryStreamException(false, pos, sizeof(T), length());
+		SLASSERT(sizeof(T) <= length(), "read failed");
 
 		T val = *((T const *)&data_[pos]);
 		EndianConvert(val);
 		return val;
 	}
 
-	void read(uint8* dest, size_t len)
+	void read(uint8* dest, int32 len)
 	{
-		if(len > length())
-			throw MemoryStreamException(false, rpos_, len, length());
+		if(len > length()){
+			SLASSERT(false, "read failed");
+			return;
+		}
 
 		memcpy(dest, &data_[rpos_], len);
 		rpos_ += len;
@@ -356,33 +325,33 @@ public:
 	const uint8* data() const {return &data_[0];}
 
 	//vector的大小
-	virtual size_t size() const {return data_.size();}
+	virtual uint32 size() const {return (uint32)data_.size();}
 
 	//vector是否为空
 	virtual bool empty() const {return data_.empty();}
 
 	//读索引到与写索引之间的长度
-	virtual size_t length() const {return rpos() >= wpos() ? 0 : wpos() - rpos();}
+	virtual int32 length() const {return rpos() >= wpos() ? 0 : wpos() - rpos();}
 
 	//剩余可填充的大小
-	virtual size_t space() const {return wpos() >= size() ? 0 : size() - wpos();}
+	virtual int32 space() const {return wpos() >= (int32)size() ? 0 : (int32)size() - wpos();}
 
 	//将读索引强制设置到写索引，表示操作结束
 	void done() {read_skip(length());}
 
-	void resize(size_t newsize)
+	void resize(uint32 newsize)
 	{
 		data_.resize(newsize);
 		rpos_ = 0;
 		wpos_ = size();
 	}
 
-	void data_resize(size_t newsize)
+	void data_resize(uint32 newsize)
 	{
 		data_.resize(newsize);
 	}
 
-	void reserve(size_t ressize)
+	void reserve(uint32 ressize)
 	{
 		if(ressize > size())
 			data_.reserve(ressize);
@@ -394,7 +363,6 @@ public:
 
 		if(cnt > 0)
 			append(src, cnt);
-
 	}
 
 	void appendBlob(const std::string& datas)
@@ -417,23 +385,22 @@ public:
 
 	void append(const std::string& str)
 	{
-		append((uint8 const*)str.c_str(), str.size() + 1);
+		append((uint8 const*)str.c_str(), (int32)str.size() + 1);
 	}
 
-	void append(const char* src, size_t cnt)
+	void append(const char* src, int32 cnt)
 	{
 		return append((const uint8*)src, cnt);
 	}
 
-	template<class T> void append(const T* src, size_t cnt)
+	template<class T> void append(const T* src, uint32 cnt)
 	{
 		return append((const uint8*)src, cnt * sizeof(T));
 	}
 
-	void append(const uint8 *src, size_t cnt)
+	void append(const uint8 *src, uint32 cnt)
 	{
-		if(!cnt)
-			return;
+		if(!cnt) return;
 		SLASSERT(size() < 10000000, "wtf");
 
 		if(data_.size() < wpos_ + cnt)
@@ -451,17 +418,7 @@ public:
 		}
 	}
 
-	/*void appendPackY(float y)
-	{
-	PackFloatXType yPackData;
-	yPackData.fv = y;
-
-	yPackData.fv += yPackData.iv < 0 ? -2.f : 2.f;
-	uint16 data = 0;
-	data = (yPackData.uv >> 12) 
-	}*/
-
-	void insert(size_t pos, const byte* src, size_t cnt)
+	void insert(int32 pos, const uint8* src, uint32 cnt)
 	{
 		data_.insert(data_.begin() + pos, cnt, 0);
 		memcpy(&data_[pos], src, cnt);
@@ -469,16 +426,17 @@ public:
 
 	}
 
-	void put(size_t pos, const byte* src, size_t cnt)
+	void put(int32 pos, const uint8* src, uint32 cnt)
 	{
-		if(pos + cnt > size())
-			throw MemoryStreamException(true, pos, cnt, size());
+		if(pos + cnt > (int32)size()){
+			SLASSERT(false, "put failed");
+		}
 		
 		memcpy(&data_[pos], src, cnt);
 	}
 
 protected:
-	mutable size_t rpos_, wpos_;
+	mutable int32 rpos_, wpos_;
 	std::vector<uint8> data_;
 };
 

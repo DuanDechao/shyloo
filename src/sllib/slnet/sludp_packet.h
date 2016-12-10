@@ -10,9 +10,9 @@ class Address;
 class UDPPacket: public Packet
 {
 public:
-	static size_t maxBufferSize();
+	static uint32 maxBufferSize();
 
-	UDPPacket(size_t res = 0);
+	UDPPacket(uint32 res = 0);
 	virtual ~UDPPacket(void);
 
 	int recvFromEndPoint(EndPoint& ep, Address* pAddr = NULL);

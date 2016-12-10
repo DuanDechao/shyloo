@@ -50,7 +50,7 @@ Bundle::~Bundle()
 
 void Bundle::calcPacketMaxSize()
 {
-	m_packetMaxSize = m_isTCPPacket ? (int)TCPPacket::maxBufferSize(): PACKET_MAX_SIZE_UDP;
+	m_packetMaxSize = m_isTCPPacket ? (int32)TCPPacket::maxBufferSize(): PACKET_MAX_SIZE_UDP;
 }
 
 int32 Bundle::packetsLength(bool calccurr)
@@ -59,11 +59,11 @@ int32 Bundle::packetsLength(bool calccurr)
 	Packets::iterator iter = m_packets.begin();
 	for (; iter != m_packets.end(); ++iter)
 	{
-		len += (int)(*iter)->length();
+		len += (int32)(*iter)->length();
 
 	}
 	if(calccurr && m_pCurrPacket)
-		len += (int)m_pCurrPacket->length();
+		len += (int32)m_pCurrPacket->length();
 	return len;
 }
 

@@ -12,7 +12,7 @@ class Bundle;
 class Packet: public MemoryStream
 {
 public:
-	Packet(bool isTCPPacket = true, size_t res = 200)
+	Packet(bool isTCPPacket = true, uint32 res = 200)
 		:MemoryStream(res),
 		 m_bIsTCPPacket(isTCPPacket),
 		 m_pBundle(NULL),

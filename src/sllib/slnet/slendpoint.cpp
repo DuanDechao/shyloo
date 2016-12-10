@@ -219,6 +219,7 @@ void EndPoint::send(Bundle* pBundle)
 {
 	SEND_BUNDLE((*this), (*pBundle));
 }
+
 void EndPoint::sendto(Bundle* pBundle, uint16 networkPort, uint32 networkAddr /* = BROADCAST */)
 {
 	SENDTO_BUNDLE((*this), networkAddr, networkPort, (*pBundle));

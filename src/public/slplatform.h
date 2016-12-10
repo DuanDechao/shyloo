@@ -21,4 +21,15 @@
 	#define SL_BIT32	    ///< SL32位
 #endif
 
+/** 定义引擎字节序 */
+#define SLENGINE_LITTLE_ENDIAN							0
+#define SLENGINE_BIG_ENDIAN								1
+#if !defined(SLENGINE_ENDIAN)
+#  if defined (USE_BIG_ENDIAN)
+#    define SLENGINE_ENDIAN SLENGINE_BIG_ENDIAN
+#  else 
+#    define SLENGINE_ENDIAN SLENGINE_LITTLE_ENDIAN
+#  endif 
+#endif
+
 #endif
