@@ -21,7 +21,7 @@ class UDPPacketReceiver: public PacketReceiver
 public:
 	
 	UDPPacketReceiver():PacketReceiver(){}
-	UDPPacketReceiver(EndPoint& endpoint, NetworkInterface& networkInterface);
+	UDPPacketReceiver(EndPoint* endpoint, NetworkInterface* networkInterface);
 	~UDPPacketReceiver();
 
 	Reason processRecievePacket(Channel* pChannel, Packet* pPacket);
@@ -36,6 +36,7 @@ protected:
 	PacketReceiver::RecvState checkSocketErrors(int len, bool expectingPacket);
 };
 
+CREATE_OBJECT_POOL(UDPPacketReceiver);
 }
 }
 #endif

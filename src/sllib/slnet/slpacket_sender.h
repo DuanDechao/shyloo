@@ -18,7 +18,7 @@ class PacketSender: public OutputNotificationHandler
 {
 public:
 	PacketSender();
-	PacketSender(EndPoint& endpoint, NetworkInterface& networkInterface);
+	PacketSender(EndPoint* endpoint, NetworkInterface* networkInterface);
 	virtual ~PacketSender();
 
 	EventDispatcher& dispatcher();

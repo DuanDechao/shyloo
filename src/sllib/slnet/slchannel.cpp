@@ -14,31 +14,80 @@ namespace sl
 {
 namespace network
 {
-Channel::Channel(NetworkInterface& networkInterface,
+Channel::Channel(NetworkInterface* networkInterface,
 				 const EndPoint* pEndPoint, ISLPacketParser* poPacketParser, ProtocolType pt,
 				 ChannelID id)
-				 :m_pNetworkInterface(NULL),
+				 :m_channelType(CHANNEL_NORMAL),
+				  m_flags(0),
 				  m_protocolType(pt),
 				  m_id(id),
 				  m_lastReceivedTime(0),
 				  m_bundles(),
-				  m_pPacketReader(0),
+				  m_bufferedReceives(),
+				  
 				  m_numPacketsSent(0),
 				  m_numPacketsReceived(0),
 				  m_numBytesSent(0),
 				  m_numBytesReceived(0),
 				  m_lastTickBytesReceived(0),
 				  m_lastTickBytesSent(0),
+				 
+				  m_pNetworkInterface(networkInterface),
+				  m_pSession(NULL),
+				  m_pPacketParser(poPacketParser),
+
 				  m_pEndPoint(NULL),
+				  m_pPacketReader(NULL),
 				  m_pPacketReceiver(NULL),
-				  m_pPacketSender(NULL),
-				  m_channelType(CHANNEL_NORMAL),
-				  m_flags(0),
-				  m_pSession(nullptr),
-				  m_pPacketParser(poPacketParser)
+				  m_pPacketSender(NULL)
 {
 	this->clearBundle();
-	initialize(networkInterface, pEndPoint, poPacketParser, pt, id);
+	this->setEndPoint(pEndPoint);
+
+	SLASSERT(m_pNetworkInterface != NULL, "wtf");
+	SLASSERT(m_pEndPoint != NULL, "wtf");
+
+	if (m_protocolType == PROTOCOL_TCP)
+	{
+		if (m_pPacketReceiver)
+		{
+			if (m_pPacketReceiver->type() == PacketReceiver::UDP_PACKET_RECEIVER)
+			{
+				RELEASE_POOL_OBJECT(UDPPacketReceiver, (UDPPacketReceiver*)m_pPacketReceiver);
+				m_pPacketReceiver = CREATE_POOL_OBJECT(TCPPacketReceiver, m_pEndPoint, m_pNetworkInterface);
+			}
+		}
+		else
+		{
+			m_pPacketReceiver = CREATE_POOL_OBJECT(TCPPacketReceiver, m_pEndPoint, m_pNetworkInterface);
+		}
+
+		SLASSERT(m_pPacketReceiver->type() == PacketReceiver::TCP_PACKET_RECEIVER, "wtf");
+
+		m_pNetworkInterface->getDispatcher().registerReadFileDescriptor((int32)*m_pEndPoint, m_pPacketReceiver);
+	}
+	else
+	{
+		if (m_pPacketReceiver)
+		{
+			if (m_pPacketReceiver->type() == PacketReceiver::TCP_PACKET_RECEIVER)
+			{
+				RELEASE_POOL_OBJECT(TCPPacketReceiver, (TCPPacketReceiver*)m_pPacketReceiver);
+				m_pPacketReceiver = CREATE_POOL_OBJECT(UDPPacketReceiver, m_pEndPoint, m_pNetworkInterface);
+			}
+		}
+		else
+		{
+			m_pPacketReceiver = CREATE_POOL_OBJECT(UDPPacketReceiver, m_pEndPoint, m_pNetworkInterface);;
+		}
+		SLASSERT(m_pPacketReceiver->type() == PacketReceiver::UDP_PACKET_RECEIVER, "wtf");
+	}
+
+	m_pPacketReceiver->SetEndPoint(m_pEndPoint);
+
+	if (m_pPacketSender){
+		m_pPacketSender->SetEndPoint(m_pEndPoint);
+	}
 }
 
 Channel::Channel()
@@ -59,8 +108,9 @@ Channel::Channel()
 	 m_pPacketSender(NULL),
 	 m_channelType(CHANNEL_NORMAL),
 	 m_flags(0),
-	 m_pSession(nullptr),
-	 m_pPacketParser(nullptr)
+	 m_pSession(NULL),
+	 m_pPacketParser(NULL),
+	 m_bufferedReceives()
 {
 	this->clearBundle();
 }
@@ -70,88 +120,28 @@ Channel::~Channel()
 	finalise();
 }
 
-
-bool Channel::initialize(NetworkInterface& networkInterface, const EndPoint* pEndPoint,
-						 ISLPacketParser* poPacketParser, ProtocolType pt /* = PROTOCOL_TCP */, 
-						 ChannelID id /* = CHANNEL_ID_NULL */)
-{
-	m_id = id;
-	m_protocolType = pt;
-	m_pNetworkInterface = &networkInterface;
-	m_pPacketParser = poPacketParser;
-	this->setEndPoint(pEndPoint);
-
-	SLASSERT(m_pNetworkInterface != NULL, "wtf");
-	SLASSERT(m_pEndPoint != NULL, "wtf");
-
-	if(m_protocolType == PROTOCOL_TCP)
-	{
-		if(m_pPacketReceiver)
-		{
-			if(m_pPacketReceiver->type() == PacketReceiver::UDP_PACKET_RECEIVER)
-			{
-				SAFE_RELEASE(m_pPacketReceiver);
-				m_pPacketReceiver = new TCPPacketReceiver(*m_pEndPoint, *m_pNetworkInterface);
-			}
-		}
-		else
-		{
-			m_pPacketReceiver = new TCPPacketReceiver(*m_pEndPoint, *m_pNetworkInterface);
-		}
-
-		SLASSERT(m_pPacketReceiver->type() == PacketReceiver::TCP_PACKET_RECEIVER, "wtf");
-
-		m_pNetworkInterface->getDispatcher().registerReadFileDescriptor((int32)*m_pEndPoint, m_pPacketReceiver);
-	}
-	else
-	{
-		if(m_pPacketReceiver)
-		{
-			if(m_pPacketReceiver->type() == PacketReceiver::TCP_PACKET_RECEIVER)
-			{
-				SAFE_RELEASE(m_pPacketReceiver);
-				m_pPacketReceiver = new UDPPacketReceiver(*m_pEndPoint, *m_pNetworkInterface);
-			}
-		}
-		else
-		{
-			m_pPacketReceiver = new UDPPacketReceiver(*m_pEndPoint, *m_pNetworkInterface);
-		}
-		SLASSERT(m_pPacketReceiver->type() == PacketReceiver::UDP_PACKET_RECEIVER, "wtf");
-	}
-
-	m_pPacketReceiver->SetEndPoint(m_pEndPoint);
-	if(m_pPacketSender)
-		m_pPacketSender->SetEndPoint(m_pEndPoint);
-
-	return true;
-}
-
 bool Channel::finalise()
 {
 	this->clearState();
-	SAFE_RELEASE(m_pPacketReceiver);
-	SAFE_RELEASE(m_pPacketReader);
-	SAFE_RELEASE(m_pPacketSender);
 
-	RELEASE_POOL_OBJECT(EndPoint, m_pEndPoint);
-	m_pEndPoint = NULL;
+	if (m_protocolType == PROTOCOL_TCP){
+		RELEASE_POOL_OBJECT(TCPPacketReceiver, (TCPPacketReceiver*)m_pPacketReceiver);
+		RELEASE_POOL_OBJECT(TCPPacketSender, (TCPPacketSender*)m_pPacketSender);
+	}
+	else{
+		RELEASE_POOL_OBJECT(UDPPacketReceiver, (UDPPacketReceiver*)m_pPacketReceiver);
+	}
+	RELEASE_POOL_OBJECT(PacketReader, m_pPacketReader);
+
+	m_pPacketReceiver = NULL;
+	m_pPacketSender = NULL;
+	m_pPacketReader = NULL;
 	return true;
-}
-
-Channel* Channel::get(NetworkInterface& networkInterface, const Address& addr)
-{
-	return networkInterface.findChannel(addr);
-}
-
-Channel* Channel::get(NetworkInterface& networkInterface, const EndPoint* pEndPoint)
-{
-	return networkInterface.findChannel(pEndPoint->addr());
 }
 
 void Channel::send(const char* pBuf, uint32 dwLen)
 {
-	Bundle* pBundle = CREATE_POOL_OBJECT(Bundle);
+	Bundle* pBundle = createSendBundle();
 	
 	if(dwLen > (uint32)(pBundle->packetMaxSize()))
 	{
@@ -196,6 +186,15 @@ void Channel::destroy()
 	m_flags |= FLAG_DESTROYED;
 }
 
+void Channel::setConnected() 
+{ 
+	if (isConnected())
+	{
+		return;
+	}
+	m_flags |= FLAG_CONNECTED; 
+}
+
 void Channel::clearState(bool warnOnDiscard /* = false */)
 {
 	//清空未處理的接受包緩存
@@ -209,6 +208,7 @@ void Channel::clearState(bool warnOnDiscard /* = false */)
 			Packet* pPacket = (*iter);
 			if(pPacket->length() > 0)
 				hasDiscard++;
+
 			RECLAIM_PACKET(pPacket->IsTCPPacket(), pPacket);
 		}
 		if(hasDiscard > 0 && warnOnDiscard)
@@ -229,20 +229,17 @@ void Channel::clearState(bool warnOnDiscard /* = false */)
 	m_numBytesSent = 0;
 	m_numBytesReceived = 0;
 	m_lastTickBytesReceived = 0;
+	m_lastTickBytesSent = 0;
 	m_channelType = CHANNEL_NORMAL;
+	m_id = CHANNEL_ID_NULL;
+	m_flags = 0;
+
 	if(m_pEndPoint && m_protocolType == PROTOCOL_TCP && !this->isDestroyed())
 	{
 		this->stopSend();
-
-		if(m_pNetworkInterface)
-		{
-			if(!this->isDestroyed())
-				m_pNetworkInterface->getDispatcher().deregisterReadFileDescriptor((int32)*m_pEndPoint);
-		}
+		m_pNetworkInterface->getDispatcher().deregisterReadFileDescriptor((int32)*m_pEndPoint);
 	}
-
-	m_flags = 0;
-
+	
 	//由于endpoint通常由外部给入，必须释放，频道重新激活时重新赋值
 	if(m_pEndPoint)
 	{
@@ -280,7 +277,6 @@ void Channel::delayedSend()
 
 const char* Channel::c_str() const
 {
-	//static char dodgyString[]
 	static char dodgyString[MAX_BUF] = "None";
 	char tdodgyString[MAX_BUF] = {0};
 
@@ -339,7 +335,7 @@ void Channel::send(Bundle* pBundle /* = NULL */)
 	{
 		if(m_pPacketSender == NULL)
 		{
-			m_pPacketSender = new TCPPacketSender(*m_pEndPoint, *m_pNetworkInterface);
+			m_pPacketSender = CREATE_POOL_OBJECT(TCPPacketSender, m_pEndPoint, m_pNetworkInterface);
 		}
 
 		m_pPacketSender->processSend(this);
@@ -426,7 +422,7 @@ void Channel::processPackets()
 
 	if(m_pPacketReader == nullptr)
 	{
-		m_pPacketReader = new PacketReader(this, m_pPacketParser);
+		m_pPacketReader = CREATE_POOL_OBJECT(PacketReader, this, m_pPacketParser);
 	}
 	SLASSERT(m_pPacketReader, "wtf");
 

@@ -5,6 +5,13 @@ namespace sl
 namespace network
 {
 
+PacketReader::PacketReader()
+	:m_pFragmentStream(NULL),
+	m_pChannel(NULL),
+	m_pPacketParser(NULL),
+	m_pFragmentStreamLength(0)
+{}
+
 PacketReader::PacketReader(Channel* pChannel, ISLPacketParser* poPacketParser)
 	:m_pFragmentStream(NULL),
 	 m_pChannel(pChannel),

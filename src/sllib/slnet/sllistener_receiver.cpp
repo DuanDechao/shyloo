@@ -10,12 +10,18 @@ namespace sl
 {
 namespace network
 {
-ListenerReceiver::ListenerReceiver(EndPoint& endpoint, 
-								   NetworkInterface& networkInterface)
-								   :m_endpoint(endpoint),
-									m_networkInterface(networkInterface),
-									m_pSessionFactory(nullptr),
-									m_pPacketParser(nullptr)
+ListenerReceiver::ListenerReceiver()
+	:m_endpoint(nullptr),
+	 m_networkInterface(nullptr),
+	 m_pSessionFactory(nullptr),
+	 m_pPacketParser(nullptr)
+{}
+
+ListenerReceiver::ListenerReceiver(EndPoint* endpoint, NetworkInterface* networkInterface)
+	:m_endpoint(endpoint),
+	 m_networkInterface(networkInterface),
+	 m_pSessionFactory(nullptr),
+	 m_pPacketParser(nullptr)
 {}
 
 ListenerReceiver::~ListenerReceiver(){}
@@ -26,7 +32,7 @@ int ListenerReceiver::handleInputNotification(int fd)
 
 	while(tickcount++ <256)
 	{
-		EndPoint* pNewEndPoint = m_endpoint.accept();
+		EndPoint* pNewEndPoint = m_endpoint->accept();
 		if(pNewEndPoint == NULL)
 		{
 			if(tickcount == 1)
@@ -39,16 +45,15 @@ int ListenerReceiver::handleInputNotification(int fd)
 		{
 			pNewEndPoint->setnonblocking(true);
 			pNewEndPoint->setnodelay(true);
-			Channel* pChannel = CREATE_POOL_OBJECT(Channel);
-			bool ret = pChannel->initialize(m_networkInterface, pNewEndPoint, m_pPacketParser);
-			if(!ret)
+			Channel* pChannel = CREATE_POOL_OBJECT(Channel, m_networkInterface, pNewEndPoint, m_pPacketParser);
+			if (!pChannel)
 			{
 				pChannel->destroy();
 				RELEASE_POOL_OBJECT(Channel, pChannel);
 				return 0;
 			}
 
-			if(!m_networkInterface.registerChannel(pChannel))
+			if(!m_networkInterface->registerChannel(pChannel))
 			{
 				pChannel->destroy();
 				RELEASE_POOL_OBJECT(Channel, pChannel);
@@ -89,7 +94,7 @@ void ListenerReceiver::setPacketParser(ISLPacketParser* poPacketParser){
 
 EventDispatcher& ListenerReceiver::dispatcher()
 {
-	return m_networkInterface.getDispatcher();
+	return m_networkInterface->getDispatcher();
 }
 }
 }

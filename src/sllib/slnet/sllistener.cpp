@@ -4,13 +4,11 @@
 namespace sl
 {
 CSLListener::CSLListener()
-	:m_pListenerReceiver(),
-	m_pListenEndPoint(),
-	m_dwRecvBufSize(0),
-	m_dwSendBufSize(0)
+	:m_dwRecvBufSize(0),
+	 m_dwSendBufSize(0)
 {
 	m_pNetworkInterface = CSLNetModule::getSingletonPtr()->getNetworkInterface();
-	m_pListenerReceiver = new ListenerReceiver(m_pListenEndPoint, *m_pNetworkInterface);
+	m_pListenerReceiver = new ListenerReceiver(&m_pListenEndPoint, m_pNetworkInterface);
 }
 
 CSLListener::~CSLListener(){}

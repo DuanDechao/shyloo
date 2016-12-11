@@ -31,7 +31,7 @@ public:
 
 public:
 	PacketReceiver();
-	PacketReceiver(EndPoint& endpoint, NetworkInterface& networkInterface);
+	PacketReceiver(EndPoint* endpoint, NetworkInterface* networkInterface);
 	virtual ~PacketReceiver();
 
 	virtual Reason processPacket(Channel* pChannel, Packet* pPacket);

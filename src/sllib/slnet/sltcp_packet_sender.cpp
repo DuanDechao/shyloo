@@ -7,7 +7,7 @@ namespace sl
 {
 namespace network
 {
-TCPPacketSender::TCPPacketSender(EndPoint& endpoint, NetworkInterface& networkInferface)
+TCPPacketSender::TCPPacketSender(EndPoint* endpoint, NetworkInterface* networkInferface)
 	:PacketSender(endpoint, networkInferface)
 {}
 

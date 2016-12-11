@@ -18,7 +18,7 @@ public:
 		PACKET_READER_TYPE_SOCKET = 0,
 		PACKET_READER_TYPE_WEBSOCKET = 1
 	};
-
+	PacketReader();
 	PacketReader(Channel* pChannel, ISLPacketParser* poPacketParser);
 	virtual ~PacketReader();
 
@@ -37,6 +37,7 @@ protected:
 	Channel*				m_pChannel;
 	ISLPacketParser*		m_pPacketParser;
 };
+CREATE_OBJECT_POOL(PacketReader);
 
 }
 }//namespace sl

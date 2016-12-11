@@ -11,9 +11,9 @@ PacketReceiver::PacketReceiver()
 	 m_pNetworkInterface(NULL)
 {}
 
-PacketReceiver::PacketReceiver(EndPoint& endpoint, NetworkInterface& networkInterface)
-	:m_pEndPoint(&endpoint),
-	 m_pNetworkInterface(&networkInterface)
+PacketReceiver::PacketReceiver(EndPoint* endpoint, NetworkInterface* networkInterface)
+	:m_pEndPoint(endpoint),
+	 m_pNetworkInterface(networkInterface)
 {}
 
 PacketReceiver::~PacketReceiver()

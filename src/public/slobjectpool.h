@@ -91,7 +91,8 @@ public:
 	  创建一个对象，如果缓冲里已经创建则返回现有的，否则
 	  创建新的
 	*/
-	T* fetchObj(void)
+	template<typename... Args>
+	T* fetchObj(Args... args)
 	{
 		while(true)
 		{
@@ -100,7 +101,7 @@ public:
 				T* t = static_cast<T*>(*m_objects.begin());
 				m_objects.pop_front();
 				--m_obj_count;
-				return t;
+				return new(t)T(args...);
 			}
 			assignObjs();
 		}
@@ -193,8 +194,8 @@ protected:
 #define CREATE_OBJECT_POOL(CLASSNAME) \
 	static CObjectPool<CLASSNAME> g_objPool##CLASSNAME("obj"#CLASSNAME)
 
-#define CREATE_POOL_OBJECT(CLASSNAME) \
-	g_objPool##CLASSNAME.fetchObj()
+#define CREATE_POOL_OBJECT(CLASSNAME, ...) \
+	g_objPool##CLASSNAME.fetchObj(__VA_ARGS__)
 	
 #define RELEASE_POOL_OBJECT(CLASSNAME, OBJECT) \
 	g_objPool##CLASSNAME.releaseObj(OBJECT)

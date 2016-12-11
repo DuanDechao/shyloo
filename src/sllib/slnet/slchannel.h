@@ -30,10 +30,10 @@ public:
 
 	typedef std::vector<Packet*> BufferedReceives;
 	typedef std::vector<Bundle*> Bundles;
+
 public:
 	Channel();
-
-	Channel(NetworkInterface& networkInterface,
+	Channel(NetworkInterface* networkInterface,
 		const EndPoint* pEndPoint,
 		ISLPacketParser* poPacketParser,
 		ProtocolType pt = PROTOCOL_TCP,
@@ -41,6 +41,7 @@ public:
 
 	virtual ~Channel();
 
+public:
 	virtual bool SLAPI isConnected(void) { return (m_flags & FLAG_CONNECTED) > 0;}
 	virtual void SLAPI send(const char* pBuf, uint32 dwLen);
 	virtual void SLAPI disconnect(void);
@@ -55,88 +56,53 @@ public:
 
 
 public:
-	static Channel* get(NetworkInterface& networkInterface,
-		const Address& addr);
+	const char* c_str() const;
+	ChannelID id() const { return m_id; }
+	void onPacketReceived(int bytes);
+	void onPacketSent(int bytes, bool sendCompleted);
+	void onSendCompleted();
+	uint32 numPacketSent() const { return m_numPacketsSent; }
+	uint32 numPacketReceived() const { return m_numPacketsReceived; }
+	uint32 numBytesSent() const { return m_numBytesSent; }
+	uint32 numBytesReceived() const { return m_numBytesReceived; }
+	uint64 lastReceivedTime() const { return m_lastReceivedTime; }
+	void updateLastReceivedTime() { m_lastReceivedTime = getTimeMilliSecond(); }
 
-	static Channel* get(NetworkInterface& networkInterface,
-		const EndPoint* pSocket);
 
-	void setConnected() {m_flags |= FLAG_CONNECTED;}
-
+	void setConnected();
 	void destroy();
-
 	bool isDestroyed() const {return (m_flags & FLAG_DESTROYED) > 0;}
+	bool isCondemn() const { return (m_flags & FLAG_CONDEMN) > 0; }
+	void condemn();
+	bool sending() const { return (m_flags & FLAG_SENDING) > 0; }
 
 	NetworkInterface& getNetworkInterface()	{return *m_pNetworkInterface;}
 	NetworkInterface* getNetworkInterfacePtr() {return m_pNetworkInterface;}
-
 	void setNetworkInterface(NetworkInterface* pNetworkInterface) {m_pNetworkInterface = pNetworkInterface;}
-
+	inline void setSession(ISLSession* poSession) { m_pSession = poSession; }
+	inline ISLSession* getSession() { return m_pSession; }
 	inline const Address& addr() const;
 	void setEndPoint(const EndPoint* pEndPoint);
 	inline EndPoint* getEndPoint() const;
-
 	Bundles& bundles();
-
-	/*
-		创建发送bundle,该bundle可能是从send放入发送队列中获取的，如果队列为空，创建一个新的
-	*/
-	Bundle* createSendBundle();
-	int32 bundlesLength();
-
 	const Bundles& bundles() const;
-
+	Bundle* createSendBundle(); //创建发送bundle,该bundle可能是从send放入发送队列中获取的，如果队列为空，创建一个新的
+	int32 bundlesLength();
 	inline void pushBundle(Bundle* pBundle);
 	void clearBundle();
-
-	bool sending() const {return (m_flags & FLAG_SENDING) > 0;}
-	void stopSend();
-
-	void send(Bundle* pBundle = NULL);
 	
+	void send(Bundle* pBundle = NULL);
+	void stopSend();
 	void delayedSend();
-
+	bool waitSend();
+	bool finalise();
+	void addReceiveWindow(Packet* pPacket);
+	BufferedReceives& bufferedReceives() { return m_bufferedReceives; }
 	inline PacketReader* getPacketReader() const;
 	inline PacketSender* getPacketSender() const;
 	inline void setPacketSender(PacketSender* pPacketSender);
 	inline PacketReceiver* getPacketReceiver() const;
-
-	void onPacketReceived(int bytes);
-	void onPacketSent(int bytes, bool sendCompleted);
-	void onSendCompleted();
-
-	const char* c_str() const;
-	ChannelID id() const {return m_id;}
-
-	uint32 numPacketSent() const {return m_numPacketsSent;}
-	uint32 numPacketReceived() const {return m_numPacketsReceived;}
-	uint32 numBytesSent() const {return m_numBytesSent;}
-	uint32 numBytesReceived() const {return m_numBytesReceived;}
-
-	uint64 lastReceivedTime() const {return m_lastReceivedTime;}
-	void updateLastReceivedTime() {m_lastReceivedTime = getTimeMilliSecond();}
-
-	void addReceiveWindow(Packet* pPacket);
-
-	BufferedReceives& bufferedReceives() {return m_bufferedReceives;}
-
 	void processPackets();
-
-	bool isCondemn() const {return (m_flags & FLAG_CONDEMN) > 0;}
-	void condemn();
-
-	bool waitSend();
-
-	bool initialize(NetworkInterface& networkInterface,
-		const EndPoint* pEndPoint,
-		ISLPacketParser* poPacketParser,
-		ProtocolType pt = PROTOCOL_TCP,
-		ChannelID id = CHANNEL_ID_NULL);
-
-	bool finalise();
-
-	inline void setSession(ISLSession* poSession) {m_pSession = poSession;}
-	inline ISLSession* getSession() {return m_pSession;}
 
 private:
 	enum Flags
@@ -158,8 +124,8 @@ private:
 	BufferedReceives			m_bufferedReceives;
 	ChannelTypes				m_channelType;
 	uint32						m_flags;
+	
 	///statistics
-
 	uint32						m_numPacketsSent;
 	uint32						m_numPacketsReceived;
 	uint32						m_numBytesSent;
@@ -167,13 +133,18 @@ private:
 	uint32						m_lastTickBytesReceived;
 	uint32						m_lastTickBytesSent;
 
+	//外部对象指针，不需要内部释放
 	NetworkInterface*			m_pNetworkInterface;
+	ISLSession*					m_pSession;
+	ISLPacketParser*			m_pPacketParser;
+
+	//内部对象指针，需要内部释放
 	EndPoint*					m_pEndPoint;
 	PacketReader*				m_pPacketReader;
 	PacketReceiver*				m_pPacketReceiver;
 	PacketSender*				m_pPacketSender;
-	ISLSession*					m_pSession;
-	ISLPacketParser*			m_pPacketParser;
+	
+	
 };
 
 CREATE_OBJECT_POOL(Channel);

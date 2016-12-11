@@ -17,7 +17,7 @@ class TCPPacketSender: public PacketSender
 {
 public:
 	TCPPacketSender():PacketSender(){}
-	TCPPacketSender(EndPoint& endpoint, NetworkInterface& networkInferface);
+	TCPPacketSender(EndPoint* endpoint, NetworkInterface* networkInferface);
 	~TCPPacketSender();
 
 	virtual void onGetError(Channel* pChannel);
@@ -26,6 +26,7 @@ public:
 protected:
 	virtual Reason processSendPacket(Channel* pChannel, Packet* pPacket);
 };
+CREATE_OBJECT_POOL(TCPPacketSender);
 }
 }
 #endif

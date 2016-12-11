@@ -18,7 +18,7 @@ class TCPPacketReceiver: public PacketReceiver
 public:
 	TCPPacketReceiver():PacketReceiver() {}
 
-	TCPPacketReceiver(EndPoint& endpoint, NetworkInterface& networkInterface);
+	TCPPacketReceiver(EndPoint* endpoint, NetworkInterface* networkInterface);
 	~TCPPacketReceiver();
 
 	Reason processRecievePacket(Channel* pChannel, Packet* pPacket);

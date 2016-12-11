@@ -20,7 +20,8 @@ class ISLPacketParser;
 class ListenerReceiver: public InputNotificationHandler
 {
 public:
-	ListenerReceiver(EndPoint& endpoint, NetworkInterface& networkInterface);
+	ListenerReceiver();
+	ListenerReceiver(EndPoint* endpoint, NetworkInterface* networkInterface);
 	~ListenerReceiver();
 
 	void setSessionFactory(ISLSessionFactory* poSessionFactory);
@@ -31,8 +32,8 @@ private:
 	EventDispatcher& dispatcher();
 	
 private:
-	EndPoint&			m_endpoint;
-	NetworkInterface&	m_networkInterface;
+	EndPoint*			m_endpoint;
+	NetworkInterface*	m_networkInterface;
 	ISLSessionFactory*	m_pSessionFactory;
 	ISLPacketParser*	m_pPacketParser;
 };

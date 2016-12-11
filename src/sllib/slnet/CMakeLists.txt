@@ -19,6 +19,7 @@ SET(SL_LIB_NET
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slbundle.inl"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slbundle.cpp"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slchannel.h"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slchannel.inl"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slchannel.cpp"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slnetbase.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slnetbase.cpp"

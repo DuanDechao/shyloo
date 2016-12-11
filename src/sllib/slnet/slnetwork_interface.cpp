@@ -163,9 +163,8 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 
 	Address addr(serverIp, serverPort);
 	pEP->addr(addr);
-	Channel* pSvrChannel = CREATE_POOL_OBJECT(Channel);
-	SLASSERT(pSvrChannel, "w");
-	if(!pSvrChannel->initialize(*this, pEP, poPacketParser))
+	Channel* pSvrChannel = CREATE_POOL_OBJECT(Channel, this, pEP, poPacketParser);
+	if(!pSvrChannel)
 	{
 		SLASSERT(false, "wtf");
 		return false;
@@ -184,7 +183,7 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 
 	if(pSvrChannel->getPacketSender() == nullptr)
 	{
-		TCPPacketSender* pPackerSender = new TCPPacketSender(*pEP, *this);
+		TCPPacketSender* pPackerSender = CREATE_POOL_OBJECT(TCPPacketSender, pEP, this);
 		getDispatcher().registerWriteFileDescriptor((int32)(*pEP), pPackerSender);
 	}
 

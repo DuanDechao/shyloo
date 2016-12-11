@@ -10,7 +10,7 @@ namespace network
 class Channel;
 
 #define PACKET_OUT_VALUE(v, expectSize)																		\
-	SLASSERT(packetsLength() >= (int32)expectSize);														\
+	SLASSERT(packetsLength() >= (int32)expectSize);														    \
 																											\
 	size_t currSize = 0;																					\
 	size_t reclaimCount = 0;																				\

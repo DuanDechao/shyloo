@@ -11,8 +11,8 @@ namespace sl
 {
 namespace network
 {
-UDPPacketReceiver::UDPPacketReceiver(EndPoint& endpoint,
-									 NetworkInterface& networkInterface)
+UDPPacketReceiver::UDPPacketReceiver(EndPoint* endpoint,
+									 NetworkInterface* networkInterface)
 									 :PacketReceiver(endpoint, networkInterface)
 {}
 
@@ -38,9 +38,8 @@ bool UDPPacketReceiver::processRecv(bool expectingPacket)
 
 		pNewEndPoint->addr(srcAddr.m_port, srcAddr.m_ip);
 
-		pSrcChannel = CREATE_POOL_OBJECT(Channel);
-		bool ret = pSrcChannel->initialize(*m_pNetworkInterface, pNewEndPoint, nullptr, PROTOCOL_UDP);
-		if(!ret)
+		pSrcChannel = CREATE_POOL_OBJECT(Channel, m_pNetworkInterface, pNewEndPoint, nullptr, PROTOCOL_UDP);
+		if (!pSrcChannel)
 		{
 			pSrcChannel->destroy();
 			RELEASE_POOL_OBJECT(Channel, pSrcChannel);

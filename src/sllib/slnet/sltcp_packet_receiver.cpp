@@ -6,8 +6,8 @@ namespace sl
 namespace network
 {
 
-TCPPacketReceiver::TCPPacketReceiver(EndPoint& endpoint,
-									 NetworkInterface& networkInterface)
+TCPPacketReceiver::TCPPacketReceiver(EndPoint* endpoint,
+									 NetworkInterface* networkInterface)
 									 :PacketReceiver(endpoint, networkInterface)
 {}
 

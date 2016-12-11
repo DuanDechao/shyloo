@@ -16,9 +16,9 @@ PacketSender::PacketSender()
 	 m_pNetworkInterface(NULL)
 {}
 
-PacketSender::PacketSender(EndPoint& endpoint, NetworkInterface& networkInterface)
-	:m_pEndPoint(&endpoint),
-	 m_pNetworkInterface(&networkInterface)
+PacketSender::PacketSender(EndPoint* endpoint, NetworkInterface* networkInterface)
+	:m_pEndPoint(endpoint),
+	 m_pNetworkInterface(networkInterface)
 {}
 
 PacketSender::~PacketSender()

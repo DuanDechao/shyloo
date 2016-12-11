@@ -202,7 +202,7 @@ bool Bundle::revokeMessage(int32 size)
 	while(size > 0 && m_packets.size() > 0)
 	{
 		network::Packet* pPacket = m_packets.back();
-		if(pPacket->wpos() > (size_t)size)
+		if(pPacket->wpos() > (int32)size)
 		{
 			pPacket->wpos((int32)pPacket->wpos() - size);
 			size = 0;
