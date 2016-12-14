@@ -22,6 +22,7 @@ class EventDispatcher;
 class MessageHandlers;
 class TCPPacketReceiver;
 
+#define CHECK_DESTROY_CHANNEL_TIME   2 * 60 * 1000
 class NetworkInterface
 {
 public:
@@ -34,7 +35,7 @@ public:
 	bool createListeningSocket(const char* listeningInterface, uint16 listeningPort, 
 		EndPoint* pLEP, ListenerReceiver* pLR, uint32 rbuffer = 0, uint32 wbuffer = 0);
 
-	bool createConnectingSocket(const char* serverIp, uint16 serverPort, EndPoint* pEP,
+	bool createConnectingSocket(const char* serverIp, uint16 serverPort,
 		ISLSession* pSession, ISLPacketParser* poPacketParser, uint32 rbuffer = 0, uint32 wbuffer = 0);
 
 	bool registerChannel(Channel* pChannel);
@@ -62,6 +63,8 @@ public:
 
 	inline int32 numExtChannels() const;
 
+	int32 checkDestroyChannel();
+
 private:
 
 	ChannelMap						m_channelMap;
@@ -75,6 +78,7 @@ private:
 
 	int32							m_numExtChannels;
 
+	int64							m_lastCheckDestroyChannelTime;
 };
 }
 }

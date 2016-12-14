@@ -17,7 +17,7 @@ public:
 
 	virtual bool SLAPI connect(const char* pszIP, uint16 wPort);
 
-	virtual bool SLAPI reConnect(void){return true;}
+	virtual bool SLAPI reConnect(void);
 
 	virtual void SLAPI setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize);
 
@@ -26,12 +26,16 @@ public:
 	virtual void SLAPI release(void);
 
 private:
+	//外部对象指针，不需要本类释放
 	ISLSession*			m_pSession;
 	NetworkInterface*	m_pNetworkInterface;
-	EndPoint			m_pSvrEndPoint;
+	ISLPacketParser*	m_pPacketParser;
+
 	uint32				m_dwRecvBufSize;
 	uint32				m_dwSendBufSize;
-	ISLPacketParser*	m_pPacketParser;
+	const char*			m_pszIP;
+	uint16				m_wPort;
+	
 };
 }
 }

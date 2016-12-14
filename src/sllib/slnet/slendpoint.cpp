@@ -7,21 +7,6 @@ namespace sl
 namespace network
 {
 
-static bool g_networkInitted = false;
-
-//void EndPoint::onReclaimObject()
-//{
-//#ifdef SL_OS_WINDOWS
-//	m_socket = INVALID_SOCKET;
-//#else
-//	m_socket = -1;
-//#endif
-//
-//	m_address = Address::NONE;
-//}
-
-//---------------------------------------------------------------
-
 bool EndPoint::getClosedPort(network::Address& closedPort)
 {
 	bool isResultSet = false;
@@ -194,15 +179,6 @@ network::Address EndPoint::getremoteAddress() const
 
 void EndPoint::initNetwork()
 {
-	if(g_networkInitted)
-		return;
-
-	g_networkInitted = true;
-
-#ifdef SL_OS_WINDOWS
-	WSAData wsdata;
-	WSAStartup(0x202, &wsdata);
-#endif // SL_OS_WINDOWS
 }
 
 bool EndPoint::waitSend()

@@ -117,7 +117,8 @@ Channel::Channel()
 
 Channel::~Channel()
 {
-	finalise();
+	if (!isDestroyed())
+		finalise();
 }
 
 bool Channel::finalise()
@@ -177,12 +178,14 @@ void Channel::destroy()
 	{
 		return;
 	}
-	clearState();
-	
-	if(nullptr != m_pSession)
+
+	if (nullptr != m_pSession)
 	{
 		m_pSession->onTerminate();
 	}
+
+	finalise();
+	
 	m_flags |= FLAG_DESTROYED;
 }
 

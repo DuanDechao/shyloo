@@ -58,9 +58,8 @@ public:
 public:
 	const char* c_str() const;
 	ChannelID id() const { return m_id; }
-	void onPacketReceived(int bytes);
-	void onPacketSent(int bytes, bool sendCompleted);
-	void onSendCompleted();
+	inline const Address& addr() const;
+
 	uint32 numPacketSent() const { return m_numPacketsSent; }
 	uint32 numPacketReceived() const { return m_numPacketsReceived; }
 	uint32 numBytesSent() const { return m_numBytesSent; }
@@ -68,9 +67,7 @@ public:
 	uint64 lastReceivedTime() const { return m_lastReceivedTime; }
 	void updateLastReceivedTime() { m_lastReceivedTime = getTimeMilliSecond(); }
 
-
 	void setConnected();
-	void destroy();
 	bool isDestroyed() const {return (m_flags & FLAG_DESTROYED) > 0;}
 	bool isCondemn() const { return (m_flags & FLAG_CONDEMN) > 0; }
 	void condemn();
@@ -81,28 +78,42 @@ public:
 	void setNetworkInterface(NetworkInterface* pNetworkInterface) {m_pNetworkInterface = pNetworkInterface;}
 	inline void setSession(ISLSession* poSession) { m_pSession = poSession; }
 	inline ISLSession* getSession() { return m_pSession; }
-	inline const Address& addr() const;
-	void setEndPoint(const EndPoint* pEndPoint);
+	
 	inline EndPoint* getEndPoint() const;
 	Bundles& bundles();
 	const Bundles& bundles() const;
-	Bundle* createSendBundle(); //创建发送bundle,该bundle可能是从send放入发送队列中获取的，如果队列为空，创建一个新的
 	int32 bundlesLength();
-	inline void pushBundle(Bundle* pBundle);
-	void clearBundle();
 	
 	void send(Bundle* pBundle = NULL);
 	void stopSend();
 	void delayedSend();
 	bool waitSend();
-	bool finalise();
-	void addReceiveWindow(Packet* pPacket);
-	BufferedReceives& bufferedReceives() { return m_bufferedReceives; }
+	
 	inline PacketReader* getPacketReader() const;
 	inline PacketSender* getPacketSender() const;
 	inline void setPacketSender(PacketSender* pPacketSender);
 	inline PacketReceiver* getPacketReceiver() const;
 	void processPackets();
+	void destroy();
+
+	void addReceiveWindow(Packet* pPacket);
+	void onPacketReceived(int bytes);
+	void onPacketSent(int bytes, bool sendCompleted);
+	void onSendCompleted();
+
+private:
+	
+	bool finalise();
+	void clearState(bool warnOnDiscard = false);
+
+	void clearBundle();
+	Bundle* createSendBundle(); //创建发送bundle,该bundle可能是从send放入发送队列中获取的，如果队列为空，创建一个新的
+	inline void pushBundle(Bundle* pBundle);
+
+	
+	void setEndPoint(const EndPoint* pEndPoint);
+	BufferedReceives& bufferedReceives() { return m_bufferedReceives; }
+
 
 private:
 	enum Flags
@@ -112,8 +123,6 @@ private:
 		FLAG_CONDEMN	=	0x00000004,			///< 该频道已经变得不合法
 		FLAG_CONNECTED	=	0x00000008,			///< 通道建立连接
 	};
-
-	void clearState(bool warnOnDiscard = false);
 
 private:
 	

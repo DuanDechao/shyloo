@@ -15,7 +15,8 @@ NetworkInterface::NetworkInterface(EventDispatcher* pEventDispatcher)
 		 m_pDelayedChannels(NULL),
 		 m_pChannelTimeOutHandler(NULL),
 		 m_pChannelDeregisterHandler(NULL),
-		 m_numExtChannels(0)
+		 m_numExtChannels(0),
+		 m_lastCheckDestroyChannelTime(getTimeMilliSecond())
 {
 }
 
@@ -133,37 +134,34 @@ bool NetworkInterface::createListeningSocket(const char* listeningInterface, uin
 	return true;
 }
 
-bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serverPort,  EndPoint* pEP, ISLSession* pSession,
+bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serverPort, ISLSession* pSession,
 											  ISLPacketParser* poPacketParser, uint32 rbuffer /*= 0*/, uint32 wbuffer /*= 0*/)
 {
-	SLASSERT(pEP, "wtf");
-	if(pEP->good())
-	{
-		this->getDispatcher().deregisterReadFileDescriptor((int32)*pEP);
-		pEP->close();
-	}
-	pEP->socket(SOCK_STREAM);
-	if(!pEP->good())
-	{
+	
+	EndPoint* pSvrEndPoint = CREATE_POOL_OBJECT(EndPoint);
+	SLASSERT(pSvrEndPoint, "wtf");
+
+	pSvrEndPoint->socket(SOCK_STREAM);
+	if (!pSvrEndPoint->good()){
 		return false;
 	}
 	
 	uint32 address;
 	Address::string2ip(serverIp, address);
 	int32 ret = 0;
-	if((ret = pEP->connect(htons(serverPort), address)) == -1)
+	if ((ret = pSvrEndPoint->connect(htons(serverPort), address)) == -1)
 	{
 		int32 error = WSAGetLastError();
 		if(error != WSAEWOULDBLOCK && 0 != error){
 			SLASSERT(false, "wtf");
-			pEP->close();
+			pSvrEndPoint->close();
 			return false;
 		}
 	}
 
 	Address addr(serverIp, serverPort);
-	pEP->addr(addr);
-	Channel* pSvrChannel = CREATE_POOL_OBJECT(Channel, this, pEP, poPacketParser);
+	pSvrEndPoint->addr(addr);
+	Channel* pSvrChannel = CREATE_POOL_OBJECT(Channel, this, pSvrEndPoint, poPacketParser);
 	if(!pSvrChannel)
 	{
 		SLASSERT(false, "wtf");
@@ -183,8 +181,8 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 
 	if(pSvrChannel->getPacketSender() == nullptr)
 	{
-		TCPPacketSender* pPackerSender = CREATE_POOL_OBJECT(TCPPacketSender, pEP, this);
-		getDispatcher().registerWriteFileDescriptor((int32)(*pEP), pPackerSender);
+		TCPPacketSender* pPackerSender = CREATE_POOL_OBJECT(TCPPacketSender, pSvrEndPoint, this);
+		getDispatcher().registerWriteFileDescriptor((int32)(*pSvrEndPoint), pPackerSender);
 	}
 
 	return true;
@@ -286,6 +284,37 @@ void NetworkInterface::onChannelTimeOut(Channel* pChannel)
 int32 NetworkInterface::numExtChannels() const
 {
 	return m_numExtChannels;
+}
+
+int32 NetworkInterface::checkDestroyChannel(){
+	if (getTimeMilliSecond() - m_lastCheckDestroyChannelTime <= CHECK_DESTROY_CHANNEL_TIME)
+		return 0;
+
+	ChannelMap::iterator iter = m_channelMap.begin();
+	ChannelMap::iterator iterEnd = m_channelMap.end();
+
+	int32 destroyCount = 0;
+	while(iter != iterEnd){
+		Channel* pChannel = iter->second;
+		if (nullptr == pChannel || pChannel->isDestroyed()){
+			RELEASE_POOL_OBJECT(Channel, pChannel);
+			iter = m_channelMap.erase(iter);
+			destroyCount++;
+		}
+		else if (pChannel->isCondemn()){
+			pChannel->destroy();
+			RELEASE_POOL_OBJECT(Channel, pChannel);
+			iter = m_channelMap.erase(iter);
+			destroyCount++;
+		}
+		else{
+			++iter;
+		}
+	}
+
+	m_lastCheckDestroyChannelTime = getTimeMilliSecond();
+
+	return destroyCount;
 }
 
 }

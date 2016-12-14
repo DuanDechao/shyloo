@@ -3,6 +3,7 @@
 #include "slnet.h"
 #include "slsingleton.h"
 #include "sllistener.h"
+#include "slconnector.h"
 #include "slnetwork_interface.h"
 #include "slevent_dispatcher.h"
 
@@ -24,6 +25,8 @@ public:
 private:
 	EventDispatcher					m_dispatcher;
 	NetworkInterface*				m_networkInterface;
+	std::vector<CSLListener*>		m_listenerVec;
+	std::vector<CSLConnector*>		m_connectorVec;
 };
 }
 }

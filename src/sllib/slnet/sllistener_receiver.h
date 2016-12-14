@@ -29,7 +29,6 @@ public:
 
 private:
 	virtual int handleInputNotification(int fd);
-	EventDispatcher& dispatcher();
 	
 private:
 	EndPoint*			m_endpoint;
