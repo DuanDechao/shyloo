@@ -3,42 +3,10 @@ namespace sl
 {
 namespace core
 {
-static CObjectPool<CKrTimer> g_objPool("CKrTimer");
-CObjectPool<CKrTimer>& CKrTimer::ObjPool()
-{
-	return g_objPool;
-}
-
-CKrTimer* CKrTimer::createPoolObject()
-{
-	return g_objPool.FetchObj();
-}
-
-void CKrTimer::reclaimPoolObject(CKrTimer* obj)
-{
-	g_objPool.ReleaseObj(obj);
-}
-
-void CKrTimer::destroyObjPool()
-{
-	g_objPool.Destroy();
-}
-
-void CKrTimer::onReclaimObject()
+CKrTimer::~CKrTimer()
 {
 	m_pITimer = nullptr;
 	m_timerHander = INVALID_TIMER_HANDER;
-}
-
-size_t CKrTimer::getPoolObjectBytes()
-{
-	size_t bytes = sizeof(m_pITimer);
-	return bytes;
-}
-
-CKrTimer::SmartPoolObjectPtr CKrTimer::createSmartPoolObj()
-{
-	return SmartPoolObjectPtr(new SmartPoolObject<CKrTimer>(ObjPool().FetchObj(), g_objPool));
 }
 
 void CKrTimer::onInit(int64 timetick)

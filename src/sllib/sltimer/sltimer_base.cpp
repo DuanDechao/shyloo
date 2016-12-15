@@ -4,40 +4,6 @@ namespace sl
 {
 namespace timer
 {
-static CObjectPool<CSLTimerBase> g_objPool("CSLTimerBase");
-CObjectPool<CSLTimerBase>& CSLTimerBase::ObjPool()
-{
-	return g_objPool;
-}
-
-CSLTimerBase* CSLTimerBase::createPoolObject()
-{
-	return g_objPool.FetchObj();
-}
-
-void CSLTimerBase::reclaimPoolObject(CSLTimerBase* obj)
-{
-	g_objPool.ReleaseObj(obj);
-}
-
-void CSLTimerBase::destroyObjPool()
-{
-	g_objPool.Destroy();
-}
-
-size_t CSLTimerBase::getPoolObjectBytes()
-{
-	size_t bytes = sizeof(m_stat) + sizeof(m_pauseStamp) + sizeof(m_pTimerObj) +
-		sizeof(m_expireStamp) + sizeof(m_bDelay) + sizeof(m_iCount) + sizeof(m_intervalStamp);
-
-	return bytes;
-}
-
-CSLTimerBase::SmartPoolObjectPtr CSLTimerBase::createSmartPoolObj()
-{
-	return SmartPoolObjectPtr(new SmartPoolObject<CSLTimerBase>(ObjPool().FetchObj(), g_objPool));
-}
-
 CSLTimerBase::CSLTimerBase(TimersBase* owner, ISLTimer* pTimer, int64 delay, int32 count, int64 interval)
 	:m_Owner(owner),
 	 m_stat(TIME_RECREATE),
@@ -46,13 +12,12 @@ CSLTimerBase::CSLTimerBase(TimersBase* owner, ISLTimer* pTimer, int64 delay, int
 	 m_expireStamp(0),
 	 m_bDelay(true),
 	 m_iCount(count),
-	 m_intervalStamp(interval)
+	 m_intervalStamp(TimeStamp::fromMilliSeconds(interval))
 {
 	setExpireTime(timestamp() + TimeStamp::fromMilliSeconds(delay));
 }
 
-
-void CSLTimerBase::onReclaimObject()
+CSLTimerBase::~CSLTimerBase()
 {
 	m_stat = TIME_DESTORY;
 	m_pauseStamp = 0;
@@ -61,15 +26,6 @@ void CSLTimerBase::onReclaimObject()
 	m_bDelay = true;
 	m_iCount = 0;
 	m_intervalStamp = 0;
-}
-
-void CSLTimerBase::initialize(TimersBase* owner, ISLTimer* pTimer, int64 delay, int32 count, int64 interval)
-{
-	m_Owner = owner;
-	m_pTimerObj = pTimer;
-	setExpireTime(timestamp() + TimeStamp::fromMilliSeconds(delay));
-	m_iCount = count;
-	m_intervalStamp = TimeStamp::fromMilliSeconds(interval);
 }
 
 CSLTimerBase::TimerState CSLTimerBase::pollTimer()

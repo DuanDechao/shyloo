@@ -4,44 +4,6 @@ namespace sl
 {
 namespace core
 {
-
-static CObjectPool<NetSession> g_objPool("NetSession");
-CObjectPool<NetSession>& NetSession::ObjPool()
-{
-	return g_objPool;
-}
-
-NetSession* NetSession::createPoolObject()
-{
-	return g_objPool.FetchObj();
-}
-
-void NetSession::reclaimPoolObject(NetSession* obj)
-{
-	g_objPool.ReleaseObj(obj);
-}
-
-void NetSession::destroyObjPool()
-{
-	g_objPool.Destroy();
-}
-
-size_t NetSession::getPoolObjectBytes()
-{
-	size_t bytes = sizeof(m_pChannel) + sizeof(m_pTcpSession);
-	return bytes;
-}
-
-NetSession::SmartPoolObjectPtr NetSession::createSmartPoolObj()
-{
-	return SmartPoolObjectPtr(new SmartPoolObject<NetSession>(ObjPool().FetchObj(), g_objPool));
-}
-
-void NetSession::onReclaimObject()
-{
-	//this->clearState();
-}
-
 NetSession::NetSession(ITcpSession* pTcpSession)
 	:m_pTcpSession(pTcpSession),
 	 m_pChannel(NULL)
@@ -59,12 +21,22 @@ void NetSession::setChannel(ISLChannel* pChannel)
 
 void NetSession::release()
 {
-	NetSession::reclaimPoolObject(this);
+	RELEASE_POOL_OBJECT(NetSession, this);
 }
 
 void NetSession::onRecv(const char* pBuf, uint32 dwLen)
 {
 	m_pTcpSession->onRecv(core::Kernel::getSingletonPtr(), pBuf, dwLen);
+}
+
+void NetSession::onEstablish()
+{
+	m_pTcpSession->onConnected();
+}
+
+void NetSession::onTerminate()
+{
+	m_pTcpSession->onTerminate();
 }
 
 void NetSession::send(const void* pContext, int dwLen)
@@ -88,7 +60,7 @@ ISLSession* ServerSessionFactory::createSession(ISLChannel* poChannel)
 		SLASSERT(false, "wtf");
 		return NULL;
 	}
-	NetSession* pNetSession = NetSession::createPoolObject();
+	NetSession* pNetSession = CREATE_POOL_OBJECT(NetSession);
 	if(NULL == pNetSession)
 	{
 		SLASSERT(false, "wtf");

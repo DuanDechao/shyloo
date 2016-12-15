@@ -26,7 +26,7 @@ timer::SLTimerHandler TimerEngine::getTimerHander(api::ITimer* pTimer)
 
 bool TimerEngine::startTimer(api::ITimer* pTimer, int64 delay, int32 count, int64 interval)
 {
-	CKrTimer* pKrTimer = CKrTimer::createPoolObject();
+	CKrTimer* pKrTimer = CREATE_POOL_OBJECT(CKrTimer);
 	if(nullptr == pKrTimer)
 		return false;
 

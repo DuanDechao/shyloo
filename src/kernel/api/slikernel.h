@@ -26,6 +26,8 @@ class ITcpSession: public ISocket
 public:
 	virtual ~ITcpSession(){}
 	virtual void onRecv(IKernel* pKernel, const char* pContext, int dwLen) = 0;
+	virtual void onConnected() = 0;
+	virtual void onTerminate() = 0;
 };
 
 class ITcpServer

@@ -9,25 +9,18 @@ namespace core
 {
 using namespace api;
 using namespace network;
-class NetSession: public ISLSession, public api::IPipe, public PoolObject
+class NetSession: public ISLSession, public api::IPipe
 {
 public:
 	NetSession(){}
 	NetSession(ITcpSession* pTcpSession);
 	virtual ~NetSession();
 
-	typedef SLShared_ptr<SmartPoolObject<NetSession>> SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPoolObj();
-	static CObjectPool<NetSession>& ObjPool();
-	static NetSession* createPoolObject();
-	static void reclaimPoolObject(NetSession* obj);
-	static void destroyObjPool();
-	void onReclaimObject();
-	virtual size_t getPoolObjectBytes();
-
 	virtual void SLAPI setChannel(ISLChannel* pChannel);
 	virtual void SLAPI release();
 	virtual void SLAPI onRecv(const char* pBuf, uint32 dwLen);
+	virtual void SLAPI onEstablish(void);
+	virtual void SLAPI onTerminate(void);
 
 	virtual void send(const void* pContext, int dwLen);
 	virtual void close();
@@ -47,6 +40,9 @@ public:
 public:
 	ITcpServer*		m_pServer;
 };
+
+CREATE_OBJECT_POOL(NetSession);
+
 }
 }
 

@@ -9,7 +9,7 @@ namespace sl
 namespace timer
 {
 class TimersBase;
-class CSLTimerBase: public PoolObject
+class CSLTimerBase
 {
 private:
 	CSLTimerBase(const CSLTimerBase&);
@@ -22,21 +22,10 @@ public:
 		TIME_DESTORY
 	};
 	CSLTimerBase(){}
-
+	virtual ~CSLTimerBase();
 	CSLTimerBase(TimersBase* owner, ISLTimer* pTimer, int64 delay, int32 count, int64 interval);
 
-	virtual ~CSLTimerBase() {}
-
-	typedef SLShared_ptr<SmartPoolObject<CSLTimerBase>> SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPoolObj();
-	static CObjectPool<CSLTimerBase>& ObjPool();
-	static CSLTimerBase* createPoolObject();
-	static void reclaimPoolObject(CSLTimerBase* obj);
-	static void destroyObjPool();
-	void onReclaimObject();
-	virtual size_t getPoolObjectBytes();
-
-	void initialize(TimersBase* owner, ISLTimer* pTimer, int64 delay, int32 count, int64 interval);
+	//void initialize(TimersBase* owner, ISLTimer* pTimer, int64 delay, int32 count, int64 interval);
 
 	TimerState getTimerState() const {return m_stat;}
 	void setTimerState(TimerState stat) {m_stat = stat;}
@@ -77,6 +66,8 @@ protected:
 	TimeStamp		m_intervalStamp;
 	TimersBase*		m_Owner;
 };
+
+CREATE_OBJECT_POOL(CSLTimerBase);
 }
 }
 #endif

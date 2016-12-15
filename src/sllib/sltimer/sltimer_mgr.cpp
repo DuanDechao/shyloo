@@ -33,11 +33,10 @@ SLTimerHandler TimersT::startTimer(ISLTimer* pTimer, int64 delay, int32 count, i
 	if(nullptr == pTimer)
 		return false;
 
-	CSLTimerBase* pMgrTimerObj = CSLTimerBase::createPoolObject();
+	CSLTimerBase* pMgrTimerObj = CREATE_POOL_OBJECT(CSLTimerBase, this, pTimer, delay, count, interval);
 	if(nullptr == pMgrTimerObj)
 		return false;
 	
-	pMgrTimerObj->initialize(this, pTimer, delay, count, interval);
 	if(!pMgrTimerObj->good())
 		return false;
 
@@ -146,7 +145,7 @@ void TimersT::purgeCanelledTimes()
 	{
 		if(NULL == *iter)
 			continue;
-		CSLTimerBase::reclaimPoolObject(*iter);
+		RELEASE_POOL_OBJECT(CSLTimerBase, *iter);
 	}
 
 	int32 iNumPurged = (int32)(stTimeContainer.end() - PartIter);
@@ -168,7 +167,7 @@ int TimersT::process(uint64 now)
 		if(pTimer->isDestoryed())
 		{
 			--m_iNumCanceled;
-			CSLTimerBase::reclaimPoolObject(pTimer);
+			RELEASE_POOL_OBJECT(CSLTimerBase, pTimer);
 			continue;
 		}
 
@@ -190,7 +189,7 @@ int TimersT::process(uint64 now)
 		{
 			--m_iNumCanceled;
 			pTimer->release();
-			CSLTimerBase::reclaimPoolObject(pTimer);
+			RELEASE_POOL_OBJECT(CSLTimerBase, pTimer);
 		}
 		
 		
