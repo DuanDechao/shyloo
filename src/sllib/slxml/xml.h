@@ -17,8 +17,8 @@ public:
 	virtual int64 SLAPI getAttributeInt64(const char* name);
 	virtual const char* SLAPI getAttributeString(const char* name);
 	virtual float SLAPI getAttributeFloat(const char* name);
-	virtual ISLXmlNode* operator[] (const char* nodeName);
-	virtual ISLXmlNode* operator[] (const size_t i);
+	virtual ISLXmlNode* SLAPI operator[] (const char* nodeName);
+	virtual ISLXmlNode* SLAPI operator[](const size_t i);
 
 	void pushXmlNode(TiXmlNode* poXmlNode);
 private:

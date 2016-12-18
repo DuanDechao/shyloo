@@ -60,10 +60,12 @@ IF(WIN32)
 	SET(SL_LIB_DEBUG
 		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/slnet"
 		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/sltimer"
+		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/slxml"
 	)
 	SET(SL_LIB_RELEASE
 		optimized "${PROJECT_SOURCE_DIR}/src/sllib/libs/Release/slnet"
 		optimized "${PROJECT_SOURCE_DIR}/src/sllib/libs/Release/sltimer"
+		optimized "${PROJECT_SOURCE_DIR}/src/sllib/libs/Release/slxml"
 	)
 ENDIF(WIN32)
 

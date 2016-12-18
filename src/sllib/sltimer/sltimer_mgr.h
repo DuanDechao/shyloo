@@ -48,9 +48,6 @@ public:
 	TimeStamp nextExp(TimeStamp now) const;
 	void clear(bool shouldCallCancel = true);
 
-	/*bool getTimerInfo(TimerHandle handle, TimeStamp& time, TimeStamp& interval,
-		void*& pUserData) const;*/
-
 private:
 
 	void purgeCanelledTimes();
@@ -65,8 +62,6 @@ private:
 	TimersT& operator=(const TimersT&);
 
 };
-//typedef TimersT<uint32>  Timers;
-//typedef TimersT<uint64>  Timers64;
 
 }
 }

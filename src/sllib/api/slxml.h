@@ -13,7 +13,8 @@ public:
 	virtual int64 SLAPI getAttributeInt64(const char* name) = 0;
 	virtual const char* SLAPI getAttributeString(const char* name) = 0;
 	virtual float SLAPI getAttributeFloat(const char* name) = 0;
-	virtual ISLXmlNode* operator[] (const char* nodeName) = 0;
+	virtual ISLXmlNode* SLAPI operator[](const char* nodeName) = 0;
+	virtual ISLXmlNode* SLAPI operator[](const size_t i) = 0;
 };
 
 class ISLXmlBase{
