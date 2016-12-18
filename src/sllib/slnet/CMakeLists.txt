@@ -61,15 +61,13 @@ SET(SL_LIB_NET
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slnet_module.cpp"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slconnector.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slconnector.cpp"
-	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/test.cpp"
-
 )
 
 SOURCE_GROUP(api FILES ${SL_LIB_API})
 SOURCE_GROUP(public FILES ${PUBLIC})
 SOURCE_GROUP(\\ FILES ${SL_LIB_NET})
 
-ADD_EXECUTABLE(slnet
+ADD_LIBRARY(slnet SHARED
 	${SL_LIB_API}
 	${PUBLIC}
 	${SL_LIB_NET}

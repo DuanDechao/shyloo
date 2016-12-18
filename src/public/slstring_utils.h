@@ -125,6 +125,7 @@ namespace sl
 			return str;
 		}
 
+		
 		static int32 StringAsInt32(const char* pStr)
 		{
 			SLASSERT(pStr, "is null pointer");
@@ -162,6 +163,52 @@ namespace sl
 			char str[128] ={0};
 			SafeSprintf(str, 127, "%lld", val);
 			return string(str).c_str();
+		}
+
+		static int16 StringAsInt16(const char* pStr)
+		{
+			SLASSERT(pStr, "is null pointer");
+			return (int16)StringAsInt32(pStr);
+		}
+
+		static const char* Int16AsString(int16 val)
+		{
+			char str[128] = { 0 };
+			SafeSprintf(str, 127, "%d", val);
+			return string(str).c_str();
+		}
+
+		static int8 StringAsInt8(const char* pStr)
+		{
+			SLASSERT(pStr, "is null pointer");
+			return (int8)StringAsInt32(pStr);
+		}
+
+		static const char* Int8AsString(int16 val)
+		{
+			char str[128] = { 0 };
+			SafeSprintf(str, 127, "%d", val);
+			return string(str).c_str();
+		}
+
+		static bool StringAsBoolean(const char* pStr)
+		{
+			SLASSERT(pStr, "is null pointer");
+			string inputStr(pStr);
+			if (strcmp(MakeLower(inputStr).c_str(), "true") == 0)
+				return true;
+			else if (strcmp(MakeLower(inputStr).c_str(), "false") == 0)
+				return false;
+			else{
+				SLASSERT(false, "invalid input string");
+			}
+		}
+
+		static const char* BooleanAsString(bool val){
+			if (val)
+				return "true";
+			else
+				return "false";
 		}
 	};
 
