@@ -21,13 +21,14 @@ SET(SL_LIB_XML
 	"${PROJECT_SOURCE_DIR}/src/sllib/slxml/tinyxmlparser.cpp"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slxml/xml.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slxml/xml.cpp"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slxml/test.cpp"
 )
 
 SOURCE_GROUP(api FILES ${SL_LIB_API})
 SOURCE_GROUP(public FILES ${PUBLIC})
 SOURCE_GROUP(\\ FILES ${SL_LIB_XML})
 
-ADD_LIBRARY(slxml SHARED
+ADD_EXECUTABLE(slxml
 	${SL_LIB_API}
 	${PUBLIC}
 	${SL_LIB_XML}

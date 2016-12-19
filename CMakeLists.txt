@@ -53,7 +53,8 @@ SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/slmulti_sys.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slmulti_sys.cpp"
 	"${PROJECT_SOURCE_DIR}/src/public/slwin_sys.h"
-	"${PROJECT_SOURCE_DIR}/src/public/sllinux_sys.h"	
+	"${PROJECT_SOURCE_DIR}/src/public/sllinux_sys.h"
+	"${PROJECT_SOURCE_DIR}/src/public/slxml_reader.h"
 )
 
 IF(WIN32)

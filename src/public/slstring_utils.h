@@ -200,7 +200,8 @@ namespace sl
 			else if (strcmp(MakeLower(inputStr).c_str(), "false") == 0)
 				return false;
 			else{
-				SLASSERT(false, "invalid input string");
+				//SLASSERT(false, "invalid input string");
+				return false;
 			}
 		}
 

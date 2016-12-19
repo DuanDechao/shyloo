@@ -13,16 +13,18 @@ public:
 	virtual int64 SLAPI getAttributeInt64(const char* name) = 0;
 	virtual const char* SLAPI getAttributeString(const char* name) = 0;
 	virtual float SLAPI getAttributeFloat(const char* name) = 0;
-	virtual ISLXmlNode* SLAPI operator[](const char* nodeName) = 0;
-	virtual ISLXmlNode* SLAPI operator[](const size_t i) = 0;
+	virtual ISLXmlNode& SLAPI operator[](const char* nodeName) = 0;
+	virtual ISLXmlNode& SLAPI operator[](const int32 i) = 0;
 };
 
-class ISLXmlBase{
+class ISLXmlReader{
 public:
-	virtual ISLXmlNode* SLAPI root() = 0;
+	virtual bool SLAPI loadXmlFile(const char* path) = 0;
+	virtual ISLXmlNode& SLAPI root() = 0;
+	virtual void SLAPI release() = 0;
 };
 
-ISLXmlBase* SLAPI loadXmlFile(const char* path);
+ISLXmlReader* SLAPI createXmlReader(void);
 }
 }
 #endif
