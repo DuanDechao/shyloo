@@ -56,6 +56,12 @@ float CSLXmlNode::getAttributeFloat(const char* name)
 	return val ? val->AttrFloat : (float)0.0;
 }
 
+bool CSLXmlNode::getAttributeBoolean(const char* name)
+{
+	const AttrVal* val = findAttr(name);
+	return val ? val->AttrBoolean : false;
+}
+
 ISLXmlNode& CSLXmlNode::operator[](const char* nodeName)
 {
 	if (nullptr == nodeName){

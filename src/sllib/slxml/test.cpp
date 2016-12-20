@@ -10,8 +10,11 @@ int main()
 		return -1;
 	}
 
-	ISLXmlNode& module = reader.root();
-	ISLXmlNode& subModule = module["module"];
-	const char* pName = subModule[0].getAttributeString("name");
+	ISLXmlNode& modules = reader.root()["module"];
+	const char* pName = nullptr;
+	for (int32 i = 0; i < modules.count(); i++)
+	{
+		pName = modules[i].getAttributeString("name");
+	}
 	return 0;
 }
