@@ -22,7 +22,7 @@ public:
 		return m_xmlReader->loadXmlFile(path);
 	}
 
-	ISLXmlNode& root()
+	const ISLXmlNode& root()
 	{
 		return m_xmlReader->root();
 	}

@@ -22,6 +22,13 @@ void Kernel::loop() {
 	}
 }
 
+const char* Kernel::getCmdArg(const char* name){
+	auto iter = _args.find(name);
+	if (iter != _args.end())
+		return iter->second.c_str();
+	return nullptr;
+}
+
 void Kernel::parse(int argc, char** argv)
 {
 

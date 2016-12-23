@@ -44,9 +44,6 @@ SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/slsize_string.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slsmartpointer.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slstring_utils.h"
-	"${PROJECT_SOURCE_DIR}/src/public/sltask.h"
-	"${PROJECT_SOURCE_DIR}/src/public/sltasks.h"
-	"${PROJECT_SOURCE_DIR}/src/public/sltasks.cpp"
 	"${PROJECT_SOURCE_DIR}/src/public/sltime.h"
 	"${PROJECT_SOURCE_DIR}/src/public/sltype.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slpriority_queue.h"
@@ -55,6 +52,7 @@ SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/slwin_sys.h"
 	"${PROJECT_SOURCE_DIR}/src/public/sllinux_sys.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slxml_reader.h"
+	"${PROJECT_SOURCE_DIR}/src/public/sltools.h"
 )
 
 IF(WIN32)

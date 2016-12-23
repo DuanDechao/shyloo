@@ -1,5 +1,6 @@
 #ifndef SL_KERNEL_H
 #define SL_KERNEL_H
+#include "sliapplication.h"
 #include "slikernel.h"
 #include "slsingleton.h"
 #include "slimodule.h"
@@ -9,7 +10,7 @@ namespace sl
 {
 namespace core
 {
-class Kernel: public api::IKernel, public CSingleton<Kernel>
+class Kernel: public api::IKernel, public CSingleton<Kernel>, public IApplication
 {
 public:
 	virtual bool ready();
@@ -29,13 +30,13 @@ public:
 	virtual void resumeTimer(api::ITimer* timer);
 
 	void loop();
+
+	const char* getCmdArg(const char* name);
 private:
 	Kernel();
 	~Kernel();
 
 	void parse(int argc, char** argv);
-
-	
 
 private:
 	bool	m_bShutDown;

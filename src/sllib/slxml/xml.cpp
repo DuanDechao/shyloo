@@ -20,60 +20,60 @@ CSLXmlNode::~CSLXmlNode()
 	m_xmlAttrs.clear();
 }
 
-int8 CSLXmlNode::getAttributeInt8(const char* name)
+int8 CSLXmlNode::getAttributeInt8(const char* name) const
 {
 	const AttrVal* val = findAttr(name);
 	return val ? (int8)val->AttrInt64 : 0;
 }
 
-int16 CSLXmlNode::getAttributeInt16(const char* name)
+int16 CSLXmlNode::getAttributeInt16(const char* name) const
 {
 	const AttrVal* val = findAttr(name);
 	return val ? (int16)val->AttrInt64 : 0;
 }
 
-int32 CSLXmlNode::getAttributeInt32(const char* name)
+int32 CSLXmlNode::getAttributeInt32(const char* name) const
 {
 	const AttrVal* val = findAttr(name);
 	return val ? (int32)val->AttrInt64 : 0;
 }
 
-int64 CSLXmlNode::getAttributeInt64(const char* name)
+int64 CSLXmlNode::getAttributeInt64(const char* name) const
 {
 	const AttrVal* val = findAttr(name);
 	return val ? val->AttrInt64 : 0;
 }
 
-const char * CSLXmlNode::getAttributeString(const char* name)
+const char * CSLXmlNode::getAttributeString(const char* name) const
 {
 	const AttrVal* val = findAttr(name);
 	return val ? val->AttrStr.c_str() : nullptr;
 }
 
-float CSLXmlNode::getAttributeFloat(const char* name)
+float CSLXmlNode::getAttributeFloat(const char* name) const
 {
 	const AttrVal* val = findAttr(name);
 	return val ? val->AttrFloat : (float)0.0;
 }
 
-bool CSLXmlNode::getAttributeBoolean(const char* name)
+bool CSLXmlNode::getAttributeBoolean(const char* name) const
 {
 	const AttrVal* val = findAttr(name);
 	return val ? val->AttrBoolean : false;
 }
 
-ISLXmlNode& CSLXmlNode::operator[](const char* nodeName)
+const ISLXmlNode& CSLXmlNode::operator[](const char* nodeName) const
 {
 	if (nullptr == nodeName){
 		SLASSERT(false, "invalid params");
 		return m_xmlNull;
 	}
-	
-	if (m_xmlChilds.find(nodeName) == m_xmlChilds.end()){
+	auto itor = m_xmlChilds.find(nodeName);
+	if (itor == m_xmlChilds.end()){
 		SLASSERT(false, "where is child node %s", nodeName);
 		return m_xmlNull;
 	}
-	return *m_xmlChilds[nodeName];
+	return *itor->second;
 }
 
 void CSLXmlNode::loadChildren(const TiXmlElement* element){
@@ -99,7 +99,8 @@ void CSLXmlNode::loadAttributes(const TiXmlElement* element){
 	}
 }
 
-CSLXmlNode::AttrVal* CSLXmlNode::findAttr(const char* name){
+const CSLXmlNode::AttrVal* CSLXmlNode::findAttr(const char* name) const
+{
 	if (name == nullptr)
 		return nullptr;
 
@@ -141,7 +142,7 @@ bool CSLXmlReader::loadXmlFile(const char* path){
 	return true;
 }
 
-ISLXmlNode& CSLXmlReader::root()
+const ISLXmlNode& CSLXmlReader::root() const
 {
 	SLASSERT(m_pRootNode, "where is root node");
 	return *m_pRootNode;
