@@ -1,9 +1,7 @@
 #ifndef _SL_EVENT_DISPATCHER_H_
 #define _SL_EVENT_DISPATCHER_H_
-#include "sltask.h"
 #include "slinterfaces.h"
 #include "sltimer.h"
-#include "sltasks.h"
 
 namespace sl
 {
