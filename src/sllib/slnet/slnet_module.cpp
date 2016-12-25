@@ -10,7 +10,7 @@ ISLNet* SLAPI getSLNetModule()
 {
 	CSLNetModule* g_netModulePtr = CSLNetModule::getSingletonPtr();
 	if(g_netModulePtr == NULL)
-		g_netModulePtr = new CSLNetModule();
+		g_netModulePtr = NEW CSLNetModule();
 	return CSLNetModule::getSingletonPtr();
 }
 

@@ -1,4 +1,4 @@
-#include "NodeSession.h"
+ #include "NodeSession.h"
 #include "Harbor.h"
 
 struct NodeHeader{
@@ -29,7 +29,7 @@ int32 NodeSession::onRecv(sl::api::IKernel* pKernel, const char* pContext, int d
 		if (header->messageId == NODE_REPORT)
 			return 0;
 
-		m_pHarbor->
+		m_pHarbor->onNodeMessage(pKernel, m_nodeType, m_nodeId, pContext + sizeof(NodeHeader), dwLen - sizeof(NodeHeader));
 	}
 	return dwLen;
 }

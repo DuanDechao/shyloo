@@ -16,7 +16,8 @@ public:
 	int32 getPort() const { return m_port; }
 
 	void onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* ip, int32 nodePort, NodeSession* session);
-	void onNodeMessage(sl::api::IKernel* pKernel);
+	void onNodeMessage(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* pszBuf, const int32 size);
+
 private:
 	int32 m_nodeType;
 	int32 m_nodeId;

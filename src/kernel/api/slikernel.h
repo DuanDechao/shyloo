@@ -1,7 +1,7 @@
 #ifndef SL_KERNEL_IKERNEL_H
 #define SL_KERNEL_IKERNEL_H
 #include "slmulti_sys.h"
-#include "sltimer.h"
+//#include "sltimer.h"
 namespace sl
 {
 namespace api
@@ -40,6 +40,7 @@ public:
 	inline const char* getRemoteIP(){
 		if (m_pPipe)
 			return m_pPipe->getRemoteIP();
+		return "";
 	}
 };
 

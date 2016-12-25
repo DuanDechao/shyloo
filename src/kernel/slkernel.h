@@ -15,26 +15,27 @@ class Kernel: public api::IKernel, public CSingleton<Kernel>, public IApplicatio
 public:
 	virtual bool ready();
 	virtual bool initialize(int32 argc, char ** argv);
-	virtual bool destory();
+	virtual bool destory(){ return false; }
 
-	virtual api::IModule * findModule(const char * name);
+	virtual api::IModule * findModule(const char * name){ return nullptr; }
 
 	//net interface
-	virtual bool startTcpServer(api::ITcpServer * server, const char* ip, const int32 port, int32 sendSize, int32 recvSize);
-	virtual bool startTcpClient(api::ITcpSession * client, const char* ip, const int32 port, int32 sendSize, int32 recvSize);
+	virtual bool startTcpServer(api::ITcpServer * server, const char* ip, const int32 port, int32 sendSize, int32 recvSize){ return false; }
+	virtual bool startTcpClient(api::ITcpSession * client, const char* ip, const int32 port, int32 sendSize, int32 recvSize){ return false; }
 
 	//timer interface
-	virtual bool startTimer(api::ITimer* timer, int64 delay, int32 count, int64 interval, const char * debug);
-	virtual bool killTimer(api::ITimer* timer);
-	virtual void pauseTimer(api::ITimer* timer);
-	virtual void resumeTimer(api::ITimer* timer);
+	virtual bool startTimer(api::ITimer* timer, int64 delay, int32 count, int64 interval, const char * debug){ return false; }
+	virtual bool killTimer(api::ITimer* timer){ return false; }
+	virtual void pauseTimer(api::ITimer* timer){ return; }
+	virtual void resumeTimer(api::ITimer* timer){ return; }
 
 	void loop();
 
 	const char* getCmdArg(const char* name);
-private:
-	Kernel();
-	~Kernel();
+
+public:
+	Kernel(){}
+	~Kernel(){}
 
 	void parse(int argc, char** argv);
 

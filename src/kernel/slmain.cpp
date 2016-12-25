@@ -4,6 +4,8 @@ using namespace sl::core;
 int main(int argc, char ** argv)
 {
 	Kernel * pKernel = (Kernel *) Kernel::getSingletonPtr();
+	if (pKernel == nullptr)
+		pKernel = NEW Kernel();
 	SLASSERT(pKernel, "get kernel point error");
 	bool res = pKernel->initialize(argc, argv);
 	SLASSERT(res, "launch kernel error");
