@@ -11,5 +11,5 @@ void Harbor::onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId,
 }
 
 void Harbor::onNodeMessage(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* pszBuf, const int32 size){
-
+	auto itor = m_allCB.find()
 }
