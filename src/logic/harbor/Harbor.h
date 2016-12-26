@@ -5,6 +5,19 @@
 #include "NodeSession.h"
 #include <unordered_map>
 
+class Harbor;
+class NodeSessionServer : public sl::api::ITcpServer
+{
+public:
+	NodeSessionServer(Harbor* pHarbor) :m_pHarbor(pHarbor){}
+	virtual ~NodeSessionServer(){}
+	virtual sl::api::ITcpSession* mallocTcpSession(sl::api::IKernel* pKernel);
+
+private:
+	Harbor* m_pHarbor;
+};
+
+
 class INodeMessageHandler
 {
 public:
@@ -26,7 +39,7 @@ private:
 };
 
 
-class Harbor
+class Harbor: public IHarbor
 {
 public:
 	Harbor()
@@ -41,13 +54,16 @@ public:
 	void onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* ip, int32 nodePort, NodeSession* session);
 	void onNodeMessage(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* pszBuf, const int32 size);
 
+	void rsgNodeMessageHandler(int32 messageId, node_cb handler);
+	//void prepareSendNodeMessage()
 private:
-	int32 m_nodeType;
-	int32 m_nodeId;
-	int32 m_port;
+	NodeSessionServer*	m_pServer;
+	int32				m_nodeType;
+	int32				m_nodeId;
+	int32				m_port;
 
 	std::unordered_map<int32, std::unordered_map<int32, NodeSession*>> m_allNode;
-	std::unordered_map<int32, std::list<INodeMessageHandler *>> m_allCB;
+	std::unordered_map<int32, std::list<INodeMessageHandler *>> m_allCBPool;
 
 };
 #endif
