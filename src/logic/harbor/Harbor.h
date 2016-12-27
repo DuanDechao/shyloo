@@ -42,26 +42,29 @@ private:
 class Harbor: public IHarbor
 {
 public:
-	Harbor()
-		:m_nodeType(0),
-		 m_nodeId(0),
-		 m_port(0)
-	{}
+	virtual bool initialize(sl::api::IKernel * pKernel);
+	virtual bool launched(sl::api::IKernel * pKernel);
+	virtual bool destory(sl::api::IKernel * pKernel);
+
 	int32 getNodeType() const { return m_nodeType; }
 	int32 getNodeId() const { return m_nodeId; }
 	int32 getPort() const { return m_port; }
 
 	void onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* ip, int32 nodePort, NodeSession* session);
 	void onNodeMessage(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* pszBuf, const int32 size);
+	
+	virtual void connect(const char* ip, const int32 port);
 
 	void rsgNodeMessageHandler(int32 messageId, node_cb handler);
 	//void prepareSendNodeMessage()
 private:
+	sl::api::IKernel*	m_pKernel;
 	NodeSessionServer*	m_pServer;
 	int32				m_nodeType;
 	int32				m_nodeId;
 	int32				m_port;
-
+	int32				m_recvSize;
+	int32				m_sendSize;
 	std::unordered_map<int32, std::unordered_map<int32, NodeSession*>> m_allNode;
 	std::unordered_map<int32, std::list<INodeMessageHandler *>> m_allCBPool;
 

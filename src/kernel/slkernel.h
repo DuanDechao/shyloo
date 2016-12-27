@@ -24,7 +24,7 @@ public:
 	virtual bool startTcpClient(api::ITcpSession * client, const char* ip, const int32 port, int32 sendSize, int32 recvSize){ return false; }
 
 	//timer interface
-	virtual bool startTimer(api::ITimer* timer, int64 delay, int32 count, int64 interval, const char * debug){ return false; }
+	virtual bool startTimer(api::ITimer* timer, int64 delay, int32 count, int64 interval){ return false; }
 	virtual bool killTimer(api::ITimer* timer){ return false; }
 	virtual void pauseTimer(api::ITimer* timer){ return; }
 	virtual void resumeTimer(api::ITimer* timer){ return; }

@@ -84,9 +84,23 @@ private:
 
 class IKernel
 {
+public:
+	//net interface
+	virtual bool startTcpServer(api::ITcpServer * server, const char* ip, const int32 port, int32 sendSize, int32 recvSize) = 0;
+	virtual bool startTcpClient(api::ITcpSession * client, const char* ip, const int32 port, int32 sendSize, int32 recvSize) = 0;
 
+	//timer interface
+	virtual bool startTimer(api::ITimer* timer, int64 delay, int32 count, int64 interval) = 0;
+	virtual bool killTimer(api::ITimer* timer) = 0;
+	virtual void pauseTimer(api::ITimer* timer) = 0;
+	virtual void resumeTimer(api::ITimer* timer) = 0;
 };
 }
 }
 
+#define START_TIMER(timer, delay, count, interval){		\
+	pKernel->startTimer(timer, delay, count, interval);	\
+}
+
+#define TIMER_BEAT_FOREVER	-1
 #endif

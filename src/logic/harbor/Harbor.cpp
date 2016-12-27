@@ -1,5 +1,5 @@
 #include "Harbor.h"
-
+#define RECONNECT_INTERVAL 1 * SECOND
 sl::api::ITcpSession* NodeSessionServer::mallocTcpSession(sl::api::IKernel* pKernel){
 	return CREATE_POOL_OBJECT(NodeSession, m_pHarbor);
 }
@@ -22,8 +22,18 @@ void Harbor::onNodeMessage(sl::api::IKernel* pKernel, int32 nodeType, int32 node
 		SLASSERT(false, "have no messageId %d", messageId);
 		return;
 	}
-	for (auto* handler : m_allCBPool[messageId]){
+	for (auto& handler : m_allCBPool[messageId]){
 		handler->DealNodeMessage(pKernel, nodeType, nodeId, pszBuf + sizeof(int32), size - sizeof(int32));
+	}
+}
+
+void Harbor::connect(const char* ip, const int32 port){
+	sl::api::IKernel * pKernel = m_pKernel;
+	NodeSession* pSession = (NodeSession *)m_pServer->mallocTcpSession(m_pKernel);
+	SLASSERT(pSession, "wtf");
+	pSession->setConnect(ip, port);
+	if (!m_pKernel->startTcpClient(pSession, ip, port, m_sendSize, m_recvSize)){
+		START_TIMER(pSession, 0, TIMER_BEAT_FOREVER, RECONNECT_INTERVAL);
 	}
 }
 

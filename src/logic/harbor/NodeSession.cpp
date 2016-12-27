@@ -50,3 +50,9 @@ void NodeSession::onConnected(){
 
 	send(buf, sizeof(buf));
 }
+
+void NodeSession::setConnect(const char* ip, const int32 port){
+	m_ip = ip;
+	m_port = port;
+	m_bConnect = true;
+}
