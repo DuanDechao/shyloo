@@ -26,6 +26,7 @@ public:
 	virtual void onTerminate(){}
 	void setConnect(const char* ip, const int32 port);
 	void send(const void* pContext, const int32 size);
+	void prepareSendNodeMessage(const int32 messageId, const int32 size);
 private:
 	Harbor*			m_pHarbor;
 	bool			m_bReady;

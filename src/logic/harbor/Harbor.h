@@ -52,11 +52,10 @@ public:
 
 	void onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* ip, int32 nodePort, NodeSession* session);
 	void onNodeMessage(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* pszBuf, const int32 size);
-	
+	void addNodeListener(INodeListener* pNodeListener);
 	virtual void connect(const char* ip, const int32 port);
 
-	void rsgNodeMessageHandler(int32 messageId, node_cb handler);
-	//void prepareSendNodeMessage()
+	void rgsNodeMessageHandler(int32 messageId, node_cb handler);
 private:
 	sl::api::IKernel*	m_pKernel;
 	NodeSessionServer*	m_pServer;
@@ -67,6 +66,7 @@ private:
 	int32				m_sendSize;
 	std::unordered_map<int32, std::unordered_map<int32, NodeSession*>> m_allNode;
 	std::unordered_map<int32, std::list<INodeMessageHandler *>> m_allCBPool;
+	std::list<INodeListener*>	m_listenerPool;
 
 };
 #endif

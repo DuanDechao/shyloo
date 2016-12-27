@@ -6,12 +6,11 @@ sl::api::ITcpSession* NodeSessionServer::mallocTcpSession(sl::api::IKernel* pKer
 
 void Harbor::onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* ip, int32 nodePort, NodeSession* session){
 
-	/*auto itor = m_allNode.find(nodeType);
-	if (itor != m_allNode.end()){
-
-	}*/
-
 	m_allNode[nodeType].insert(std::make_pair(nodeId, session));
+
+	for (auto& listener : m_listenerPool){
+		listener->onOpen(pKernel, nodeType, nodeId, ip, nodePort);
+	}
 }
 
 void Harbor::onNodeMessage(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* pszBuf, const int32 size){
@@ -27,6 +26,10 @@ void Harbor::onNodeMessage(sl::api::IKernel* pKernel, int32 nodeType, int32 node
 	}
 }
 
+void Harbor::addNodeListener(INodeListener* pNodeListener){
+	m_listenerPool.push_back(pNodeListener);
+}
+
 void Harbor::connect(const char* ip, const int32 port){
 	sl::api::IKernel * pKernel = m_pKernel;
 	NodeSession* pSession = (NodeSession *)m_pServer->mallocTcpSession(m_pKernel);
@@ -37,6 +40,6 @@ void Harbor::connect(const char* ip, const int32 port){
 	}
 }
 
-void Harbor::rsgNodeMessageHandler(int32 messageId, node_cb handler){
+void Harbor::rgsNodeMessageHandler(int32 messageId, node_cb handler){
 	m_allCBPool[messageId].push_back(NEW NodeCBMessageHandler(handler));
 }

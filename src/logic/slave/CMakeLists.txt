@@ -1,0 +1,24 @@
+INCLUDE_DIRECTORIES(
+	"${PROJECT_SOURCE_DIR}/src/public"
+	"${PROJECT_SOURCE_DIR}/src/kernel/api"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface"
+)
+
+SET(SLAVE
+	"${PROJECT_SOURCE_DIR}/src/logic/slave/Slave.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/slave/Slave.cpp"
+)
+
+SOURCE_GROUP(api FILES ${SL_KERNEL_API})
+SOURCE_GROUP(public FILES ${PUBLIC})
+SOURCE_GROUP(interface FILES ${SL_LOGIC_INTERFACE})
+SOURCE_GROUP(\\ FILES ${SLAVE})
+
+ADD_LIBRARY(slave SHARED
+	${SLAVE}
+	${SL_KERNEL_API}
+	${PUBLIC}
+	${SL_LOGIC_INTERFACE}
+)
+
+SET_PROPERTY(TARGET slave PROPERTY FOLDER "core")

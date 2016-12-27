@@ -56,3 +56,12 @@ void NodeSession::setConnect(const char* ip, const int32 port){
 	m_port = port;
 	m_bConnect = true;
 }
+
+void NodeSession::prepareSendNodeMessage(const int32 messageId, const int32 size){
+	char buf[sizeof(NodeHeader)+sizeof(int32)];
+	NodeHeader* header = (NodeHeader*)buf;
+	header->messageId = NODE_MESSAGE;
+	header->len = sizeof(NodeHeader)+sizeof(int32)+size;
+	*(int32*)(buf + sizeof(NodeHeader)) = messageId;
+	send(buf, sizeof(buf));
+}
