@@ -12,6 +12,7 @@ struct NodeReport{
 };
 const int32 NODE_REPORT = 1;
 const int32 NODE_MESSAGE = 2;
+
 int32 NodeSession::onRecv(sl::api::IKernel* pKernel, const char* pContext, int dwLen){
 	NodeHeader* header = (NodeHeader*)pContext;
 	if (!m_bReady){
@@ -38,7 +39,7 @@ void NodeSession::send(const void* pContext, const int32 size){
 	ITcpSession::send(pContext, size);
 }
 
-void NodeSession::onConnected(){
+void NodeSession::onConnected(sl::api::IKernel* pKernel){
 	char buf[sizeof(NodeHeader)+sizeof(NodeReport)];
 	NodeHeader* header = (NodeHeader*)buf;
 	header->messageId = NODE_REPORT;
@@ -49,6 +50,19 @@ void NodeSession::onConnected(){
 	report->port = m_pHarbor->getPort();
 
 	send(buf, sizeof(buf));
+}
+
+void NodeSession::onDisconnect(sl::api::IKernel* pKernel){
+	if (m_bReady){
+		m_bReady = false;
+		m_pHarbor->onNodeClose(pKernel, m_nodeType, m_nodeId);
+	}
+	if (m_bConnect){
+		START_TIMER(this, 0, TIMER_BEAT_FOREVER, RECONNECT_INTERVAL);
+	}
+	else{
+		RELEASE_POOL_OBJECT(NodeSession, this);
+	}
 }
 
 void NodeSession::setConnect(const char* ip, const int32 port){
@@ -64,4 +78,11 @@ void NodeSession::prepareSendNodeMessage(const int32 messageId, const int32 size
 	header->len = sizeof(NodeHeader)+sizeof(int32)+size;
 	*(int32*)(buf + sizeof(NodeHeader)) = messageId;
 	send(buf, sizeof(buf));
+}
+
+void NodeSession::onTime(sl::api::IKernel* pKernel, int64 timetick){
+	SLASSERT(m_bConnect && !m_bReady, "wtf");
+	if (pKernel->startTcpClient(this, m_ip.c_str(), m_port, m_pHarbor->getSendSize(), m_pHarbor->getRecvSize())){
+		pKernel->killTimer(this);
+	}
 }

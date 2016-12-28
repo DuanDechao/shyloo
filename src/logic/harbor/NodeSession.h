@@ -4,6 +4,7 @@
 #include "slobjectpool.h"
 using namespace sl;
 class Harbor;
+#define RECONNECT_INTERVAL 1 * SECOND
 class NodeSession : public sl::api::ITcpSession, public sl::api::ITimer
 {
 public:
@@ -20,13 +21,21 @@ public:
 		 m_nodeType(0),
 		 m_nodeId(0)
 	{}
+	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){}
+	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick);
+	virtual void onTerminate(sl::api::IKernel* pKernel, int64 timetick){}
+	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick) {}
+	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick) {}
 
 	virtual int32 onRecv(sl::api::IKernel* pKernel, const char* pContext, int dwLen);
-	virtual void onConnected();
-	virtual void onTerminate(){}
+	virtual void onConnected(sl::api::IKernel* pKernel);
+	virtual void onDisconnect(sl::api::IKernel* pKernel);
 	void setConnect(const char* ip, const int32 port);
 	void send(const void* pContext, const int32 size);
 	void prepareSendNodeMessage(const int32 messageId, const int32 size);
+
+	
+
 private:
 	Harbor*			m_pHarbor;
 	bool			m_bReady;

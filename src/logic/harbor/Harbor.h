@@ -39,7 +39,7 @@ private:
 };
 
 
-class Harbor: public IHarbor
+class Harbor: public IHarbor, public sl::api::ITimer
 {
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
@@ -49,13 +49,23 @@ public:
 	int32 getNodeType() const { return m_nodeType; }
 	int32 getNodeId() const { return m_nodeId; }
 	int32 getPort() const { return m_port; }
+	int32 getSendSize() const { return m_sendSize; }
+	int32 getRecvSize() const { return m_recvSize; }
+
+	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){}
+	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick);
+	virtual void onTerminate(sl::api::IKernel* pKernel, int64 timetick){}
+	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick) {}
+	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick) {}
 
 	void onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* ip, int32 nodePort, NodeSession* session);
+	void onNodeClose(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId);
 	void onNodeMessage(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* pszBuf, const int32 size);
 	void addNodeListener(INodeListener* pNodeListener);
 	virtual void connect(const char* ip, const int32 port);
 
 	void rgsNodeMessageHandler(int32 messageId, node_cb handler);
+	void startListening(sl::api::IKernel* pKernel);
 private:
 	sl::api::IKernel*	m_pKernel;
 	NodeSessionServer*	m_pServer;

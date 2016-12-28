@@ -29,8 +29,8 @@ class ITcpSession: public ISocket
 public:
 	virtual ~ITcpSession(){}
 	virtual int32 onRecv(IKernel* pKernel, const char* pContext, int dwLen) = 0;
-	virtual void onConnected() = 0;
-	virtual void onTerminate() = 0;
+	virtual void onConnected(IKernel* pKernel) = 0;
+	virtual void onDisconnect(IKernel* pKernel) = 0;
 
 	inline void send(const void* pContext, const int32 size){
 		if (m_pPipe)

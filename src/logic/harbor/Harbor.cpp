@@ -1,7 +1,20 @@
 #include "Harbor.h"
-#define RECONNECT_INTERVAL 1 * SECOND
+
 sl::api::ITcpSession* NodeSessionServer::mallocTcpSession(sl::api::IKernel* pKernel){
 	return CREATE_POOL_OBJECT(NodeSession, m_pHarbor);
+}
+
+bool Harbor::initialize(sl::api::IKernel * pKernel){
+	return true;
+}
+
+bool Harbor::launched(sl::api::IKernel * pKernel){
+	START_TIMER(this, 0, 1, 500);
+	return true; 
+}
+
+bool Harbor::destory(sl::api::IKernel * pKernel){
+	return true;
 }
 
 void Harbor::onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* ip, int32 nodePort, NodeSession* session){
@@ -10,6 +23,14 @@ void Harbor::onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId,
 
 	for (auto& listener : m_listenerPool){
 		listener->onOpen(pKernel, nodeType, nodeId, ip, nodePort);
+	}
+}
+
+void Harbor::onNodeClose(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId){
+	m_allNode[nodeType].erase(nodeId);
+	
+	for (auto& listener : m_listenerPool){
+		listener->onClose(pKernel, nodeType, nodeId);
 	}
 }
 
@@ -42,4 +63,13 @@ void Harbor::connect(const char* ip, const int32 port){
 
 void Harbor::rgsNodeMessageHandler(int32 messageId, node_cb handler){
 	m_allCBPool[messageId].push_back(NEW NodeCBMessageHandler(handler));
+}
+
+void Harbor::startListening(sl::api::IKernel* pKernel){
+	if (m_port)
+		pKernel->startTcpServer(m_pServer, "0.0.0.0", m_port, m_sendSize, m_recvSize);
+}
+
+void Harbor::onTime(sl::api::IKernel* pKernel, int64 timetick){
+	startListening(pKernel);
 }

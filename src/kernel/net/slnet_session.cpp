@@ -31,12 +31,12 @@ void NetSession::onRecv(const char* pBuf, uint32 dwLen)
 
 void NetSession::onEstablish()
 {
-	m_pTcpSession->onConnected();
+	m_pTcpSession->onConnected(core::Kernel::getSingletonPtr());
 }
 
 void NetSession::onTerminate()
 {
-	m_pTcpSession->onTerminate();
+	m_pTcpSession->onDisconnect(core::Kernel::getSingletonPtr());
 }
 
 void NetSession::send(const void* pContext, int dwLen)
