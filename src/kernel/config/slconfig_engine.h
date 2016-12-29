@@ -22,11 +22,16 @@ public:
 	virtual bool initialize();
 	virtual bool destory();
 
+	const char* getCoreFile() const { return m_coreFile.c_str(); }
+	const char* getModuleFile() const { return m_moduleFile.c_str(); }
 private:
 	bool loadModuleConfig();
+	bool loadCoreConfig();
 
 private:
 	sModuleConfig	m_stModuleConfig;
+	std::string		m_coreFile;
+	std::string		m_moduleFile;
 };
 }
 }

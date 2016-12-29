@@ -10,7 +10,7 @@ namespace sl
 #ifdef __cplusplus
 extern "C"{
 #endif
-	const char* getAppPath(){
+	 const char* getAppPath(){
 		static char* pSrcPath = nullptr;
 		
 		if (pSrcPath == nullptr){

@@ -17,6 +17,7 @@ public:
 	virtual const ISLXmlNode& SLAPI operator[](const char* nodeName) const = 0;
 	virtual const ISLXmlNode& SLAPI operator[](const int32 i) const = 0;
 	virtual const int32 SLAPI count(void) const = 0;
+	virtual bool hasAttribute(const char* name) const = 0;
 };
 
 class ISLXmlReader{

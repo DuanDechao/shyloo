@@ -1,8 +1,9 @@
 #ifndef SL_LOGIC_SLAVE_H
 #define SL_LOGIC_SLAVE_H
 #include "slikernel.h"
+#include "slimodule.h"
 #include <unordered_map>
-class Slave
+class Slave :public sl::api::IModule
 {
 public:
 	struct CMD_INFO{
@@ -14,9 +15,14 @@ public:
 		char cmd[256];
 	};
 
+	virtual bool initialize(sl::api::IKernel * pKernel);
+	virtual bool launched(sl::api::IKernel * pKernel);
+	virtual bool destory(sl::api::IKernel * pKernel);
+
 	void openNewNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* pContext, const int32 size);
 	void startNewNode(sl::api::IKernel* pKernel, const char* name, const char* cmd, const int32 nodeType, const int32 nodeId);
 	int32 startNode(sl::api::IKernel* pKernel, const char* cmd);
+
 private:
 	static int32	s_startPort;
 	static int32	s_endPort;

@@ -7,6 +7,7 @@ namespace sl
 namespace api
 {
 class IKernel;
+class IModule;
 class IPipe
 {
 public:
@@ -94,6 +95,9 @@ public:
 	virtual bool killTimer(api::ITimer* timer) = 0;
 	virtual void pauseTimer(api::ITimer* timer) = 0;
 	virtual void resumeTimer(api::ITimer* timer) = 0;
+
+	virtual IModule * findModule(const char * name) = 0;
+	virtual const char* getCoreFile() const = 0;
 };
 }
 }

@@ -39,6 +39,21 @@ private:
 };
 
 
+class NodeArgsCBMessageHandler : public INodeMessageHandler
+{
+public:
+	NodeArgsCBMessageHandler(const node_args_cb cb) : m_cb(cb){}
+	virtual ~NodeArgsCBMessageHandler() {}
+
+	virtual void DealNodeMessage(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* pContext, const int32 size){
+		OArgs args(pContext, size);
+		m_cb(pKernel, nodeType, nodeId, args);
+	}
+private:
+	node_args_cb		m_cb;
+};
+
+
 class Harbor: public IHarbor, public sl::api::ITimer
 {
 public:
@@ -64,7 +79,7 @@ public:
 	void addNodeListener(INodeListener* pNodeListener);
 	virtual void connect(const char* ip, const int32 port);
 
-	void rgsNodeMessageHandler(int32 messageId, node_cb handler);
+	void rgsNodeMessageHandler(int32 messageId, node_args_cb handler);
 	void startListening(sl::api::IKernel* pKernel);
 private:
 	sl::api::IKernel*	m_pKernel;

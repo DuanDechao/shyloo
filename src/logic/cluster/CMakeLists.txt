@@ -1,0 +1,27 @@
+INCLUDE_DIRECTORIES(
+	"${PROJECT_SOURCE_DIR}/src/public"
+	"${PROJECT_SOURCE_DIR}/src/kernel/api"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface"
+	"${PROJECT_SOURCE_DIR}/src/sllib/api"
+)
+
+SET(CLUSTER
+	"${PROJECT_SOURCE_DIR}/src/logic/cluster/Cluster.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/cluster/Cluster.cpp"
+)
+
+SOURCE_GROUP(api FILES ${SL_KERNEL_API})
+SOURCE_GROUP(public FILES ${PUBLIC})
+SOURCE_GROUP(interface FILES ${SL_LOGIC_INTERFACE})
+SOURCE_GROUP(define FILES ${SL_LOGIC_DEFINE})
+SOURCE_GROUP(\\ FILES ${CLUSTER})
+
+ADD_LIBRARY(cluster SHARED
+	${CLUSTER}
+	${SL_KERNEL_API}
+	${PUBLIC}
+	${SL_LOGIC_INTERFACE}
+	${SL_LOGIC_DEFINE}
+)
+
+SET_PROPERTY(TARGET cluster PROPERTY FOLDER "core")

@@ -33,6 +33,8 @@ public:
 
 	const char* getCmdArg(const char* name);
 
+	const char* getCoreFile() const;
+
 public:
 	Kernel(){}
 	~Kernel(){}

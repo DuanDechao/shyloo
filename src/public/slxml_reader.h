@@ -1,6 +1,7 @@
 #ifndef SL_PUBLIC_XML_READER_H
 #define SL_PUBLIC_XML_READER_H
 #include "slxml.h"
+#include "../sllib/api/slxml.h"
 namespace sl
 {
 using namespace xml;

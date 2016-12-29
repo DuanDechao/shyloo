@@ -1,7 +1,7 @@
 #ifndef SL_ARGS_H
 #define SL_ARGS_H
 #include "slmulti_sys.h"
-#include "sltools.h"
+//#include "sltools.h"
 
 enum {
 	ARGS_TYPE_UNKNOWN = 0,
@@ -36,7 +36,7 @@ public:
 			SLASSERT(_size == (sizeof(int32)+sizeof(int32)+sizeof(int16)), "invlaild args num");
 		}
 		else{
-			SLASSERT(_size > (sizeof(int32)+sizeof(arg_info)*(*_count) + sizeof(int32)+sizeof(int16)), "invlaild args num");
+			SLASSERT(_size > (int32)(sizeof(int32)+sizeof(arg_info)*(*_count) + sizeof(int32)+sizeof(int16)), "invlaild args num");
 		}
 		_args = (arg_info *)((char*)_context + sizeof(int32));
 		_data = (const char*)((char*)pContext + sizeof(int32)+sizeof(arg_info)* (*_count) + sizeof(int32)+sizeof(int16));
@@ -55,37 +55,37 @@ public:
 
 	bool getBool(const int32 index) const{
 		const arg_info& info = getArgs(index);
-		SLASSERT(info.type == ARGS_TYPE_BOOL && info.offset + sizeof(bool) < _dataSize, "out of range");
+		SLASSERT(info.type == ARGS_TYPE_BOOL && info.offset + (int16)sizeof(bool) < _dataSize, "out of range");
 		return *(bool*)(_data + info.offset);
 	}
 
 	int8 getInt8(const int32 index) const{
 		const arg_info& info = getArgs(index);
-		SLASSERT(info.type == ARGS_TYPE_INT8 && info.offset + sizeof(int8) < _dataSize, "out of range");
+		SLASSERT(info.type == ARGS_TYPE_INT8 && info.offset + (int16)sizeof(int8) < _dataSize, "out of range");
 		return *(int8*)(_data + info.offset);
 	}
 
 	int16 getInt16(const int32 index) const{
 		const arg_info& info = getArgs(index);
-		SLASSERT(info.type == ARGS_TYPE_INT16 && info.offset + sizeof(int16) < _dataSize, "out of range");
+		SLASSERT(info.type == ARGS_TYPE_INT16 && info.offset + (int16)sizeof(int16) < _dataSize, "out of range");
 		return *(int16*)(_data + info.offset);
 	}
 
 	int32 getInt32(const int32 index) const{
 		const arg_info& info = getArgs(index);
-		SLASSERT(info.type == ARGS_TYPE_INT32 && info.offset + sizeof(int32) < _dataSize, "out of range");
+		SLASSERT(info.type == ARGS_TYPE_INT32 && info.offset + (int16)sizeof(int32) < _dataSize, "out of range");
 		return *(int32*)(_data + info.offset);
 	}
 
 	int64 getInt64(const int32 index) const{
 		const arg_info& info = getArgs(index);
-		SLASSERT(info.type == ARGS_TYPE_INT64 && info.offset + sizeof(int64) < _dataSize, "out of range");
+		SLASSERT(info.type == ARGS_TYPE_INT64 && info.offset + (int16)sizeof(int64) < _dataSize, "out of range");
 		return *(int64*)(_data + info.offset);
 	}
 
 	float getFloat(const int32 index) const{
 		const arg_info& info = getArgs(index);
-		SLASSERT(info.type == ARGS_TYPE_FLOAT && info.offset + sizeof(float) < _dataSize, "out of range");
+		SLASSERT(info.type == ARGS_TYPE_FLOAT && info.offset + (int16)sizeof(float) < _dataSize, "out of range");
 		return *(float*)(_data + info.offset);
 	}
 

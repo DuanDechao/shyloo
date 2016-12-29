@@ -1,4 +1,5 @@
 #include "slkernel.h"
+#include "slinet_engine.h"
 #include <time.h>
 namespace sl
 {
@@ -27,6 +28,10 @@ const char* Kernel::getCmdArg(const char* name){
 	if (iter != _args.end())
 		return iter->second.c_str();
 	return nullptr;
+}
+
+const char* Kernel::getCoreFile() const{
+	return ConfigEngine::getSingletonPtr()->getCoreFile();
 }
 
 void Kernel::parse(int argc, char** argv)

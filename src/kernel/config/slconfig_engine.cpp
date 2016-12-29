@@ -14,6 +14,12 @@ bool ConfigEngine::initialize()
 	return true;	
 }
 
+bool ConfigEngine::loadCoreConfig(){
+	char path[MAX_PATH];
+	SafeSprintf(path, sizeof(path), "%s/core/server_conf.xml", sl::getAppPath());
+	m_coreFile = path;
+	return true;
+}
 
 bool ConfigEngine::loadModuleConfig()
 {
@@ -22,6 +28,7 @@ bool ConfigEngine::loadModuleConfig()
 
 	char path[MAX_PATH];
 	SafeSprintf(path, sizeof(path), "%s/core/%s/module.xml", sl::getAppPath(), moduleName);
+	m_moduleFile = path;
 
 	sl::XmlReader reader;
 	if (!reader.loadXml(path)){
