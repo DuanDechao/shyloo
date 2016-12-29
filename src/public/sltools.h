@@ -36,8 +36,15 @@ extern "C"{
 		}
 		return pSrcPath;
 	}
+
+	inline void SafeMemcpy(void* __restrict dest, const size_t max, const void* __restrict src, const size_t size){
+		SLASSERT(size <= max, "over flow");
+		memcpy(dest, src, (size <= max) ? size : max);
+	}
 #ifdef __cplusplus
 }
 #endif
+
+
 }
 #endif

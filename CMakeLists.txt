@@ -53,6 +53,7 @@ SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/sllinux_sys.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slxml_reader.h"
 	"${PROJECT_SOURCE_DIR}/src/public/sltools.h"
+	"${PROJECT_SOURCE_DIR}/src/public/slargs.h"
 )
 
 IF(WIN32)
