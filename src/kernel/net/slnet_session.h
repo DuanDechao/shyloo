@@ -9,6 +9,12 @@ namespace core
 {
 using namespace api;
 using namespace network;
+class NetPacketParser : public ISLPacketParser
+{
+public:
+	virtual int32 SLAPI parsePacket(const char* pDataBuf, int32 len);
+};
+
 class NetSession: public ISLSession, public api::IPipe
 {
 public:

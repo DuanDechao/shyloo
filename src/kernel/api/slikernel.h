@@ -86,6 +86,10 @@ private:
 class IKernel
 {
 public:
+	virtual bool ready() = 0;
+	virtual bool initialize(int32 argc, char ** argv) = 0;
+	virtual bool destory() = 0;
+
 	//net interface
 	virtual bool startTcpServer(api::ITcpServer * server, const char* ip, const int32 port, int32 sendSize, int32 recvSize) = 0;
 	virtual bool startTcpClient(api::ITcpSession * client, const char* ip, const int32 port, int32 sendSize, int32 recvSize) = 0;
@@ -97,7 +101,10 @@ public:
 	virtual void resumeTimer(api::ITimer* timer) = 0;
 
 	virtual IModule * findModule(const char * name) = 0;
-	virtual const char* getCoreFile() const = 0;
+	virtual const char* getCmdArg(const char* name) = 0;
+
+	virtual const char* getCoreFile() = 0;
+	
 };
 }
 }

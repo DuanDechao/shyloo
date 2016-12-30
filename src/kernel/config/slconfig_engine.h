@@ -1,7 +1,6 @@
-#ifndef SL_TIMER_ENGINE_H
-#define SL_TIMER_ENGINE_H
+#ifndef SL_CONFIG_ENGINE_H
+#define SL_CONFIG_ENGINE_H
 #include "sliconfig_engine.h"
-#include "slsingleton.h"
 #include <vector>
 namespace sl
 {
@@ -11,19 +10,22 @@ struct sModuleConfig{
 	std::string strModulePath;
 	std::vector<std::string> vctModules;
 };
-class ConfigEngine : public IConfigEngine, public CSingleton<ConfigEngine>
+class ConfigEngine : public IConfigEngine
 {
 private:
-	ConfigEngine();
-	~ConfigEngine();
+	ConfigEngine(){}
+	~ConfigEngine(){}
 
 public:
+	static IConfigEngine* getInstance();
+
 	virtual bool ready();
 	virtual bool initialize();
 	virtual bool destory();
 
-	const char* getCoreFile() const { return m_coreFile.c_str(); }
-	const char* getModuleFile() const { return m_moduleFile.c_str(); }
+	virtual const char* getEnvirPath() { return nullptr; }
+	virtual const char* getCoreFile() { return m_coreFile.c_str(); }
+	virtual const char* getConfigFile() { return m_moduleFile.c_str(); }
 private:
 	bool loadModuleConfig();
 	bool loadCoreConfig();

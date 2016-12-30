@@ -1,15 +1,40 @@
 #include "sltimer_engine.h"
 namespace sl
 {
-SL_SINGLETON_INIT(core::TimerEngine);
 namespace core
 {
+
+ITimerEngine* TimerEngine::getInstance()
+{
+	static TimerEngine* g_timerEngine = nullptr;
+	if (!g_timerEngine){
+		g_timerEngine = NEW TimerEngine;
+		if (!g_timerEngine->ready()){
+			SLASSERT(false, "time engine not ready");
+			DEL g_timerEngine;
+			g_timerEngine = nullptr;
+		}
+	}
+	return g_timerEngine;
+}
+
 bool TimerEngine::initialize()
 {
 	m_pTimerMgr = timer::getSLTimerModule();
 	if(nullptr == m_pTimerMgr)
 		return false;
 	return true;	
+}
+
+bool TimerEngine::ready()
+{
+	return true;
+}
+
+bool TimerEngine::destory()
+{
+	DEL this;
+	return true;
 }
 
 timer::SLTimerHandler TimerEngine::getTimerHander(api::ITimer* pTimer)

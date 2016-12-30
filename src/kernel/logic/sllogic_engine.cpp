@@ -10,10 +10,20 @@ namespace core
 #include <dlfcn.h>
 #endif // SL_OS_LINUX
 
-LogicEngine::LogicEngine()
+ILogicEngine* LogicEngine::getInstance()
 {
-
+	static LogicEngine* p = nullptr;
+	if (!p){
+		p = NEW LogicEngine;
+		if (!p->ready()){
+			SLASSERT(false, "logic Engine not ready");
+			DEL p;
+			p = nullptr;
+		}
+	}
+	return p;
 }
+
 bool LogicEngine::ready()
 {
 	return true;
@@ -66,7 +76,7 @@ bool LogicEngine::initialize()
 		std::vector<api::IModule *>::iterator vitor = m_vecModule.begin();
 		std::vector<api::IModule *>::iterator viend = m_vecModule.end();
 		while(vitor != viend){
-			bool res = (*vitor)->initialize(core::Kernel::getSingletonPtr());
+			bool res = (*vitor)->initialize(core::Kernel::getInstance());
 			if(!res){
 				return false;
 			}
@@ -75,7 +85,7 @@ bool LogicEngine::initialize()
 
 		vitor = m_vecModule.begin();
 		while(vitor != viend){
-			bool res = (*vitor)->launched(Kernel::getSingletonPtr());
+			bool res = (*vitor)->launched(Kernel::getInstance());
 			if(!res){
 				return false;
 			}
@@ -88,7 +98,7 @@ bool LogicEngine::initialize()
 
 bool LogicEngine::destory()
 {
-	delete this;
+	DEL this;
 	return true;
 }
 
@@ -98,7 +108,7 @@ LogicEngine::~LogicEngine()
 	std::map<std::string, api::IModule *>::iterator iend = m_mapModule.end();
 	while(itor != iend){
 		if(NULL != itor->second){
-			itor->second->destory(Kernel::getSingletonPtr());
+			itor->second->destory(Kernel::getInstance());
 			itor->second = NULL;
 		}
 		++itor;

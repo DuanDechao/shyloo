@@ -11,32 +11,32 @@ CKrTimer::~CKrTimer()
 
 void CKrTimer::onInit(int64 timetick)
 {
-	m_pITimer->onInit(Kernel::getSingletonPtr(), timetick);
+	m_pITimer->onInit(Kernel::getInstance(), timetick);
 }
 
 void CKrTimer::onStart(int64 timetick)
 {
-	m_pITimer->onStart(Kernel::getSingletonPtr(), timetick);
+	m_pITimer->onStart(Kernel::getInstance(), timetick);
 }
 
 void CKrTimer::onTime(int64 timetick)
 {
-	m_pITimer->onTime(Kernel::getSingletonPtr(), timetick);
+	m_pITimer->onTime(Kernel::getInstance(), timetick);
 }
 
 void CKrTimer::onTerminate(int64 timetick)
 {
-	m_pITimer->onTerminate(Kernel::getSingletonPtr(), timetick);
+	m_pITimer->onTerminate(Kernel::getInstance(), timetick);
 }
 
 void CKrTimer::onPause(int64 timetick)
 {
-	m_pITimer->onPause(Kernel::getSingletonPtr(), timetick);
+	m_pITimer->onPause(Kernel::getInstance(), timetick);
 }
 
 void CKrTimer::onResume(int64 timetick)
 {
-	m_pITimer->onResume(Kernel::getSingletonPtr(), timetick);
+	m_pITimer->onResume(Kernel::getInstance(), timetick);
 }
 
 void CKrTimer::setITimer(api::ITimer* pITimer) 

@@ -6,6 +6,10 @@ INCLUDE_DIRECTORIES(
 	"${PROJECT_SOURCE_DIR}/src/kernel/api"
 	"${PROJECT_SOURCE_DIR}/src/kernel/interface"
 	"${PROJECT_SOURCE_DIR}/src/kernel"
+	"${PROJECT_SOURCE_DIR}/src/kernel/logic"
+	"${PROJECT_SOURCE_DIR}/src/kernel/timer"
+	"${PROJECT_SOURCE_DIR}/src/kernel/net"
+	"${PROJECT_SOURCE_DIR}/src/kernel/config"
 )
 ENDIF(WIN32)
 

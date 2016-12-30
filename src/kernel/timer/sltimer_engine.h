@@ -1,7 +1,6 @@
 #ifndef SL_TIMER_ENGINE_H
 #define SL_TIMER_ENGINE_H
 #include "slitimer_engine.h"
-#include "slsingleton.h"
 #include "sltimer.h"
 #include "slkr_timer.h"
 
@@ -9,13 +8,15 @@ namespace sl
 {
 namespace core
 {
-class TimerEngine: public ITimerEngine, public CSingleton<TimerEngine>
+class TimerEngine: public ITimerEngine
 {
 private:
-	TimerEngine();
-	~TimerEngine();
+	TimerEngine(){}
+	~TimerEngine(){}
 
 public:
+	static ITimerEngine* getInstance();
+	
 	virtual bool ready();
 	virtual bool initialize();
 	virtual bool destory();

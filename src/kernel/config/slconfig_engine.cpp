@@ -6,9 +6,20 @@
 
 namespace sl
 {
-SL_SINGLETON_INIT(core::ConfigEngine);
 namespace core
 {
+IConfigEngine* ConfigEngine::getInstance(){
+	static IConfigEngine* p = nullptr;
+	if (!p){
+		p = NEW ConfigEngine;
+		if (!p->ready()){
+			SLASSERT(false, "config Engine not ready");
+			DEL p;
+			p = nullptr;
+		}
+	}
+	return p;
+}
 bool ConfigEngine::initialize()
 {
 	return true;	
@@ -23,7 +34,7 @@ bool ConfigEngine::loadCoreConfig(){
 
 bool ConfigEngine::loadModuleConfig()
 {
-	const char* moduleName = Kernel::getSingletonPtr()->getCmdArg("name");
+	const char* moduleName = Kernel::getInstance()->getCmdArg("name");
 	SLASSERT(moduleName, "invaild cmd params");
 
 	char path[MAX_PATH];

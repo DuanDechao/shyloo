@@ -3,7 +3,7 @@
 using namespace sl::core;
 int main(int argc, char ** argv)
 {
-	Kernel * pKernel = (Kernel *) Kernel::getSingletonPtr();
+	Kernel * pKernel = (Kernel *) Kernel::getInstance();
 	if (pKernel == nullptr)
 		pKernel = NEW Kernel();
 	SLASSERT(pKernel, "get kernel point error");

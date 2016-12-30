@@ -4,6 +4,10 @@ namespace sl
 {
 namespace core
 {
+int32 NetPacketParser::parsePacket(const char* pDataBuf, int32 len){
+	return 0;
+}
+
 NetSession::NetSession(ITcpSession* pTcpSession)
 	:m_pTcpSession(pTcpSession),
 	 m_pChannel(NULL)
@@ -26,17 +30,17 @@ void NetSession::release()
 
 void NetSession::onRecv(const char* pBuf, uint32 dwLen)
 {
-	m_pTcpSession->onRecv(core::Kernel::getSingletonPtr(), pBuf, dwLen);
+	m_pTcpSession->onRecv(core::Kernel::getInstance(), pBuf, dwLen);
 }
 
 void NetSession::onEstablish()
 {
-	m_pTcpSession->onConnected(core::Kernel::getSingletonPtr());
+	m_pTcpSession->onConnected(core::Kernel::getInstance());
 }
 
 void NetSession::onTerminate()
 {
-	m_pTcpSession->onDisconnect(core::Kernel::getSingletonPtr());
+	m_pTcpSession->onDisconnect(core::Kernel::getInstance());
 }
 
 void NetSession::send(const void* pContext, int dwLen)
@@ -54,7 +58,7 @@ ISLSession* ServerSessionFactory::createSession(ISLChannel* poChannel)
 	if(NULL == m_pServer)
 		return NULL;
 
-	ITcpSession* pTcpSession = m_pServer->mallocTcpSession(core::Kernel::getSingletonPtr());
+	ITcpSession* pTcpSession = m_pServer->mallocTcpSession(core::Kernel::getInstance());
 	if(NULL == pTcpSession)
 	{
 		SLASSERT(false, "wtf");

@@ -1,5 +1,5 @@
-#ifndef SL_KERNEL_ITIMER_ENGINE_H
-#define SL_KERNEL_ITIMER_ENGINE_H
+#ifndef SL_KERNEL_ICONFIG_ENGINE_H
+#define SL_KERNEL_ICONFIG_ENGINE_H
 #include "slicore.h"
 #include "slikernel.h"
 namespace sl

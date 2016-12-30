@@ -1,11 +1,26 @@
 #include "slkernel.h"
-#include "slinet_engine.h"
+#include "slnet_engine.h"
+#include "sltimer_engine.h"
+#include "sllogic_engine.h"
+#include "slconfig_engine.h"
 #include <time.h>
 namespace sl
 {
-SL_SINGLETON_INIT(core::Kernel);
 namespace core
 {
+api::IKernel* Kernel::getInstance(){
+	static api::IKernel* p = nullptr;
+	if (!p){
+		p = NEW Kernel;
+		if (!p->ready()){
+			SLASSERT(false, "Kernel not ready");
+			DEL p;
+			p = nullptr;
+		}
+	}
+	return p;
+}
+
 bool Kernel::ready(){
 	return true;
 }
@@ -30,8 +45,8 @@ const char* Kernel::getCmdArg(const char* name){
 	return nullptr;
 }
 
-const char* Kernel::getCoreFile() const{
-	return ConfigEngine::getSingletonPtr()->getCoreFile();
+const char* Kernel::getCoreFile(){
+	return ConfigEngine::getInstance()->getCoreFile();
 }
 
 void Kernel::parse(int argc, char** argv)

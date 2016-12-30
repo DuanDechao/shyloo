@@ -11,13 +11,15 @@ namespace core
 class LogicEngine: public ILogicEngine
 {
 public:
+	static ILogicEngine* getInstance();
+
 	virtual bool ready();
 	virtual bool initialize();
 	virtual bool destory();
 	virtual api::IModule* findModule(const char* pModuleName);
 
 private:
-	LogicEngine();
+	LogicEngine(){}
 	~LogicEngine();
 
 private:

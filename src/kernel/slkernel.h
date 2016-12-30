@@ -10,9 +10,11 @@ namespace sl
 {
 namespace core
 {
-class Kernel: public api::IKernel, public CSingleton<Kernel>, public IApplication
+class Kernel: public api::IKernel,public IApplication
 {
 public:
+	static IKernel* getInstance();
+
 	virtual bool ready();
 	virtual bool initialize(int32 argc, char ** argv);
 	virtual bool destory(){ return false; }
@@ -33,7 +35,7 @@ public:
 
 	const char* getCmdArg(const char* name);
 
-	const char* getCoreFile() const;
+	const char* getCoreFile();
 
 public:
 	Kernel(){}
