@@ -1,6 +1,11 @@
 #include "Slave.h"
 #include "sltools.h"
 #include <string>
+#include "IHarbor.h"
+#include "NodeProtocol.h"
+#include "slxml_reader.h"
+#include "slargs.h"
+
 #define EXECUTE_CMD_PORT			"$port$"
 #define EXECUTE_CMD_OUT_PORT		"$out_port$"
 #define EXECUTE_CMD_ID				"$id$"
@@ -8,10 +13,51 @@
 #define EXECUTE_CMD_OUT_PORT_SIZE	10
 #define EXECUTE_CMD_ID_SIZE			4
 
-void Slave::openNewNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* pContext, const int32 size){
-	SLASSERT(size >= (sizeof(int32)+sizeof(int32)), "wtf");
-	int32 newNodeType = *(int32*)pContext;
-	int32 newNodeId = *(int32*)(pContext + sizeof(int32));
+IHarbor* Slave::s_harbor = nullptr;
+int32 Slave::s_startPort = 0;
+int32 Slave::s_endPort = 0;
+int32 Slave::s_startOutPort = 0;
+int32 Slave::s_endOutPort = 0;
+std::unordered_map<int64, Slave::CMD_INFO> Slave::s_cmds;
+std::unordered_map<int32, Slave::EXECUTE_INFO> Slave::s_executes;
+
+bool Slave::initialize(sl::api::IKernel * pKernel){
+	return true;
+}
+
+bool Slave::launched(sl::api::IKernel * pKernel){
+	s_harbor = (IHarbor*)pKernel->findModule("Harbor");
+	SLASSERT(s_harbor, "not find module harbor");
+	s_harbor->rgsNodeMessageHandler(NodeProtocol::MASTER_MSG_NEW_NODE, Slave::openNewNode);
+
+	sl::XmlReader server_conf;
+	if (!server_conf.loadXml(pKernel->getCoreFile())){
+		SLASSERT(false, "load core file %s failed", pKernel->getCoreFile());
+		return false;
+	}
+
+	const sl::xml::ISLXmlNode& port = server_conf.root()["starter"][0]["port"][0];
+	s_startPort = port.getAttributeInt32("start");
+	s_endPort = port.getAttributeInt32("end");
+	const sl::xml::ISLXmlNode& outPort = server_conf.root()["starter"][0]["out_port"][0];
+	s_startOutPort = outPort.getAttributeInt32("start");
+	s_endOutPort = outPort.getAttributeInt32("end");
+	const sl::xml::ISLXmlNode& nodes = server_conf.root()["starter"][0]["node"];
+	for (int32 i = 0; i < nodes.count(); i++){
+		int32 type = nodes[i].getAttributeInt32("type");
+		SafeSprintf(s_executes[type].name, sizeof(s_executes[type].name), "%s", nodes[i].getAttributeString("name"));
+		SafeSprintf(s_executes[type].cmd, sizeof(s_executes[type].cmd), "%s", nodes[i].getAttributeString("cmd"));
+	}
+	return true;
+}
+bool Slave::destory(sl::api::IKernel * pKernel){
+	DEL this;
+	return true;
+}
+
+void Slave::openNewNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args){
+	int32 newNodeType = args.getInt32(0);
+	int32 newNodeId = args.getInt32(1);
 	
 	SLASSERT(s_executes.find(newNodeType) != s_executes.end(), "unknown nodetype %d", newNodeType);
 	if (s_executes.find(newNodeType) != s_executes.end()){
@@ -58,10 +104,11 @@ void Slave::startNewNode(sl::api::IKernel* pKernel, const char* name, const char
 	}
 
 	int64 node = (((int64)nodeType) << 32) | nodeId;
-	SafeSprintf(s_cmds[node].cmd, sizeof(s_cmds[node].cmd), tmp.c_str());
+	SafeSprintf(s_cmds[node].cmd, sizeof(s_cmds[node].cmd), "%s", tmp.c_str());
 	
 	startNode(pKernel, s_cmds[node].cmd);
 }
+
 int32 Slave::startNode(sl::api::IKernel* pKernel, const char* cmd){
 	char process[256];
 #ifdef SL_OS_WINDOWS

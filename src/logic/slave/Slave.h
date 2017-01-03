@@ -3,6 +3,8 @@
 #include "slikernel.h"
 #include "slimodule.h"
 #include <unordered_map>
+class IHarbor;
+class OArgs;
 class Slave :public sl::api::IModule
 {
 public:
@@ -19,11 +21,13 @@ public:
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
 
-	void openNewNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* pContext, const int32 size);
-	void startNewNode(sl::api::IKernel* pKernel, const char* name, const char* cmd, const int32 nodeType, const int32 nodeId);
-	int32 startNode(sl::api::IKernel* pKernel, const char* cmd);
+	static void openNewNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
+	static void startNewNode(sl::api::IKernel* pKernel, const char* name, const char* cmd, const int32 nodeType, const int32 nodeId);
+	static int32 startNode(sl::api::IKernel* pKernel, const char* cmd);
 
 private:
+	static IHarbor* s_harbor;
+
 	static int32	s_startPort;
 	static int32	s_endPort;
 	static int32	s_startOutPort;

@@ -2,6 +2,7 @@ INCLUDE_DIRECTORIES(
 	"${PROJECT_SOURCE_DIR}/src/public"
 	"${PROJECT_SOURCE_DIR}/src/kernel/api"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface"
+	"${PROJECT_SOURCE_DIR}/src/logic/define"
 	"${PROJECT_SOURCE_DIR}/src/sllib/api"
 )
 
@@ -24,7 +25,11 @@ ADD_LIBRARY(starter SHARED
 	${PUBLIC}
 	${SL_LOGIC_INTERFACE}
 	${SL_LOGIC_DEFINE}
-	${SL_LIB_API}
+)
+
+TARGET_LINK_LIBRARIES(starter
+	${SL_LIB_DEBUG}
+	${SL_LIB_RELEASE}
 )
 
 SET_PROPERTY(TARGET starter PROPERTY FOLDER "core")

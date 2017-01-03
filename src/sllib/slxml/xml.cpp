@@ -150,11 +150,11 @@ const ISLXmlNode& CSLXmlReader::root() const
 
 void CSLXmlReader::release()
 {
-	delete this;
+	DEL this;
 }
 
 ISLXmlReader* SLAPI createXmlReader(){
-	return new CSLXmlReader;
+	return NEW CSLXmlReader;
 }
 
 }

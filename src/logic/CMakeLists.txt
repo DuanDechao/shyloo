@@ -4,6 +4,7 @@ SET(SL_LOGIC_INTERFACE
 )
 
 SET(SL_LOGIC_DEFINE
+	"${PROJECT_SOURCE_DIR}/src/logic/define/NodeDefine.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/define/NodeProtocol.h"
 ) 
  

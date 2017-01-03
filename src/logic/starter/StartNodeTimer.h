@@ -7,7 +7,8 @@ using namespace sl;
 class StartNodeTimer : public sl::api::ITimer
 {
 public:
-	StartNodeTimer(Starter* pStarter, int32 type) :m_starter(pStarter),m_type(type){}
+	StartNodeTimer(){}
+	StartNodeTimer(int32 type) :m_type(type){}
 
 	virtual void onInit(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick);
@@ -19,7 +20,6 @@ public:
 
 private:
 	int32		m_type;
-	Starter*	m_starter;
 };
 
 CREATE_OBJECT_POOL(StartNodeTimer);

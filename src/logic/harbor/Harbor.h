@@ -77,6 +77,7 @@ public:
 	void onNodeClose(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId);
 	void onNodeMessage(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* pszBuf, const int32 size);
 	void addNodeListener(INodeListener* pNodeListener);
+	void send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& args);
 	virtual void connect(const char* ip, const int32 port);
 
 	void rgsNodeMessageHandler(int32 messageId, node_args_cb handler);

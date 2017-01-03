@@ -70,6 +70,21 @@ void Harbor::startListening(sl::api::IKernel* pKernel){
 		pKernel->startTcpServer(m_pServer, "0.0.0.0", m_port, m_sendSize, m_recvSize);
 }
 
+void Harbor::send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& args){
+	auto itor = m_allNode.find(nodeType);
+	if (itor == m_allNode.end()){
+		SLASSERT(false, "wtf");
+		return;
+	}
+	auto itor1 = itor->second.find(nodeId);
+	if (itor1 == itor->second.end()){
+		SLASSERT(false, "wtf");
+		return;
+	}
+	itor1->second->prepareSendNodeMessage(messageId, args.getSize());
+	itor1->second->send(args.getContext(), args.getSize());
+}
+
 void Harbor::onTime(sl::api::IKernel* pKernel, int64 timetick){
 	startListening(pKernel);
 }

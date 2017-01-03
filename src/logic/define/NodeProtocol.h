@@ -1,0 +1,9 @@
+#ifndef SL_NODE_PROTOCOL_H
+#define SL_NODE_PROTOCOL_H
+enum NodeProtocol{
+	MASTER_MSG_NEW_NODE = 1,
+	MASTER_MSG_NEW_NODE_COMING = 2,
+
+	CLUSTER_MSG_NEW_NODE_COMING = 100,
+};
+#endif

@@ -1,7 +1,7 @@
 #ifndef SL_ARGS_H
 #define SL_ARGS_H
 #include "slmulti_sys.h"
-//#include "sltools.h"
+#include "sltools.h"
 
 enum {
 	ARGS_TYPE_UNKNOWN = 0,
@@ -11,6 +11,7 @@ enum {
 	ARGS_TYPE_INT32,
 	ARGS_TYPE_INT64,
 	ARGS_TYPE_FLOAT,
+	ARGS_TYPE_STRING,
 };
 #pragma pack(push, 1)
 struct arg_info{
@@ -89,6 +90,12 @@ public:
 		return *(float*)(_data + info.offset);
 	}
 
+	const char* getString(const int32 index) const{
+		const arg_info& info = getArgs(index);
+		SLASSERT(info.type == ARGS_TYPE_STRING, "out of range");
+		return _data + info.offset;
+	}
+
 private:
 	const arg_info& getArgs(const int32 index) const{
 		SLASSERT(index < *_count, "out of range");
@@ -116,27 +123,32 @@ public:
 	}
 
 	IArgs& operator << (const bool value){
-		return write(ARGS_TYPE_BOOL, &value, sizeof(value));
+		return write(ARGS_TYPE_BOOL, (const char*)&value, sizeof(value));
 	}
 
 	IArgs& operator << (const int8 value){
-		return write(ARGS_TYPE_INT8, &value, sizeof(value));
+		return write(ARGS_TYPE_INT8, (const char*)&value, sizeof(value));
 	}
 
 	IArgs& operator << (const int16 value){
-		return write(ARGS_TYPE_INT16, &value, sizeof(value));
+		return write(ARGS_TYPE_INT16, (const char*)&value, sizeof(value));
 	}
 
 	IArgs& operator << (const int32 value){
-		return write(ARGS_TYPE_INT32, &value, sizeof(value));
+		return write(ARGS_TYPE_INT32, (const char*)&value, sizeof(value));
 	}
 
 	IArgs& operator << (const int64 value){
-		return write(ARGS_TYPE_INT64, &value, sizeof(value));
+		return write(ARGS_TYPE_INT64, (const char*)&value, sizeof(value));
 	}
 
 	IArgs& operator << (const float value){
-		return write(ARGS_TYPE_FLOAT, &value, sizeof(value));
+		return write(ARGS_TYPE_FLOAT, (const char*)&value, sizeof(value));
+	}
+
+	IArgs& operator << (const char* string){
+		int32 size = strlen(string) + 1;
+		return write(ARGS_TYPE_STRING, string, size);
 	}
 
 	inline OArgs out(){
@@ -144,12 +156,12 @@ public:
 			SLASSERT(false, "must fixed");
 			fix();
 		}
-		return OArgs(_Context, _size);
+		return OArgs(_pContext, _size);
 	}
 
 	inline void fix(){
 		SLASSERT(!_bFixed, "wtf");
-		int32& reserve = *(int32*)((char*)(_header.argsInfo[maxSize - _header.argsCount] - sizeof(int32)));
+		int32& reserve = *(int32*)((const char*)(&_header.argsInfo[maxSize - _header.argsCount]) - sizeof(int32));
 		reserve = _header.argsCount;
 
 		_size = sizeof(int32)+sizeof(arg_info)*_header.argsCount + sizeof(int32)+sizeof(int16)+sizeof(int8)*_header.dataOffset;
