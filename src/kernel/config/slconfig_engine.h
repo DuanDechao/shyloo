@@ -2,14 +2,11 @@
 #define SL_CONFIG_ENGINE_H
 #include "sliconfig_engine.h"
 #include <vector>
+
 namespace sl
 {
 namespace core
 {
-struct sModuleConfig{
-	std::string strModulePath;
-	std::vector<std::string> vctModules;
-};
 class ConfigEngine : public IConfigEngine
 {
 private:
@@ -23,7 +20,9 @@ public:
 	virtual bool initialize();
 	virtual bool destory();
 
-	virtual const char* getEnvirPath() { return nullptr; }
+	const sModuleConfig* getModuleConfig();
+
+	virtual const char* getEnvirPath() { return m_envirPath.c_str(); }
 	virtual const char* getCoreFile() { return m_coreFile.c_str(); }
 	virtual const char* getConfigFile() { return m_moduleFile.c_str(); }
 private:
@@ -34,6 +33,7 @@ private:
 	sModuleConfig	m_stModuleConfig;
 	std::string		m_coreFile;
 	std::string		m_moduleFile;
+	std::string		m_envirPath;
 };
 }
 }

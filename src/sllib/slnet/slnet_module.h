@@ -20,6 +20,7 @@ public:
 	virtual ISLListener* SLAPI createListener();
 	virtual ISLConnector* SLAPI createConnector();
 	virtual bool SLAPI run(int64 overtime);
+	virtual void SLAPI release();
 
 	inline NetworkInterface* getNetworkInterface() {return m_networkInterface;}
 private:

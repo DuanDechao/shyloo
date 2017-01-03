@@ -25,7 +25,7 @@ public:
 	virtual bool killTimer(api::ITimer* pTimer);
 	virtual bool pauseTimer(api::ITimer* pTimer);
 	virtual bool resumeTimer(api::ITimer* pTimer);
-	virtual int64 processing();
+	virtual int64 processing(int64 overTime);
 
 	timer::SLTimerHandler getTimerHander(api::ITimer* pTimer);
 

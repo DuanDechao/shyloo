@@ -5,6 +5,8 @@ namespace sl
 namespace core
 {
 
+
+
 INetEngine* NetEngine::getInstance(){
 	static NetEngine* p = nullptr;
 	if (!p){
@@ -16,6 +18,10 @@ INetEngine* NetEngine::getInstance(){
 		}
 	}
 	return p;
+}
+
+NetEngine::~NetEngine(){
+	m_pSLNetModule->release();
 }
 
 bool NetEngine::initialize()
@@ -42,14 +48,14 @@ bool NetEngine::addTcpServer(sl::api::ITcpServer* server, const char* ip, const 
 	if(nullptr == m_pSLNetModule)
 		return false;
 
-	m_pListener = m_pSLNetModule->createListener();
-	if(nullptr == m_pListener)
+	ISLListener* pListener = m_pSLNetModule->createListener();
+	if (nullptr == pListener)
 		return false;
 
-	m_pListener->setBufferSize(recvSize, sendSize);
-	m_pListener->setPacketParser(NEW NetPacketParser);
-	m_pListener->setSessionFactory(NEW ServerSessionFactory(server));
-	if(!m_pListener->start(ip, port)){
+	pListener->setBufferSize(recvSize, sendSize);
+	pListener->setPacketParser(NEW NetPacketParser);
+	pListener->setSessionFactory(NEW ServerSessionFactory(server));
+	if (!pListener->start(ip, port)){
 		//SLASSERT(false);
 		return false;
 	}
@@ -57,11 +63,29 @@ bool NetEngine::addTcpServer(sl::api::ITcpServer* server, const char* ip, const 
 }
 bool NetEngine::addTcpClient(sl::api::ITcpSession* session, const char* ip, const short port, int sendSize, int recvSize)
 {
+	if (nullptr == m_pSLNetModule)
+		return false;
+
+	ISLConnector* pConnector = m_pSLNetModule->createConnector();
+	if (nullptr == pConnector)
+		return false;
+
+	pConnector->setBufferSize(recvSize, sendSize);
+	pConnector->setPacketParser(NEW NetPacketParser);
+	NetSession* pNetSession = CREATE_POOL_OBJECT(NetSession);
+	SLASSERT(pNetSession, "wtf");
+	pConnector->setSession(pNetSession);
+	if (!pConnector->connect(ip, port)){
+		SLASSERT(false, "connect failed");
+		return false;
+	}
 	return true;
 }
 
 int64 NetEngine::processing(int64 overTime){
+	int64 startTime = sl::getTimeMilliSecond();
 	m_pSLNetModule->run(overTime);
+	return sl::getTimeMilliSecond() - startTime;
 }
 
 }

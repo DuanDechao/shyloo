@@ -96,10 +96,10 @@ bool TimerEngine::resumeTimer(api::ITimer* pTimer)
 	return true;
 }
 
-int64 TimerEngine::processing()
+int64 TimerEngine::processing(int64 overTime)
 {
 	int64 beginTime = getTimeMilliSecond();
-	m_pTimerMgr->process(getTimeMilliSecond());
+	m_pTimerMgr->process(overTime);
 	int64 endTime = getTimeMilliSecond();
 	return endTime - beginTime;
 }

@@ -25,7 +25,24 @@ CSLNetModule::CSLNetModule()
 
 CSLNetModule::~CSLNetModule(){
 	if (nullptr != m_networkInterface)
-		delete m_networkInterface;
+		DEL m_networkInterface;
+	
+	int32 size = m_listenerVec.size();
+	for (int32 i = 0; i < size; i++){
+		if (m_listenerVec[i])
+			DEL m_listenerVec[i];
+	}
+
+	size = m_connectorVec.size();
+	for (int32 i = 0; i < size; i++){
+		if (m_connectorVec[i])
+			DEL m_connectorVec[i];
+	}
+
+}
+
+void CSLNetModule::release(){
+	DEL this;
 }
 
 ISLListener* CSLNetModule::createListener()

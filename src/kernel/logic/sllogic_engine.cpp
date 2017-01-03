@@ -2,6 +2,9 @@
 #include <Windows.h>
 #include "slimodule.h"
 #include "slkernel.h"
+#include "slconfig_engine.h"
+#include "sltools.h"
+
 namespace sl
 {
 namespace core
@@ -31,23 +34,28 @@ bool LogicEngine::ready()
 
 bool LogicEngine::initialize()
 {
-	std::vector<std::string> vecModuleFromConfig;
-	std::vector<std::string>::const_iterator itor = vecModuleFromConfig.begin();
-	std::vector<std::string>::const_iterator iend = vecModuleFromConfig.end();
+	const sModuleConfig* pModuleConfig = ConfigEngine::getInstance()->getModuleConfig();
+	std::vector<std::string>::const_iterator itor = pModuleConfig->vctModules.begin();
+	std::vector<std::string>::const_iterator iend = pModuleConfig->vctModules.end();
 
 	while(itor != iend){
 		char path[512] = {0};
 
 #ifdef SL_OS_LINUX
+		SafeSprintf(path, sizeof(path), "%s/%s/%s.so", sl::getAppPath(), pModuleConfig->strModulePath, (*itor).c_str());
 		//»ñÈ¡dllÂ·¾¶
 		void* handle = dlopen(path, RTLD_LAZY);
+		SLASSERT(handle, "dlopen so %s failed", path);
 
 		GetModuleFun fun = (GetModuleFun) dlsym(handle, "GetLogicModule");
+		SLASSERT(fun, "get function:GetLogicModule error");
 #endif
 
 #ifdef SL_OS_WINDOWS
+		SafeSprintf(path, sizeof(path), "%s/%s/%s.dll", sl::getAppPath(), pModuleConfig->strModulePath, (*itor).c_str());
 		HINSTANCE hinst = ::LoadLibrary(path);
 		api::GetModuleFun fun = (api::GetModuleFun)::GetProcAddress(hinst, NAME_OF_GET_LOGIC_FUN);
+		SLASSERT(fun, "get function:GetLogicModule error");
 #endif // SL_OS_WINDOWS
 
 		if(!fun){

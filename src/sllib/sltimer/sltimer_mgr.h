@@ -33,7 +33,7 @@ public:
 	virtual bool SLAPI killTimer(SLTimerHandler pTimer);
 	virtual void SLAPI pauseTimer(SLTimerHandler pTimer);
 	virtual void SLAPI resumeTimer(SLTimerHandler pTimer);
-	virtual int SLAPI process(uint64 now);
+	virtual int64 SLAPI process(int64 overTime);
 
 public:
 	TimersT();

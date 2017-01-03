@@ -10,7 +10,7 @@ class NetEngine: public INetEngine
 {
 private:
 	NetEngine(){}
-	~NetEngine(){}
+	~NetEngine();
 
 public:
 	static INetEngine* getInstance();
@@ -22,11 +22,10 @@ public:
 	virtual bool addTcpServer(sl::api::ITcpServer* server, const char* ip, const short port, int sendSize, int recvSize);
 	virtual bool addTcpClient(sl::api::ITcpSession* session, const char* ip, const short port, int sendSize, int recvSize);
 
-
 	virtual int64 processing(int64 overTime);
+
 private:
 	network::ISLNet*			m_pSLNetModule;
-	network::ISLListener*		m_pListener;
 };
 }
 }

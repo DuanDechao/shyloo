@@ -92,6 +92,7 @@ public:
 	virtual ISLListener* SLAPI createListener() = 0;
 	virtual ISLConnector* SLAPI createConnector() = 0;
 	virtual bool SLAPI run(int64 overtime) = 0;
+	virtual void SLAPI release() = 0;
 };
 
 ISLNet* SLAPI getSLNetModule(void);

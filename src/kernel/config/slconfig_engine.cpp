@@ -1,8 +1,8 @@
 #include "slkernel.h"
 #include "slconfig_engine.h"
 #include "slmulti_sys.h"
-#include "sltools.h"
 #include "slxml_reader.h"
+#include "sltools.h"
 
 namespace sl
 {
@@ -23,6 +23,17 @@ IConfigEngine* ConfigEngine::getInstance(){
 bool ConfigEngine::initialize()
 {
 	return true;	
+}
+
+bool ConfigEngine::ready()
+{
+	return true;
+}
+
+bool ConfigEngine::destory()
+{
+	DEL this;
+	return true;
 }
 
 bool ConfigEngine::loadCoreConfig(){
@@ -53,6 +64,10 @@ bool ConfigEngine::loadModuleConfig()
 		m_stModuleConfig.vctModules.push_back(modules[i].getAttributeString("name"));
 	}
 	return true;
+}
+
+const sModuleConfig* ConfigEngine::getModuleConfig(){
+	return &m_stModuleConfig;
 }
 
 }

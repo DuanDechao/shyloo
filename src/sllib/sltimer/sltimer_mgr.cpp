@@ -155,9 +155,10 @@ void TimersT::purgeCanelledTimes()
 	m_TimeQueue.makeHeap();
 }
 
-int TimersT::process(uint64 now)
+int64 TimersT::process(int64 overTime)
 {
 	int numFired = 0;
+	uint64 now = sl::getTimeMilliSecond();
 	while(!(m_TimeQueue.empty()) && 
 		(m_TimeQueue.top()->getExpireTime() <= now || m_TimeQueue.top()->isDestoryed()))
 	{
