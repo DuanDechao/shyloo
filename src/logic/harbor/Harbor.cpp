@@ -107,11 +107,11 @@ void Harbor::startListening(sl::api::IKernel* pKernel){
 	if (!m_port)
 		return;
 
-	if (pKernel->startTcpServer(m_pServer, "127.0.0.1", m_port, m_sendSize, m_recvSize)){
-		ECHO_TRACE("start server[%s:%d] success", "127.0.0.1", m_port);
+	if (pKernel->startTcpServer(m_pServer, "0.0.0.0", m_port, m_sendSize, m_recvSize)){
+		ECHO_TRACE("start server[%s:%d] success", "0.0.0.0", m_port);
 	}
 	else{
-		ECHO_TRACE("start server[%s:%d] failed", "127.0.0.1", m_port);
+		ECHO_TRACE("start server[%s:%d] failed", "0.0.0.0", m_port);
 	}
 }
 

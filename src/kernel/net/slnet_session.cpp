@@ -7,11 +7,12 @@ namespace core
 int32 NetPacketParser::parsePacket(const char* pDataBuf, int32 len){
 	if (!pDataBuf)
 		return -1;
-
+	
 	if (len < 2 * sizeof(int32))
 		return 0;
 
 	int32 dwLen = *(int32*)(pDataBuf + sizeof(int32));
+	ECHO_TRACE("%d : %d", dwLen, len);
 	if (len >= dwLen)
 		return dwLen;
 	else
