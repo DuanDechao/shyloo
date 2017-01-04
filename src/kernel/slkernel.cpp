@@ -67,6 +67,10 @@ const char* Kernel::getCoreFile(){
 	return ConfigEngine::getInstance()->getCoreFile();
 }
 
+const char* Kernel::getConfigFile(){
+	return ConfigEngine::getInstance()->getConfigFile();
+}
+
 bool Kernel::startTcpServer(api::ITcpServer * server, const char* ip, const int32 port, int32 sendSize, int32 recvSize){
 	return NetEngine::getInstance()->addTcpServer(server, ip, port, sendSize, recvSize);
 }

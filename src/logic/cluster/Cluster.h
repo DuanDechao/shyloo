@@ -4,7 +4,7 @@
 #include "slmulti_sys.h"
 #include "IHarbor.h"
 #include <set>
-class Cluster : public sl::api::IModule, public INodeListener
+class Cluster : public sl::api::IModule
 {
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);

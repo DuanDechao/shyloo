@@ -18,7 +18,7 @@ class IHarbor : public sl::api::IModule
 public:
 	virtual ~IHarbor() {}
 	virtual void addNodeListener(INodeListener* pNodeListener) = 0;
-	virtual void send(int32 nodeType, int32 nodeId, int32 messageId, OArgs& args) = 0;
+	virtual void send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& args) = 0;
 	virtual void rgsNodeMessageHandler(int32 messageId, node_args_cb handler) = 0;
 	virtual void connect(const char* ip, const int32 port) = 0;
 	virtual int32 getNodeType() const = 0;

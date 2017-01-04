@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <modules path="./">
-	<module name="ds">
-	<module name="quzi">
+	<module name="Harbor">
 </modules>

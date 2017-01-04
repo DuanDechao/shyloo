@@ -1,19 +1,55 @@
 #include "Harbor.h"
+#include "slxml_reader.h"
+
 
 sl::api::ITcpSession* NodeSessionServer::mallocTcpSession(sl::api::IKernel* pKernel){
 	return CREATE_POOL_OBJECT(NodeSession, m_pHarbor);
 }
 
 bool Harbor::initialize(sl::api::IKernel * pKernel){
+	m_pKernel = pKernel;
 	return true;
 }
 
 bool Harbor::launched(sl::api::IKernel * pKernel){
+	XmlReader server_conf;
+	if (!server_conf.loadXml(pKernel->getCoreFile())){
+		SLASSERT(false, "can not load core file %s", pKernel->getCoreFile());
+		return false;
+	}
+	m_sendSize = server_conf.root()["harbor"][0].getAttributeInt32("send");
+	m_recvSize = server_conf.root()["harbor"][0].getAttributeInt32("recv");
+
+	XmlReader conf;
+	if (!conf.loadXml(pKernel->getConfigFile())){
+		SLASSERT(false, "can not load config file %s", pKernel->getConfigFile());
+		return false;
+	}
+	m_nodeType = conf.root()["harbor"][0].getAttributeInt32("type");
+	m_nodeId = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("node_id"));
+	
+	if (pKernel->getCmdArg("harbor"))
+		m_port = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("harbor"));
+	else
+		m_port = 0;
+
+	m_pServer = NEW NodeSessionServer(this);
+	if (!m_pServer){
+		SLASSERT(false, "wtf");
+		return false;
+	}
+
 	START_TIMER(this, 0, 1, 500);
 	return true; 
 }
 
 bool Harbor::destory(sl::api::IKernel * pKernel){
+	if (m_pServer)
+		DEL m_pServer;
+	m_pServer = nullptr;
+
+	DEL this;
+
 	return true;
 }
 
@@ -24,6 +60,7 @@ void Harbor::onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId,
 	for (auto& listener : m_listenerPool){
 		listener->onOpen(pKernel, nodeType, nodeId, ip, nodePort);
 	}
+	ECHO_TRACE("node[%s:%d] opened", pKernel->getCmdArg("name"), m_nodeId);
 }
 
 void Harbor::onNodeClose(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId){
@@ -58,6 +95,7 @@ void Harbor::connect(const char* ip, const int32 port){
 	pSession->setConnect(ip, port);
 	if (!m_pKernel->startTcpClient(pSession, ip, port, m_sendSize, m_recvSize)){
 		START_TIMER(pSession, 0, TIMER_BEAT_FOREVER, RECONNECT_INTERVAL);
+		ECHO_TRACE("connect [%s:%d] failed!", ip, port);
 	}
 }
 
@@ -66,8 +104,15 @@ void Harbor::rgsNodeMessageHandler(int32 messageId, node_args_cb handler){
 }
 
 void Harbor::startListening(sl::api::IKernel* pKernel){
-	if (m_port)
-		pKernel->startTcpServer(m_pServer, "0.0.0.0", m_port, m_sendSize, m_recvSize);
+	if (!m_port)
+		return;
+
+	if (pKernel->startTcpServer(m_pServer, "127.0.0.1", m_port, m_sendSize, m_recvSize)){
+		ECHO_TRACE("start server[%s:%d] success", "127.0.0.1", m_port);
+	}
+	else{
+		ECHO_TRACE("start server[%s:%d] failed", "127.0.0.1", m_port);
+	}
 }
 
 void Harbor::send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& args){

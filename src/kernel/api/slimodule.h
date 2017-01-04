@@ -64,6 +64,7 @@ typedef IModule * (*GetModuleFun)(void);
 		{    \
 			IModule* pModule##name = new name;	\
 			pModule = pModule##name;	\
+			pModule->setName(#name);	\
 		}	\
 	};	\
 	factory##name factory##name(plogicModule);

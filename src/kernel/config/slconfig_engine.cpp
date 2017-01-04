@@ -22,7 +22,7 @@ IConfigEngine* ConfigEngine::getInstance(){
 }
 bool ConfigEngine::initialize()
 {
-	return true;	
+	return loadModuleConfig() && loadCoreConfig();
 }
 
 bool ConfigEngine::ready()

@@ -5,13 +5,25 @@ namespace sl
 namespace core
 {
 int32 NetPacketParser::parsePacket(const char* pDataBuf, int32 len){
-	return 0;
+	if (!pDataBuf)
+		return -1;
+
+	if (len < 2 * sizeof(int32))
+		return 0;
+
+	int32 dwLen = *(int32*)(pDataBuf + sizeof(int32));
+	if (len >= dwLen)
+		return dwLen;
+	else
+		return 0;
 }
 
 NetSession::NetSession(ITcpSession* pTcpSession)
 	:m_pTcpSession(pTcpSession),
 	 m_pChannel(NULL)
-{}
+{
+	m_pTcpSession->m_pPipe = this;
+}
 
 NetSession::~NetSession()
 {
@@ -64,7 +76,7 @@ ISLSession* ServerSessionFactory::createSession(ISLChannel* poChannel)
 		SLASSERT(false, "wtf");
 		return NULL;
 	}
-	NetSession* pNetSession = CREATE_POOL_OBJECT(NetSession);
+	NetSession* pNetSession = CREATE_POOL_OBJECT(NetSession, pTcpSession);
 	if(NULL == pNetSession)
 	{
 		SLASSERT(false, "wtf");

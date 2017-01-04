@@ -11,6 +11,7 @@ SET(STARTER
 	"${PROJECT_SOURCE_DIR}/src/logic/starter/Starter.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/starter/StartNodeTimer.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/starter/StartNodeTimer.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/starter/main.cpp"
 )
 
 SOURCE_GROUP(api FILES ${SL_KERNEL_API})
@@ -19,7 +20,7 @@ SOURCE_GROUP(interface FILES ${SL_LOGIC_INTERFACE})
 SOURCE_GROUP(define FILES ${SL_LOGIC_DEFINE})
 SOURCE_GROUP(\\ FILES ${STARTER})
 
-ADD_LIBRARY(starter SHARED
+ADD_LIBRARY(Starter SHARED
 	${STARTER}
 	${SL_KERNEL_API}
 	${PUBLIC}
@@ -27,9 +28,9 @@ ADD_LIBRARY(starter SHARED
 	${SL_LOGIC_DEFINE}
 )
 
-TARGET_LINK_LIBRARIES(starter
+TARGET_LINK_LIBRARIES(Starter
 	${SL_LIB_DEBUG}
 	${SL_LIB_RELEASE}
 )
 
-SET_PROPERTY(TARGET starter PROPERTY FOLDER "core")
+SET_PROPERTY(TARGET Starter PROPERTY FOLDER "core")

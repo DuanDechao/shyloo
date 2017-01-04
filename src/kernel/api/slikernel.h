@@ -104,6 +104,7 @@ public:
 	virtual const char* getCmdArg(const char* name) = 0;
 
 	virtual const char* getCoreFile() = 0;
+	virtual const char* getConfigFile() = 0;
 	
 };
 }

@@ -20,6 +20,7 @@ public:
 	virtual bool destory(sl::api::IKernel * pKernel);
 
 	virtual void onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* ip, const int32 port);
+	virtual void onClose(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId);
 	void sendNewNode(const int32 nodeType, const int32 nodeId, const int32 newNodeType, const int32 newNodeId, const char* ip, const int32 port);
 
 private:

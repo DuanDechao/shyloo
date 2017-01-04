@@ -10,7 +10,7 @@ bool Cluster::initialize(sl::api::IKernel * pKernel){
 }
 
 bool Cluster::launched(sl::api::IKernel * pKernel){
-	s_harbor = (IHarbor*)pKernel->findModule("harbor");
+	s_harbor = (IHarbor*)pKernel->findModule("Harbor");
 	SLASSERT(s_harbor, "not find module harbor");
 	if (s_harbor->getNodeType() != NodeType::MASTER){
 		s_harbor->rgsNodeMessageHandler(NodeProtocol::MASTER_MSG_NEW_NODE, Cluster::newNodeComing);

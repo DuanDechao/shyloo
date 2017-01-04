@@ -19,6 +19,7 @@ class IConfigEngine: public ICore
 {
 public:
 	virtual const sModuleConfig* getModuleConfig() = 0;
+	virtual const sCoreConfig* getCoreConfig() = 0;
 
 	virtual const char* getEnvirPath() = 0;
 	virtual const char* getCoreFile() = 0;

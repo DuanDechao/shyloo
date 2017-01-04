@@ -6,7 +6,7 @@ namespace sl
 {
 namespace network
 {
-
+static bool g_networkInitted = false;
 bool EndPoint::getClosedPort(network::Address& closedPort)
 {
 	bool isResultSet = false;
@@ -179,6 +179,15 @@ network::Address EndPoint::getremoteAddress() const
 
 void EndPoint::initNetwork()
 {
+	if (g_networkInitted)
+		return;
+
+	g_networkInitted = true;
+
+#ifdef SL_OS_WINDOWS
+	WSAData wsdata;
+	WSAStartup(0x202, &wsdata);
+#endif 
 }
 
 bool EndPoint::waitSend()

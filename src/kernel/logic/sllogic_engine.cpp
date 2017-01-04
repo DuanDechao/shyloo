@@ -39,7 +39,7 @@ bool LogicEngine::initialize()
 	std::vector<std::string>::const_iterator iend = pModuleConfig->vctModules.end();
 
 	while(itor != iend){
-		char path[512] = {0};
+		char path[1024] = {0};
 
 #ifdef SL_OS_LINUX
 		SafeSprintf(path, sizeof(path), "%s/%s/%s.so", sl::getAppPath(), pModuleConfig->strModulePath, (*itor).c_str());
@@ -52,7 +52,7 @@ bool LogicEngine::initialize()
 #endif
 
 #ifdef SL_OS_WINDOWS
-		SafeSprintf(path, sizeof(path), "%s/%s/%s.dll", sl::getAppPath(), pModuleConfig->strModulePath, (*itor).c_str());
+		SafeSprintf(path, sizeof(path), "%s/%s/%s.dll", sl::getAppPath(), pModuleConfig->strModulePath.c_str(), (*itor).c_str());
 		HINSTANCE hinst = ::LoadLibrary(path);
 		api::GetModuleFun fun = (api::GetModuleFun)::GetProcAddress(hinst, NAME_OF_GET_LOGIC_FUN);
 		SLASSERT(fun, "get function:GetLogicModule error");

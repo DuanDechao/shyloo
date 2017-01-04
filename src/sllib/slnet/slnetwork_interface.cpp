@@ -58,8 +58,7 @@ bool NetworkInterface::createListeningSocket(const char* listeningInterface, uin
 	address.m_port = 0;
 
 	pEP->socket(SOCK_STREAM);
-	if(!pEP->good())
-	{
+	if (!pEP->good()){
 		return false;
 	}
 

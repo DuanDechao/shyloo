@@ -82,6 +82,7 @@ public:
 
 	void rgsNodeMessageHandler(int32 messageId, node_args_cb handler);
 	void startListening(sl::api::IKernel* pKernel);
+
 private:
 	sl::api::IKernel*	m_pKernel;
 	NodeSessionServer*	m_pServer;

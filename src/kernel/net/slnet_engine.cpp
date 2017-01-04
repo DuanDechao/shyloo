@@ -4,9 +4,6 @@ namespace sl
 {
 namespace core
 {
-
-
-
 INetEngine* NetEngine::getInstance(){
 	static NetEngine* p = nullptr;
 	if (!p){
@@ -72,11 +69,11 @@ bool NetEngine::addTcpClient(sl::api::ITcpSession* session, const char* ip, cons
 
 	pConnector->setBufferSize(recvSize, sendSize);
 	pConnector->setPacketParser(NEW NetPacketParser);
-	NetSession* pNetSession = CREATE_POOL_OBJECT(NetSession);
+	NetSession* pNetSession = CREATE_POOL_OBJECT(NetSession, session);
 	SLASSERT(pNetSession, "wtf");
 	pConnector->setSession(pNetSession);
 	if (!pConnector->connect(ip, port)){
-		SLASSERT(false, "connect failed");
+		//SLASSERT(false, "connect failed");
 		return false;
 	}
 	return true;

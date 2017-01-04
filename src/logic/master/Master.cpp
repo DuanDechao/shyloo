@@ -12,7 +12,7 @@ bool Master::initialize(sl::api::IKernel * pKernel){
 }
 
 bool Master::launched(sl::api::IKernel * pKernel){
-	s_harbor = (IHarbor*)pKernel->findModule("harbor");
+	s_harbor = (IHarbor*)pKernel->findModule("Harbor");
 	SLASSERT(s_harbor, "not find module harbor");
 	s_harbor->addNodeListener(this);
 
@@ -58,6 +58,10 @@ void Master::onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32
 			sendNewNode(nodeType, nodeId, itor->second.nodeType, itor->second.nodeId, itor->second.ip, itor->second.port);
 		}
 	}
+}
+
+void Master::onClose(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId){
+
 }
 
 void Master::sendNewNode(const int32 nodeType, const int32 nodeId, const int32 newNodeType, const int32 newNodeId, const char* ip, const int32 port){

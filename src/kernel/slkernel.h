@@ -34,8 +34,8 @@ public:
 	void loop();
 
 	const char* getCmdArg(const char* name);
-
 	const char* getCoreFile();
+	const char* getConfigFile();
 
 public:
 	Kernel(){}
