@@ -12,7 +12,7 @@ Starter* Starter::s_self = nullptr;
 sl::api::IKernel* Starter::s_kernel = nullptr;
 IHarbor* Starter::s_harbor = nullptr;
 std::unordered_map<int32, Starter::Execute> Starter::s_executes;
-std::unordered_map<int32, Starter::Node> Starter::s_nodes;
+std::unordered_map<int32, Starter::NodeGroup> Starter::s_nodes;
 int64 Starter::s_checkInterval = 0;
 int64 Starter::s_deadTime = 0;
 
@@ -40,14 +40,15 @@ bool Starter::launched(sl::api::IKernel * pKernel)
 	s_deadTime = starter.getAttributeInt64("dead");
 	const sl::xml::ISLXmlNode& nodes = server_conf.root()["starter"][0]["node"];
 	for (int32 i = 0; i < nodes.count(); i++){
-		int32 type = nodes[i].getAttributeInt32("type");
-		s_executes[type].min = nodes[i].getAttributeInt32("min");
-		s_executes[type].max = nodes[i].getAttributeInt32("max");
-		s_executes[type].type = type;
-		SafeSprintf(s_executes[type].name, sizeof(s_executes[type].name), nodes[i].getAttributeString("name"));
-		sl::api::ITimer* startNodeTimer = CREATE_POOL_OBJECT(StartNodeTimer, type);
-		SLASSERT(startNodeTimer, "wtf");
-		START_TIMER(startNodeTimer, 0, TIMER_BEAT_FOREVER, s_checkInterval);
+		Execute info;
+		info.type = nodes[i].getAttributeInt32("type");
+		info.min = nodes[i].getAttributeInt32("min");
+		info.max = nodes[i].getAttributeInt32("max");
+		info.delay = nodes[i].getAttributeInt32("delay");
+		info.timer = StartNodeTimer::create(info.type);
+		s_executes[info.type] = info;
+		SLASSERT(info.timer, "wtf");
+		START_TIMER(info.timer, 0, TIMER_BEAT_FOREVER, s_checkInterval);
 	}
 	return true;
 }
@@ -58,35 +59,60 @@ bool Starter::destory(sl::api::IKernel * pKernel)
 	return true;
 }
 
-void Starter::startTimerInit(sl::api::IKernel * pKernel, int32 type){
+void Starter::onNodeTimerStart(sl::api::IKernel * pKernel, int32 type, int64 tick){
 	auto itor = s_executes.find(type);
 	if (itor == s_executes.end()){
 		SLASSERT(false, "wtf");
 		return;
 	}
+
 	for (int32 i = 1; i < itor->second.min; i++){
-		s_self->startNewNode(type, i, 1);
+		s_self->startNode(pKernel, type, i);
 	}
-	s_nodes[type].closeTick = 0;
 	s_nodes[type].max = itor->second.min;
-	s_nodes[type].online = false;
 }
 
-void Starter::startTimerOnTime(sl::api::IKernel * pKernel, int32 type){
+void Starter::onNodeTimer(sl::api::IKernel * pKernel, int32 type, int64 tick){
 
+}
+
+void Starter::onNodeTimerEnd(sl::api::IKernel * pKernel, int32 type, int64 tick){
+	if (s_executes.find(type) == s_executes.end())
+		return;
+
+	if (s_executes[type].timer == nullptr){
+		SLASSERT(false, "execute no timer");
+		return;
+	}
+	s_executes[type].timer->release();
+	s_executes[type].timer = nullptr;
 }
 
 void Starter::onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* ip, const int32 port){
+	if (nodeType == NodeType::SLAVE){
+		return;
+	}
 
+	if (s_executes.find(nodeType) == s_executes.end()){
+		return;
+	}
+
+	s_nodes[nodeType].nodes[nodeId].online = true;
+	s_nodes[nodeType].nodes[nodeId].closeTick = 0;
 }
 
 void Starter::onClose(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId){
+	if (nodeType == NodeType::SLAVE){
+		return;
+	}
 
+	s_nodes[nodeType].nodes[nodeId].online = false;
+	s_nodes[nodeType].nodes[nodeId].closeTick = sl::getTimeMilliSecond();
 }
 
-void Starter::startNewNode(int32 nodeType, int32 nodeId, int32 slave){
+void Starter::startNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId){
 	IArgs<2, 128> args;
 	args << nodeType << nodeId;
 	args.fix();
-	s_harbor->send(NodeType::SLAVE, slave, NodeProtocol::MASTER_MSG_NEW_NODE, args.out());
+	s_harbor->send(NodeType::SLAVE, 1, NodeProtocol::MASTER_MSG_START_NODE, args.out());
 }

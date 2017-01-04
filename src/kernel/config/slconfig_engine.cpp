@@ -37,9 +37,31 @@ bool ConfigEngine::destory()
 }
 
 bool ConfigEngine::loadCoreConfig(){
+	const char* name = Kernel::getInstance()->getCmdArg("name");
+	SLASSERT(name, "invalid command args, there is no name");
+
 	char path[MAX_PATH];
 	SafeSprintf(path, sizeof(path), "%s/core/server_conf.xml", sl::getAppPath());
 	m_coreFile = path;
+
+	XmlReader server_conf;
+	if (!server_conf.loadXml(path)){
+		SLASSERT(false, "not find core file %s", path);
+		return false;
+	}
+	m_envirPath = server_conf.root()["envir"][0].getAttributeString("path");
+	m_envirPath += "/";
+
+	SafeSprintf(path, sizeof(path), "%s/core/%s/conf.xml", sl::getAppPath(), name);
+
+	XmlReader conf;
+	if (!conf.loadXml(path)){
+		SLASSERT(false, "can not load module core file %s", path);
+		return false;
+	}
+
+	m_configFile = path;
+
 	return true;
 }
 
@@ -50,7 +72,6 @@ bool ConfigEngine::loadModuleConfig()
 
 	char path[MAX_PATH];
 	SafeSprintf(path, sizeof(path), "%s/core/%s/module.xml", sl::getAppPath(), moduleName);
-	m_moduleFile = path;
 
 	sl::XmlReader reader;
 	if (!reader.loadXml(path)){
@@ -69,6 +90,11 @@ bool ConfigEngine::loadModuleConfig()
 const sModuleConfig* ConfigEngine::getModuleConfig(){
 	return &m_stModuleConfig;
 }
+
+const sCoreConfig* ConfigEngine::getCoreConfig(){
+	return &m_stCoreConfig;
+}
+
 
 }
 }

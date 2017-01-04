@@ -10,6 +10,10 @@ public:
 	StartNodeTimer(){}
 	StartNodeTimer(int32 type) :m_type(type){}
 
+	static StartNodeTimer* create(int32 type);
+
+	void release();
+
 	virtual void onInit(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick);
 	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick);

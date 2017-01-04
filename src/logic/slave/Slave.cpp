@@ -28,7 +28,7 @@ bool Slave::initialize(sl::api::IKernel * pKernel){
 bool Slave::launched(sl::api::IKernel * pKernel){
 	s_harbor = (IHarbor*)pKernel->findModule("Harbor");
 	SLASSERT(s_harbor, "not find module harbor");
-	s_harbor->rgsNodeMessageHandler(NodeProtocol::MASTER_MSG_NEW_NODE, Slave::openNewNode);
+	s_harbor->rgsNodeMessageHandler(NodeProtocol::MASTER_MSG_START_NODE, Slave::openNewNode);
 
 	sl::XmlReader server_conf;
 	if (!server_conf.loadXml(pKernel->getCoreFile())){

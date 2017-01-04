@@ -6,6 +6,10 @@ namespace sl
 {
 namespace core
 {
+struct sCoreConfig{
+
+};
+
 struct sModuleConfig{
 	std::string strModulePath;
 	std::vector<std::string> vctModules;

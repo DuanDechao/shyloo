@@ -21,18 +21,20 @@ public:
 	virtual bool destory();
 
 	const sModuleConfig* getModuleConfig();
+	const sCoreConfig* getCoreConfig();
 
 	virtual const char* getEnvirPath() { return m_envirPath.c_str(); }
 	virtual const char* getCoreFile() { return m_coreFile.c_str(); }
-	virtual const char* getConfigFile() { return m_moduleFile.c_str(); }
+	virtual const char* getConfigFile() { return m_configFile.c_str(); }
 private:
 	bool loadModuleConfig();
 	bool loadCoreConfig();
 
 private:
 	sModuleConfig	m_stModuleConfig;
+	sCoreConfig		m_stCoreConfig;
 	std::string		m_coreFile;
-	std::string		m_moduleFile;
+	std::string		m_configFile;
 	std::string		m_envirPath;
 };
 }

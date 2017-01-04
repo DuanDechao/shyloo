@@ -3,6 +3,7 @@
 #include "slimodule.h"
 #include "slmulti_sys.h"
 #include "IHarbor.h"
+#include <set>
 class Cluster : public sl::api::IModule, public INodeListener
 {
 public:
@@ -14,5 +15,6 @@ public:
 
 private:
 	static IHarbor* s_harbor;
+	static std::set<int64> s_openNodes;
 };
 #endif

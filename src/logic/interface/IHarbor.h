@@ -22,5 +22,6 @@ public:
 	virtual void rgsNodeMessageHandler(int32 messageId, node_args_cb handler) = 0;
 	virtual void connect(const char* ip, const int32 port) = 0;
 	virtual int32 getNodeType() const = 0;
+	virtual int32 getNodeId() const = 0;
 };
 #endif
