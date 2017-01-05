@@ -52,8 +52,9 @@ void Kernel::loop() {
 	while(!m_bShutDown){
 		int64 startTick = sl::getTimeMilliSecond();
 		int64 netTick = NetEngine::getInstance()->processing(0);
-		int64 timerTick = TimerEngine::getInstance()->processing(0);
+		int64 timerTick = TimerEngine::getInstance()->processing(10);
 	}
+	Sleep(1);
 }
 
 const char* Kernel::getCmdArg(const char* name){

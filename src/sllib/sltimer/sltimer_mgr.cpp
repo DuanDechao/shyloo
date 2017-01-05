@@ -157,11 +157,15 @@ void TimersT::purgeCanelledTimes()
 
 int64 TimersT::process(int64 overTime)
 {
+	int64 tick = sl::getTimeMilliSecond();
 	int numFired = 0;
-	uint64 now = sl::getTimeMilliSecond();
+	TimeStamp now = TimeStamp::fromMilliSeconds(sl::getTimeMilliSecond());
 	while(!(m_TimeQueue.empty()) && 
 		(m_TimeQueue.top()->getExpireTime() <= now || m_TimeQueue.top()->isDestoryed()))
 	{
+		if (sl::getTimeMilliSecond() - tick > overTime)
+			break;
+
 		CSLTimerBase* pTimer = m_pProcessingNode = m_TimeQueue.top();
 		m_TimeQueue.pop();
 

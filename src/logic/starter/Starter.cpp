@@ -66,7 +66,7 @@ void Starter::onNodeTimerStart(sl::api::IKernel * pKernel, int32 type, int64 tic
 		return;
 	}
 
-	for (int32 i = 1; i < itor->second.min; i++){
+	for (int32 i = 1; i <= itor->second.min; i++){
 		s_self->startNode(pKernel, type, i);
 	}
 	s_nodes[type].max = itor->second.min;

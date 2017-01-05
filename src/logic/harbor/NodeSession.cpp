@@ -48,7 +48,7 @@ void NodeSession::onConnected(sl::api::IKernel* pKernel){
 	report->nodeType = m_pHarbor->getNodeType();
 	report->nodeId = m_pHarbor->getNodeId();
 	report->port = m_pHarbor->getPort();
-
+	
 	send(buf, sizeof(buf));
 }
 

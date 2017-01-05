@@ -4,7 +4,7 @@
 #include "slikernel.h"
 #include "NodeSession.h"
 #include <unordered_map>
-
+#include <string>
 class Harbor;
 class NodeSessionServer : public sl::api::ITcpServer
 {
@@ -93,6 +93,7 @@ private:
 	int32				m_sendSize;
 	std::unordered_map<int32, std::unordered_map<int32, NodeSession*>> m_allNode;
 	std::unordered_map<int32, std::list<INodeMessageHandler *>> m_allCBPool;
+	std::unordered_map<int32, std::string> m_nodeNames;
 	std::list<INodeListener*>	m_listenerPool;
 
 };

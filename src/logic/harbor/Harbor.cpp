@@ -19,6 +19,11 @@ bool Harbor::launched(sl::api::IKernel * pKernel){
 	}
 	m_sendSize = server_conf.root()["harbor"][0].getAttributeInt32("send");
 	m_recvSize = server_conf.root()["harbor"][0].getAttributeInt32("recv");
+	const sl::xml::ISLXmlNode& nodes = server_conf.root()["harbor"][0]["node"];
+	for (int32 i = 0; i < nodes.count(); i++){
+		int32 type = nodes[i].getAttributeInt32("type");
+		m_nodeNames[type] = nodes[i].getAttributeString("name");
+	}
 
 	XmlReader conf;
 	if (!conf.loadXml(pKernel->getConfigFile())){
@@ -60,7 +65,7 @@ void Harbor::onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId,
 	for (auto& listener : m_listenerPool){
 		listener->onOpen(pKernel, nodeType, nodeId, ip, nodePort);
 	}
-	ECHO_TRACE("node[%s:%d] opened", pKernel->getCmdArg("name"), m_nodeId);
+	ECHO_TRACE("node[%s:%d] opened", m_nodeNames[nodeType].c_str(), m_nodeId);
 }
 
 void Harbor::onNodeClose(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId){
@@ -96,6 +101,9 @@ void Harbor::connect(const char* ip, const int32 port){
 	if (!m_pKernel->startTcpClient(pSession, ip, port, m_sendSize, m_recvSize)){
 		START_TIMER(pSession, 0, TIMER_BEAT_FOREVER, RECONNECT_INTERVAL);
 		ECHO_TRACE("connect [%s:%d] failed!", ip, port);
+	}
+	else{
+		ECHO_TRACE("connect [%s:%d] success!", ip, port);
 	}
 }
 

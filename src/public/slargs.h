@@ -116,7 +116,7 @@ template<int32 maxCount, int32 maxSize>
 class IArgs
 {
 public:
-	IArgs() :_pContext(nullptr), _size(0){
+	IArgs() :_pContext(nullptr), _size(0),_bFixed(false){
 		_header.reserve = 0;
 		_header.argsCount = 0;
 		_header.dataOffset = 0;
@@ -161,6 +161,7 @@ public:
 
 	inline void fix(){
 		SLASSERT(!_bFixed, "wtf");
+		_bFixed = true;
 		int32& reserve = *(int32*)((const char*)(&_header.argsInfo[maxSize - _header.argsCount]) - sizeof(int32));
 		reserve = _header.argsCount;
 
