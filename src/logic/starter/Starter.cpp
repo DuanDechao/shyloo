@@ -48,7 +48,7 @@ bool Starter::launched(sl::api::IKernel * pKernel)
 		info.timer = StartNodeTimer::create(info.type);
 		s_executes[info.type] = info;
 		SLASSERT(info.timer, "wtf");
-		START_TIMER(info.timer, 0, TIMER_BEAT_FOREVER, s_checkInterval);
+		START_TIMER(info.timer, info.delay, TIMER_BEAT_FOREVER, s_checkInterval);
 	}
 	return true;
 }
@@ -115,4 +115,5 @@ void Starter::startNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId)
 	args << nodeType << nodeId;
 	args.fix();
 	s_harbor->send(NodeType::SLAVE, 1, NodeProtocol::MASTER_MSG_START_NODE, args.out());
+	ECHO_TRACE("start new Node %d %d", nodeType, nodeId);
 }

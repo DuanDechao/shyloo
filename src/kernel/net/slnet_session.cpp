@@ -12,6 +12,7 @@ int32 NetPacketParser::parsePacket(const char* pDataBuf, int32 len){
 		return 0;
 
 	int32 dwLen = *(int32*)(pDataBuf + sizeof(int32));
+	ECHO_TRACE("recv len %d %d", len, dwLen);
 	if (len >= dwLen)
 		return dwLen;
 	else

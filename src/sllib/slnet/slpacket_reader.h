@@ -34,6 +34,7 @@ protected:
 protected:
 	MemoryStream*			m_pFragmentStream;
 	uint32					m_pFragmentStreamLength;
+	uint32					m_lastFragmentStreamLength;
 	Channel*				m_pChannel;
 	ISLPacketParser*		m_pPacketParser;
 };

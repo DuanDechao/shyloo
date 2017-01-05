@@ -39,7 +39,7 @@ public:
 		else{
 			SLASSERT(_size > (int32)(sizeof(int32)+sizeof(arg_info)*(*_count) + sizeof(int32)+sizeof(int16)), "invlaild args num");
 		}
-		_args = (arg_info *)((char*)_context + sizeof(int32));
+		_args = (arg_info *)(((const char*)pContext) + sizeof(int32));
 		_data = (const char*)((char*)pContext + sizeof(int32)+sizeof(arg_info)* (*_count) + sizeof(int32)+sizeof(int16));
 		_dataSize = _size - (sizeof(int32)+sizeof(arg_info)*(*_count) + sizeof(int32)+sizeof(int16));
 	}
@@ -56,37 +56,37 @@ public:
 
 	bool getBool(const int32 index) const{
 		const arg_info& info = getArgs(index);
-		SLASSERT(info.type == ARGS_TYPE_BOOL && info.offset + (int16)sizeof(bool) < _dataSize, "out of range");
+		SLASSERT(info.type == ARGS_TYPE_BOOL && info.offset + (int16)sizeof(bool) <= _dataSize, "out of range");
 		return *(bool*)(_data + info.offset);
 	}
 
 	int8 getInt8(const int32 index) const{
 		const arg_info& info = getArgs(index);
-		SLASSERT(info.type == ARGS_TYPE_INT8 && info.offset + (int16)sizeof(int8) < _dataSize, "out of range");
+		SLASSERT(info.type == ARGS_TYPE_INT8 && info.offset + (int16)sizeof(int8) <= _dataSize, "out of range");
 		return *(int8*)(_data + info.offset);
 	}
 
 	int16 getInt16(const int32 index) const{
 		const arg_info& info = getArgs(index);
-		SLASSERT(info.type == ARGS_TYPE_INT16 && info.offset + (int16)sizeof(int16) < _dataSize, "out of range");
+		SLASSERT(info.type == ARGS_TYPE_INT16 && info.offset + (int16)sizeof(int16) <= _dataSize, "out of range");
 		return *(int16*)(_data + info.offset);
 	}
 
 	int32 getInt32(const int32 index) const{
 		const arg_info& info = getArgs(index);
-		SLASSERT(info.type == ARGS_TYPE_INT32 && info.offset + (int16)sizeof(int32) < _dataSize, "out of range");
+		SLASSERT(info.type == ARGS_TYPE_INT32 && info.offset + (int16)sizeof(int32) <= _dataSize, "out of range");
 		return *(int32*)(_data + info.offset);
 	}
 
 	int64 getInt64(const int32 index) const{
 		const arg_info& info = getArgs(index);
-		SLASSERT(info.type == ARGS_TYPE_INT64 && info.offset + (int16)sizeof(int64) < _dataSize, "out of range");
+		SLASSERT(info.type == ARGS_TYPE_INT64 && info.offset + (int16)sizeof(int64) <= _dataSize, "out of range");
 		return *(int64*)(_data + info.offset);
 	}
 
 	float getFloat(const int32 index) const{
 		const arg_info& info = getArgs(index);
-		SLASSERT(info.type == ARGS_TYPE_FLOAT && info.offset + (int16)sizeof(float) < _dataSize, "out of range");
+		SLASSERT(info.type == ARGS_TYPE_FLOAT && info.offset + (int16)sizeof(float) <= _dataSize, "out of range");
 		return *(float*)(_data + info.offset);
 	}
 
@@ -148,7 +148,17 @@ public:
 
 	IArgs& operator << (const char* string){
 		int32 size = strlen(string) + 1;
-		return write(ARGS_TYPE_STRING, string, size);
+		if (_bFixed || _header.argsCount >= maxCount || _header.dataOffset + size > maxSize){
+			SLASSERT(false, "can not contain more args");
+			return *this;
+		}
+		arg_info& info = _header.argsInfo[maxCount - 1 - _header.argsCount];
+		info.type = ARGS_TYPE_STRING;
+		info.offset = _header.dataOffset;
+		SafeSprintf(_header.data + _header.dataOffset, size, string);
+		_header.argsCount++;
+		_header.dataOffset += size;
+		return *this;
 	}
 
 	inline OArgs out(){
@@ -156,13 +166,17 @@ public:
 			SLASSERT(false, "must fixed");
 			fix();
 		}
+		if (_size < 0){
+			SLASSERT(false, "wtf");
+		}
 		return OArgs(_pContext, _size);
 	}
 
 	inline void fix(){
 		SLASSERT(!_bFixed, "wtf");
 		_bFixed = true;
-		int32& reserve = *(int32*)((const char*)(&_header.argsInfo[maxSize - _header.argsCount]) - sizeof(int32));
+		int32 len = sizeof(_header);
+		int32& reserve = *(int32*)((const char*)(_header.argsInfo + maxCount - _header.argsCount) - sizeof(int32));
 		reserve = _header.argsCount;
 
 		_size = sizeof(int32)+sizeof(arg_info)*_header.argsCount + sizeof(int32)+sizeof(int16)+sizeof(int8)*_header.dataOffset;
@@ -181,7 +195,7 @@ private:
 		arg_info& info = _header.argsInfo[maxCount - 1 - _header.argsCount];
 		info.type = type;
 		info.offset = _header.dataOffset;
-		sl::SafeMemcpy(_header.data, maxSize - _header.dataOffset, pContext, size);
+		sl::SafeMemcpy(_header.data + _header.dataOffset, maxSize - _header.dataOffset, pContext, size);
 		_header.argsCount++;
 		_header.dataOffset += size;
 		

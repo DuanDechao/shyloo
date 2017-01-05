@@ -16,7 +16,8 @@ PacketReader::PacketReader(Channel* pChannel, ISLPacketParser* poPacketParser)
 	:m_pFragmentStream(NULL),
 	 m_pChannel(pChannel),
 	 m_pPacketParser(poPacketParser),
-	 m_pFragmentStreamLength(0)
+	 m_pFragmentStreamLength(0),
+	 m_lastFragmentStreamLength(0)
 {}
 
 PacketReader::~PacketReader()
@@ -30,6 +31,7 @@ void PacketReader::reset()
 	RELEASE_POOL_OBJECT(MemoryStream, m_pFragmentStream);
 	m_pFragmentStream = NULL;
 	m_pFragmentStreamLength = 0;
+	m_lastFragmentStreamLength = 0;
 }
 
 void PacketReader::processMessages( Packet* pPacket)
@@ -67,8 +69,9 @@ void PacketReader::processMessages( Packet* pPacket)
 				poSession->onRecv((const char*)(m_pFragmentStream->data()+m_pFragmentStream->rpos()), (uint32)parserLen);
 				RELEASE_POOL_OBJECT(MemoryStream, m_pFragmentStream);
 				m_pFragmentStream = NULL;
-				pPacket->read_skip(parserLen);
+				pPacket->read_skip(m_lastFragmentStreamLength);
 				m_pFragmentStreamLength = 0;
+				m_lastFragmentStreamLength = 0;
 			}
 		}
 		else
@@ -96,6 +99,7 @@ void PacketReader::processMessages( Packet* pPacket)
 				poSession->onRecv((const char*)(pPacket->data()+ pPacket->rpos()), (uint32)parserLen);
 				pPacket->read_skip(parserLen);
 				m_pFragmentStreamLength = 0;
+				m_lastFragmentStreamLength = 0;
 			}
 		}
 
@@ -111,7 +115,7 @@ int32 PacketReader::mergeFragmentMessage(Packet* pPacket)
 	if(m_pFragmentStream == nullptr){
 		m_pFragmentStream = CREATE_POOL_OBJECT(MemoryStream);
 	}
-
+	m_lastFragmentStreamLength = m_pFragmentStream->length();
 	m_pFragmentStream->append(pPacket->data() + pPacket->rpos(), pPacket->length());
 	
 	const char* pDataBuf = (const char*)(m_pFragmentStream->data() + m_pFragmentStream->rpos());

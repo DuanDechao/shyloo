@@ -159,9 +159,8 @@ int64 TimersT::process(int64 overTime)
 {
 	int64 tick = sl::getTimeMilliSecond();
 	int numFired = 0;
-	TimeStamp now = TimeStamp::fromMilliSeconds(sl::getTimeMilliSecond());
 	while(!(m_TimeQueue.empty()) && 
-		(m_TimeQueue.top()->getExpireTime() <= now || m_TimeQueue.top()->isDestoryed()))
+		(m_TimeQueue.top()->getExpireTime() <= timestamp() || m_TimeQueue.top()->isDestoryed()))
 	{
 		if (sl::getTimeMilliSecond() - tick > overTime)
 			break;
@@ -200,7 +199,7 @@ int64 TimersT::process(int64 overTime)
 		
 	}
 	m_pProcessingNode = NULL;
-	m_lastProcessTime = now;
+	m_lastProcessTime = timestamp();
 	return numFired;
 }
 

@@ -61,7 +61,7 @@ bool Harbor::destory(sl::api::IKernel * pKernel){
 void Harbor::onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* ip, int32 nodePort, NodeSession* session){
 
 	m_allNode[nodeType].insert(std::make_pair(nodeId, session));
-
+	ECHO_TRACE("node size %d %d", m_allNode.size(), nodeType);
 	for (auto& listener : m_listenerPool){
 		listener->onOpen(pKernel, nodeType, nodeId, ip, nodePort);
 	}
@@ -80,7 +80,7 @@ void Harbor::onNodeMessage(sl::api::IKernel* pKernel, int32 nodeType, int32 node
 	SLASSERT(size >= sizeof(int32), "invalid node message context!");
 	int32 messageId = *(int32*)pszBuf;
 	auto itor = m_allCBPool.find(messageId);
-	if (itor != m_allCBPool.end()){
+	if (itor == m_allCBPool.end()){
 		SLASSERT(false, "have no messageId %d", messageId);
 		return;
 	}
@@ -126,7 +126,7 @@ void Harbor::startListening(sl::api::IKernel* pKernel){
 void Harbor::send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& args){
 	auto itor = m_allNode.find(nodeType);
 	if (itor == m_allNode.end()){
-		SLASSERT(false, "wtf");
+		//SLASSERT(false, "wtf");
 		return;
 	}
 	auto itor1 = itor->second.find(nodeId);
@@ -135,6 +135,7 @@ void Harbor::send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& ar
 		return;
 	}
 	itor1->second->prepareSendNodeMessage(messageId, args.getSize());
+	ECHO_TRACE("send message id %d", messageId);
 	itor1->second->send(args.getContext(), args.getSize());
 }
 
