@@ -27,7 +27,7 @@ public:
 	virtual void SLAPI onRecv(const char* pBuf, uint32 dwLen);
 	virtual void SLAPI onEstablish(void);
 	virtual void SLAPI onTerminate(void);
-	virtual const char* getRemoteIP(){ return "127.0.0.1"; }
+	virtual const char* getRemoteIP();
 
 	virtual void send(const void* pContext, int dwLen);
 	virtual void close();

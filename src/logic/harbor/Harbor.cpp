@@ -64,7 +64,7 @@ void Harbor::onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId,
 	for (auto& listener : m_listenerPool){
 		listener->onOpen(pKernel, nodeType, nodeId, ip, nodePort);
 	}
-	ECHO_TRACE("node[%s:%d] opened", m_nodeNames[nodeType].c_str(), m_nodeId);
+	ECHO_TRACE("node[%s:%d] from[%s:%d] opened", m_nodeNames[nodeType].c_str(), m_nodeId, ip, nodePort);
 }
 
 void Harbor::onNodeClose(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId){

@@ -46,9 +46,9 @@ public:
 	virtual void SLAPI send(const char* pBuf, uint32 dwLen);
 	virtual void SLAPI disconnect(void);
 
-	virtual const uint32 SLAPI getRemoteIP(void){return 0;}
-	virtual const char* SLAPI getRemoteIPStr(void) {return "";}
-	virtual const uint16 SLAPI getRemotePort(void) {return 0;}
+	virtual const uint32 SLAPI getRemoteIP(void){return m_pEndPoint ? m_pEndPoint->addr().m_ip : 0;}
+	virtual const char* SLAPI getRemoteIPStr(void) {return m_pEndPoint ? m_pEndPoint->addr().ipAsString() : "";}
+	virtual const uint16 SLAPI getRemotePort(void) { return m_pEndPoint ? m_pEndPoint->addr().m_port : 0; }
 
 	virtual const uint32 SLAPI getLocalIP(void) {return 0;}
 	virtual const char* SLAPI getLocalIPStr(void) {return "";}

@@ -65,6 +65,11 @@ void NetSession::close()
 	return m_pChannel->disconnect();
 }
 
+const char* NetSession::getRemoteIP()
+{
+	return m_pChannel->getRemoteIPStr();
+}
+
 ISLSession* ServerSessionFactory::createSession(ISLChannel* poChannel)
 {
 	if(NULL == m_pServer)
