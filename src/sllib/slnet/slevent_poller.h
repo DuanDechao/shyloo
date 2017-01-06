@@ -22,7 +22,7 @@ public:
 	bool deregisterForRead(int32 fd);
 	bool deregisterForWrite(int32 fd);
 
-	virtual int32 processPendingEvents(double maxWait) = 0;
+	virtual int32 processPendingEvents(int64 maxWait) = 0;
 	virtual int32 getFileDescriptor() const;
 
 	void clearSpareTime() {m_spareTime = 0;}

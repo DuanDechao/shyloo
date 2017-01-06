@@ -51,10 +51,19 @@ void Kernel::loop() {
 	m_bShutDown = false;
 	while(!m_bShutDown){
 		int64 startTick = sl::getTimeMilliSecond();
-		int64 netTick = NetEngine::getInstance()->processing(0);
-		int64 timerTick = TimerEngine::getInstance()->processing(10);
+		int64 netTick = NetEngine::getInstance()->processing(ConfigEngine::getInstance()->getCoreConfig()->sNetlooptick);
+		int64 timerTick = TimerEngine::getInstance()->processing(ConfigEngine::getInstance()->getCoreConfig()->sTimerlooptick);
+
+		int64 useTick = sl::getTimeMilliSecond() - startTick;
+		if (useTick > ConfigEngine::getInstance()->getCoreConfig()->sLoopduration ||
+			netTick > ConfigEngine::getInstance()->getCoreConfig()->sNetlooptick ||
+			timerTick > ConfigEngine::getInstance()->getCoreConfig()->sTimerlooptick){
+			ECHO_ERROR("Loop use %d(%d, %d)", useTick, netTick, timerTick);
+		}
+		else{
+			Sleep(1);
+		}
 	}
-	Sleep(1);
 }
 
 const char* Kernel::getCmdArg(const char* name){

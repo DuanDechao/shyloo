@@ -49,7 +49,7 @@ void SelectPoller::handleNotifications(int& countReady, fd_set& readFDs, fd_set&
 #endif // SL_OS_WINDOWS
 }
 
-int SelectPoller::processPendingEvents(double maxWait)
+int SelectPoller::processPendingEvents(int64 maxWait)
 {
 	fd_set		readFDs;
 	fd_set		writeFDs;
@@ -61,15 +61,15 @@ int SelectPoller::processPendingEvents(double maxWait)
 	readFDs = m_fdReadSet;
 	writeFDs = m_fdWriteSet;
 
-	nextTimeout.tv_sec = (int)maxWait;
-	nextTimeout.tv_usec = (int)((maxWait - (double)nextTimeout.tv_sec) * 1000000);
+	nextTimeout.tv_sec = (int32)(maxWait/1000);
+	nextTimeout.tv_usec = (int32)(((double)(maxWait / 1000) - (double)nextTimeout.tv_sec) * 1000000);
 
 	int countReady = 0;
 
 #ifdef SL_OS_WINDOWS
 	if(m_fdLargest == -1)
 	{
-		Sleep(int(maxWait * 1000.0));
+		Sleep(int32(maxWait));
 	}
 #endif // SL_OS_WINDOWS
 	else

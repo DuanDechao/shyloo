@@ -65,8 +65,13 @@ ISLConnector* CSLNetModule::createConnector()
 
 bool CSLNetModule::run(int64 overtime)
 {
-	m_dispatcher.processOnce();
+	int64 tick = sl::getTimeMilliSecond();
 	m_networkInterface->checkDestroyChannel();
+	
+	int64 netOverTime = overtime - sl::getTimeMilliSecond() + tick;
+	netOverTime = netOverTime >= 0 ? netOverTime : 0;
+	m_dispatcher.processOnce(netOverTime);
+	
 	return true;
 }
 

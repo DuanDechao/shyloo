@@ -62,6 +62,9 @@ bool ConfigEngine::loadCoreConfig(){
 
 	m_configFile = path;
 
+	m_stCoreConfig.sNetlooptick = conf.root()["net"][0].getAttributeInt32("frametick");
+	m_stCoreConfig.sTimerlooptick = conf.root()["timer"][0].getAttributeInt32("tick");
+	m_stCoreConfig.sLoopduration = conf.root()["loop"][0].getAttributeInt32("tick");
 	return true;
 }
 

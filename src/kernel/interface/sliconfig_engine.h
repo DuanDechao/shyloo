@@ -7,7 +7,14 @@ namespace sl
 namespace core
 {
 struct sCoreConfig{
+	//server logic main loop frame tick
+	int32 sLoopduration;
 
+	//socket module
+	int32 sNetlooptick;		//net logic loop frame tick
+
+	//timer module
+	int32 sTimerlooptick;
 };
 
 struct sModuleConfig{

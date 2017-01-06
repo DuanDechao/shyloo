@@ -24,8 +24,8 @@ public:
 	EventDispatcher();
 	virtual ~EventDispatcher();
 
-	int processOnce(bool shouldIdle = false);
-	void processUntilBreak();
+	int processOnce(int64 overTime);
+	void processUntilBreak(int64 overTime);
 
 	inline bool hasBreakProcessing() const;
 	inline bool waitingBreakProcessing() const;
@@ -41,7 +41,7 @@ public:
 	inline EventPoller* createPoller();
 	EventPoller* pPoller() {return m_pPoller;}
 
-	int processNetwork(bool shouldIdle);
+	int processNetwork(int64 overTime);
 
 protected:
 	int8			m_breakProcessing;

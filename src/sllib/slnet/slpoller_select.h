@@ -20,7 +20,7 @@ protected:
 	virtual bool doDeregisterForRead(int fd);
 	virtual bool doDeregisterForWrite(int fd);
 
-	virtual int processPendingEvents(double maxWait);
+	virtual int processPendingEvents(int64 maxWait);
 
 private:
 	void handleNotifications(int& countReady, fd_set& readFDs, fd_set& writeFDs);

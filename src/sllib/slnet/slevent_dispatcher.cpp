@@ -1,5 +1,6 @@
 #include "slevent_dispatcher.h"
 #include "slevent_poller.h"
+#include "sltime.h"
 namespace sl
 {
 namespace network
@@ -41,29 +42,32 @@ bool EventDispatcher::deregisterWriteFileDescriptor(int fd)
 	return m_pPoller->deregisterForWrite(fd);
 }
 
-int EventDispatcher::processNetwork(bool shouldIdle)
+int EventDispatcher::processNetwork(int64 overTime)
 {
-	return m_pPoller->processPendingEvents(0.0);
+	return m_pPoller->processPendingEvents(overTime);
 }
 
-void EventDispatcher::processUntilBreak()
+void EventDispatcher::processUntilBreak(int64 overTime)
 {
 	if(m_breakProcessing != EVENT_DISPATCHER_STATUS_BREAK_PROCESSING)
 		m_breakProcessing = EVENT_DISPATCHER_STATUS_RUNNING;
-
-	while(m_breakProcessing != EVENT_DISPATCHER_STATUS_BREAK_PROCESSING)
-	{
-		this->processOnce(true);
+	
+	int64 tick = sl::getTimeMilliSecond();
+	while(m_breakProcessing != EVENT_DISPATCHER_STATUS_BREAK_PROCESSING){
+		this->processOnce(overTime);
+		if ((sl::getTimeMilliSecond() - tick) >= (uint64)overTime){
+			breakProcessing(true);
+		}
 	}
 }
 
-int EventDispatcher::processOnce(bool shouldIdle /* = false */)
+int EventDispatcher::processOnce(int64 overTime)
 {
 	if(m_breakProcessing != EVENT_DISPATCHER_STATUS_BREAK_PROCESSING)
 		m_breakProcessing = EVENT_DISPATCHER_STATUS_RUNNING;
 
 	if(m_breakProcessing != EVENT_DISPATCHER_STATUS_BREAK_PROCESSING){
-		return this->processNetwork(shouldIdle);
+		return this->processNetwork(overTime);
 	}
 
 	return 0;
