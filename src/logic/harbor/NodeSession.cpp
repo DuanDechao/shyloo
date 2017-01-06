@@ -27,7 +27,7 @@ int32 NodeSession::onRecv(sl::api::IKernel* pKernel, const char* pContext, int d
 		m_bReady = true;
 	}
 	else{
-		ECHO_TRACE("new node message coming");
+		ECHO_TRACE("new node message coming len %d", dwLen);
 		if (header->messageId == NODE_REPORT)
 			return 0;
 

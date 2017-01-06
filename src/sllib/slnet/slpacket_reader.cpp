@@ -69,7 +69,8 @@ void PacketReader::processMessages( Packet* pPacket)
 				poSession->onRecv((const char*)(m_pFragmentStream->data()+m_pFragmentStream->rpos()), (uint32)parserLen);
 				RELEASE_POOL_OBJECT(MemoryStream, m_pFragmentStream);
 				m_pFragmentStream = NULL;
-				pPacket->read_skip(m_lastFragmentStreamLength);
+				SLASSERT(parserLen - m_pFragmentStreamLength >= 0, "wtf");
+				pPacket->read_skip(parserLen - m_pFragmentStreamLength);
 				m_pFragmentStreamLength = 0;
 				m_lastFragmentStreamLength = 0;
 			}

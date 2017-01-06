@@ -61,7 +61,6 @@ bool Harbor::destory(sl::api::IKernel * pKernel){
 void Harbor::onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* ip, int32 nodePort, NodeSession* session){
 
 	m_allNode[nodeType].insert(std::make_pair(nodeId, session));
-	ECHO_TRACE("node size %d %d", m_allNode.size(), nodeType);
 	for (auto& listener : m_listenerPool){
 		listener->onOpen(pKernel, nodeType, nodeId, ip, nodePort);
 	}
@@ -135,7 +134,6 @@ void Harbor::send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& ar
 		return;
 	}
 	itor1->second->prepareSendNodeMessage(messageId, args.getSize());
-	ECHO_TRACE("send message id %d", messageId);
 	itor1->second->send(args.getContext(), args.getSize());
 }
 

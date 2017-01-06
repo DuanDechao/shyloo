@@ -155,7 +155,7 @@ public:
 		arg_info& info = _header.argsInfo[maxCount - 1 - _header.argsCount];
 		info.type = ARGS_TYPE_STRING;
 		info.offset = _header.dataOffset;
-		SafeSprintf(_header.data + _header.dataOffset, size, string);
+		SafeSprintf(_header.data + _header.dataOffset, size, "%s", string);
 		_header.argsCount++;
 		_header.dataOffset += size;
 		return *this;

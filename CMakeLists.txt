@@ -28,6 +28,7 @@ SET(SL_LIB_API
 	"${PROJECT_SOURCE_DIR}/src/sllib/api/slnet.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/api/sltimer.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/api/slxml.h"
+	"${PROJECT_SOURCE_DIR}/src/sllib/api/sldb.h"
 )
 SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/slfile.h"

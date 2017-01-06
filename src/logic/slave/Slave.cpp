@@ -115,6 +115,7 @@ int32 Slave::startNode(sl::api::IKernel* pKernel, const char* cmd){
 	SafeSprintf(process, sizeof(process)-1, "%s/shyloo.exe", sl::getAppPath());
 	STARTUPINFO si = { sizeof(si) };
 	si.dwFlags = STARTF_USESHOWWINDOW;
+	si.wShowWindow = true;
 	si.lpTitle = (char*)cmd;
 	PROCESS_INFORMATION pi;
 	BOOL ret = CreateProcess(process, (char*)cmd, nullptr, nullptr, false, CREATE_NEW_CONSOLE, nullptr, nullptr, &si, &pi);
