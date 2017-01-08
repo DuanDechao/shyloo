@@ -40,7 +40,7 @@ bool ConfigEngine::loadCoreConfig(){
 	const char* name = Kernel::getInstance()->getCmdArg("name");
 	SLASSERT(name, "invalid command args, there is no name");
 
-	char path[MAX_PATH];
+	char path[MAX_PATH] = {0};
 	SafeSprintf(path, sizeof(path), "%s/core/server_conf.xml", sl::getAppPath());
 	m_coreFile = path;
 
@@ -49,18 +49,20 @@ bool ConfigEngine::loadCoreConfig(){
 		SLASSERT(false, "not find core file %s", path);
 		return false;
 	}
-	m_envirPath = server_conf.root()["envir"][0].getAttributeString("path");
+
+	char envirPath[MAX_PATH] = { 0 };
+	SafeSprintf(envirPath, sizeof(envirPath), "%s/%s", sl::getAppPath(), server_conf.root()["envir"][0].getAttributeString("path"));
+	m_envirPath = envirPath;
 	m_envirPath += "/";
 
-	SafeSprintf(path, sizeof(path), "%s/core/%s/conf.xml", sl::getAppPath(), name);
-
+	char moduleConfPath[MAX_PATH] = { 0 };
+	SafeSprintf(moduleConfPath, sizeof(moduleConfPath), "%s/core/%s/conf.xml", sl::getAppPath(), name);
 	XmlReader conf;
-	if (!conf.loadXml(path)){
-		SLASSERT(false, "can not load module core file %s", path);
+	if (!conf.loadXml(moduleConfPath)){
+		SLASSERT(false, "can not load module core file %s", moduleConfPath);
 		return false;
 	}
-
-	m_configFile = path;
+	m_configFile = moduleConfPath;
 
 	m_stCoreConfig.sNetlooptick = conf.root()["net"][0].getAttributeInt32("frametick");
 	m_stCoreConfig.sTimerlooptick = conf.root()["timer"][0].getAttributeInt32("tick");

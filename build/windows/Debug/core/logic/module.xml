@@ -2,4 +2,5 @@
 <modules path="./">
 	<module name="Harbor" />
 	<module name="Cluster" />
+	<module name="DCCenter" />
 </modules>

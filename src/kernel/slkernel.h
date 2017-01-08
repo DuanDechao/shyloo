@@ -31,11 +31,14 @@ public:
 	virtual void pauseTimer(api::ITimer* timer);
 	virtual void resumeTimer(api::ITimer* timer);
 
-	void loop();
+	
+	// config interface
+	virtual const char* getCmdArg(const char* name);
+	virtual const char* getCoreFile();
+	virtual const char* getConfigFile();
+	virtual const char* getEnvirPath();
 
-	const char* getCmdArg(const char* name);
-	const char* getCoreFile();
-	const char* getConfigFile();
+	void loop();
 
 public:
 	Kernel(){}
@@ -45,8 +48,7 @@ public:
 
 private:
 	bool	m_bShutDown;
-
-	SLUnordered_map<std::string, std::string> _args;
+	std::unordered_map<std::string, std::string> _args;
 };
 }
 }

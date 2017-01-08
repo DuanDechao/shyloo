@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<root parent="Object">
+	<prop name="exp" type="int64" visible="true" share="false" save="true" blob="true" />
+</root>

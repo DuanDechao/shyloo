@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<object>
+	<prop name="visible" />
+	<prop name="share" />
+	<prop name="save" />
+	<prop name="blob" />
+</object>

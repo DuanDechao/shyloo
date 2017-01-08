@@ -9,7 +9,8 @@
 #include <errno.h>
 #include <string>
 #include <fcntl.h>
-
+#include <io.h>
+#include <vector>
 namespace sl
 {
 	//读写文件的封装类
@@ -208,6 +209,29 @@ namespace sl
 		}
 
 	}; // class CFileUtils
+
+
+	void getAllFilesInDir(const char* path, std::vector<std::string>& files){
+		long   hFile = 0;
+		struct _finddata_t fileinfo;
+
+		std::string stPath(path);
+		if ((hFile = _findfirst(stPath.append("/*").c_str(), &fileinfo)) != -1){
+			do{
+				if ((fileinfo.attrib &  _A_SUBDIR)){
+					if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0){
+						stPath = path;
+						getAllFilesInDir(stPath.append("/").append(fileinfo.name).c_str(), files);
+					}
+				}
+				else{
+					stPath = path;
+					files.push_back(stPath.append("/").append(fileinfo.name));
+				}
+			} while (_findnext(hFile, &fileinfo) == 0);
+			_findclose(hFile);
+		}
+	}
 
 }// namespace sl
 #endif

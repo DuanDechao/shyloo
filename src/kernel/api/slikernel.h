@@ -105,6 +105,7 @@ public:
 
 	virtual const char* getCoreFile() = 0;
 	virtual const char* getConfigFile() = 0;
+	virtual const char* getEnvirPath() = 0;
 	
 };
 }

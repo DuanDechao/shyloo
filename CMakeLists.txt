@@ -29,9 +29,9 @@ SET(SL_LIB_API
 	"${PROJECT_SOURCE_DIR}/src/sllib/api/sltimer.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/api/slxml.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/api/sldb.h"
+	"${PROJECT_SOURCE_DIR}/src/sllib/api/slfile.h"
 )
 SET(PUBLIC
-	"${PROJECT_SOURCE_DIR}/src/public/slfile.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slfile_utils.h"
 	"${PROJECT_SOURCE_DIR}/src/public/sllog.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slmemorystream.h"
@@ -42,7 +42,7 @@ SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/slplatform.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slrefcountable.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slsingleton.h"
-	"${PROJECT_SOURCE_DIR}/src/public/slsize_string.h"
+	"${PROJECT_SOURCE_DIR}/src/public/slstring.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slsmartpointer.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slstring_utils.h"
 	"${PROJECT_SOURCE_DIR}/src/public/sltime.h"
@@ -74,3 +74,4 @@ ENDIF(WIN32)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/sllib)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/kernel)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/attrgen)

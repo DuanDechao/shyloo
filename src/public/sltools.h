@@ -16,6 +16,10 @@ extern "C"{
 		SLASSERT(size <= max, "over flow");
 		memcpy(dest, src, (size <= max) ? size : max);
 	}
+	inline void SafeMemset(void* __restrict dest, const size_t max, const int val, const size_t size){
+		SLASSERT(size <= max, "over flow");
+		memset(dest, val, (size <= max) ? size : max);
+	}
 #ifdef __cplusplus
 }
 #endif
