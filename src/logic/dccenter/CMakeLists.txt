@@ -8,10 +8,15 @@ INCLUDE_DIRECTORIES(
 
 SET(DCCENTER
 	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/ObjectStruct.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/Memory.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/MMObject.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/MMObject.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/ObjectMgr.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/ObjectMgr.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/TableRow.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/TableRow.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/TableControl.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/TableControl.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/main.cpp"
 )
 

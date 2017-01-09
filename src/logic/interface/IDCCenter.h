@@ -6,6 +6,20 @@
 #include "GameDefine.h"
 #include "Attr.h"
 #include <vector>
+
+enum{
+	DTYPE_INT8 = 0,
+	DTYPE_INT16,
+	DTYPE_INT32,
+	DTYPE_INT64,
+	DTYPE_STRING,
+
+	DTYPE_CANT_BE_KEY,
+	DTYPE_FLOAT = DTYPE_CANT_BE_KEY,
+	DTYPE_STRUCT,
+	DTYPE_BLOB
+};
+
 struct PropInfo{
 	PropInfo():_name(0), _realname(""), _index(0), _offset(0), _size(0), _mask(0), _setting(0){}
 	PropInfo(const int32 name, const char* realname, const int32 index, const int32 offset, const int32 size, const int8 mask, const int32 setting)
@@ -29,6 +43,25 @@ struct PropInfo{
 	int32 _size;
 	int8 _mask;
 	int32 _setting;
+};
+
+class IRow{
+public:
+	virtual int32 getRowIndex() const = 0;
+
+	virtual int8 getDataInt8(const int32 col) const = 0;
+	virtual int16 getDataInt16(const int32 col) const = 0;
+	virtual int32 getDataInt32(const int32 col) const = 0;
+	virtual int64 getDataInt64(const int32 col) const = 0;
+	virtual float getDataFloat(const int32 col) const = 0;
+	virtual const char * getDataString(const int32 col) const = 0;
+
+	virtual void setDataInt8(const int32 col, const int8 value) = 0;
+	virtual void setDataInt16(const int32 col, const int16 value) = 0;
+	virtual void setDataInt32(const int32 col, const int32 value) = 0;
+	virtual void setDataInt64(const int32 col, const int64 value) = 0;
+	virtual void setDataFloat(const int32 col, const float value) = 0;
+	virtual void setDataString(const int32 col, const char * value) = 0;
 };
 
 class IObject{

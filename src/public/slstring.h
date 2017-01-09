@@ -1,7 +1,7 @@
 //定长的字符串封装
 #ifndef _SL_SIZE_STRING_H_
 #define _SL_SIZE_STRING_H_
-
+#include "slmulti_sys.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -51,7 +51,7 @@ public:
 		return *this;
 	}
 
-	SLString& operator = (const string& str) {
+	SLString& operator = (const std::string& str) {
 		return *this = str.c_str();
 	}
 
