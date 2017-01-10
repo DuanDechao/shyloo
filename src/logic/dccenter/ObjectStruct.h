@@ -2,19 +2,16 @@
 #define __OBJECT_STRUCT_H_
 #include "sltools.h"
 #include "IDCCenter.h"
+#include "TableRow.h"
 #include <unordered_map>
 
-namespace PROP{
-	enum{
-		DTYPE_UNKNOWN = 0,
-		DTYPE_INT8,
-		DTYPE_INT16,
-		DTYPE_INT32,
-		DTYPE_INT64,
-		DTYPE_FLOAT,
-		DTYPE_STRING,
+
+class ObjectPropInfo{
+	struct ObjectTable{
+		int32 _name;
+		TableColumn* _tableInfo;
 	};
-}
+};
 
 class ObjectPropInfo{
 public:

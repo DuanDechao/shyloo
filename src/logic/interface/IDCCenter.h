@@ -64,6 +64,25 @@ public:
 	virtual void setDataString(const int32 col, const char * value) = 0;
 };
 
+class IObject;
+class ITabelControl{
+public:
+	virtual IObject* getHost() const = 0;
+	virtual int32 rowCount() const = 0;
+
+	virtual void clearRows() = 0;
+	virtual const IRow* findRow(const int64 key) const = 0;
+	virtual const IRow* findRow(const char* key) const = 0;
+	virtual bool delRow(const int32 index) = 0;
+
+	virtual IRow* addRow() = 0;
+	virtual IRow* addRowKeyInt8(const int8 key) = 0;
+	virtual IRow* addRowKeyInt16(const int16 key) = 0;
+	virtual IRow* addRowKeyInt32(const int32 key) = 0;
+	virtual IRow* addRowKeyInt64(const int64 key) = 0;
+	virtual IRow* addRowKeyString(const char* key) = 0;
+};
+
 class IObject{
 public:
 	virtual bool setPropInt8(const int32 prop, const int8 value) = 0;
@@ -81,6 +100,8 @@ public:
 	virtual const char* getPropString(const int32 prop) const = 0;
 
 };
+
+
 class IObjectMgr : public sl::api::IModule
 {
 public:

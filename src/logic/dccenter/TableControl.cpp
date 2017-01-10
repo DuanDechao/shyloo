@@ -1,8 +1,8 @@
 #include "TableControl.h"
 #include "TableRow.h"
 
-TableControl::TableControl(TableColumn* pTableColumn, IObject* pHost)
-	:m_pTableColumn(pTableColumn), m_pHost(pHost)
+TableControl::TableControl(int32 name, TableColumn* pTableColumn, IObject* pHost)
+	:m_name(name), m_pTableColumn(pTableColumn), m_pHost(pHost)
 {}
 
 TableControl::~TableControl(){
@@ -129,6 +129,24 @@ bool TableControl::delRow(const int32 index){
 	updateRowKeyIndex(index);
 	
 	return true;
+}
+
+void TableControl::changeKey(const int64 newKey, const int64 oldKey, const int8 type){
+	SLASSERT(m_pTableColumn->getKeyType() == type, "wtf");
+	if (newKey == oldKey)
+		return;
+	
+	m_keyToColIdx[newKey] = m_keyToColIdx[oldKey];
+	m_keyToColIdx.erase(oldKey);
+}
+
+void TableControl::changeKey(const char* newKey, const char* oldKey, const int8 type){
+	SLASSERT(m_pTableColumn->getKeyType() == type, "wtf");
+	if (newKey == oldKey)
+		return;
+
+	m_strToColIdx[newKey] = m_strToColIdx[oldKey];
+	m_strToColIdx.erase(oldKey);
 }
 
 void TableControl::updateRowKeyIndex(const int32 index){

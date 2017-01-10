@@ -2,6 +2,7 @@
 #define __SL_TABLE_ROW_H__
 #include "Memory.h"
 #include "IDCCenter.h"
+#include "slxml_reader.h"
 #include <vector>
 struct TableLayout : public MemLayout{
 	int8 _type;
@@ -12,6 +13,8 @@ class TableColumn{
 public:
 	TableColumn() :m_keyType(DTYPE_CANT_BE_KEY), m_size(0), m_keyColIdx(-1){}
 	~TableColumn(){}
+
+	bool loadColumnConfig(const sl::ISLXmlNode& root);
 
 	inline int8 getKeyType() const { return m_keyType; }
 	inline int32 getKeyColumn() const { return m_keyColIdx; }
