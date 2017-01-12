@@ -10,22 +10,9 @@ namespace sl
 template<typename T>
 class CSingleton
 {
-protected:
-	static T* m_singleton;
-
 public:
-	CSingleton(void)
-	{
-		assert(!m_singleton);
-#if defined(_MSC_VER) && _MSC_VER < 1200
-		int offset = (int)(T*)1 - (int)(CSingleton<T>*)(T*)1;
-		m_singleton = (T*)((int)this + offset);
-#else
-		m_singleton = static_cast<T*>(this);
-#endif
-	}
-
-	~CSingleton(void) {assert(m_singleton); m_singleton = 0;}
+	CSingleton(void){}
+	~CSingleton(void) {}
 
 	static T& getSingleton(void) {assert(m_singleton); return (*m_singleton);}
 	static T* getSingletonPtr(void) {return m_singleton;}
