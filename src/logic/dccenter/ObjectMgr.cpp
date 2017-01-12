@@ -2,10 +2,12 @@
 #include "slxml_reader.h"
 #include "slfile_utils.h"
 #include "slxml_reader.h"
+#include "ObjectProp.h"
 
 ObjectMgr::PROP_DEFINE_MAP ObjectMgr::s_propDefine;
-ObjectMgr::PROP_CONFIG_MAP ObjectMgr::s_propConfigs;
 ObjectMgr::PROP_CONFIG_PATH_MAP ObjectMgr::s_propConfigsPath;
+ObjectMgr::PROP_MAP ObjectMgr::s_allProps;
+int32 ObjectMgr::s_nextObjTypeId = 1;
 
 bool ObjectMgr::initialize(sl::api::IKernel * pKernel){
 	return initPropDefineConfig(pKernel) && loadObjectPropConfig(pKernel);
@@ -53,72 +55,63 @@ bool ObjectMgr::loadObjectPropConfig(sl::api::IKernel * pKernel){
 	PROP_CONFIG_PATH_MAP::iterator itor = s_propConfigsPath.begin();
 	PROP_CONFIG_PATH_MAP::iterator itorEnd = s_propConfigsPath.end();
 	while (itor != itorEnd){
-		loadObjectProp(itor->first.c_str());
+		createTemplate(pKernel, itor->first.c_str());
 		++itor;
 	}
 	return true;
 }
 
-ObjectPropInfo* ObjectMgr::loadObjectProp(const char* objectName){
-	SLASSERT(s_propConfigsPath.find(objectName) != s_propConfigsPath.end(), "wtf");
-	if (s_propConfigs.find(objectName) != s_propConfigs.end()){
-		return &s_propConfigs[objectName];
+ObjectPropInfo* ObjectMgr::createTemplate(sl::api::IKernel* pKernel, const char* objectName){
+	auto itor = s_propConfigsPath.find(objectName);
+	if (itor == s_propConfigsPath.end()){
+		SLASSERT(false, "wtf");
+		return nullptr;
 	}
 
 	sl::XmlReader propConf;
-	if (!propConf.loadXml(s_propConfigsPath[objectName].c_str())){
-		SLASSERT(false, "can not load file %s", s_propConfigsPath[objectName].c_str());
+	if (!propConf.loadXml(itor->second.c_str())){
+		SLASSERT(false, "can not load file %s", itor->second.c_str());
 		return false;
 	}
+
+	ObjectPropInfo* propInfo = nullptr;
 	if (propConf.root().hasAttribute("parent")){
-		ObjectPropInfo* parentProp = loadObjectProp(propConf.root().getAttributeString("parent"));
-		SLASSERT(parentProp, "wtf");
-		s_propConfigs[objectName] = *parentProp;
+		ObjectPropInfo* parentProp = queryTemplate(pKernel, propConf.root().getAttributeString("parent"));
+		SLASSERT(parentProp, "where is %s xml", propConf.root().getAttributeString("parent"));
+		if (parentProp == nullptr)
+			return nullptr;
+
+		propInfo = NEW ObjectPropInfo(s_nextObjTypeId++, objectName, parentProp);
+	}
+	else{
+		propInfo = NEW ObjectPropInfo(s_nextObjTypeId++, objectName, nullptr);
 	}
 
-	const sl::ISLXmlNode& props = propConf.root()["prop"];
-	for (int32 i = 0; i < props.count(); i++){
-		const char* name = props[i].getAttributeString("name");
-		const char* type = props[i].getAttributeString("type");
-		int8 mask = PROP::DTYPE_UNKNOWN;
-		int32 size = 0;
-		if (strcmp(type,"int8") == 0){
-			mask = PROP::DTYPE_INT8;
-			size = sizeof(int8);
-		}
-		if (strcmp(type, "int16") == 0){
-			mask = PROP::DTYPE_INT16;
-			size = sizeof(int16);
-		}
-		if (strcmp(type, "int32") == 0){
-			mask = PROP::DTYPE_INT32;
-			size = sizeof(int32);
-		}
-		if (strcmp(type, "int64") == 0){
-			mask = PROP::DTYPE_INT64;
-			size = sizeof(int64);
-		}
-		if (strcmp(type, "float") == 0){
-			mask = PROP::DTYPE_FLOAT;
-			size = sizeof(float);
-		}
-		if (strcmp(type, "string") == 0){
-			mask = PROP::DTYPE_STRING;
-			size = props[i].getAttributeInt32("size");
-		}
-		
-		int32 setting = 0;
-		PROP_DEFINE_MAP::const_iterator itor = s_propDefine.begin();
-		PROP_DEFINE_MAP::const_iterator itorEnd = s_propDefine.end();
-		while (itor != itorEnd){
-			const char* val = props[i].getAttributeString(itor->first.c_str());
-			if (strcmp(val, "true") == 0){
-				setting |= itor->second;
-			}
-			++itor;
-		}
-		int32 propId = std::hash<std::string>()(name);
-		s_propConfigs[objectName].addProp(propId, name, mask, size, setting);
+	if (!propInfo->loadFrom(propConf.root(), s_propDefine)){
+		DEL propInfo;
+		return nullptr;
 	}
-	return &s_propConfigs[objectName];
+	s_objPropInfo[objectName] = propInfo;
+	return s_objPropInfo[objectName];
+}
+ObjectPropInfo* ObjectMgr::queryTemplate(sl::api::IKernel* pKernel, const char* objectName){
+	auto itor = s_objPropInfo.find(objectName);
+	if (itor != s_objPropInfo.end())
+		return itor->second;
+
+	return createTemplate(pKernel, objectName);
+}
+
+const IProp* ObjectMgr::setObjectProp(const char* propName, const int32 objTypeId, PropLayout* layout){
+	ObjectProp * prop = nullptr;
+	auto itor = s_allProps.find(propName);
+	if (itor != s_allProps.end()){
+		prop = itor->second;
+	}
+	else{
+		prop = NEW ObjectProp(sl::CalcStringUniqueId(propName), s_propConfigsPath.size());
+		s_allProps[propName] = prop;
+	}
+	prop->setLayout(objTypeId, layout);
+	return prop;
 }

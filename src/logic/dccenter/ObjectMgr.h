@@ -5,6 +5,7 @@
 #include "ObjectStruct.h"
 #include <unordered_map>
 
+class ObjectProp;
 class ObjectMgr :public IObjectMgr
 {
 public:
@@ -15,19 +16,22 @@ public:
 	bool initPropDefineConfig(sl::api::IKernel * pKernel);
 	bool loadObjectPropConfig(sl::api::IKernel * pKernel);
 	
-	ObjectPropInfo* loadObjectProp(const char* objectName);
+	static const IProp* setObjectProp(const char* propName, const int32 objTypeId, PropLayout* layout);
 
-	IProp* setObjectProp(const char* propName, PropLayout* layout);
+private:
+	ObjectPropInfo* createTemplate(sl::api::IKernel* pKernel, const char* objectName);
+	ObjectPropInfo* queryTemplate(sl::api::IKernel* pKernel, const char* objectName);
 
 private:
 	typedef std::unordered_map<sl::SLString<MAX_PROP_NAME_LEN>, int32, sl::HashFunc<MAX_PROP_NAME_LEN>, sl::EqualFunc<MAX_PROP_NAME_LEN>> PROP_DEFINE_MAP;
-	typedef std::unordered_map<sl::SLString<MAX_PROP_NAME_LEN>, ObjectPropInfo, sl::HashFunc<MAX_PROP_NAME_LEN>, sl::EqualFunc<MAX_PROP_NAME_LEN>> PROP_CONFIG_MAP;
-	typedef std::unordered_map<sl::SLString<MAX_PROP_NAME_LEN>, sl::SLString<game::MAX_PATH_LEN>, sl::HashFunc<MAX_PROP_NAME_LEN>, sl::EqualFunc<MAX_PROP_NAME_LEN>> PROP_CONFIG_PATH_MAP;
+	typedef std::unordered_map<sl::SLString<MAX_OBJECT_NAME_LEN>, sl::SLString<game::MAX_PATH_LEN>, sl::HashFunc<MAX_OBJECT_NAME_LEN>, sl::EqualFunc<MAX_OBJECT_NAME_LEN>> PROP_CONFIG_PATH_MAP;
+	typedef std::unordered_map<sl::SLString<MAX_PROP_NAME_LEN>, ObjectProp*, sl::HashFunc<MAX_PROP_NAME_LEN>, sl::EqualFunc<MAX_PROP_NAME_LEN>> PROP_MAP;
+	typedef std::unordered_map<sl::SLString<MAX_OBJECT_NAME_LEN>, ObjectPropInfo *, sl::HashFunc<MAX_OBJECT_NAME_LEN>, sl::EqualFunc<MAX_OBJECT_NAME_LEN>> OBJECT_MODEL_MAP;
 	static PROP_DEFINE_MAP s_propDefine;
-	static PROP_CONFIG_MAP s_propConfigs;
 	static PROP_CONFIG_PATH_MAP s_propConfigsPath;
-
-	static unordered_map<int32, IProp*> m_allProps;
+	static PROP_MAP s_allProps;
+	static OBJECT_MODEL_MAP s_objPropInfo;
+	static int32 s_nextObjTypeId;
 
 
 };

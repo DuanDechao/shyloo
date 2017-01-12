@@ -1,7 +1,7 @@
 #include "TableControl.h"
 #include "TableRow.h"
 
-TableControl::TableControl(int32 name, TableColumn* pTableColumn, IObject* pHost)
+TableControl::TableControl(const int32 name, const TableColumn* pTableColumn, IObject* pHost)
 	:m_name(name), m_pTableColumn(pTableColumn), m_pHost(pHost)
 {}
 

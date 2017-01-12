@@ -17,7 +17,7 @@ class TableControl : public ITabelControl{
 	typedef std::unordered_map<sl::SLString<MAX_STRING_KEY_LEN>, int32, sl::HashFunc<MAX_STRING_KEY_LEN>, sl::EqualFunc<MAX_STRING_KEY_LEN>> KEY_STRING_MAP;
 
 public:
-	TableControl(int32 name, TableColumn* pTableColumn, IObject* pHost = nullptr);
+	TableControl(const int32 name, const TableColumn* pTableColumn, IObject* pHost = nullptr);
 	~TableControl();
 
 	int32 getName() const { return m_name; }
@@ -43,12 +43,12 @@ public:
 
 	void updateRowKeyIndex(const int32 index);
 private:
-	int32			m_name;
-	TableColumn*	m_pTableColumn;
-	IObject*		m_pHost;
-	TABLE_ROWS		m_tableRows;
-	KEY_INT_MAP		m_keyToColIdx;
-	KEY_STRING_MAP  m_strToColIdx;
+	const int32			m_name;
+	const TableColumn*	m_pTableColumn;
+	IObject*			m_pHost;
+	TABLE_ROWS			m_tableRows;
+	KEY_INT_MAP			m_keyToColIdx;
+	KEY_STRING_MAP		m_strToColIdx;
 
 	
 };

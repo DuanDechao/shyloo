@@ -7,7 +7,7 @@
 #include "sltools.h"
 #include "ObjectStruct.h"
 class IObject;
-class ObjectProp{
+class ObjectProp: public IProp{
 public:
 	ObjectProp(int32 name, int32 size) :m_name(name), m_size(size){
 		int32 mallocSize = m_size * sizeof(PropLayout*);

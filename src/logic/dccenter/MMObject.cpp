@@ -1,40 +1,60 @@
 #include "MMObject.h"
-
-bool MMObject::setPropInt8(const int32 prop, const int8 value){
-	return m_poProp->setValue(prop, PROP::DTYPE_INT8, (const char*)&value, sizeof(int8));
-}
-bool MMObject::setPropInt16(const int32 prop, const int16 value){
-	return m_poProp->setValue(prop, PROP::DTYPE_INT16, (const char*)&value, sizeof(int16));
-}
-bool MMObject::setPropInt32(const int32 prop, const int32 value){
-	return m_poProp->setValue(prop, PROP::DTYPE_INT32, (const char*)&value, sizeof(int32));
-}
-bool MMObject::setPropInt64(const int32 prop, const int64 value){
-	return m_poProp->setValue(prop, PROP::DTYPE_INT64, (const char*)&value, sizeof(int64));
-}
-bool MMObject::setPropFloat(const int32 prop, const float value){
-	return m_poProp->setValue(prop, PROP::DTYPE_FLOAT, (const char*)&value, sizeof(float));
-}
-bool MMObject::setPropString(const int32 prop, const char* value){
-	int32 size = strlen(value) + 1;
-	return m_poProp->setValue(prop, PROP::DTYPE_STRING, value, size);
+#include "TableControl.h"
+#include "ObjectProp.h"
+MMObject::MMObject(const char* name, ObjectPropInfo* pPropInfo)
+	:m_name(name),
+	m_poPropInfo(pPropInfo),
+	m_objectId(0)
+{
+	m_memory = NEW OMemory(m_poPropInfo->getMemSize());
+	m_poPropInfo->queryTables([this](const int32 name, const TableColumn* pTableColumn){
+		TableControl * pTable = NEW TableControl(name, pTableColumn, this);
+		m_tables[name] = pTable;
+	});
 }
 
-int8 MMObject::getPropInt8(const int32 prop) const{
-	return *(int8*)m_poProp->getValue(prop, PROP::DTYPE_INT8);
+MMObject::~MMObject(){
+	DEL m_memory;
+	for (auto& table = m_tables.begin(); table != m_tables.end(); ++table){
+		DEL table->second;
+	}
+	m_tables.clear();
 }
-int16 MMObject::getPropInt16(const int32 prop) const{
-	return *(int16*)m_poProp->getValue(prop, PROP::DTYPE_INT16);
+
+const std::vector<const IProp*>& MMObject::getObjProps(bool noParent) const{
+	return m_poPropInfo->getObjectProp(noParent);
 }
-int32 MMObject::getPropInt32(const int32 prop) const{
-	return *(int32*)m_poProp->getValue(prop, PROP::DTYPE_INT32);
+
+bool MMObject::setData(const IProp* prop, const int8 type, const void* data, const int32 size){
+	const PropLayout* layout = ((ObjectProp*)prop)->getLayout(m_poPropInfo->getObjTypeId());
+	SLASSERT(layout, "wtf");
+	if (layout != nullptr){
+		SLASSERT(layout->_type == type && layout->_size >= size, "wtf");
+		if (layout->_type == type && layout->_size >= size){
+			m_memory->setData(layout, data, size);
+			return true;
+		}
+	}
+	return false;
 }
-int64 MMObject::getPropInt64(const int32 prop) const{
-	return *(int64*)m_poProp->getValue(prop, PROP::DTYPE_INT64);
+
+const void* MMObject::getData(const IProp* prop, const int8 type, int32& size)const{
+	const PropLayout* layout = ((ObjectProp*)prop)->getLayout(m_poPropInfo->getObjTypeId());
+	SLASSERT(layout, "wtf");
+	if (layout != nullptr){
+		SLASSERT(layout->_type == type && layout->_size >= size, "wtf");
+		if (layout->_type == type && layout->_size >= size){
+			size = layout->_size;
+			return m_memory->getData(layout);
+		}
+	}
+	return nullptr;
 }
-float MMObject::getPropFloat(const int32 prop) const{
-	return *(float*)m_poProp->getValue(prop, PROP::DTYPE_FLOAT);
-}
-const char* MMObject::getPropString(const int32 prop) const{
-	return m_poProp->getValue(prop, PROP::DTYPE_STRING);
+
+ITabelControl* MMObject::findTable(const int32 name) const{
+	auto itor = m_tables.find(name);
+	if (itor != m_tables.end()){
+		return itor->second;
+	}
+	return nullptr;
 }

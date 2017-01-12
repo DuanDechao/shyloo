@@ -24,6 +24,14 @@ extern "C"{
 }
 #endif
 
+inline int32 CalcStringUniqueId(const char * str) {
+	int32 seed = 131;
+	int32 hash = 0;
+	while (*str) {
+		hash = hash * seed + (*str++);
+	}
+	return hash;
+}
 
 }
 #endif
