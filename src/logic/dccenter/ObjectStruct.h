@@ -5,12 +5,24 @@
 #include "TableRow.h"
 #include <unordered_map>
 
+struct PropLayout : public MemLayout{
+	int8	_type;
+	int32	_setting;
+	sl::SLString<MAX_PROP_NAME_LEN> _name;
+};
 
 class ObjectPropInfo{
-	struct ObjectTable{
-		int32 _name;
-		TableColumn* _tableInfo;
-	};
+public:
+	ObjectPropInfo(int32 objTypeId, const char* objName, ObjectPropInfo* parenter);
+
+private:
+
+private:
+	int32				m_objTypeId;
+	vector<PropLayout>	m_layouts;
+	vector<IProp*>		m_props;
+	vector<IProp*>		m_selfProps;
+	sl::SLString<MAX_OBJECT_NAME_LEN> m_objName;
 };
 
 class ObjectPropInfo{

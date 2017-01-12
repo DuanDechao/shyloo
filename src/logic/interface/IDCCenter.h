@@ -6,7 +6,8 @@
 #include "GameDefine.h"
 #include "Attr.h"
 #include <vector>
-
+#define MAX_PROP_NAME_LEN 64
+#define MAX_OBJECT_NAME_LEN 64
 enum{
 	DTYPE_INT8 = 0,
 	DTYPE_INT16,
@@ -43,6 +44,13 @@ struct PropInfo{
 	int32 _size;
 	int8 _mask;
 	int32 _setting;
+};
+
+class IProp{
+public:
+	virtual const int32 getName() const = 0;
+	virtual const int8 getType(IObject* object) const = 0;
+	virtual const int32 getSetting(IObject* object) const = 0;
 };
 
 class IRow{
