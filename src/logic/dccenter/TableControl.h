@@ -11,16 +11,16 @@ class TableRow;
 class TableColumn;
 class IObject;
 class IRow;
-class TableControl{
+class TableControl : public ITabelControl{
 	typedef std::vector<TableRow *> TABLE_ROWS;
 	typedef std::unordered_map<int64, int32> KEY_INT_MAP;
 	typedef std::unordered_map<sl::SLString<MAX_STRING_KEY_LEN>, int32, sl::HashFunc<MAX_STRING_KEY_LEN>, sl::EqualFunc<MAX_STRING_KEY_LEN>> KEY_STRING_MAP;
 
 public:
-	TableControl(TableColumn* pTableColumn, IObject* pHost = nullptr);
+	TableControl(int32 name, TableColumn* pTableColumn, IObject* pHost = nullptr);
 	~TableControl();
 
-	
+	int32 getName() const { return m_name; }
 	virtual IObject* getHost() const { return m_pHost; }
 	virtual int32 rowCount() const { return (int32)m_tableRows.size(); }
 	virtual void clearRows();
@@ -34,13 +34,16 @@ public:
 	virtual IRow* addRowKeyInt32(const int32 key) { return addRowKey(DTYPE_INT32, &key, sizeof(key), key); }
 	virtual IRow* addRowKeyInt64(const int64 key) { return addRowKey(DTYPE_INT64, &key, sizeof(key), key); }
 	virtual IRow* addRowKeyString(const char* key);
+	IRow* addRowKey(const int8 type, const void * data, const int32 size, const int64 key);
 
 	virtual bool delRow(const int32 index);
 
-	IRow* addRowKey(const int8 type, const void * data, const int32 size, const int64 key);
+	void changeKey(const int64 newKey, const int64 oldKey, const int8 type);
+	void changeKey(const char* newKey, const char* oldKey, const int8 type);
 
 	void updateRowKeyIndex(const int32 index);
 private:
+	int32			m_name;
 	TableColumn*	m_pTableColumn;
 	IObject*		m_pHost;
 	TABLE_ROWS		m_tableRows;
