@@ -1,15 +1,26 @@
 #include "ObjectStruct.h"
+#include "ObjectMgr.h"
 #include "sltools.h"
 ObjectPropInfo::ObjectPropInfo(int32 objTypeId, const char* objName, ObjectPropInfo* parenter)
 	:m_objTypeId(objTypeId), m_objName(objName), m_size(0){
 	if (parenter){
 		m_layouts = parenter->m_layouts;
-		for (auto& layout £º m_layouts){
+		for (auto& layout : m_layouts){
 			const IProp* prop = ObjectMgr::setObjectProp(layout._name.c_str(), m_objTypeId, &layout);
 			m_props.push_back(prop);
 		}
 		m_size = parenter->m_size;
 	}
+}
+
+ObjectPropInfo::~ObjectPropInfo(){
+	m_objTypeId = 0;
+	m_objName = "";
+	m_size = 0;
+	m_layouts.clear();
+	m_props.clear();
+	m_selfProps.clear();
+	m_tables.clear();
 }
 
 bool ObjectPropInfo::loadFrom(const sl::ISLXmlNode& root, PROP_DEFDINE_MAP& defines){
@@ -55,7 +66,7 @@ bool ObjectPropInfo::loadProps(const sl::ISLXmlNode& props, PROP_DEFDINE_MAP& de
 
 		m_size += layout._size;
 		layout._setting = 0;
-		for (auto& def : define){
+		for (auto& def : defines){
 			if (props[i].hasAttribute(def.first.c_str()) && props[i].getAttributeBoolean(def.first.c_str())){
 				layout._setting |= def.second;
 			}

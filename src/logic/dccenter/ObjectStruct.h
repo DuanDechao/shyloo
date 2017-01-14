@@ -26,11 +26,11 @@ public:
 	inline const int32 getMemSize() const { return m_size; }
 	inline const int32 getObjTypeId() const { return m_objTypeId; }
 	inline const char* getObjTypeName() const { return m_objName.c_str(); }
-	inline vector<const IProp*>& getObjectProp(bool parenter = false){ return parenter ? m_props : m_selfProps; }
+	inline const vector<const IProp*>& getObjectProp(bool parenter = false) const { return parenter ? m_props : m_selfProps; }
 
 	bool loadFrom(const sl::ISLXmlNode& root, PROP_DEFDINE_MAP& defines);
 
-	inline void queryTables(const std::function<void(const int32 name, const TableColumn* pTableColumn)> &f){
+	inline void queryTables(const std::function<void(const int32 name, const TableColumn* pTableColumn)> &f) const{
 		for (auto& table : m_tables){
 			f(table._name, table._tableColumn);
 		}

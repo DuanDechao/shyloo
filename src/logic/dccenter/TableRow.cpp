@@ -34,7 +34,7 @@ bool TableColumn::loadColumnConfig(const sl::ISLXmlNode& root){
 	return true;
 }
 
-TableRow::TableRow(TableControl* pTable,TableColumn* pTableCol)
+TableRow::TableRow(TableControl* pTable,const TableColumn* pTableCol)
 	:m_pTable(pTable), 
 	m_pTableColumn(pTableCol)
 {

@@ -1,7 +1,7 @@
 #include "MMObject.h"
 #include "TableControl.h"
 #include "ObjectProp.h"
-MMObject::MMObject(const char* name, ObjectPropInfo* pPropInfo)
+MMObject::MMObject(const char* name, const ObjectPropInfo* pPropInfo)
 	:m_name(name),
 	m_poPropInfo(pPropInfo),
 	m_objectId(0)

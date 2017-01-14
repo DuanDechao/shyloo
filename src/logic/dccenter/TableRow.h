@@ -20,7 +20,7 @@ public:
 	inline int32 getKeyColumn() const { return m_keyColIdx; }
 	inline int32 getMemSize() const { return m_size; }
 
-	const TableLayout* query(const int32 col, const int8 type, const int32 size){
+	const TableLayout* query(const int32 col, const int8 type, const int32 size) const{
 		if (col < 0 || col >= (int32)m_columns.size()){
 			SLASSERT(false, "invalid params col idx");
 			return nullptr;
@@ -59,7 +59,7 @@ private:
 class TableControl;
 class TableRow : public IRow{
 public:
-	TableRow(TableControl* pTable, TableColumn* pTableCol);
+	TableRow(TableControl* pTable, const TableColumn* pTableCol);
 	~TableRow();
 
 	int32 getRowIndex() const { return m_rowIndex; }
@@ -85,7 +85,7 @@ public:
 private:
 	OMemory*			m_pRowData;
 	TableControl*		m_pTable;
-	TableColumn*		m_pTableColumn;
+	const TableColumn*	m_pTableColumn;
 
 	int32				m_rowIndex;
 

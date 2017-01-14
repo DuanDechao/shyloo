@@ -38,7 +38,7 @@ struct PropInfo{
 	}
 
 	int32 _name;
-	sl::SLString<game::MAX_PROP_NAME_LEN> _realname;
+	sl::SLString<MAX_PROP_NAME_LEN> _realname;
 	int32 _index;
 	int32 _offset;
 	int32 _size;
@@ -46,6 +46,7 @@ struct PropInfo{
 	int32 _setting;
 };
 
+class IObject;
 class IProp{
 public:
 	virtual const int32 getName() const = 0;
@@ -72,7 +73,7 @@ public:
 	virtual void setDataString(const int32 col, const char * value) = 0;
 };
 
-class IObject;
+
 class ITabelControl{
 public:
 	virtual IObject* getHost() const = 0;
@@ -93,19 +94,22 @@ public:
 
 class IObject{
 public:
-	virtual bool setPropInt8(const int32 prop, const int8 value) = 0;
-	virtual bool setPropInt16(const int32 prop, const int16 value) = 0;
-	virtual bool setPropInt32(const int32 prop, const int32 value) = 0;
-	virtual bool setPropInt64(const int32 prop, const int64 value) = 0;
-	virtual bool setPropFloat(const int32 prop, const float value) = 0;
-	virtual bool setPropString(const int32 prop, const char* value) = 0;
 
-	virtual int8 getPropInt8(const int32 prop) const = 0;
-	virtual int16 getPropInt16(const int32 prop) const = 0;
-	virtual int32 getPropInt32(const int32 prop) const = 0;
-	virtual int64 getPropInt64(const int32 prop) const = 0;
-	virtual float getPropFloat(const int32 prop) const = 0;
-	virtual const char* getPropString(const int32 prop) const = 0;
+	virtual const int64 getID() const = 0;
+
+	virtual bool setPropInt8(const IProp* prop, const int8 data) = 0;
+	virtual bool setPropInt16(const IProp* prop, const int16 data) = 0;
+	virtual bool setPropInt32(const IProp* prop, const int32 data) = 0;
+	virtual bool setPropInt64(const IProp* prop, const int64 data) = 0;
+	virtual bool setPropFloat(const IProp* prop, const float data) = 0;
+	virtual bool setPropString(const IProp* prop, const char* data) = 0;
+
+	virtual int8 getPropInt8(const IProp* prop) const = 0;
+	virtual int16 getPropInt16(const IProp* prop) const = 0;
+	virtual int32 getPropInt32(const IProp* prop) const = 0;
+	virtual int64 getPropInt64(const IProp* prop) const = 0;
+	virtual float getPropFloat(const IProp* prop) const = 0;
+	virtual const char* getPropString(const IProp* prop) const = 0;
 
 };
 
@@ -114,5 +118,11 @@ class IObjectMgr : public sl::api::IModule
 {
 public:
 	virtual ~IObjectMgr() {}
+
+	virtual const IProp* getPropByName(const char* name) const = 0;
+	virtual IObject* create(const char* name) = 0;
+	virtual IObject* createById(const char* name, const int64 id) = 0;
+	virtual void recover(IObject* object) = 0;
+	virtual const IObject* findObject(const int64 id) const = 0;
 };
 #endif

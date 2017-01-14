@@ -5,6 +5,7 @@
 #include "ObjectStruct.h"
 #include <unordered_map>
 
+class MMObject;
 class ObjectProp;
 class ObjectMgr :public IObjectMgr
 {
@@ -13,12 +14,18 @@ public:
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
 
-	bool initPropDefineConfig(sl::api::IKernel * pKernel);
-	bool loadObjectPropConfig(sl::api::IKernel * pKernel);
+	virtual const IProp* getPropByName(const char* name) const;
+	virtual IObject* create(const char* name);
+	virtual IObject* createById(const char* name, const int64 id);
+	virtual void recover(IObject* object);
+	virtual const IObject* findObject(const int64 id) const;
 	
 	static const IProp* setObjectProp(const char* propName, const int32 objTypeId, PropLayout* layout);
 
 private:
+	bool initPropDefineConfig(sl::api::IKernel * pKernel);
+	bool loadObjectPropConfig(sl::api::IKernel * pKernel);
+
 	ObjectPropInfo* createTemplate(sl::api::IKernel* pKernel, const char* objectName);
 	ObjectPropInfo* queryTemplate(sl::api::IKernel* pKernel, const char* objectName);
 
@@ -32,7 +39,7 @@ private:
 	static PROP_MAP s_allProps;
 	static OBJECT_MODEL_MAP s_objPropInfo;
 	static int32 s_nextObjTypeId;
-
+	static unordered_map<int64, MMObject*> s_allObjects;
 
 };
 #endif

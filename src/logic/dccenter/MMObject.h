@@ -6,11 +6,11 @@
 class OMemory;
 class MMObject : public IObject{
 public:
-	MMObject(const char* name, ObjectPropInfo* pPropInfo);
+	MMObject(const char* name, const ObjectPropInfo* pPropInfo);
 	~MMObject();
 		
 	virtual const char* getObjTypeString() const { return m_name.c_str(); }
-	inline ObjectPropInfo* getObjectPropInfo() const { return m_poPropInfo; }
+	inline const ObjectPropInfo* getObjectPropInfo() const { return m_poPropInfo; }
 	
 	virtual const int64 getID() const { return m_objectId; }
 	void setID(int64 id){ m_objectId = id; }
@@ -36,11 +36,11 @@ public:
 	ITabelControl* findTable(const int32 name) const;
 
 private:
-	const sl::SLString<MAX_OBJECT_NAME_LEN> m_name;
-	int64				m_objectId;
-	ObjectPropInfo*		m_poPropInfo;
-	std::unordered_map<int32, ITabelControl*> m_tables;
-	OMemory*			m_memory;
+	const sl::SLString<MAX_OBJECT_NAME_LEN>		m_name;
+	int64										m_objectId;
+	const ObjectPropInfo*						m_poPropInfo;
+	std::unordered_map<int32, ITabelControl*>	m_tables;
+	OMemory*									m_memory;
 
 };
 #endif

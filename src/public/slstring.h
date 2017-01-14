@@ -3,7 +3,7 @@
 #define _SL_SIZE_STRING_H_
 #include "slmulti_sys.h"
 #include <stdio.h>
-#include <string.h>
+#include <string>
 #include <stdarg.h>
 namespace sl
 {
