@@ -14,6 +14,7 @@ bool Master::initialize(sl::api::IKernel * pKernel){
 bool Master::launched(sl::api::IKernel * pKernel){
 	s_harbor = (IHarbor*)pKernel->findModule("Harbor");
 	SLASSERT(s_harbor, "not find module harbor");
+
 	s_harbor->addNodeListener(this);
 
 	sl::XmlReader server_conf;

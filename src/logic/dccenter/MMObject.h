@@ -12,8 +12,8 @@ public:
 	virtual const char* getObjTypeString() const { return m_name.c_str(); }
 	inline const ObjectPropInfo* getObjectPropInfo() const { return m_poPropInfo; }
 	
-	virtual const int64 getID() const { return m_objectId; }
-	void setID(int64 id){ m_objectId = id; }
+	virtual const uint64 getID() const { return m_objectId; }
+	void setID(uint64 id){ m_objectId = id; }
 
 	virtual const std::vector<const IProp*>& getObjProps(bool noParent) const;
 
@@ -33,13 +33,13 @@ public:
 	virtual const char* getPropString(const IProp* prop) const { int32 size = 0; return (const char*)getData(prop, DTYPE_STRING, size); }
 	virtual const void* getData(const IProp* prop, const int8 type, int32& size) const;
 
-	ITabelControl* findTable(const int32 name) const;
+	ITableControl* findTable(const int32 name) const;
 
 private:
 	const sl::SLString<MAX_OBJECT_NAME_LEN>		m_name;
-	int64										m_objectId;
+	uint64										m_objectId;
 	const ObjectPropInfo*						m_poPropInfo;
-	std::unordered_map<int32, ITabelControl*>	m_tables;
+	std::unordered_map<int32, TableControl*>	m_tables;
 	OMemory*									m_memory;
 
 };

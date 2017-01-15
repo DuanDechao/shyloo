@@ -27,7 +27,7 @@ public:
 
 	inline const void* getData(const MemLayout* layout){
 		SLASSERT(layout->_offset + layout->_size <= m_size, "out of range");
-		return (const void*)m_pszBuf[layout->_offset];
+		return m_pszBuf + layout->_offset;
 	}
 
 	inline void clear(){

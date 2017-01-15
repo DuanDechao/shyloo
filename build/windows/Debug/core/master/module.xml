@@ -4,4 +4,5 @@
 	<module name="Master" />
 	<module name="Cluster" />
 	<module name="Starter" />
+	<module name="IdMgr" />
 </modules>

@@ -2,6 +2,7 @@
 SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IHarbor.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IDCCenter.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IIdMgr.h"
 )
 
 SET(SL_LOGIC_DEFINE
@@ -17,3 +18,4 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/starter)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/master)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/cluster)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/dccenter)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/idmgr)

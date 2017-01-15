@@ -144,7 +144,7 @@ void Channel::send(const char* pBuf, uint32 dwLen)
 {
 	Bundle* pBundle = createSendBundle();
 	
-	if(dwLen > (uint32)(pBundle->packetMaxSize()))
+	if (dwLen > (uint32)(pBundle->packetMaxSize()))
 	{
 		SLASSERT(false, "wtf");
 		condemn();

@@ -3,4 +3,5 @@
 	<module name="Harbor" />
 	<module name="Cluster" />
 	<module name="DCCenter" />
+	<module name="IdMgr" />
 </modules>

@@ -51,7 +51,7 @@ const void* MMObject::getData(const IProp* prop, const int8 type, int32& size)co
 	return nullptr;
 }
 
-ITabelControl* MMObject::findTable(const int32 name) const{
+ITableControl* MMObject::findTable(const int32 name) const{
 	auto itor = m_tables.find(name);
 	if (itor != m_tables.end()){
 		return itor->second;

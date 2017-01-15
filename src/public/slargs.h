@@ -142,6 +142,10 @@ public:
 		return write(ARGS_TYPE_INT64, (const char*)&value, sizeof(value));
 	}
 
+	IArgs& operator << (const uint64 value){
+		return write(ARGS_TYPE_INT64, (const char*)&value, sizeof(value));
+	}
+
 	IArgs& operator << (const float value){
 		return write(ARGS_TYPE_FLOAT, (const char*)&value, sizeof(value));
 	}

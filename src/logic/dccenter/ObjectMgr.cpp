@@ -4,26 +4,72 @@
 #include "slxml_reader.h"
 #include "ObjectProp.h"
 #include "MMObject.h"
+#include "TableControl.h"
+#include "IIdmgr.h"
 
+ObjectMgr* ObjectMgr::s_self = nullptr;
+IIdMgr* ObjectMgr::s_idMgr = nullptr;
 ObjectMgr::PROP_DEFINE_MAP ObjectMgr::s_propDefine;
 ObjectMgr::PROP_CONFIG_PATH_MAP ObjectMgr::s_propConfigsPath;
 ObjectMgr::PROP_MAP ObjectMgr::s_allProps;
 int32 ObjectMgr::s_nextObjTypeId = 1;
 ObjectMgr::OBJECT_MODEL_MAP ObjectMgr::s_objPropInfo;
-unordered_map<int64, MMObject*> ObjectMgr::s_allObjects;
+unordered_map<uint64, MMObject*> ObjectMgr::s_allObjects;
+unordered_map<int32, TableColumn*> ObjectMgr::s_tablesInfo;
+unordered_map<int32, TableControl*>  ObjectMgr::s_allTables;
 
 bool ObjectMgr::initialize(sl::api::IKernel * pKernel){
+	s_self = this;
 	return initPropDefineConfig(pKernel) && loadObjectPropConfig(pKernel);
 }
 
 bool ObjectMgr::launched(sl::api::IKernel * pKernel){
+	s_idMgr = (IIdMgr*)pKernel->findModule("IdMgr");
+	SLASSERT(s_idMgr, "not find module IdMgr");
+	START_TIMER(s_self, 30000, TIMER_BEAT_FOREVER, 2000);
 	return true;
 }
 
 bool ObjectMgr::destory(sl::api::IKernel * pKernel){
+	for (auto itor = s_allProps.begin(); itor != s_allProps.end(); ++itor){
+		if (itor->second)
+			DEL itor->second;
+	}
+	s_allProps.clear();
+
+	for (auto itor = s_objPropInfo.begin(); itor != s_objPropInfo.end(); ++itor){
+		if (itor->second)
+			DEL itor->second;
+	}
+	s_objPropInfo.clear();
+
+	for (auto itor = s_allObjects.begin(); itor != s_allObjects.end(); ++itor){
+		if (itor->second)
+			DEL itor->second;
+	}
+	s_allObjects.clear();
+
+	for (auto itor = s_tablesInfo.begin(); itor != s_tablesInfo.end(); ++itor){
+		if (itor->second)
+			DEL itor->second;
+	}
+	s_tablesInfo.clear();
+
+	for (auto itor = s_allTables.begin(); itor != s_allTables.end(); ++itor){
+		if (itor->second)
+			DEL itor->second;
+	}
+	s_allTables.clear();
+
+	DEL this;
 	return true;
 }
 
+void ObjectMgr::onTime(sl::api::IKernel* pKernel, int64 timetick){
+	IObject* player = create("Player");
+	uint64 playerId = player->getID();
+	ECHO_ERROR("player id:%llu", player->getID());
+}
 bool ObjectMgr::initPropDefineConfig(sl::api::IKernel * pKernel){
 	char path[256] = { 0 };
 	SafeSprintf(path, sizeof(path), "%s/object.xml", pKernel->getEnvirPath());
@@ -32,12 +78,23 @@ bool ObjectMgr::initPropDefineConfig(sl::api::IKernel * pKernel){
 		SLASSERT(false, "can not load file %s", pKernel->getEnvirPath());
 		return false;
 	}
-	const sl::ISLXmlNode& props = conf.root()["prop"];
-	for (int32 i = 0; i < props.count(); i++){
-		int32 _define = 1;
-		const char* name = props[i].getAttributeString("name");
-		_define <<= i;
-		s_propDefine.insert(make_pair(name, _define));
+	if (conf.root().subNodeExist("prop")){
+		const sl::ISLXmlNode& props = conf.root()["prop"];
+		for (int32 i = 0; i < props.count(); i++){
+			const char* name = props[i].getAttributeString("name");
+			s_propDefine.insert(make_pair(name, (int32)(1 << i)));
+		}
+	}
+
+	if (conf.root().subNodeExist("table")){
+		const sl::ISLXmlNode& tables = conf.root()["table"];
+		for (int32 i = 0; i < tables.count(); i++){
+			const char* name = tables[i].getAttributeString("name");
+			TableColumn* pTableColumn = NEW TableColumn();
+			if (!pTableColumn->loadColumnConfig(tables[i]))
+				return false;
+			s_tablesInfo.insert(make_pair(sl::CalcStringUniqueId(name), pTableColumn));
+		}
 	}
 	return true;
 }
@@ -129,10 +186,10 @@ const IProp* ObjectMgr::getPropByName(const char* name) const{
 }
 
 IObject* ObjectMgr::create(const char* name){
-	return nullptr;
+	return createById(name, s_idMgr->allocID());
 }
 
-IObject* ObjectMgr::createById(const char* name, const int64 id){
+IObject* ObjectMgr::createById(const char* name, const uint64 id){
 	auto itor = s_allObjects.find(id);
 	if (itor != s_allObjects.end()){
 		SLASSERT(false, "object[%lld] has exist!", id);
@@ -146,6 +203,7 @@ IObject* ObjectMgr::createById(const char* name, const int64 id){
 	}
 
 	MMObject* object = NEW MMObject(name, itor1->second);
+	object->setID(id);
 	s_allObjects.insert(make_pair(id, object));
 	return object;
 }
@@ -165,10 +223,33 @@ void ObjectMgr::recover(IObject* object){
 	DEL object;
 }
 
-const IObject* ObjectMgr::findObject(const int64 id) const{
+const IObject* ObjectMgr::findObject(const uint64 id) const{
 	auto itor = s_allObjects.find(id);
 	if (itor == s_allObjects.end())
 		return nullptr;
 
 	return itor->second;
+}
+
+ITableControl* ObjectMgr::createStaticTable(const char* name){
+	const int32 tableId = sl::CalcStringUniqueId(name);
+	if (s_allTables.find(tableId) != s_allTables.end()){
+		SLASSERT(false, "table %s has been created", name);
+		return nullptr;
+	}
+
+	auto itor = s_tablesInfo.find(tableId);
+	if (itor == s_tablesInfo.end()){
+		SLASSERT(false, "has no table %s column info", name);
+		return nullptr;
+	}
+
+	TableControl* pTableControl = NEW TableControl(tableId, itor->second);
+	s_allTables.insert(make_pair(tableId, pTableControl));
+	return pTableControl;
+}
+
+void ObjectMgr::recoverStaticTable(ITableControl* table){
+	SLASSERT(!table->getHost(), "wtf");
+	s_allTables.erase(((TableControl*)table)->getName());
 }

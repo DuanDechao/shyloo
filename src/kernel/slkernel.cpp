@@ -58,7 +58,7 @@ void Kernel::loop() {
 		if (useTick > ConfigEngine::getInstance()->getCoreConfig()->sLoopduration ||
 			netTick > ConfigEngine::getInstance()->getCoreConfig()->sNetlooptick ||
 			timerTick > ConfigEngine::getInstance()->getCoreConfig()->sTimerlooptick){
-			ECHO_ERROR("Loop use %d(%d, %d)", useTick, netTick, timerTick);
+			//ECHO_ERROR("Loop use %d(%d, %d)", useTick, netTick, timerTick);
 		}
 		else{
 			Sleep(1);

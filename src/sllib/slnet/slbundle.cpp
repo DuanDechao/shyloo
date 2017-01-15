@@ -112,6 +112,8 @@ void Bundle::clear(bool isRecl)
 		m_packets.push_back(m_pCurrPacket);
 		m_pCurrPacket = NULL;
 	}
+	if (m_packets.empty())
+		return;
 
 	Packets::iterator iter = m_packets.begin();
 	for (; iter != m_packets.end(); ++iter)

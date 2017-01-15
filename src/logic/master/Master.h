@@ -6,6 +6,7 @@
 #include <unordered_set>
 #include "IHarbor.h"
 class OArgs;
+class IHarbor;
 class Master : public sl::api::IModule, public INodeListener
 {
 public:
