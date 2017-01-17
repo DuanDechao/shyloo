@@ -70,6 +70,7 @@ void ObjectMgr::onTime(sl::api::IKernel* pKernel, int64 timetick){
 	uint64 playerId = player->getID();
 	ECHO_ERROR("player id:%llu", player->getID());
 }
+
 bool ObjectMgr::initPropDefineConfig(sl::api::IKernel * pKernel){
 	char path[256] = { 0 };
 	SafeSprintf(path, sizeof(path), "%s/object.xml", pKernel->getEnvirPath());
