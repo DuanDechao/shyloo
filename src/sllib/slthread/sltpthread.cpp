@@ -1,12 +1,15 @@
 #include "sltpthread.h"
 #include "slthread_pool.h"
 #include <process.h>
-
+namespace sl
+{
+namespace thread
+{
 HANDLE TPThread::createThread(){
 #ifdef SL_OS_WINDOWS
 	m_threadId = (HANDLE)_beginthreadex(NULL, 0, &TPThread::threadFunc, (void*)this, NULL, 0);
 #else
-	if(pthread_create(&m_threadId, NULL, TPThread::threadFunc, (void*)this) != 0){
+	if (pthread_create(&m_threadId, NULL, TPThread::threadFunc, (void*)this) != 0){
 		SLASSERT(false, "create thread failed");
 	}
 #endif
@@ -19,8 +22,8 @@ void TPThread::onTaskCompleted(){
 	m_threadPool->addFreeThread(this);
 }
 
-TPTask* TPThread::tryGetTask(){
-	return m_threadPool->popBufferTask(); 
+ITPTask* TPThread::tryGetTask(){
+	return m_threadPool->popBufferTask();
 }
 
 bool TPThread::onWaitCondSignal(){
@@ -79,4 +82,84 @@ bool TPThread::join(){
 #else //linux
 #endif
 	return true;
+}
+
+#ifdef SL_OS_WINDOWS
+unsigned __stdcall TPThread::threadFunc(void *args){
+#else
+void* TPThread::threadFunc(void* args){
+#endif
+
+	TPThread* pThread = static_cast<TPThread*>(args);
+	SLASSERT(pThread, "invaild thread pointer");
+	SLThreadPool* pThreadPool = pThread->threadPool();
+	SLASSERT(pThread, "thread[%p] have no threadpool pointer", (void*)pThread);
+
+	pThread->resetDoneTasks();
+#ifdef SL_OS_WINDOWS
+#else
+	pthread_detech(pthread_self());
+#endif
+
+	bool isRun = true;
+	bool isDestroy = false;
+	while (isRun){
+		if (pThread->task() != NULL){
+			isRun = true;
+		}
+		else{
+			pThread->resetDoneTasks();
+			isRun = pThread->onWaitCondSignal();
+		}
+
+		if (!isRun || pThreadPool->isDestroyed()){
+			isDestroy = true;
+			break;
+		}
+
+		ITPTask* pTask = pThread->task();
+		if (pTask == NULL)
+			continue;
+
+		pThread->setState(THREAD_STATE_BUSY);
+
+		while (pTask && !pThreadPool->isDestroyed()){
+			//执行任务
+			pThread->incDoneTasks();
+			pThread->onTPTaskStart();
+			pThread->onTPTaskProcess();
+			pThread->onTPTaskEnd();
+
+			//执行完了尝试获取下一个任务
+			ITPTask* pNewTask = pThread->tryGetTask();
+			if (pNewTask == NULL){
+				pThread->onTaskCompleted();
+				break;
+			}
+			else{
+				pThreadPool->addFiniTask(pTask);
+				pThread->setTask(pNewTask);
+				pTask = pNewTask;
+			}
+		}
+	}
+
+	if (isDestroy){
+		ITPTask* pTask = pThread->task();
+		if (pTask != NULL)
+			DEL pTask;
+
+		pThread->setState(THREAD_STATE_END);
+		pThread->resetDoneTasks();
+	}
+
+#ifdef SL_OS_WINDOWS
+	return 0;
+#else
+	return (void*)NULL;
+#endif
+
+}
+
+}
 }

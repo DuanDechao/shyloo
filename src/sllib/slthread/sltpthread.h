@@ -1,8 +1,12 @@
 #ifndef __SL_LIB_TPTHREAD_H__
 #define __SL_LIB_TPTHREAD_H__
 #include "slmulti_sys.h"
+#include "slthread.h"
+namespace sl
+{
+namespace thread
+{
 class SLThreadPool;
-class TPTask;
 class TPThread{
 public:
 	enum THREAD_STATE{
@@ -30,17 +34,21 @@ public:
 
 	inline HANDLE id() const { return m_threadId; }
 	inline void setId(HANDLE tid) { m_threadId = tid; }
-
-	HANDLE createThread(void);
-
 	//获得本线程要处理的任务
-	inline TPTask* task(void) const{ return m_currTask; }
-
+	inline ITPTask* task(void) const{ return m_currTask; }
 	//设置本线程要处理的任务
-	inline void setTask(TPTask* pTask){ m_currTask = pTask; }
-
+	inline void setTask(ITPTask* pTask){ m_currTask = pTask; }
 	//当前状态
 	inline int32 state(void) const { return m_state; }
+	inline void setState(THREAD_STATE state){ m_state = state; }
+	inline SLThreadPool* threadPool(void) const { return m_threadPool; }
+
+	void onTPTaskStart(){ SLASSERT(m_currTask, "wtf"); m_currTask->start(); }
+	void onTPTaskProcess(){ SLASSERT(m_currTask, "wtf"); m_currTask->process(); }
+	void onTPTaskEnd(){ SLASSERT(m_currTask, "wtf"); m_currTask->end(); }
+
+
+	HANDLE createThread(void);
 
 	//当前任务处理完毕
 	void onTaskCompleted(void);
@@ -50,7 +58,7 @@ public:
 
 	bool join(void);
 
-	TPTask* tryGetTask(void);
+	ITPTask* tryGetTask(void);
 
 	//更新持续执行的任务数
 	inline void resetDoneTasks() { m_doneTasks = 0; }
@@ -61,7 +69,7 @@ public:
 #else
 	static void* threadFunc(void* args);
 #endif
-	
+
 	inline void initCond(void){
 		m_cond = CreateEvent(NULL, TRUE, FALSE, NULL);
 	}
@@ -94,10 +102,13 @@ private:
 	HANDLE					m_cond;				//线程信号量
 	CRITICAL_SECTION		m_mutex;			//线程互斥锁
 	int32					m_threadWaitSecond;	//线程空闲最长等待时间，超过就删除
-	TPTask*					m_currTask;			//线程当前执行的任务
+	ITPTask*				m_currTask;			//线程当前执行的任务
 	HANDLE					m_threadId;			//线程ID
 	SLThreadPool*			m_threadPool;		//所属线程池
 	THREAD_STATE			m_state;			//线程状态 -1表示还未启动
 	int32					m_doneTasks;		//线程持续执行任务数量
 };
+}
+}
+
 #endif

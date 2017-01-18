@@ -13,8 +13,8 @@ ENDIF(WIN32)
 
 
 SET(SL_LIB_THREAD
-	"${PROJECT_SOURCE_DIR}/src/sllib/slthread/slthread_base.h"
-	"${PROJECT_SOURCE_DIR}/src/sllib/slthread/slthread_base.cpp"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slthread/sltpthread.h"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slthread/sltpthread.cpp"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slthread/slthread_pool.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slthread/slthread_pool.cpp"
 )
