@@ -134,7 +134,36 @@ void SLThreadPool::onMainThreadTick(){
 	m_finiTaskList.clear();
 	LeaveCriticalSection(&m_finiTaskListMutex);
 
-	for (auto finiIter = finiTasks.begin(); finiIter != finiTasks.end(); ++finiIter){
+	auto finiIter = finiTasks.begin();
+	auto finiIterEnd = finiTasks.end();
+	for (; finiIter != finiIterEnd;){
+		TPTaskState state = (*finiIter)->presentMainThread();
+
+		switch (state)
+		{
+		case sl::thread::TPTASK_STATE_COMPLETED:
+			DEL (*finiIter);
+			finiIter = finiTasks.erase(finiIter);
+			--m_finiTaskListCount;
+			break;
+
+		case sl::thread::TPTASK_STATE_CONTINUE_MAINTHREAD:
+			EnterCriticalSection(&m_finiTaskListMutex);
+			m_finiTaskList.push_back(*finiIter);
+			LeaveCriticalSection(&m_finiTaskListMutex);
+			++finiIter;
+			break;
+
+		case sl::thread::TPTASK_STATE_CONTINUE_CHILDTHREAD:
+			this->addTask(*finiIter);
+			finiIter = finiTasks.erase(finiIter);
+			--m_finiTaskListCount;
+			break;
+
+		default:
+			SLASSERT(false, "invaild task state");
+			break;
+		}
 		
 	}
 }
