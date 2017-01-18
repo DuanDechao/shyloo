@@ -22,6 +22,7 @@ public:
 	virtual bool SLAPI start() = 0;
 	virtual bool SLAPI process() = 0;
 	virtual bool SLAPI end() = 0;
+	virtual TPTaskState SLAPI presentMainThread() = 0;
 };
 
 class ISLThreadPool{
