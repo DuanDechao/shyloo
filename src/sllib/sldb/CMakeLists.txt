@@ -20,9 +20,6 @@ SET(SL_LIB_DB
 	"${PROJECT_SOURCE_DIR}/src/sllib/sldb/main.cpp"
 )
 
-INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/src/sllib/sldb/mysql/include")
-LINK_DIRECTORIES("${PROJECT_SOURCE_DIR}/src/sllib/sldb/mysql/lib")
-
 SOURCE_GROUP(api FILES ${SL_LIB_API})
 SOURCE_GROUP(public FILES ${PUBLIC})
 SOURCE_GROUP(\\ FILES ${SL_LIB_DB})

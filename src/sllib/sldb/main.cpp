@@ -1,11 +1,16 @@
 #include "sldb.h"
+#include "slmulti_sys.h"
 using namespace sl::db;
 int main(){
 	ISLDBConnection* conn = newConnection();
-	if (conn->open("127.0.0.1", 3306, "root", "", "vrgame", "utf-8")){
-		const char* query = "INSERT vrgame(itemid, name) values (323234, \'dsdfsd\') ";
+	if (conn->open("127.0.0.1", 3306, "root", "", "shyloo", "utf8")){
+		const char* query = "SELECT * FROM user";
 		ISLDBResult* res = conn->execute(query);
-		res->release();
+		if (res){
+			while (res->next()){
+				ECHO_TRACE("%lld, %s", res->toInt64(0), res->toString(1));
+			}
+		}
 	}
 	return 0;
 }

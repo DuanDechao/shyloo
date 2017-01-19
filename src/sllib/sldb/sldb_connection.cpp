@@ -62,7 +62,7 @@ const char* SLDBConnection::getLastError(){
 
 bool SLDBConnection::connectDBSvr(){
 	int32 value = 1;
-	mysql_options(&m_mysqlHandler, MYSQL_OPT_RECONNECT, (char*)value);
+	mysql_options(&m_mysqlHandler, MYSQL_OPT_RECONNECT, (char*)&value);
 	if (mysql_real_connect(&m_mysqlHandler, m_connInfo.host(), m_connInfo.user(), m_connInfo.pwd(),
 		m_connInfo.database(), m_connInfo.port(), NULL, 0) == NULL){
 		SLASSERT(false, "connect db server %s[%d] failed, error %s", m_connInfo.host(), m_connInfo.port(), mysql_error(&m_mysqlHandler));
