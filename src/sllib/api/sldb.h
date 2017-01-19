@@ -8,6 +8,8 @@ namespace db
 class ISLDBResult
 {
 public:
+	virtual bool SLAPI next() = 0;
+	virtual void SLAPI release() = 0;
 	virtual int8 SLAPI toInt8(const int32 index) = 0;
 	virtual uint8 SLAPI toUint8(const int32 index) = 0;
 	virtual int16 SLAPI toInt16(const int32 index) = 0;
@@ -25,19 +27,15 @@ class ISLDBConnection
 public:
 	virtual bool SLAPI open(const char* szHostName, const int32 port, const char* szName, const char* szPwd, const char* szDBName, const char* szCharSet) = 0;
 	virtual bool SLAPI reOpen() = 0;
-	virtual bool SLAPI execute(const char* commandSql) = 0;
-	virtual bool SLAPI execute(const char* commandSql, ISLDBResult& result) = 0;
-	virtual int32 SLAPI getError(void) = 0;
-	virtual const char* SLAPI getErrorInfo(void) = 0;
+	virtual ISLDBResult* SLAPI execute(const char* commandSql) = 0;
+	virtual int32 SLAPI getLastErrno(void) = 0;
+	virtual const char* SLAPI getLastError(void) = 0;
+	virtual void SLAPI release(void) = 0;
 };
 
-class ISLDBMgr
-{
-public:
-	virtual ISLDBConnection* SLAPI newConnection(void) = 0;
-};
+ISLDBConnection* SLAPI newConnection(void);
 
-ISLDBMgr* SLAPI getSLDBModule(void);
+
 
 }
 }
