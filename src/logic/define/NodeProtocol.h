@@ -9,5 +9,7 @@ enum NodeProtocol{
 	
 	
 	CLUSTER_MSG_NEW_NODE_COMING = 100,
+
+	GATE_MSG_TRANSMIT_MSG_TO_LOGIC = 200,
 };
 #endif

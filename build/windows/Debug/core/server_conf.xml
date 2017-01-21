@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <core>
 	<envir path="./envir" />
+	<agent send="1024" recv="1024" />
 	<harbor send="1048576" recv="1048576">
 		<node type="-3" name="slave" hidden="true"/>
 		<node type="-2" name="master" />

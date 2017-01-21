@@ -137,6 +137,20 @@ void Harbor::send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& ar
 	itor1->second->send(args.getContext(), args.getSize());
 }
 
+void Harbor::prepareSend(int32 nodeType, int32 nodeId, int32 messageId, int32 size){
+	auto itor = m_allNode[nodeType].find(nodeId);
+	if (itor != m_allNode[nodeType].end()){
+		itor->second->prepareSendNodeMessage(messageId, size);
+	}
+}
+
+void Harbor::send(int32 nodeType, int32 nodeId, const void* pContext, const int32 size){
+	auto itor = m_allNode[nodeType].find(nodeId);
+	if (itor != m_allNode[nodeType].end()){
+		itor->second->send(pContext, size);
+	}
+}
+
 void Harbor::onTime(sl::api::IKernel* pKernel, int64 timetick){
 	startListening(pKernel);
 }

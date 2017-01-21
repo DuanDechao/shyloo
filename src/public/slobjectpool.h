@@ -192,7 +192,7 @@ protected:
 };
 
 #define CREATE_OBJECT_POOL(CLASSNAME) \
-	static CObjectPool<CLASSNAME> g_objPool##CLASSNAME("obj"#CLASSNAME)
+	static sl::CObjectPool<CLASSNAME> g_objPool##CLASSNAME("obj"#CLASSNAME)
 
 #define CREATE_POOL_OBJECT(CLASSNAME, ...) \
 	g_objPool##CLASSNAME.fetchObj(__VA_ARGS__)

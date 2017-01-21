@@ -73,15 +73,18 @@ public:
 	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick) {}
 	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick) {}
 
-	void onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* ip, int32 nodePort, NodeSession* session);
-	void onNodeClose(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId);
-	void onNodeMessage(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* pszBuf, const int32 size);
-	void addNodeListener(INodeListener* pNodeListener);
-	void send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& args);
+	virtual void onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* ip, int32 nodePort, NodeSession* session);
+	virtual void onNodeClose(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId);
+	virtual void onNodeMessage(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* pszBuf, const int32 size);
+	virtual void addNodeListener(INodeListener* pNodeListener);
+	
+	virtual void prepareSend(int32 nodeType, int32 nodeId, int32 messageId, int32 size);
+	virtual void send(int32 nodeType, int32 nodeId, const void* pContext, const int32 size);
+	virtual void send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& args);
 	virtual void connect(const char* ip, const int32 port);
 
-	void rgsNodeMessageHandler(int32 messageId, node_args_cb handler);
-	void startListening(sl::api::IKernel* pKernel);
+	virtual void rgsNodeMessageHandler(int32 messageId, node_args_cb handler);
+	virtual void startListening(sl::api::IKernel* pKernel);
 
 private:
 	sl::api::IKernel*	m_pKernel;

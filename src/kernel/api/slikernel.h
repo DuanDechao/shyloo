@@ -43,6 +43,11 @@ public:
 			return m_pPipe->getRemoteIP();
 		return "";
 	}
+
+	inline void close(){
+		if (m_pPipe)
+			m_pPipe->close();
+	}
 };
 
 class ITcpServer
