@@ -17,7 +17,7 @@ SET(SL_LIB_DB
 	"${PROJECT_SOURCE_DIR}/src/sllib/sldb/sldb_result.cpp"
 	"${PROJECT_SOURCE_DIR}/src/sllib/sldb/sldb_connection.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/sldb/sldb_connection.cpp"
-	"${PROJECT_SOURCE_DIR}/src/sllib/sldb/main.cpp"
+	#"${PROJECT_SOURCE_DIR}/src/sllib/sldb/main.cpp"
 )
 
 SOURCE_GROUP(api FILES ${SL_LIB_API})
@@ -34,7 +34,7 @@ IF(WIN32)
 ENDIF(WIN32)
 
 
-ADD_EXECUTABLE(sldb
+ADD_LIBRARY(sldb STATIC
 	${SL_LIB_API}
 	${PUBLIC}
 	${SL_LIB_DB}

@@ -40,7 +40,7 @@ public:
 	virtual bool SLAPI start();
 
 	//向线程池添加一个任务
-	virtual bool SLAPI addTask(ITPTask* ITPTask);
+	virtual bool SLAPI addTask(ITPTask* pTask);
 
 	bool isThreadCountMax(void) const { return m_currThreadCount >= m_maxThreadCount; }
 
@@ -48,7 +48,7 @@ public:
 	TPThread* createThread(int32 threadWaitSecond);
 	
 	//将某个任务保存到未处理列表
-	void bufferTask(ITPTask* ITPTask);
+	void bufferTask(ITPTask* pTask);
 
 	//将未处理列表取出一个任务
 	ITPTask* popBufferTask(void);
@@ -64,6 +64,8 @@ public:
 
 	//删除一个挂起（超时）的线程
 	bool removeHangThread(TPThread* td);
+
+	bool hasThread(TPThread* td);
 
 private:
 	void destroy();

@@ -38,63 +38,66 @@ void SLThreadPool::destroy(){
 
 	int32 count = m_allThreadList.size();
 
-	while (true){
-		Sleep(300);
+	if (count > 0){
+		while (true){
+			Sleep(300);
+
+			EnterCriticalSection(&m_threadStateListMutex);
+
+			auto itor = m_allThreadList.begin();
+			for (; itor != m_allThreadList.end(); ++itor){
+				if ((*itor)->state() != TPThread::THREAD_STATE_END){
+					(*itor)->sendCondSignal();
+				}
+				else{
+					--count;
+				}
+			}
+
+			LeaveCriticalSection(&m_threadStateListMutex);
+
+			if (count <= 0)
+				break;
+		}
 
 		EnterCriticalSection(&m_threadStateListMutex);
-
-		auto itor = m_allThreadList.begin();
-		auto itorEnd = m_allThreadList.end();
-		for (; itor != itorEnd; ++itor){
-			if ((*itor)->state() != TPThread::THREAD_STATE_END){
-				(*itor)->sendCondSignal();
-			}
-			else{
-				--count;
+		auto itor1 = m_allThreadList.begin();
+		for (; itor1 != m_allThreadList.end(); ++itor1){
+			if ((*itor1)){
+				DEL(*itor1);
+				*itor1 = NULL;
 			}
 		}
-
+		m_allThreadList.clear();
+		m_currFreeThreadCount = 0;
+		m_currThreadCount = 0;
 		LeaveCriticalSection(&m_threadStateListMutex);
-
-		if (count <= 0)
-			break;
 	}
 
-	EnterCriticalSection(&m_threadStateListMutex);
-	auto itor1 = m_allThreadList.begin();
-	auto itor1End = m_allThreadList.end();
-	for (; itor1 != itor1End; ++itor1){
-		if ((*itor1)){
-			DEL (*itor1);
-			*itor1 = NULL;
+	if (m_finiTaskList.size() > 0){
+		EnterCriticalSection(&m_finiTaskListMutex);
+		auto itor2 = m_finiTaskList.begin();
+		for (; itor2 != m_finiTaskList.end(); ++itor2){
+			if ((*itor2)){
+				DEL(*itor2);
+				*itor2 = NULL;
+			}
 		}
+		m_finiTaskList.clear();
+		m_finiTaskListCount = 0;
+		LeaveCriticalSection(&m_finiTaskListMutex);
 	}
-	m_allThreadList.clear();
-	m_currFreeThreadCount = 0;
-	m_currThreadCount = 0;
-	LeaveCriticalSection(&m_threadStateListMutex);
-
-	EnterCriticalSection(&m_finiTaskListMutex);
-	auto itor2 = m_finiTaskList.begin();
-	auto itor2End = m_finiTaskList.end();
-	for (; itor2 != itor2End; ++itor2){
-		if ((*itor2)){
-			DEL (*itor2);
-			*itor2 = NULL;
+	
+	if (m_bufferedTaskList.size() > 0){
+		EnterCriticalSection(&m_bufferedTaskListMutex);
+		while (!m_bufferedTaskList.empty()){
+			ITPTask* pTask = m_bufferedTaskList.front();
+			m_bufferedTaskList.pop();
+			if (pTask)
+				DEL pTask;
 		}
+		LeaveCriticalSection(&m_bufferedTaskListMutex);
 	}
-	m_finiTaskList.clear();
-	m_finiTaskListCount = 0;
-	LeaveCriticalSection(&m_finiTaskListMutex);
-
-	EnterCriticalSection(&m_bufferedTaskListMutex);
-	while (!m_bufferedTaskList.empty()){
-		ITPTask* pTask = m_bufferedTaskList.front();
-		m_bufferedTaskList.pop();
-		if (pTask)
-			DEL pTask;
-	}
-	LeaveCriticalSection(&m_bufferedTaskListMutex);
 
 	DeleteCriticalSection(&m_bufferedTaskListMutex);
 	DeleteCriticalSection(&m_threadStateListMutex);
@@ -134,9 +137,11 @@ void SLThreadPool::onMainThreadTick(){
 	m_finiTaskList.clear();
 	LeaveCriticalSection(&m_finiTaskListMutex);
 
+	if (finiTasks.empty())
+		return;
+
 	auto finiIter = finiTasks.begin();
-	auto finiIterEnd = finiTasks.end();
-	for (; finiIter != finiIterEnd;){
+	for (; finiIter != finiTasks.end();){
 		TPTaskState state = (*finiIter)->presentMainThread();
 
 		switch (state)
@@ -174,9 +179,9 @@ TPThread* SLThreadPool::createThread(int32 threadWaitSecond){
 	return tptd;
 }
 
-void SLThreadPool::bufferTask(ITPTask* ITPTask){
+void SLThreadPool::bufferTask(ITPTask* pTask){
 	EnterCriticalSection(&m_bufferedTaskListMutex);
-	m_bufferedTaskList.push(ITPTask);
+	m_bufferedTaskList.push(pTask);
 
 	size_t size = m_bufferedTaskList.size();
 
@@ -186,7 +191,7 @@ void SLThreadPool::bufferTask(ITPTask* ITPTask){
 	LeaveCriticalSection(&m_bufferedTaskListMutex);
 }
 
-bool SLThreadPool::addTask(ITPTask* ITPTask){
+bool SLThreadPool::addTask(ITPTask* pTask){
 
 	EnterCriticalSection(&m_threadStateListMutex);
 	
@@ -197,7 +202,7 @@ bool SLThreadPool::addTask(ITPTask* ITPTask){
 		m_busyThreadList.push_back(pThread);
 		--m_currFreeThreadCount;
 
-		pThread->setTask(ITPTask);
+		pThread->setTask(pTask);
 
 #ifdef SL_OS_WINDOWS
 		if (pThread->sendCondSignal() == 0){
@@ -213,7 +218,7 @@ bool SLThreadPool::addTask(ITPTask* ITPTask){
 		return true;
 	}
 
-	bufferTask(ITPTask);
+	bufferTask(pTask);
 
 	if (isThreadCountMax()){
 		LeaveCriticalSection(&m_threadStateListMutex);
@@ -314,12 +319,12 @@ bool SLThreadPool::addFreeThread(TPThread* td){
 }
 
 ITPTask* SLThreadPool::popBufferTask(){
-	ITPTask* ITPTask = NULL;
+	ITPTask* pTask = NULL;
 	EnterCriticalSection(&m_bufferedTaskListMutex);
 
 	size_t size = m_bufferedTaskList.size();
 	if (size > 0){
-		ITPTask = m_bufferedTaskList.front();
+		pTask = m_bufferedTaskList.front();
 		m_bufferedTaskList.pop();
 
 		if (size > THREAD_BUSY_SIZE){
@@ -328,7 +333,21 @@ ITPTask* SLThreadPool::popBufferTask(){
 	}
 
 	LeaveCriticalSection(&m_bufferedTaskListMutex);
-	return ITPTask;
+	return pTask;
+}
+
+bool SLThreadPool::hasThread(TPThread* td){
+	bool ishas = true;
+
+	EnterCriticalSection(&m_threadStateListMutex);
+
+	auto itor = std::find(m_allThreadList.begin(), m_allThreadList.end(), td);
+	if (itor == m_allThreadList.end())
+		ishas = false;
+
+	LeaveCriticalSection(&m_threadStateListMutex);
+
+	return ishas;
 }
 
 ISLThreadPool* SLAPI createThreadPool(int32 newThreadCount, int32 defaultThreadCount, int32 maxThreadCount){

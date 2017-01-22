@@ -17,6 +17,7 @@ SET(SL_LIB_THREAD
 	"${PROJECT_SOURCE_DIR}/src/sllib/slthread/sltpthread.cpp"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slthread/slthread_pool.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slthread/slthread_pool.cpp"
+	#"${PROJECT_SOURCE_DIR}/src/sllib/slthread/test.cpp"
 )
 
 SOURCE_GROUP(api FILES ${SL_LIB_API})

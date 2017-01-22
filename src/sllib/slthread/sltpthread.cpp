@@ -113,6 +113,9 @@ void* TPThread::threadFunc(void* args){
 		}
 
 		if (!isRun || pThreadPool->isDestroyed()){
+			if (!pThreadPool->hasThread(pThread)){
+				pThread = NULL;
+			}
 			isDestroy = true;
 			break;
 		}
@@ -144,11 +147,14 @@ void* TPThread::threadFunc(void* args){
 		}
 	}
 
-	if (isDestroy){
+	if (isDestroy && pThread){
 		ITPTask* pTask = pThread->task();
-		if (pTask != NULL)
+		if (pTask != NULL){
 			DEL pTask;
-
+			pThread->setTask(NULL);
+		}
+			
+		pThread->onTPTaskEnd();
 		pThread->setState(THREAD_STATE_END);
 		pThread->resetDoneTasks();
 	}
