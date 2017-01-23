@@ -4,8 +4,9 @@ namespace sl
 {
 namespace db
 {
-SLDBConnection::SLDBConnection(){
+SLDBConnection::SLDBConnection(ISLDBConnectionPool* pConnPool){
 	mysql_init(&m_mysqlHandler);
+	m_pConnPool = pConnPool;
 }
 
 SLDBConnection::~SLDBConnection(){
@@ -14,7 +15,8 @@ SLDBConnection::~SLDBConnection(){
 }
 
 void SLDBConnection::release(){
-	DEL this;
+	if (m_pConnPool)
+		m_pConnPool->releaseConnection(this);
 }
 
 bool SLDBConnection::open(const char* szHostName, const int32 port, const char* szName, const char* szPwd, 
@@ -81,10 +83,6 @@ bool SLDBConnection::connectDBSvr(){
 
 bool SLDBConnection::isActive(){
 	return mysql_ping(&m_mysqlHandler) == 0;
-}
-
-ISLDBConnection* SLAPI newConnection(void){
-	return NEW SLDBConnection();
 }
 
 

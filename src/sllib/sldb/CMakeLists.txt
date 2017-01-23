@@ -17,6 +17,8 @@ SET(SL_LIB_DB
 	"${PROJECT_SOURCE_DIR}/src/sllib/sldb/sldb_result.cpp"
 	"${PROJECT_SOURCE_DIR}/src/sllib/sldb/sldb_connection.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/sldb/sldb_connection.cpp"
+	"${PROJECT_SOURCE_DIR}/src/sllib/sldb/sldb_connection_pool.h"
+	"${PROJECT_SOURCE_DIR}/src/sllib/sldb/sldb_connection_pool.cpp"
 	#"${PROJECT_SOURCE_DIR}/src/sllib/sldb/main.cpp"
 )
 

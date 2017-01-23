@@ -8,7 +8,7 @@ namespace db
 {
 class SLDBConnection : public ISLDBConnection{
 public:
-	SLDBConnection();
+	SLDBConnection(ISLDBConnectionPool* pConnPool);
 	~SLDBConnection();
 	virtual bool SLAPI open(const char* szHostName, const int32 port, const char* szName, const char* szPwd, const char* szDBName, const char* szCharSet);
 	virtual bool SLAPI reOpen();
@@ -21,8 +21,9 @@ public:
 	bool isActive();
 
 private:
-	DBConnectionInfo	m_connInfo;
-	MYSQL				m_mysqlHandler;
+	DBConnectionInfo		m_connInfo;
+	MYSQL					m_mysqlHandler;
+	ISLDBConnectionPool*	m_pConnPool;
 };
 
 }
