@@ -15,6 +15,18 @@ struct sCoreConfig{
 
 	//timer module
 	int32 sTimerlooptick;
+
+	//open db server?
+	bool sOpenDBSvr;
+
+	//db thread min num
+	int32 sDBMinWorkThreadNum;
+
+	//db thread max num
+	int32 sDBMaxWorkThreadNum;
+
+	//db connection num
+	int32 sDBConnetionNum;
 };
 
 struct sModuleConfig{

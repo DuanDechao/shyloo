@@ -23,6 +23,8 @@ private:
 	int32							m_maxConnectionNum;
 	std::list<SLDBConnection*>		m_allConns;
 	std::list<SLDBConnection*>		m_freeConns;
+
+	CRITICAL_SECTION				m_allocConnectionMutex;	//·ÖÅäconnectionÊ±µÄ»¥³âËø
 };
 }
 }

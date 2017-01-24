@@ -22,6 +22,12 @@ IConfigEngine* ConfigEngine::getInstance(){
 }
 bool ConfigEngine::initialize()
 {
+	m_stCoreConfig.sDBConnetionNum = 0;
+	m_stCoreConfig.sDBWorkThreadNum = 0;
+	m_stCoreConfig.sLoopduration = 0;
+	m_stCoreConfig.sOpenDBSvr = false;
+	m_stCoreConfig.sTimerlooptick = 0;
+
 	return loadModuleConfig() && loadCoreConfig();
 }
 
@@ -67,6 +73,12 @@ bool ConfigEngine::loadCoreConfig(){
 	m_stCoreConfig.sNetlooptick = conf.root()["net"][0].getAttributeInt32("frametick");
 	m_stCoreConfig.sTimerlooptick = conf.root()["timer"][0].getAttributeInt32("tick");
 	m_stCoreConfig.sLoopduration = conf.root()["loop"][0].getAttributeInt32("tick");
+	if (conf.root().subNodeExist("db")){
+		m_stCoreConfig.sOpenDBSvr = true;
+		m_stCoreConfig.sDBMinWorkThreadNum = conf.root()["db"][0].getAttributeInt32("minThreadNum");
+		m_stCoreConfig.sDBMaxWorkThreadNum = conf.root()["db"][0].getAttributeInt32("maxThreadNum");
+		m_stCoreConfig.sDBConnetionNum = conf.root()["db"][0].getAttributeInt32("connectionNum");
+	}
 	return true;
 }
 

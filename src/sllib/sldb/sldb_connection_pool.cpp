@@ -14,6 +14,8 @@ SLDBConnectionPool::SLDBConnectionPool(int32 maxDBConnectionNum, const char* szH
 	m_connInfo.database(szDBName);
 	m_connInfo.charset(szCharSet);
 	m_connInfo.port(port);
+
+	InitializeCriticalSection(&m_allocConnectionMutex);
 }
 
 SLDBConnectionPool::~SLDBConnectionPool(){
@@ -27,6 +29,8 @@ SLDBConnectionPool::~SLDBConnectionPool(){
 	m_allConns.clear();
 	m_freeConns.clear();
 	m_maxConnectionNum = 0;
+
+	DeleteCriticalSection(&m_allocConnectionMutex);
 }
 
 void SLDBConnectionPool::release(){
@@ -34,20 +38,26 @@ void SLDBConnectionPool::release(){
 }
 
 ISLDBConnection* SLDBConnectionPool::allocConnection(){
-	if (m_freeConns.empty()){
-		SLDBConnection* pConnection = NEW SLDBConnection(this);
+	EnterCriticalSection(&m_allocConnectionMutex);
+	
+	SLDBConnection* pConnection = NULL;
+	if (m_freeConns.empty() && m_allConns.size() < m_maxConnectionNum){
+		pConnection = NEW SLDBConnection(this);
 		SLASSERT(pConnection, "new db connection failed");
 
-		pConnection->open(m_connInfo.host(), m_connInfo.port(), m_connInfo.user(), m_connInfo.pwd(), m_connInfo.database(), m_connInfo.charset());
+		pConnection->open(m_connInfo.host(), m_connInfo.port(), m_connInfo.user(), 
+			m_connInfo.pwd(), m_connInfo.database(), m_connInfo.charset());
+
 		m_freeConns.push_back(pConnection);
 		m_allConns.push_back(pConnection);
-		return pConnection;
 	}
 	else{
-		SLDBConnection* pConn = m_freeConns.front();
+		pConnection = m_freeConns.front();
 		m_freeConns.pop_front();
-		return pConn;
 	}
+
+	LeaveCriticalSection(&m_allocConnectionMutex);
+	return pConnection;
 }
 
 void SLDBConnectionPool::releaseConnection(ISLDBConnection* pConn){

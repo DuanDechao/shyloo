@@ -47,6 +47,8 @@ SET(SL_KERNEL_CONFIG
 )
 
 SET(SL_KERNEL_DB
+	"${PROJECT_SOURCE_DIR}/src/kernel/db/sldb_task.h"
+	"${PROJECT_SOURCE_DIR}/src/kernel/db/sldb_task.cpp"
 	"${PROJECT_SOURCE_DIR}/src/kernel/db/sldb_engine.h"
 	"${PROJECT_SOURCE_DIR}/src/kernel/db/sldb_engine.cpp"
 )
