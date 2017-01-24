@@ -1,5 +1,6 @@
 #include "slthread_pool.h"
 #include "sltpthread.h"
+#include "sltime.h"
 #include <iterator>
 namespace sl{
 namespace thread
@@ -79,7 +80,7 @@ void SLThreadPool::destroy(){
 		auto itor2 = m_finiTaskList.begin();
 		for (; itor2 != m_finiTaskList.end(); ++itor2){
 			if ((*itor2)){
-				DEL(*itor2);
+				(*itor2)->release();
 				*itor2 = NULL;
 			}
 		}
@@ -94,7 +95,7 @@ void SLThreadPool::destroy(){
 			ITPTask* pTask = m_bufferedTaskList.front();
 			m_bufferedTaskList.pop();
 			if (pTask)
-				DEL pTask;
+				pTask->release();
 		}
 		LeaveCriticalSection(&m_bufferedTaskListMutex);
 	}
@@ -124,13 +125,22 @@ bool SLThreadPool::start(){
 	return true;
 }
 
-void SLThreadPool::onMainThreadTick(){
+bool SLThreadPool::run(int64 overTime){
+	int64 startTime = sl::getTimeMilliSecond();
+	while (mainThreadTick()){
+		if (sl::getTimeMilliSecond() - startTime >= overTime)
+			break;
+	}
+	return true;
+}
+
+bool SLThreadPool::mainThreadTick(){
 	std::vector<ITPTask*> finiTasks;
 	
 	EnterCriticalSection(&m_finiTaskListMutex);
 	if (m_finiTaskList.size() == 0){
 		LeaveCriticalSection(&m_finiTaskListMutex);
-		return;
+		return false;
 	}
 
 	std::copy(m_finiTaskList.begin(), m_finiTaskList.end(), std::back_inserter(finiTasks));
@@ -138,7 +148,7 @@ void SLThreadPool::onMainThreadTick(){
 	LeaveCriticalSection(&m_finiTaskListMutex);
 
 	if (finiTasks.empty())
-		return;
+		return false;
 
 	auto finiIter = finiTasks.begin();
 	for (; finiIter != finiTasks.end();){
@@ -147,7 +157,7 @@ void SLThreadPool::onMainThreadTick(){
 		switch (state)
 		{
 		case sl::thread::TPTASK_STATE_COMPLETED:
-			DEL (*finiIter);
+			(*finiIter)->release();
 			finiIter = finiTasks.erase(finiIter);
 			--m_finiTaskListCount;
 			break;
@@ -171,6 +181,7 @@ void SLThreadPool::onMainThreadTick(){
 		}
 		
 	}
+	return true;
 }
 
 TPThread* SLThreadPool::createThread(int32 threadWaitSecond){

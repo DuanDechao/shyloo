@@ -1,10 +1,31 @@
 #include "sldb_engine.h"
 #include "slconfig_engine.h"
 #include "slxml_reader.h"
+#include "sldb_task.h"
 namespace sl
 {
 namespace core
 {
+DBEngine::DBEngine() 
+	:m_threadPool(nullptr), 
+	 m_connectionPool(nullptr)
+{}
+
+DBEngine::~DBEngine(){}
+
+DBEngine* DBEngine::getInstance(){
+	static DBEngine* p = nullptr;
+	if (!p){
+		p = NEW DBEngine;
+		if (!p->ready()){
+			SLASSERT(false, "DB Engine not ready");
+			DEL p;
+			p = nullptr;
+		}
+	}
+	return p;
+}
+
 bool DBEngine::ready(){
 	return true;
 }
@@ -33,27 +54,54 @@ bool DBEngine::initialize(){
 	const char* pwd = svrConf.root()["db"][0].getAttributeString("pwd");
 	const char* dbName = svrConf.root()["db"][0].getAttributeString("db");
 	const char* charset = svrConf.root()["db"][0].getAttributeString("charset");
-	m_connectionPool = sl::db::newDBConnectionPool(coreConf->sDBConnetionNum, host, port, user, pwd, dbName, charset);
+	m_connectionPool = db::newDBConnectionPool(coreConf->sDBConnetionNum, host, port, user, pwd, dbName, charset);
 	SLASSERT(m_connectionPool, "create connectionPool failed");
 	return true;
 }
 
 bool DBEngine::destory(){
-	m_threadPool->release();
-	m_connectionPool->release();
+	if (m_threadPool)
+		m_threadPool->release();
+
+	if (m_connectionPool)
+		m_connectionPool->release();
 
 	DEL this;
 	return true;
 }
 
-bool DBEngine::addDBTask(){
-
+bool DBEngine::addDBTask(api::IDBTask* pTask){
+	if (m_threadPool){
+		DBTask* pDBTask = DBTask::newDBTask(pTask);
+		SLASSERT(pDBTask, "wtf");
+		return m_threadPool->addTask(pDBTask);
+	}
+		
+	return false;
 }
+
 sl::db::ISLDBConnection* DBEngine::allocDBConnecton(){
+	if (m_connectionPool)
+		return m_connectionPool->allocConnection();
 
+	return nullptr;
 }
-void DBEngine::releaseDBConnecton(db::ISLDBConnection* pConn){
 
+void DBEngine::releaseDBConnecton(db::ISLDBConnection* pConn){
+	if (pConn && m_connectionPool)
+		m_connectionPool->releaseConnection(pConn);
+}
+
+int64 DBEngine::processing(int64 overTime){
+	if (!ConfigEngine::getInstance()->getCoreConfig()->sOpenDBSvr)
+		return 0;
+
+	int64 startTime = sl::getTimeMilliSecond();
+	
+	if (m_threadPool)
+		m_threadPool->run(overTime);
+	
+	return sl::getTimeMilliSecond() - startTime;
 }
 
 

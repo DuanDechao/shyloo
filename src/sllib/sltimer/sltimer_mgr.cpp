@@ -162,7 +162,7 @@ int64 TimersT::process(int64 overTime)
 	while(!(m_TimeQueue.empty()) && 
 		(m_TimeQueue.top()->getExpireTime() <= timestamp() || m_TimeQueue.top()->isDestoryed()))
 	{
-		if (sl::getTimeMilliSecond() - tick > overTime)
+		if (sl::getTimeMilliSecond() - (uint64)tick > (uint64)overTime)
 			break;
 
 		CSLTimerBase* pTimer = m_pProcessingNode = m_TimeQueue.top();

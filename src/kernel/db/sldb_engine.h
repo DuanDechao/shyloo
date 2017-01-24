@@ -2,7 +2,7 @@
 #define __SL_CORE_DB_ENGINE_H__
 #include "slthread.h"
 #include "sldb.h"
-
+#include "slikernel.h"
 namespace sl
 {
 namespace core
@@ -15,12 +15,13 @@ public:
 	virtual bool initialize();
 	virtual bool destory();
 
-	virtual bool addDBTask(DBTask* pDBTask);
+	virtual bool addDBTask(api::IDBTask* pDBTask);
 	virtual sl::db::ISLDBConnection* allocDBConnecton();
 	virtual void releaseDBConnecton(db::ISLDBConnection* pConn);
+	virtual int64 processing(int64 overTime);
 
 private:
-	DBEngine(){}
+	DBEngine();
 	~DBEngine();
 
 private:

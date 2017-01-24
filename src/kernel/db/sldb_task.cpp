@@ -1,11 +1,25 @@
 #include "sldb_task.h"
 #include "sldb_engine.h"
+#include "slkernel.h"
 namespace sl
 {
 namespace core
 {
+DBTask::DBTask()
+	:m_dbConnection(nullptr),
+	m_dbTask(nullptr)
+{}
 
-DBTask::DBTask() :m_dbConnection(nullptr){}
+DBTask::DBTask(api::IDBTask* pTask)
+	:m_dbConnection(nullptr),
+	m_dbTask(pTask)
+{}
+
+DBTask::~DBTask(){
+	if (m_dbTask)
+		DEL m_dbTask;
+	m_dbTask = nullptr;
+}
 
 bool DBTask::process(){
 	m_dbConnection = DBEngine::getInstance()->allocDBConnecton();
@@ -13,7 +27,12 @@ bool DBTask::process(){
 	if (!m_dbConnection)
 		return false;
 
-	return threadProcess(m_dbConnection);
+	SLASSERT(m_dbTask, "wtf");
+	return m_dbTask->threadProcess(core::Kernel::getInstance(), m_dbConnection);
+}
+
+void DBTask::release(){
+	RELEASE_POOL_OBJECT(DBTask, this);
 }
 
 thread::TPTaskState DBTask::presentMainThread(){
@@ -23,7 +42,12 @@ thread::TPTaskState DBTask::presentMainThread(){
 	DBEngine::getInstance()->releaseDBConnecton(m_dbConnection);
 	m_dbConnection = nullptr;
 
-	return mainThreadProcess();
+	return m_dbTask->mainThreadProcess(core::Kernel::getInstance());
 }
+
+DBTask* DBTask::newDBTask(api::IDBTask* pTask){
+	return CREATE_POOL_OBJECT(DBTask, pTask);
+}
+
 }
 }

@@ -32,8 +32,6 @@ public:
 
 	virtual bool SLAPI isDestroyed(void) const { return m_isDestroyed; }
 
-	virtual void SLAPI onMainThreadTick();
-
 	virtual void SLAPI release();
 
 	//启动
@@ -41,6 +39,11 @@ public:
 
 	//向线程池添加一个任务
 	virtual bool SLAPI addTask(ITPTask* pTask);
+
+	//run
+	virtual bool SLAPI run(int64 overTime);
+
+	virtual bool mainThreadTick();
 
 	bool isThreadCountMax(void) const { return m_currThreadCount >= m_maxThreadCount; }
 

@@ -23,6 +23,7 @@ public:
 	virtual bool SLAPI process() = 0;
 	virtual bool SLAPI end() = 0;
 	virtual TPTaskState SLAPI presentMainThread() = 0;
+	virtual void SLAPI release() = 0;
 };
 
 class ISLThreadPool{
@@ -51,7 +52,7 @@ public:
 	virtual bool SLAPI addTask(ITPTask* pTask) = 0;
 
 	//主线程执行
-	virtual void SLAPI onMainThreadTick() = 0;
+	virtual bool SLAPI run(int64 overTime) = 0;
 
 	//释放
 	virtual void SLAPI release() = 0;

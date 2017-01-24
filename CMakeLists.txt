@@ -65,11 +65,17 @@ IF(WIN32)
 		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/slnet"
 		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/sltimer"
 		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/slxml"
+		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/sldb"
+		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/slthread"
+		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/libmysql"
 	)
 	SET(SL_LIB_RELEASE
 		optimized "${PROJECT_SOURCE_DIR}/src/sllib/libs/Release/slnet"
 		optimized "${PROJECT_SOURCE_DIR}/src/sllib/libs/Release/sltimer"
 		optimized "${PROJECT_SOURCE_DIR}/src/sllib/libs/Release/slxml"
+		optimized "${PROJECT_SOURCE_DIR}/src/sllib/libs/Release/sldb"
+		optimized "${PROJECT_SOURCE_DIR}/src/sllib/libs/Release/slthread"
+		optimized "${PROJECT_SOURCE_DIR}/src/sllib/libs/Release/libmysql"
 	)
 ENDIF(WIN32)
 

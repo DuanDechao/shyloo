@@ -10,6 +10,7 @@ INCLUDE_DIRECTORIES(
 	"${PROJECT_SOURCE_DIR}/src/kernel/timer"
 	"${PROJECT_SOURCE_DIR}/src/kernel/net"
 	"${PROJECT_SOURCE_DIR}/src/kernel/config"
+	"${PROJECT_SOURCE_DIR}/src/kernel/db"
 )
 ENDIF(WIN32)
 

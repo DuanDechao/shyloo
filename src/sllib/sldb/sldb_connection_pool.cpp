@@ -41,7 +41,7 @@ ISLDBConnection* SLDBConnectionPool::allocConnection(){
 	EnterCriticalSection(&m_allocConnectionMutex);
 	
 	SLDBConnection* pConnection = NULL;
-	if (m_freeConns.empty() && m_allConns.size() < m_maxConnectionNum){
+	if (m_freeConns.empty() && (int32)m_allConns.size() < m_maxConnectionNum){
 		pConnection = NEW SLDBConnection(this);
 		SLASSERT(pConnection, "new db connection failed");
 
@@ -86,6 +86,11 @@ bool SLDBConnectionPool::hasConnection(ISLDBConnection* pConn){
 			return true;
 	}
 	return false;
+}
+
+ISLDBConnectionPool* SLAPI newDBConnectionPool(int32 maxConnectionNum, const char* szHostName, const int32 port, const char* szName, const char* szPwd,
+	const char* szDBName, const char* szCharSet){
+	return NEW SLDBConnectionPool(maxConnectionNum, szHostName, port, szName, szPwd, szDBName, szCharSet);
 }
 
 }

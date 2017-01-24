@@ -2,6 +2,8 @@
 #define SL_KERNEL_ICONFIG_ENGINE_H
 #include "slicore.h"
 #include "slikernel.h"
+#include <string>
+#include <vector>
 namespace sl
 {
 namespace core
@@ -15,6 +17,9 @@ struct sCoreConfig{
 
 	//timer module
 	int32 sTimerlooptick;
+
+	//db module
+	int32 sDBlooptick;
 
 	//open db server?
 	bool sOpenDBSvr;

@@ -1,7 +1,8 @@
 #ifndef SL_KERNEL_IKERNEL_H
 #define SL_KERNEL_IKERNEL_H
 #include "slmulti_sys.h"
-//#include "sltimer.h"
+#include "slthread.h"
+#include "sldb.h"
 namespace sl
 {
 namespace api
@@ -88,6 +89,16 @@ private:
 
 };
 
+
+
+class IDBTask{
+public:
+	virtual ~IDBTask(){}
+
+	virtual bool threadProcess(IKernel* pKernel, db::ISLDBConnection* pDBConnection) = 0;
+	virtual thread::TPTaskState mainThreadProcess(IKernel* pKernel) = 0;
+}; 
+
 class IKernel
 {
 public:
@@ -105,12 +116,17 @@ public:
 	virtual void pauseTimer(api::ITimer* timer) = 0;
 	virtual void resumeTimer(api::ITimer* timer) = 0;
 
+	// logic interface
 	virtual IModule * findModule(const char * name) = 0;
 	virtual const char* getCmdArg(const char* name) = 0;
-
+	
+	//config interface
 	virtual const char* getCoreFile() = 0;
 	virtual const char* getConfigFile() = 0;
 	virtual const char* getEnvirPath() = 0;
+
+	//db interface
+	virtual bool addDBTask(IDBTask* pDBTask) = 0;
 	
 };
 }

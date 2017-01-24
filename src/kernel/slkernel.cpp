@@ -3,6 +3,7 @@
 #include "sltimer_engine.h"
 #include "sllogic_engine.h"
 #include "slconfig_engine.h"
+#include "sldb_engine.h"
 #include <time.h>
 namespace sl
 {
@@ -25,16 +26,18 @@ bool Kernel::ready(){
 	return ConfigEngine::getInstance() &&
 		TimerEngine::getInstance() &&
 		NetEngine::getInstance() &&
-		LogicEngine::getInstance();
+		LogicEngine::getInstance() &&
+		DBEngine::getInstance();
 }
 
 bool Kernel::initialize(int32 argc, char ** argv){
 	parse(argc, argv);
 
 	return ConfigEngine::getInstance()->initialize() &&
-		TimerEngine::getInstance()->initialize() && 
+		TimerEngine::getInstance()->initialize() &&
 		NetEngine::getInstance()->initialize() &&
-		LogicEngine::getInstance()->initialize();
+		LogicEngine::getInstance()->initialize() &&
+		DBEngine::getInstance()->initialize();
 }
 
 bool Kernel::destory(){
@@ -42,6 +45,7 @@ bool Kernel::destory(){
 	TimerEngine::getInstance()->destory();
 	NetEngine::getInstance()->destory();
 	LogicEngine::getInstance()->destory();
+	DBEngine::getInstance()->destory();
 	DEL this;
 	return true;
 }
@@ -53,11 +57,13 @@ void Kernel::loop() {
 		int64 startTick = sl::getTimeMilliSecond();
 		int64 netTick = NetEngine::getInstance()->processing(ConfigEngine::getInstance()->getCoreConfig()->sNetlooptick);
 		int64 timerTick = TimerEngine::getInstance()->processing(ConfigEngine::getInstance()->getCoreConfig()->sTimerlooptick);
+		int64 dbTick = DBEngine::getInstance()->processing(ConfigEngine::getInstance()->getCoreConfig()->sDBlooptick);
 
 		int64 useTick = sl::getTimeMilliSecond() - startTick;
 		if (useTick > ConfigEngine::getInstance()->getCoreConfig()->sLoopduration ||
 			netTick > ConfigEngine::getInstance()->getCoreConfig()->sNetlooptick ||
-			timerTick > ConfigEngine::getInstance()->getCoreConfig()->sTimerlooptick){
+			timerTick > ConfigEngine::getInstance()->getCoreConfig()->sTimerlooptick ||
+			dbTick > ConfigEngine::getInstance()->getCoreConfig()->sDBlooptick){
 			//ECHO_ERROR("Loop use %d(%d, %d)", useTick, netTick, timerTick);
 		}
 		else{
@@ -111,6 +117,10 @@ void Kernel::pauseTimer(api::ITimer* timer){
 
 void Kernel::resumeTimer(api::ITimer* timer){
 	TimerEngine::getInstance()->resumeTimer(timer);
+}
+
+bool Kernel::addDBTask(api::IDBTask* pDBTask){
+	return DBEngine::getInstance()->addDBTask(pDBTask);
 }
 
 

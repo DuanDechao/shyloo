@@ -3,6 +3,6 @@
 	<loop tick="33" />
 	<net frametick="20" reconnect="500" />
 	<timer tick="10" />
+	<db tick="10" minThreadNum="5" maxThreadNum="8" connectionNum="5" />
 	<harbor type="2" />
-	<db minThreadNum="5" maxThreadNum="8" connectionNum="5" />
 </config>

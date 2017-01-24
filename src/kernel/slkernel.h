@@ -38,6 +38,9 @@ public:
 	virtual const char* getConfigFile();
 	virtual const char* getEnvirPath();
 
+	//db interface
+	virtual bool addDBTask(api::IDBTask* pDBTask);
+
 	void loop();
 
 public:
