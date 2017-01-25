@@ -110,6 +110,10 @@ void Harbor::rgsNodeMessageHandler(int32 messageId, node_args_cb handler){
 	m_allCBPool[messageId].push_back(NEW NodeArgsCBMessageHandler(handler));
 }
 
+void Harbor::rgsNodeMessageHandler(int32 messageId, node_cb handler){
+	m_allCBPool[messageId].push_back(NEW NodeCBMessageHandler(handler));
+}
+
 void Harbor::startListening(sl::api::IKernel* pKernel){
 	if (!m_port)
 		return;

@@ -5,6 +5,7 @@
 #include "IHarbor.h"
 #include "IAgent.h"
 #include "IGate.h"
+#include "IDB.h"
 #include "slbinary_stream.h"
 #include <unordered_map>
 #include <unordered_set>
@@ -51,17 +52,31 @@ public:
 	void rgsAgentMessageHandler(int32 messageId, agent_args_cb handler);
 	void transMsgToLogic(sl::api::IKernel* pKernel, const int64 id, const void* pContext, const int32 size);
 
-	
+	static void queryCB(sl::api::IKernel* pKernel, const sl::api::ICacheDataResult& result);
+
+	void test();
 private:
 	static Gate*		s_gate;
-	static sl::api::IKernel* s_kernel;
 	static IHarbor*		s_harbor;
 	static IAgent*		s_agent;
-
+	static IDB*			s_db;
+	static sl::api::IKernel* s_kernel;
 	static std::unordered_map<int64, Player> s_players;
 	static std::unordered_map<int32, std::unordered_set<int64>> s_logicPlayers;
 
 	static std::unordered_map<int32, agent_args_cb> s_gateProtos;
 };
 
+class testDBTask : public sl::api::IDBTask{
+public:
+	bool threadProcess(sl::api::IKernel* pKernel, db::ISLDBConnection* pDBConnection){
+		char* sql = "INSERT items(itemid, name, type, subtype, state) VALUES(3243242, \'dsfs\', 3, 4, 2)";
+		_dbResult = pDBConnection->execute(sql);
+		return true;
+	}
+	virtual thread::TPTaskState mainThreadProcess(sl::api::IKernel* pKernel){
+		return sl::thread::TPTASK_STATE_COMPLETED;
+	}
+
+};
 #endif

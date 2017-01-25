@@ -26,8 +26,9 @@ bool Kernel::ready(){
 	return ConfigEngine::getInstance() &&
 		TimerEngine::getInstance() &&
 		NetEngine::getInstance() &&
-		LogicEngine::getInstance() &&
-		DBEngine::getInstance();
+		DBEngine::getInstance() &&
+		LogicEngine::getInstance();
+		
 }
 
 bool Kernel::initialize(int32 argc, char ** argv){
@@ -36,16 +37,17 @@ bool Kernel::initialize(int32 argc, char ** argv){
 	return ConfigEngine::getInstance()->initialize() &&
 		TimerEngine::getInstance()->initialize() &&
 		NetEngine::getInstance()->initialize() &&
-		LogicEngine::getInstance()->initialize() &&
-		DBEngine::getInstance()->initialize();
+		DBEngine::getInstance()->initialize() &&
+		LogicEngine::getInstance()->initialize();
+		
 }
 
 bool Kernel::destory(){
 	ConfigEngine::getInstance()->destory();
 	TimerEngine::getInstance()->destory();
 	NetEngine::getInstance()->destory();
-	LogicEngine::getInstance()->destory();
 	DBEngine::getInstance()->destory();
+	LogicEngine::getInstance()->destory();
 	DEL this;
 	return true;
 }
@@ -56,8 +58,9 @@ void Kernel::loop() {
 	while(!m_bShutDown){
 		int64 startTick = sl::getTimeMilliSecond();
 		int64 netTick = NetEngine::getInstance()->processing(ConfigEngine::getInstance()->getCoreConfig()->sNetlooptick);
-		int64 timerTick = TimerEngine::getInstance()->processing(ConfigEngine::getInstance()->getCoreConfig()->sTimerlooptick);
 		int64 dbTick = DBEngine::getInstance()->processing(ConfigEngine::getInstance()->getCoreConfig()->sDBlooptick);
+		int64 timerTick = TimerEngine::getInstance()->processing(ConfigEngine::getInstance()->getCoreConfig()->sTimerlooptick);
+		
 
 		int64 useTick = sl::getTimeMilliSecond() - startTick;
 		if (useTick > ConfigEngine::getInstance()->getCoreConfig()->sLoopduration ||

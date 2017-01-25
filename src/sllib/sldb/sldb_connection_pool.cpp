@@ -48,12 +48,11 @@ ISLDBConnection* SLDBConnectionPool::allocConnection(){
 		pConnection->open(m_connInfo.host(), m_connInfo.port(), m_connInfo.user(), 
 			m_connInfo.pwd(), m_connInfo.database(), m_connInfo.charset());
 
-		m_freeConns.push_back(pConnection);
 		m_allConns.push_back(pConnection);
 	}
 	else{
 		pConnection = m_freeConns.front();
-		m_freeConns.pop_front();
+		m_freeConns.pop_front();	
 	}
 
 	LeaveCriticalSection(&m_allocConnectionMutex);

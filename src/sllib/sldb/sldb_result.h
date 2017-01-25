@@ -2,6 +2,7 @@
 #define __SL_DB_REUSLT_H__
 #include "sldb_define.h"
 #include "slobjectpool.h"
+#include <unordered_map>
 namespace sl
 {
 namespace db
@@ -26,6 +27,14 @@ public:
 
 	void setResult(MYSQL& mysql);
 
+	virtual unsigned int SLAPI filedNum() const { return m_filedNum; }
+	virtual unsigned int SLAPI rowNum() const { return m_rowNum; }
+	virtual int32 SLAPI colNameToIdx(const char* colName) const{
+		auto itor = m_colNameIdxMap.find(colName);
+		if (itor == m_colNameIdxMap.end())
+			return -1;
+		return itor->second;
+	}
 private:
 	MYSQL_RES*		m_result;
 	MYSQL_FIELD*	m_fields;
@@ -34,6 +43,7 @@ private:
 	unsigned long*	m_curRowfieldLengths;
 	unsigned int	m_filedNum;
 	unsigned int    m_rowNum;
+	std::unordered_map<std::string, int32> m_colNameIdxMap;
 };
 
 CREATE_OBJECT_POOL(SLDBResult);

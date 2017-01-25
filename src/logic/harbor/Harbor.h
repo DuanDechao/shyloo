@@ -84,6 +84,7 @@ public:
 	virtual void connect(const char* ip, const int32 port);
 
 	virtual void rgsNodeMessageHandler(int32 messageId, node_args_cb handler);
+	virtual void rgsNodeMessageHandler(int32 messageId, node_cb handler);
 	virtual void startListening(sl::api::IKernel* pKernel);
 
 private:

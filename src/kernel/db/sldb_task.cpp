@@ -17,7 +17,7 @@ DBTask::DBTask(api::IDBTask* pTask)
 
 DBTask::~DBTask(){
 	if (m_dbTask)
-		DEL m_dbTask;
+		m_dbTask->release();
 	m_dbTask = nullptr;
 }
 

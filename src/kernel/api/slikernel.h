@@ -3,6 +3,7 @@
 #include "slmulti_sys.h"
 #include "slthread.h"
 #include "sldb.h"
+#include <functional>
 namespace sl
 {
 namespace api
@@ -93,11 +94,31 @@ private:
 
 class IDBTask{
 public:
+	IDBTask() :_dbResult(nullptr){}
 	virtual ~IDBTask(){}
 
 	virtual bool threadProcess(IKernel* pKernel, db::ISLDBConnection* pDBConnection) = 0;
 	virtual thread::TPTaskState mainThreadProcess(IKernel* pKernel) = 0;
-}; 
+	virtual void release() { DEL this; }
+	sl::db::ISLDBResult* getDBResult() const { return _dbResult; }
+protected:
+	sl::db::ISLDBResult* _dbResult;
+};
+
+class ICacheDataResult{
+public:
+	typedef std::function<void(IKernel* pKernel, const ICacheDataResult&)> DataReadFuncType;
+
+	virtual ~ICacheDataResult(){}
+	virtual bool next() const = 0;
+	virtual int32 count() const = 0;
+	virtual int8 getDataInt8(const char* colName) const = 0;
+	virtual int16 getDataInt16(const char* colName) const = 0;
+	virtual int32 getDataInt32(const char* colName) const = 0;
+	virtual int64 getDataInt64(const char* colName) const = 0;
+	virtual float getDataFloat(const char* colName) const = 0;
+	virtual const char * getDataString(const char* colName) const = 0;
+};
 
 class IKernel
 {

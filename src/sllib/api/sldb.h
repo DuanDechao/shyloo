@@ -20,6 +20,10 @@ public:
 	virtual uint64 SLAPI toUint64(const int32 index) = 0;
 	virtual float SLAPI toFloat(const int32 index) = 0;
 	virtual const char* SLAPI toString(const int32 index) = 0;
+
+	virtual unsigned int SLAPI filedNum() const = 0;
+	virtual unsigned int SLAPI rowNum() const = 0;
+	virtual int32 SLAPI colNameToIdx(const char* colName) const = 0;
 };
 
 class ISLDBConnection

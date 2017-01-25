@@ -9,6 +9,7 @@ Gate* Gate::s_gate = nullptr;
 IHarbor* Gate::s_harbor = nullptr;
 sl::api::IKernel* Gate::s_kernel = nullptr;
 IAgent*	Gate::s_agent = nullptr;
+IDB* Gate::s_db = nullptr;
 std::unordered_map<int64, Gate::Player> Gate::s_players;
 std::unordered_map<int32, std::unordered_set<int64>> Gate::s_logicPlayers;
 std::unordered_map<int32, Gate::agent_args_cb> Gate::s_gateProtos;
@@ -21,8 +22,15 @@ bool Gate::initialize(sl::api::IKernel * pKernel){
 bool Gate::launched(sl::api::IKernel * pKernel){
 	s_harbor = (IHarbor*)pKernel->findModule("Harbor");
 	SLASSERT(s_harbor, "not find module harbor");
+	s_db = (IDB*)pKernel->findModule("DB");
+	SLASSERT(s_db, "not find module s_db");
+
+	s_db->rgsDBTaskCallBack(32, Gate::queryCB);
 
 	s_gate->rgsAgentMessageHandler(AgentProtocol::CLIENT_MSG_LOGIN_REQ, &Gate::onClientLoginReq);
+
+	test();
+
 	return true;
 }
 bool Gate::destory(sl::api::IKernel * pKernel){
@@ -93,3 +101,19 @@ void Gate::onClientLoginReq(sl::api::IKernel* pKernel, const int64 id, const OBS
 }
 
 
+void Gate::test(){
+	auto f = [](sl::api::IKernel* pKernel, const sl::api::ICacheDataResult& result){
+		while (result.next()){
+			ECHO_ERROR("itemID:%lld name:%s type:%d subtype:%d state:%d", result.getDataInt64("itemid"), result.getDataString("name"), result.getDataInt8("type"),
+				result.getDataInt8("subtype"), result.getDataInt8("state"));
+		}
+	};
+	s_db->execDBTask(NEW testDBTask(), 32);
+}
+
+void Gate::queryCB(sl::api::IKernel* pKernel, const sl::api::ICacheDataResult& result){
+	while (result.next()){
+		ECHO_ERROR("itemID:%lld name:%s type:%d subtype:%d state:%d", result.getDataInt64("itemid"), result.getDataString("name"), result.getDataInt8("type"),
+			result.getDataInt8("subtype"), result.getDataInt8("state"));
+	}
+}

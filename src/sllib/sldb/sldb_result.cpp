@@ -32,6 +32,10 @@ void SLDBResult::setResult(MYSQL& mysql){
 		m_fields = mysql_fetch_fields(m_result);
 		m_filedNum = mysql_num_fields(m_result);
 		m_rowNum = (unsigned int)mysql_num_rows(m_result);
+
+		for (int32 i = 0; i < m_filedNum; i++){
+			m_colNameIdxMap[m_fields[i].name] = i;
+		}
 	}
 }
 
