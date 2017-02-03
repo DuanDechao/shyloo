@@ -102,13 +102,12 @@ void Gate::onClientLoginReq(sl::api::IKernel* pKernel, const int64 id, const OBS
 
 
 void Gate::test(){
-	auto f = [](sl::api::IKernel* pKernel, const sl::api::ICacheDataResult& result){
-		while (result.next()){
-			ECHO_ERROR("itemID:%lld name:%s type:%d subtype:%d state:%d", result.getDataInt64("itemid"), result.getDataString("name"), result.getDataInt8("type"),
-				result.getDataInt8("subtype"), result.getDataInt8("state"));
-		}
-	};
-	s_db->execDBTask(NEW testDBTask(), 32);
+	static int64 uid = 325345767;
+	IArgs<2, 128> args;
+	args << uid;
+	args << "fsdfgsdg";
+	args.fix();
+	s_db->execDBTask(NEW testDBTask(), 32, args.out());
 }
 
 void Gate::queryCB(sl::api::IKernel* pKernel, const sl::api::ICacheDataResult& result){

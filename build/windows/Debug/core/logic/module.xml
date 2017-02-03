@@ -4,4 +4,6 @@
 	<module name="Cluster" />
 	<module name="DCCenter" />
 	<module name="IdMgr" />
+	<module name="Gate" />
+	<module name="DB" />
 </modules>

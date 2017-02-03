@@ -11,7 +11,7 @@ namespace core
 class DBTask : public sl::thread::ITPTask{
 public:
 	DBTask();
-	DBTask(api::IDBTask* pTask);
+	DBTask(api::IDBTaskCall* pTaskCall);
 	~DBTask();
 
 	virtual bool SLAPI start(){ return true; }
@@ -20,11 +20,11 @@ public:
 	virtual thread::TPTaskState SLAPI presentMainThread();
 	virtual void SLAPI release();
 
-	static DBTask* newDBTask(api::IDBTask* pTask);
+	static DBTask* newDBTaskCall(api::IDBTaskCall* pTaskCall);
 	
 private:
 	sl::db::ISLDBConnection*	m_dbConnection;
-	sl::api::IDBTask*			m_dbTask;
+	sl::api::IDBTaskCall*		m_dbTaskCall;
 };
 CREATE_OBJECT_POOL(DBTask);
 

@@ -18,7 +18,7 @@ public:
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
 
-	virtual void execDBTask(sl::api::IDBTask* pTask, int32 cbID = INVAILD_CB_ID);
+	virtual void execDBTask(sl::api::IDBTask* pTask, int32 cbID, const OArgs& args);
 	virtual void rgsDBTaskCallBack(int32 messageId, sl::api::ICacheDataResult::DataReadFuncType handler);
 	static void dealTaskCompleteCB(sl::api::IKernel * pKernel, int32 cbID, const sl::api::ICacheDataResult& result);
 

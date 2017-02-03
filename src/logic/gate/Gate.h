@@ -69,14 +69,24 @@ private:
 
 class testDBTask : public sl::api::IDBTask{
 public:
-	bool threadProcess(sl::api::IKernel* pKernel, db::ISLDBConnection* pDBConnection){
-		char* sql = "INSERT items(itemid, name, type, subtype, state) VALUES(3243242, \'dsfs\', 3, 4, 2)";
-		_dbResult = pDBConnection->execute(sql);
+	bool threadProcess(sl::api::IKernel* pKernel, db::ISLDBConnection* pDBConnection, const OArgs& args){
+		int64 uid = args.getInt64(0);
+		const char* uName = args.getString(1);
+
+		char* sql = "INSERT user(id, name) VALUES(%lld, \'%s\')";
+		char exeSql[1024] = { 0 };
+		SafeSprintf(exeSql, 1024, sql, uid, uName);
+		_dbResult = pDBConnection->execute(exeSql);
 		return true;
 	}
 	virtual thread::TPTaskState mainThreadProcess(sl::api::IKernel* pKernel){
 		return sl::thread::TPTASK_STATE_COMPLETED;
 	}
+	sl::db::ISLDBResult* getTaskResult() { return _dbResult; }
+
+	virtual void release() { DEL this; }
+private:
+	sl::db::ISLDBResult* _dbResult;
 
 };
 #endif

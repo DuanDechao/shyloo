@@ -7,6 +7,7 @@ namespace sl
 {
 namespace db
 {
+
 class SLDBResult : public ISLDBResult{
 public:
 	SLDBResult();

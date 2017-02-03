@@ -3,6 +3,7 @@
 #include "slmulti_sys.h"
 #include "slthread.h"
 #include "sldb.h"
+#include "slargs.h"
 #include <functional>
 namespace sl
 {
@@ -90,19 +91,21 @@ private:
 
 };
 
-
+class IDBTaskCall{
+public:
+	virtual ~IDBTaskCall(){}
+	virtual bool threadProcess(IKernel* pKernel, db::ISLDBConnection* pDBConnection) = 0;
+	virtual thread::TPTaskState mainThreadProcess(IKernel* pKernel) = 0;
+	virtual void release() = 0;
+};
 
 class IDBTask{
 public:
-	IDBTask() :_dbResult(nullptr){}
 	virtual ~IDBTask(){}
-
-	virtual bool threadProcess(IKernel* pKernel, db::ISLDBConnection* pDBConnection) = 0;
+	virtual bool threadProcess(IKernel* pKernel, db::ISLDBConnection* pDBConnection, const OArgs& args) = 0;
 	virtual thread::TPTaskState mainThreadProcess(IKernel* pKernel) = 0;
-	virtual void release() { DEL this; }
-	sl::db::ISLDBResult* getDBResult() const { return _dbResult; }
-protected:
-	sl::db::ISLDBResult* _dbResult;
+	virtual void release() = 0;
+	virtual sl::db::ISLDBResult* getTaskResult() = 0;
 };
 
 class ICacheDataResult{
@@ -147,7 +150,7 @@ public:
 	virtual const char* getEnvirPath() = 0;
 
 	//db interface
-	virtual bool addDBTask(IDBTask* pDBTask) = 0;
+	virtual bool addDBTask(IDBTaskCall* pDBTask) = 0;
 	
 };
 }

@@ -122,8 +122,8 @@ void Kernel::resumeTimer(api::ITimer* timer){
 	TimerEngine::getInstance()->resumeTimer(timer);
 }
 
-bool Kernel::addDBTask(api::IDBTask* pDBTask){
-	return DBEngine::getInstance()->addDBTask(pDBTask);
+bool Kernel::addDBTask(api::IDBTaskCall* pDBTask){
+	return DBEngine::getInstance()->addDBTaskCall(pDBTask);
 }
 
 

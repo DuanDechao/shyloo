@@ -7,18 +7,18 @@ namespace core
 {
 DBTask::DBTask()
 	:m_dbConnection(nullptr),
-	m_dbTask(nullptr)
+	m_dbTaskCall(nullptr)
 {}
 
-DBTask::DBTask(api::IDBTask* pTask)
+DBTask::DBTask(api::IDBTaskCall* pTaskCall)
 	:m_dbConnection(nullptr),
-	m_dbTask(pTask)
+	m_dbTaskCall(pTaskCall)
 {}
 
 DBTask::~DBTask(){
-	if (m_dbTask)
-		m_dbTask->release();
-	m_dbTask = nullptr;
+	if (m_dbTaskCall)
+		m_dbTaskCall->release();
+	m_dbTaskCall = nullptr;
 }
 
 bool DBTask::process(){
@@ -27,8 +27,8 @@ bool DBTask::process(){
 	if (!m_dbConnection)
 		return false;
 
-	SLASSERT(m_dbTask, "wtf");
-	return m_dbTask->threadProcess(core::Kernel::getInstance(), m_dbConnection);
+	SLASSERT(m_dbTaskCall, "wtf");
+	return m_dbTaskCall->threadProcess(core::Kernel::getInstance(), m_dbConnection);
 }
 
 void DBTask::release(){
@@ -42,11 +42,11 @@ thread::TPTaskState DBTask::presentMainThread(){
 	DBEngine::getInstance()->releaseDBConnecton(m_dbConnection);
 	m_dbConnection = nullptr;
 
-	return m_dbTask->mainThreadProcess(core::Kernel::getInstance());
+	return m_dbTaskCall->mainThreadProcess(core::Kernel::getInstance());
 }
 
-DBTask* DBTask::newDBTask(api::IDBTask* pTask){
-	return CREATE_POOL_OBJECT(DBTask, pTask);
+DBTask* DBTask::newDBTaskCall(api::IDBTaskCall* pTaskCall){
+	return CREATE_POOL_OBJECT(DBTask, pTaskCall);
 }
 
 }

@@ -70,9 +70,9 @@ bool DBEngine::destory(){
 	return true;
 }
 
-bool DBEngine::addDBTask(api::IDBTask* pTask){
+bool DBEngine::addDBTaskCall(api::IDBTaskCall* pTaskCall){
 	if (m_threadPool){
-		DBTask* pDBTask = DBTask::newDBTask(pTask);
+		DBTask* pDBTask = DBTask::newDBTaskCall(pTaskCall);
 		SLASSERT(pDBTask, "wtf");
 		return m_threadPool->addTask(pDBTask);
 	}

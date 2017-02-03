@@ -4,8 +4,8 @@
 #include "slikernel.h"
 #include "slobjectpool.h"
 #include "sldb.h"
+#include "slargs.h"
 class IDB;
-
 class DBDataResult : public sl::api::ICacheDataResult{
 public:
 	DBDataResult(sl::db::ISLDBResult* pDBResult);
@@ -18,28 +18,27 @@ public:
 	virtual int64 getDataInt64(const char* colName) const;
 	virtual float getDataFloat(const char* colName) const;
 	virtual const char * getDataString(const char* colName) const;
-	
 
 private:
 	sl::db::ISLDBResult*	m_pDBResult;
 };
 
-
-class DBTaskCall : public sl::api::IDBTask{
+class DBTaskCall : public sl::api::IDBTaskCall{
 public:
 	DBTaskCall();
-	DBTaskCall(sl::api::IDBTask* pTask, int32 cbID);
+	DBTaskCall(sl::api::IDBTask* pTask, int32 cbID, const char* pParamsBuf, int32 bufSize);
 	~DBTaskCall();
 
-	static DBTaskCall* newDBTaskCall(sl::api::IDBTask* pTask, int32 cbID);
+	static DBTaskCall* newDBTaskCall(sl::api::IDBTask* pTask, int32 cbID, const OArgs& params);
 
 	virtual bool threadProcess(sl::api::IKernel* pKernel, sl::db::ISLDBConnection* pDBConnection);
 	virtual sl::thread::TPTaskState mainThreadProcess(sl::api::IKernel* pKernel);
 	virtual void release();
-
 private:
 	sl::api::IDBTask*		m_pTask;
 	int32					m_cbID;
+	const char*				m_paramsBuf;
+	int32					m_parBufSize;
 };
 
 CREATE_OBJECT_POOL(DBTaskCall);

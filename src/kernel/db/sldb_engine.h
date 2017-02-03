@@ -15,7 +15,7 @@ public:
 	virtual bool initialize();
 	virtual bool destory();
 
-	virtual bool addDBTask(api::IDBTask* pDBTask);
+	virtual bool addDBTaskCall(api::IDBTaskCall* pDBTaskCall);
 	virtual sl::db::ISLDBConnection* allocDBConnecton();
 	virtual void releaseDBConnecton(db::ISLDBConnection* pConn);
 	virtual int64 processing(int64 overTime);

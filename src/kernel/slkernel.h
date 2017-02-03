@@ -39,7 +39,7 @@ public:
 	virtual const char* getEnvirPath();
 
 	//db interface
-	virtual bool addDBTask(api::IDBTask* pDBTask);
+	virtual bool addDBTask(api::IDBTaskCall* pDBTask);
 
 	void loop();
 

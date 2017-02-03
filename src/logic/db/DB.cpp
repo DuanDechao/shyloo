@@ -23,11 +23,11 @@ bool DB::destory(sl::api::IKernel * pKernel){
 	return true;
 }
 
-void DB::execDBTask(sl::api::IDBTask* pTask, int32 cbID){
+void DB::execDBTask(sl::api::IDBTask* pTask, int32 cbID, const OArgs& args){
 	if (!pTask)
 		return;
 
-	DBTaskCall* pTaskCall = DBTaskCall::newDBTaskCall(pTask, cbID);
+	DBTaskCall* pTaskCall = DBTaskCall::newDBTaskCall(pTask, cbID, args);
 	m_kernel->addDBTask(pTaskCall);
 }
 
