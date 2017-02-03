@@ -23,7 +23,7 @@ bool DB::destory(sl::api::IKernel * pKernel){
 	return true;
 }
 
-void DB::execDBTask(sl::api::IDBTask* pTask, int32 cbID, const OArgs& args){
+void DB::execDBTask(sl::api::IDBTask* pTask, const OArgs& args, int32 cbID){
 	if (!pTask)
 		return;
 

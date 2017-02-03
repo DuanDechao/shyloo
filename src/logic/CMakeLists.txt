@@ -5,7 +5,9 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IDCCenter.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IIdMgr.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IAgent.h"
-	"${PROJECT_SOURCE_DIR}/src/logic/interface/IDB.h"	
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IDB.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IEventEngine.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IFSM.h"		
 )
 
 SET(SL_LOGIC_DEFINE
@@ -14,7 +16,6 @@ SET(SL_LOGIC_DEFINE
 	"${PROJECT_SOURCE_DIR}/src/logic/define/AgentProtocol.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/define/GameDefine.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/define/Attr.h"
-	"${PROJECT_SOURCE_DIR}/src/logic/define/DBTask.h"
 ) 
  
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/harbor)
@@ -27,3 +28,5 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/dccenter)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/idmgr)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/gate)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/db)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/eventengine)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/fsm)

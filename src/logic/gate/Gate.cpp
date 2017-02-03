@@ -102,12 +102,12 @@ void Gate::onClientLoginReq(sl::api::IKernel* pKernel, const int64 id, const OBS
 
 
 void Gate::test(){
-	static int64 uid = 325345767;
+	static int64 uid = 3111125345767;
 	IArgs<2, 128> args;
 	args << uid;
 	args << "fsdfgsdg";
 	args.fix();
-	s_db->execDBTask(NEW testDBTask(), 32, args.out());
+	s_db->execDBTask(NEW testDBTask(), args.out());
 }
 
 void Gate::queryCB(sl::api::IKernel* pKernel, const sl::api::ICacheDataResult& result){
