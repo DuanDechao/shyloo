@@ -5,7 +5,7 @@
 #include "slobjectpool.h"
 #include "sldb.h"
 #include "slargs.h"
-class IDB;
+
 class DBDataResult : public sl::api::ICacheDataResult{
 public:
 	DBDataResult(sl::db::ISLDBResult* pDBResult);
@@ -39,6 +39,7 @@ private:
 	int32					m_cbID;
 	const char*				m_paramsBuf;
 	int32					m_parBufSize;
+
 };
 
 CREATE_OBJECT_POOL(DBTaskCall);
