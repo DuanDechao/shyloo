@@ -110,8 +110,6 @@ public:
 
 class ICacheDataResult{
 public:
-	typedef std::function<void(IKernel* pKernel, const ICacheDataResult&)> DataReadFuncType;
-
 	virtual ~ICacheDataResult(){}
 	virtual bool next() const = 0;
 	virtual int32 count() const = 0;

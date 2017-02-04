@@ -4,8 +4,6 @@
 #include "NodeProtocol.h"
 #include "DBTaskCall.h"
 
-DB::TASK_CALL_TYPE DB::m_dbTaskCompleteDB;
-
 bool DB::initialize(sl::api::IKernel * pKernel){
 	m_kernel = pKernel;
 	return true;
@@ -23,31 +21,11 @@ bool DB::destory(sl::api::IKernel * pKernel){
 	return true;
 }
 
-void DB::execDBTask(sl::api::IDBTask* pTask, const OArgs& args, int32 cbID){
+void DB::execDBTask(sl::api::IDBTask* pTask, const OArgs& args, DBTaskCallBackType cb){
 	if (!pTask)
 		return;
 
-	DBTaskCall* pTaskCall = DBTaskCall::newDBTaskCall(pTask, cbID, args);
+	DBTaskCall* pTaskCall = DBTaskCall::newDBTaskCall(pTask, cb, args);
 	m_kernel->addDBTask(pTaskCall);
 }
-
-void DB::rgsDBTaskCallBack(int32 messageId, sl::api::ICacheDataResult::DataReadFuncType cb){
-	m_dbTaskCompleteDB[messageId].push_back(cb);
-}
-
-void DB::dealTaskCompleteCB(sl::api::IKernel * pKernel, int32 cbID, const sl::api::ICacheDataResult& result){
-	if (cbID == INVAILD_CB_ID)
-		return;
-
-	auto itor = m_dbTaskCompleteDB.find(cbID);
-	if (itor == m_dbTaskCompleteDB.end()){
-		SLASSERT(false, "not have cb id %d", cbID);
-		return;
-	}
-
-	for (auto& cb : itor->second){
-		cb(pKernel, result);
-	}
-}
-
 

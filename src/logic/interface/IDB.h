@@ -4,12 +4,14 @@
 #define INVAILD_CB_ID -1
 
 class OArgs;
+typedef std::function<void(sl::api::IKernel*, const sl::api::ICacheDataResult&)> DBTaskCallBackType;
 class IDB : public sl::api::IModule
 {
 public:
 	virtual ~IDB() {}
-	virtual void execDBTask(sl::api::IDBTask* pTask, const OArgs& args, int32 cbID = INVAILD_CB_ID) = 0;
-	virtual void rgsDBTaskCallBack(int32 messageId, sl::api::ICacheDataResult::DataReadFuncType handler) = 0;
+	virtual void execDBTask(sl::api::IDBTask* pTask, const OArgs& args, DBTaskCallBackType cb = nullptr) = 0;
 };
 
+#define CALL_DB_BACK(_db, _task, _params, _cb) _db->execDBTask(_task, _params, std::bind(&_cb, this, std::placeholders::_1,std::placeholders::_2))
+#define CALL_DB(_db, _task, _params) _db->execDBTask(_task, _params)
 #endif

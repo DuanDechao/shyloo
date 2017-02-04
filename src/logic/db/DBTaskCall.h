@@ -5,7 +5,7 @@
 #include "slobjectpool.h"
 #include "sldb.h"
 #include "slargs.h"
-
+#include "IDB.h"
 class DBDataResult : public sl::api::ICacheDataResult{
 public:
 	DBDataResult(sl::db::ISLDBResult* pDBResult);
@@ -26,19 +26,20 @@ private:
 class DBTaskCall : public sl::api::IDBTaskCall{
 public:
 	DBTaskCall();
-	DBTaskCall(sl::api::IDBTask* pTask, int32 cbID, const char* pParamsBuf, int32 bufSize);
+	DBTaskCall(sl::api::IDBTask* pTask, DBTaskCallBackType cb, const char* pParamsBuf, int32 bufSize);
 	~DBTaskCall();
 
-	static DBTaskCall* newDBTaskCall(sl::api::IDBTask* pTask, int32 cbID, const OArgs& params);
+	static DBTaskCall* newDBTaskCall(sl::api::IDBTask* pTask, DBTaskCallBackType cb, const OArgs& params);
 
 	virtual bool threadProcess(sl::api::IKernel* pKernel, sl::db::ISLDBConnection* pDBConnection);
 	virtual sl::thread::TPTaskState mainThreadProcess(sl::api::IKernel* pKernel);
 	virtual void release();
 private:
 	sl::api::IDBTask*		m_pTask;
-	int32					m_cbID;
+	//int32					m_cbID;
 	const char*				m_paramsBuf;
 	int32					m_parBufSize;
+	DBTaskCallBackType      m_cb;
 
 };
 

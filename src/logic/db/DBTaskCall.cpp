@@ -54,15 +54,15 @@ const char * DBDataResult::getDataString(const char* colName) const{
 
 DBTaskCall::DBTaskCall()
 	:m_pTask(nullptr),
-	m_cbID(-1),
 	m_paramsBuf(nullptr),
-	m_parBufSize(0)
+	m_parBufSize(0),
+	m_cb(nullptr)
 {}
 
 
-DBTaskCall::DBTaskCall(sl::api::IDBTask* pTask, int32 cbID, const char* pParamsBuf, int32 bufSize)
+DBTaskCall::DBTaskCall(sl::api::IDBTask* pTask, DBTaskCallBackType cb, const char* pParamsBuf, int32 bufSize)
 	:m_pTask(pTask),
-	m_cbID(cbID),
+	m_cb(cb),
 	m_paramsBuf(pParamsBuf),
 	m_parBufSize(bufSize)
 {}
@@ -77,11 +77,11 @@ DBTaskCall::~DBTaskCall(){
 	m_parBufSize = 0;
 }
 
-DBTaskCall* DBTaskCall::newDBTaskCall(sl::api::IDBTask* pTask, int32 cbID, const OArgs& params){
+DBTaskCall* DBTaskCall::newDBTaskCall(sl::api::IDBTask* pTask, DBTaskCallBackType cb, const OArgs& params){
 	const int32 bufSize = params.getSize();
 	const char* pParamsBuf = (const char*)MALLOC(bufSize);
 	sl::SafeMemcpy((void *)pParamsBuf, bufSize, params.getContext(), bufSize);
-	return CREATE_POOL_OBJECT(DBTaskCall, pTask, cbID, pParamsBuf, bufSize);
+	return CREATE_POOL_OBJECT(DBTaskCall, pTask, cb, pParamsBuf, bufSize);
 }
 
 bool DBTaskCall::threadProcess(sl::api::IKernel* pKernel, sl::db::ISLDBConnection* pDBConnection){
@@ -94,7 +94,8 @@ sl::thread::TPTaskState DBTaskCall::mainThreadProcess(sl::api::IKernel* pKernel)
 
 	if (_state == sl::thread::TPTaskState::TPTASK_STATE_COMPLETED){
 		DBDataResult dbResult(m_pTask->getTaskResult());
-		DB::dealTaskCompleteCB(pKernel, m_cbID, dbResult);
+		if (m_cb != nullptr)
+			m_cb(pKernel, dbResult);
 	}
 	return _state;
 }

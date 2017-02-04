@@ -4,7 +4,6 @@
 #include "IAgent.h"
 #include "NodeDefine.h"
 #include "NodeProtocol.h"
-
 Gate* Gate::s_gate = nullptr;
 IHarbor* Gate::s_harbor = nullptr;
 sl::api::IKernel* Gate::s_kernel = nullptr;
@@ -25,7 +24,7 @@ bool Gate::launched(sl::api::IKernel * pKernel){
 	s_db = (IDB*)pKernel->findModule("DB");
 	SLASSERT(s_db, "not find module s_db");
 
-	s_db->rgsDBTaskCallBack(32, Gate::queryCB);
+	//s_db->rgsDBTaskCallBack(32, Gate::queryCB);
 
 	s_gate->rgsAgentMessageHandler(AgentProtocol::CLIENT_MSG_LOGIN_REQ, &Gate::onClientLoginReq);
 
@@ -102,17 +101,14 @@ void Gate::onClientLoginReq(sl::api::IKernel* pKernel, const int64 id, const OBS
 
 
 void Gate::test(){
-	static int64 uid = 3111125345767;
+	static int64 uid = 3333253457678888;
 	IArgs<2, 128> args;
 	args << uid;
 	args << "fsdfgsdg";
 	args.fix();
-	s_db->execDBTask(NEW testDBTask(), args.out());
+	CALL_DB(s_db, NEW testDBTask(), args.out());
 }
 
 void Gate::queryCB(sl::api::IKernel* pKernel, const sl::api::ICacheDataResult& result){
-	while (result.next()){
-		ECHO_ERROR("itemID:%lld name:%s type:%d subtype:%d state:%d", result.getDataInt64("itemid"), result.getDataString("name"), result.getDataInt8("type"),
-			result.getDataInt8("subtype"), result.getDataInt8("state"));
-	}
+	ECHO_ERROR("call back sucess!");
 }
