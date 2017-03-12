@@ -93,10 +93,10 @@ struct Expr{
 	}
 
 	inline Expr operator && (const Expr& expr){
-		return and_or(expr, " and ");
+		return and_or(expr, _exprs.empty() ? "" : " and ");
 	}
 	inline Expr operator || (const Expr& expr){
-		return and_or(expr, " or ");
+		return and_or(expr, _exprs.empty() ? "" : " or ");
 	}
 
 	inline std::list<const SetExpr*> exprs() const { return _exprs; }

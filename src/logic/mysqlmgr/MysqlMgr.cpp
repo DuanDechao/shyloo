@@ -48,12 +48,13 @@ void MysqlMgr::stopSql(IMysqlHandler* handler){
 }
 
 int32 MysqlMgr::escapeString(char* dest, const int32 destSize, const char* src, const int32 srcSize){
+	sl::SafeMemcpy(dest, destSize, src, srcSize);
 	return srcSize;
 }
 
 void MysqlMgr::test(){
 	SQLCommand sql(NEW SQLBuilder());
-	sql.table("actor").select("dv").select("dg").where(Field("id") == 12341).where(Field("name") == "ddc").get();
+	sql.table("actor").select("dv", "dg").where(Field("id") == 12341, Field("name") == "ddc").get();
 	sql.submit();
 	const char* sqlcommand  = sql.toString();
 	ECHO_TRACE("sql Command:%s", sqlcommand);

@@ -32,52 +32,84 @@ public:
 
 		_sqlBuilder = nullptr; 
 	}
-	SQLCommand& table(const char* tableName){
-		_sqlBuilder->table(tableName);
-		return *this;
-	}
 
-	SQLCommand& select(const char* field){
+	int32 optType() const { return _sqlBuilder->optType(); }
+	const char* toString(){ return _sqlBuilder->toString(); }
+	bool checkVaild(){ return _sqlBuilder->checkVaild(); }
+	bool submit(){ return _sqlBuilder->submit(); }
+
+	SQLCommand& table(const char* tableName){ _sqlBuilder->table(tableName); return *this;}
+	SQLCommand& get(const int32 limit = 0){ _sqlBuilder->get(limit); return *this;}
+	SQLCommand& del(){ _sqlBuilder->del(); return *this;}
+
+	template<typename... Args>
+	SQLCommand& select(const char* field, Args... args){
+		return selectInner(field, args...);
+	}
+	template<typename... Args>
+	SQLCommand& selectInner(const char* field, Args... args){
+		_sqlBuilder->select(field);
+		return selectInner(args...);
+	}
+	SQLCommand& selectInner(const char* field){
 		_sqlBuilder->select(field);
 		return *this;
 	}
-	SQLCommand& where(const Expr& expr){
+
+	template<typename... Args>
+	SQLCommand& where(const Expr& expr, Args... args){
+		return whereInner(expr, args...);
+	}
+	template<typename... Args>
+	SQLCommand& whereInner(const Expr& expr, Args... args){
+		_sqlBuilder->where(expr);
+		return whereInner(args...);
+	}
+	SQLCommand& whereInner(const Expr& expr){
 		_sqlBuilder->where(expr);
 		return *this;
 	}
-	SQLCommand& orWhere(const Expr& expr){
+
+	template<typename... Args>
+	SQLCommand& orWhere(const Expr& expr, Args... args){
+		return orWhereInner(field, args...);
+	}
+	template<typename... Args>
+	SQLCommand& orWhereInner(const Expr& expr, Args... args){
+		_sqlBuilder->orWhere(expr);
+		return orWhereInner(args...);
+	}
+	SQLCommand& orWhereInner(const Expr& expr){
 		_sqlBuilder->orWhere(expr);
 		return *this;
 	}
-	SQLCommand& insert(const SetExpr* val){
+
+	template<typename... Args>
+	SQLCommand& insert(const SetExpr* val, Args... args){
+		return insertInner(val, args...);
+	}
+	template<typename... Args>
+	SQLCommand& insertInner(const SetExpr* val, Args... args){
+		_sqlBuilder->insert(val);
+		return insertInner(val, args...);
+	}
+	SQLCommand& insertInner(const SetExpr* val){
 		_sqlBuilder->insert(val);
 		return *this;
 	}
-	SQLCommand& get(const int32 limit = 0){
-		_sqlBuilder->get(limit);
-		return *this;
+
+	template<typename... Args>
+	SQLCommand& update(const SetExpr* val, Args... args){
+		return updateInner(val, args...);
 	}
-	SQLCommand& update(const SetExpr* val){
+	template<typename... Args>
+	SQLCommand& updateInner(const SetExpr* val, Args... args){
+		_sqlBuilder->update(val);
+		return updateInner(val, args...);
+	}
+	SQLCommand& updateInner(const SetExpr* val){
 		_sqlBuilder->update(val);
 		return *this;
-	}
-	SQLCommand& del(){
-		_sqlBuilder->del();
-		return *this;
-	}
-
-
-	int32 optType() const {
-		return _sqlBuilder->optType();
-	}
-	const char* toString(){
-		return _sqlBuilder->toString();
-	}
-	bool checkVaild(){
-		return _sqlBuilder->checkVaild();
-	}
-	bool submit(){
-		return _sqlBuilder->submit();
 	}
 
 private:
