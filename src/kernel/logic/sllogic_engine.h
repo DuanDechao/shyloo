@@ -4,15 +4,14 @@
 #include <map>
 #include "slilogic_engine.h"
 #include "slimodule.h"
+#include "slsingleton.h"
 namespace sl
 {
 namespace core
 {
-class LogicEngine: public ILogicEngine
-{
+class LogicEngine: public SLSingleton<LogicEngine>{
+	friend class SLSingleton<LogicEngine>;
 public:
-	static ILogicEngine* getInstance();
-
 	virtual bool ready();
 	virtual bool initialize();
 	virtual bool destory();

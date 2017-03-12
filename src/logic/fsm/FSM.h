@@ -21,7 +21,5 @@ public:
 
 private:
 	static sl::api::IKernel*	s_kernel;
-	static sl::CallBackType<int32, EventCB>::type s_events;
-	static sl::CallBackType<int32, JudgeCB>::type s_judges;
 };
 #endif

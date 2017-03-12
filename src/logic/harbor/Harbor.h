@@ -5,9 +5,9 @@
 #include "NodeSession.h"
 #include <unordered_map>
 #include <string>
+#include "slsingleton.h"
 class Harbor;
-class NodeSessionServer : public sl::api::ITcpServer
-{
+class NodeSessionServer : public sl::api::ITcpServer{
 public:
 	NodeSessionServer(Harbor* pHarbor) :m_pHarbor(pHarbor){}
 	virtual ~NodeSessionServer(){}
@@ -18,15 +18,13 @@ private:
 };
 
 
-class INodeMessageHandler
-{
+class INodeMessageHandler{
 public:
 	virtual ~INodeMessageHandler(){}
 	virtual void DealNodeMessage(sl::api::IKernel*, const int32, const int32, const char* pContext, const int32 size) = 0;
 };
 
-class NodeCBMessageHandler : public INodeMessageHandler
-{
+class NodeCBMessageHandler : public INodeMessageHandler{
 public:
 	NodeCBMessageHandler(const node_cb cb) : m_cb(cb){}
 	virtual ~NodeCBMessageHandler() {}
@@ -39,33 +37,31 @@ private:
 };
 
 
-class NodeArgsCBMessageHandler : public INodeMessageHandler
-{
+class NodeArgsCBMessageHandler : public INodeMessageHandler{
 public:
-	NodeArgsCBMessageHandler(const node_args_cb cb) : m_cb(cb){}
+	NodeArgsCBMessageHandler(const NodeArgsCB cb) : _cb(cb){}
 	virtual ~NodeArgsCBMessageHandler() {}
 
 	virtual void DealNodeMessage(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* pContext, const int32 size){
 		OArgs args(pContext, size);
-		m_cb(pKernel, nodeType, nodeId, args);
+		_cb(pKernel, nodeType, nodeId, args);
 	}
 private:
-	node_args_cb		m_cb;
+	NodeArgsCB		_cb;
 };
 
 
-class Harbor: public IHarbor, public sl::api::ITimer
-{
+class Harbor: public IHarbor, public sl::api::ITimer, public sl::SLHolder<Harbor>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
 
-	int32 getNodeType() const { return m_nodeType; }
-	int32 getNodeId() const { return m_nodeId; }
-	int32 getPort() const { return m_port; }
-	int32 getSendSize() const { return m_sendSize; }
-	int32 getRecvSize() const { return m_recvSize; }
+	int32 getNodeType() const { return _nodeType; }
+	int32 getNodeId() const { return _nodeId; }
+	int32 getPort() const { return _port; }
+	int32 getSendSize() const { return _sendSize; }
+	int32 getRecvSize() const { return _recvSize; }
 
 	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick);
@@ -83,22 +79,22 @@ public:
 	virtual void send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& args);
 	virtual void connect(const char* ip, const int32 port);
 
-	virtual void rgsNodeMessageHandler(int32 messageId, node_args_cb handler);
+	virtual void rgsNodeMessageHandler(int32 messageId, const NodeArgsCB& handler);
 	virtual void rgsNodeMessageHandler(int32 messageId, node_cb handler);
 	virtual void startListening(sl::api::IKernel* pKernel);
 
 private:
-	sl::api::IKernel*	m_pKernel;
-	NodeSessionServer*	m_pServer;
-	int32				m_nodeType;
-	int32				m_nodeId;
-	int32				m_port;
-	int32				m_recvSize;
-	int32				m_sendSize;
-	std::unordered_map<int32, std::unordered_map<int32, NodeSession*>> m_allNode;
-	std::unordered_map<int32, std::list<INodeMessageHandler *>> m_allCBPool;
-	std::unordered_map<int32, std::string> m_nodeNames;
-	std::list<INodeListener*>	m_listenerPool;
+	sl::api::IKernel*	_pKernel;
+	NodeSessionServer*	_pServer;
+	int32				_nodeType;
+	int32				_nodeId;
+	int32				_port;
+	int32				_recvSize;
+	int32				_sendSize;
+	std::unordered_map<int32, std::unordered_map<int32, NodeSession*>> _allNode;
+	std::unordered_map<int32, std::list<INodeMessageHandler *>> _allCBPool;
+	std::unordered_map<int32, std::string> _nodeNames;
+	std::list<INodeListener*>	_listenerPool;
 
 };
 #endif

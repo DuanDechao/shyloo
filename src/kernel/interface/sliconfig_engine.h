@@ -18,20 +18,11 @@ struct sCoreConfig{
 	//timer module
 	int32 sTimerlooptick;
 
-	//db module
-	int32 sDBlooptick;
+	//async module
+	int32 sAsynclooptick;
 
-	//open db server?
-	bool sOpenDBSvr;
-
-	//db thread min num
-	int32 sDBMinWorkThreadNum;
-
-	//db thread max num
-	int32 sDBMaxWorkThreadNum;
-
-	//db connection num
-	int32 sDBConnetionNum;
+	// async thread num
+	int32 sAsyncThreadNum;
 };
 
 struct sModuleConfig{

@@ -4,16 +4,17 @@
 #include "ObjectStruct.h"
 
 class OMemory;
+class ObjectFSM;
 class MMObject : public IObject{
 public:
 	MMObject(const char* name, const ObjectPropInfo* pPropInfo);
 	~MMObject();
 		
-	virtual const char* getObjTypeString() const { return m_name.c_str(); }
-	inline const ObjectPropInfo* getObjectPropInfo() const { return m_poPropInfo; }
+	virtual const char* getObjTypeString() const { return _name.c_str(); }
+	inline const ObjectPropInfo* getObjectPropInfo() const { return _poPropInfo; }
 	
-	virtual const uint64 getID() const { return m_objectId; }
-	void setID(uint64 id){ m_objectId = id; }
+	virtual const uint64 getID() const { return _objectId; }
+	void setID(uint64 id){ _objectId = id; }
 
 	virtual const std::vector<const IProp*>& getObjProps(bool noParent) const;
 
@@ -36,11 +37,12 @@ public:
 	ITableControl* findTable(const int32 name) const;
 
 private:
-	const sl::SLString<MAX_OBJECT_NAME_LEN>		m_name;
-	uint64										m_objectId;
-	const ObjectPropInfo*						m_poPropInfo;
-	std::unordered_map<int32, TableControl*>	m_tables;
-	OMemory*									m_memory;
+	const sl::SLString<MAX_OBJECT_NAME_LEN>		_name;
+	uint64										_objectId;
+	const ObjectPropInfo*						_poPropInfo;
+	std::unordered_map<int32, TableControl*>	_tables;
+	OMemory*									_memory;
+	ObjectFSM*									_objectFSM;
 
 };
 #endif

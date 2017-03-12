@@ -3,19 +3,14 @@
 #include "slargs.h"
 #include "slxml_reader.h"
 
-IHarbor* Master::s_harbor = nullptr;
-std::unordered_map<int64, Master::Node> Master::s_nodes;
-std::unordered_set<int32> Master::s_exposes;
-
 bool Master::initialize(sl::api::IKernel * pKernel){
 	return true;
 }
 
 bool Master::launched(sl::api::IKernel * pKernel){
-	s_harbor = (IHarbor*)pKernel->findModule("Harbor");
-	SLASSERT(s_harbor, "not find module harbor");
+	FIND_MODULE(_harbor, Harbor);
 
-	s_harbor->addNodeListener(this);
+	_harbor->addNodeListener(this);
 
 	sl::XmlReader server_conf;
 	if (!server_conf.loadXml(pKernel->getCoreFile())){
@@ -26,7 +21,7 @@ bool Master::launched(sl::api::IKernel * pKernel){
 	for (int32 i = 0; i < nodes.count(); i++){
 		if (nodes[i].hasAttribute("hidden") && nodes[i].getAttributeBoolean("hidden"))
 			continue;
-		s_exposes.insert(nodes[i].getAttributeInt32("type"));
+		_exposes.insert(nodes[i].getAttributeInt32("type"));
 	}
 	return true;
 }
@@ -37,23 +32,23 @@ bool Master::destory(sl::api::IKernel * pKernel){
 }
 
 void Master::onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* ip, const int32 port){
-	if (s_exposes.find(nodeType) == s_exposes.end())
+	if (_exposes.find(nodeType) == _exposes.end())
 		return;
 	
 	int64 node = (((int64)nodeType) << 32) | nodeId;
-	auto iter = s_nodes.find(node);
-	if (iter != s_nodes.end()){
+	auto iter = _nodes.find(node);
+	if (iter != _nodes.end()){
 		SLASSERT(false, "wtf");
 		return;
 	}
-	Node& nodeInfo = s_nodes[node];
+	Node& nodeInfo = _nodes[node];
 	nodeInfo.nodeType = nodeType;
 	nodeInfo.nodeId = nodeId;
 	SafeSprintf(nodeInfo.ip, sizeof(nodeInfo.ip), "%s", ip);
 	nodeInfo.port = port;
 
-	auto itor = s_nodes.begin();
-	for (; itor != s_nodes.end(); ++itor){
+	auto itor = _nodes.begin();
+	for (; itor != _nodes.end(); ++itor){
 		if (itor->first != node){
 			sendNewNode(itor->second.nodeType, itor->second.nodeId, nodeType, nodeId, ip, port);
 			sendNewNode(nodeType, nodeId, itor->second.nodeType, itor->second.nodeId, itor->second.ip, itor->second.port);
@@ -72,5 +67,5 @@ void Master::sendNewNode(const int32 nodeType, const int32 nodeId, const int32 n
 	args << ip;
 	args << port;
 	args.fix();
-	s_harbor->send(nodeType, nodeId, NodeProtocol::MASTER_MSG_NEW_NODE, args.out());
+	_harbor->send(nodeType, nodeId, NodeProtocol::MASTER_MSG_NEW_NODE, args.out());
 }

@@ -38,8 +38,9 @@ public:
 	virtual const char* getConfigFile();
 	virtual const char* getEnvirPath();
 
-	//db interface
-	virtual bool addDBTask(api::IDBTaskCall* pDBTask);
+	//async interface
+	virtual void startAsync(const int64 threadId, api::IAsyncHandler* handler, const char* debug);
+	virtual void stopAsync(api::IAsyncHandler* handler);
 
 	void loop();
 

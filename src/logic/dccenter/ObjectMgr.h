@@ -4,12 +4,12 @@
 #include "slstring.h"
 #include "ObjectStruct.h"
 #include <unordered_map>
+#include "slsingleton.h"
 
 class MMObject;
 class ObjectProp;
 class IIdMgr;
-class ObjectMgr :public IObjectMgr, sl::api::ITimer
-{
+class ObjectMgr :public IObjectMgr, public sl::api::ITimer, public sl::SLHolder<ObjectMgr>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);
@@ -24,13 +24,15 @@ public:
 	virtual ITableControl* createStaticTable(const char* name);
 	virtual void recoverStaticTable(ITableControl* table);
 	
-	static const IProp* setObjectProp(const char* propName, const int32 objTypeId, PropLayout* layout);
+	const IProp* setObjectProp(const char* propName, const int32 objTypeId, PropLayout* layout);
 
 	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick);
 	virtual void onTerminate(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick) {}
+
+	const IProp* getObjectStatusProp(){ return _objectStatus; }
 
 private:
 	bool initPropDefineConfig(sl::api::IKernel * pKernel);
@@ -45,17 +47,20 @@ private:
 	typedef std::unordered_map<sl::SLString<MAX_PROP_NAME_LEN>, ObjectProp*, sl::HashFunc<MAX_PROP_NAME_LEN>, sl::EqualFunc<MAX_PROP_NAME_LEN>> PROP_MAP;
 	typedef std::unordered_map<sl::SLString<MAX_OBJECT_NAME_LEN>, ObjectPropInfo *, sl::HashFunc<MAX_OBJECT_NAME_LEN>, sl::EqualFunc<MAX_OBJECT_NAME_LEN>> OBJECT_MODEL_MAP;
 	
-	static ObjectMgr* s_self;
-	static IIdMgr* s_idMgr;
-	static PROP_DEFINE_MAP s_propDefine;
-	static PROP_CONFIG_PATH_MAP s_propConfigsPath;
-	static PROP_MAP s_allProps;
-	static OBJECT_MODEL_MAP s_objPropInfo;
-	static int32 s_nextObjTypeId;
-	static unordered_map<uint64, MMObject*> s_allObjects;
+	ObjectMgr* _self;
+	IIdMgr* _idMgr;
+	const IProp* _objectStatus;
 
-	static unordered_map<int32, TableColumn*> s_tablesInfo;
-	static unordered_map<int32, TableControl*>  s_allTables;
+	PROP_DEFINE_MAP _propDefine;
+	PROP_CONFIG_PATH_MAP _propConfigsPath;
+	PROP_MAP _allProps;
+	OBJECT_MODEL_MAP _objPropInfo;
+	int32 _nextObjTypeId;
+	unordered_map<uint64, MMObject*> _allObjects;
+    unordered_map<int32, TableColumn*>  _tablesInfo;
+	unordered_map<int32, TableControl*>  _allTables;
+
+	
 
 };
 #endif

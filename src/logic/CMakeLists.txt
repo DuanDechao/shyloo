@@ -7,7 +7,8 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IAgent.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IDB.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IEventEngine.h"
-	"${PROJECT_SOURCE_DIR}/src/logic/interface/IFSM.h"		
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IFSM.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IMysqlMgr.h"	
 )
 
 SET(SL_LOGIC_DEFINE
@@ -29,4 +30,5 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/idmgr)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/gate)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/db)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/eventengine)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/fsm)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/mysqlmgr)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/fsm)

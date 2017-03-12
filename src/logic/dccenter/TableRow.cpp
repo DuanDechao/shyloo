@@ -35,43 +35,43 @@ bool TableColumn::loadColumnConfig(const sl::ISLXmlNode& root){
 }
 
 TableRow::TableRow(TableControl* pTable,const TableColumn* pTableCol)
-	:m_pTable(pTable), 
-	m_pTableColumn(pTableCol)
+	:_pTable(pTable), 
+	_pTableColumn(pTableCol)
 {
-	m_pRowData = NEW OMemory(m_pTableColumn->getMemSize());
+	_pRowData = NEW OMemory(_pTableColumn->getMemSize());
 }
 
 TableRow::~TableRow(){
-	DEL m_pRowData;
-	m_pRowData = nullptr;
-	m_pTable = nullptr;
-	m_pTableColumn = nullptr;
+	DEL _pRowData;
+	_pRowData = nullptr;
+	_pTable = nullptr;
+	_pTableColumn = nullptr;
 }
 
 const void* TableRow::getData(const int32 col, const int8 type, int32 & size) const{
-	const TableLayout* info = m_pTableColumn->query(col, type, size);
+	const TableLayout* info = _pTableColumn->query(col, type, size);
 	if (!info){
 		SLASSERT(false, "have invaild Column Info");
 		return nullptr;
 	}
 	size = info->_size;
-	return m_pRowData->getData(info);
+	return _pRowData->getData(info);
 }
 
 void TableRow::setData(const int32 col, const int8 type, const void* pszBuf, const int32 size, bool changeKey){
-	const TableLayout* info = m_pTableColumn->query(col, type, size);
+	const TableLayout* info = _pTableColumn->query(col, type, size);
 	if (!info)
 		return;
 
 	if (changeKey && info->_isKey){
 		switch (info->_type){
-		case DTYPE_INT8: m_pTable->changeKey(*(int8*)pszBuf, *(int8*)m_pRowData->getData(info), info->_type); break;
-		case DTYPE_INT16: m_pTable->changeKey(*(int16*)pszBuf, *(int16*)m_pRowData->getData(info), info->_type); break;
-		case DTYPE_INT32: m_pTable->changeKey(*(int32*)pszBuf, *(int32*)m_pRowData->getData(info), info->_type); break;
-		case DTYPE_INT64: m_pTable->changeKey(*(int64*)pszBuf, *(int64*)m_pRowData->getData(info), info->_type); break;
-		case DTYPE_STRING: m_pTable->changeKey((const char*)pszBuf, (const char*)m_pRowData->getData(info), info->_type); break;
+		case DTYPE_INT8: _pTable->changeKey(*(int8*)pszBuf, *(int8*)_pRowData->getData(info), info->_type); break;
+		case DTYPE_INT16: _pTable->changeKey(*(int16*)pszBuf, *(int16*)_pRowData->getData(info), info->_type); break;
+		case DTYPE_INT32: _pTable->changeKey(*(int32*)pszBuf, *(int32*)_pRowData->getData(info), info->_type); break;
+		case DTYPE_INT64: _pTable->changeKey(*(int64*)pszBuf, *(int64*)_pRowData->getData(info), info->_type); break;
+		case DTYPE_STRING: _pTable->changeKey((const char*)pszBuf, (const char*)_pRowData->getData(info), info->_type); break;
 		default: SLASSERT(false, "invaild key type"); break;
 		}
 	}
-	m_pRowData->setData(info, pszBuf, size);
+	_pRowData->setData(info, pszBuf, size);
 }

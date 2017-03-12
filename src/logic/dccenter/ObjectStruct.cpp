@@ -2,25 +2,25 @@
 #include "ObjectMgr.h"
 #include "sltools.h"
 ObjectPropInfo::ObjectPropInfo(int32 objTypeId, const char* objName, ObjectPropInfo* parenter)
-	:m_objTypeId(objTypeId), m_objName(objName), m_size(0){
+	:_objTypeId(objTypeId), _objName(objName), _size(0){
 	if (parenter){
-		m_layouts = parenter->m_layouts;
-		for (auto& layout : m_layouts){
-			const IProp* prop = ObjectMgr::setObjectProp(layout._name.c_str(), m_objTypeId, &layout);
-			m_props.push_back(prop);
+		_layouts = parenter->_layouts;
+		for (auto& layout : _layouts){
+			const IProp* prop = ObjectMgr::getInstance()->setObjectProp(layout._name.c_str(), _objTypeId, &layout);
+			_props.push_back(prop);
 		}
-		m_size = parenter->m_size;
+		_size = parenter->_size;
 	}
 }
 
 ObjectPropInfo::~ObjectPropInfo(){
-	m_objTypeId = 0;
-	m_objName = "";
-	m_size = 0;
-	m_layouts.clear();
-	m_props.clear();
-	m_selfProps.clear();
-	m_tables.clear();
+	_objTypeId = 0;
+	_objName = "";
+	_size = 0;
+	_layouts.clear();
+	_props.clear();
+	_selfProps.clear();
+	_tables.clear();
 }
 
 bool ObjectPropInfo::loadFrom(const sl::ISLXmlNode& root, PROP_DEFDINE_MAP& defines){
@@ -37,7 +37,7 @@ bool ObjectPropInfo::loadProps(const sl::ISLXmlNode& props, PROP_DEFDINE_MAP& de
 	for (int32 i = 0; i < props.count(); i++){
 		PropLayout layout;
 		layout._name = props[i].getAttributeString("name");
-		layout._offset = m_size;
+		layout._offset = _size;
 		const char* type = props[i].getAttributeString("type");
 		if (!strcmp(type, "int8")){
 			layout._type = DTYPE_INT8;
@@ -64,7 +64,7 @@ bool ObjectPropInfo::loadProps(const sl::ISLXmlNode& props, PROP_DEFDINE_MAP& de
 			return false;
 		}
 
-		m_size += layout._size;
+		_size += layout._size;
 		layout._setting = 0;
 		for (auto& def : defines){
 			if (props[i].hasAttribute(def.first.c_str()) && props[i].getAttributeBoolean(def.first.c_str())){
@@ -72,11 +72,11 @@ bool ObjectPropInfo::loadProps(const sl::ISLXmlNode& props, PROP_DEFDINE_MAP& de
 			}
 		}
 
-		m_layouts.push_back(layout);
+		_layouts.push_back(layout);
 
-		const IProp * prop = ObjectMgr::setObjectProp(layout._name.c_str(), m_objTypeId, &(*m_layouts.rbegin()));
-		m_props.push_back(prop);
-		m_selfProps.push_back(prop);
+		const IProp * prop = ObjectMgr::getInstance()->setObjectProp(layout._name.c_str(), _objTypeId, &(*_layouts.rbegin()));
+		_props.push_back(prop);
+		_selfProps.push_back(prop);
 	}
 	return true;
 }
@@ -89,7 +89,7 @@ bool ObjectPropInfo::loadTables(const sl::ISLXmlNode& tables){
 			return false;
 		}
 		TableInfo tableInfo{ sl::CalcStringUniqueId(name), pNewTable };
-		m_tables.push_back(tableInfo);
+		_tables.push_back(tableInfo);
 	}
 	return true;
 }

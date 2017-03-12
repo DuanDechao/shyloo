@@ -13,20 +13,6 @@ namespace core
 #include <dlfcn.h>
 #endif // SL_OS_LINUX
 
-ILogicEngine* LogicEngine::getInstance()
-{
-	static LogicEngine* p = nullptr;
-	if (!p){
-		p = NEW LogicEngine;
-		if (!p->ready()){
-			SLASSERT(false, "logic Engine not ready");
-			DEL p;
-			p = nullptr;
-		}
-	}
-	return p;
-}
-
 bool LogicEngine::ready()
 {
 	return true;

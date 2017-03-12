@@ -20,6 +20,8 @@ SET(DCCENTER
 	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/TableRow.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/TableControl.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/TableControl.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/ObjectFSM.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/ObjectFSM.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/main.cpp"
 )
 

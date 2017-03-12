@@ -9,35 +9,35 @@
 class IObject;
 class ObjectProp: public IProp{
 public:
-	ObjectProp(int32 name, int32 size) :m_name(name), m_size(size){
-		int32 mallocSize = m_size * sizeof(PropLayout*);
-		m_layouts = (PropLayout**)MALLOC(mallocSize);
-		sl::SafeMemset(m_layouts, mallocSize, 0, mallocSize);
+	ObjectProp(int32 name, int32 size) :_name(name), _size(size){
+		int32 mallocSize = _size * sizeof(PropLayout*);
+		_layouts = (PropLayout**)MALLOC(mallocSize);
+		sl::SafeMemset(_layouts, mallocSize, 0, mallocSize);
 	}
 
 	~ObjectProp(){
-		FREE(m_layouts);
+		FREE(_layouts);
 	}
 
-	virtual const int32 getName() const { return m_name; }
+	virtual const int32 getName() const { return _name; }
 	virtual const int8 getType(IObject* object) const;
 	virtual const int32 getSetting(IObject* object) const;
 
 	inline void setLayout(const int32 objTypeId, PropLayout* layout){
-		SLASSERT(objTypeId > 0 && objTypeId <= m_size, "out of range");
-		if (objTypeId > 0 && objTypeId <= m_size)
-			m_layouts[objTypeId - 1] = layout;
+		SLASSERT(objTypeId > 0 && objTypeId <= _size, "out of range");
+		if (objTypeId > 0 && objTypeId <= _size)
+			_layouts[objTypeId - 1] = layout;
 	}
 
 	inline const PropLayout* getLayout(const int32 objTypeId){
-		SLASSERT(objTypeId > 0 && objTypeId <= m_size, "out of range");
-		if (objTypeId > 0 && objTypeId <= m_size)
-			return m_layouts[objTypeId - 1];
+		SLASSERT(objTypeId > 0 && objTypeId <= _size, "out of range");
+		if (objTypeId > 0 && objTypeId <= _size)
+			return _layouts[objTypeId - 1];
 		return nullptr;
 	}
 private:
-	PropLayout**	m_layouts;
-	int32			m_name;
-	int32			m_size;
+	PropLayout**	_layouts;
+	int32			_name;
+	int32			_size;
 };
 #endif

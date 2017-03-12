@@ -62,8 +62,8 @@ public:
 	TableRow(TableControl* pTable, const TableColumn* pTableCol);
 	~TableRow();
 
-	int32 getRowIndex() const { return m_rowIndex; }
-	void setRowIndex(const int32 index) { m_rowIndex = index; }
+	int32 getRowIndex() const { return _rowIndex; }
+	void setRowIndex(const int32 index) { _rowIndex = index; }
 
 	virtual int8 getDataInt8(const int32 col) const { int32 size = sizeof(int8); return *(int8*)getData(col, DTYPE_INT8, size); }
 	virtual int16 getDataInt16(const int32 col) const{ int32 size = sizeof(int16); return *(int16*)getData(col, DTYPE_INT16, size); }
@@ -83,11 +83,11 @@ public:
 	void setData(const int32 col, const int8 tpye, const void* pszBuf, const int32 size, bool changeKey = true);
 
 private:
-	OMemory*			m_pRowData;
-	TableControl*		m_pTable;
-	const TableColumn*	m_pTableColumn;
+	OMemory*			_pRowData;
+	TableControl*		_pTable;
+	const TableColumn*	_pTableColumn;
 
-	int32				m_rowIndex;
+	int32				_rowIndex;
 
 };
 #endif

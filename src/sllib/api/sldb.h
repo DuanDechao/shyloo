@@ -31,7 +31,8 @@ class ISLDBConnection
 public:
 	virtual bool SLAPI open(const char* szHostName, const int32 port, const char* szName, const char* szPwd, const char* szDBName, const char* szCharSet) = 0;
 	virtual bool SLAPI reOpen() = 0;
-	virtual ISLDBResult* SLAPI execute(const char* commandSql) = 0;
+	virtual ISLDBResult* SLAPI executeWithResult(const char* commandSql) = 0;
+	virtual bool SLAPI execute(const char* commandSql) = 0;
 	virtual int32 SLAPI getLastErrno(void) = 0;
 	virtual const char* SLAPI getLastError(void) = 0;
 	virtual void SLAPI release(void) = 0;

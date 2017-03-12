@@ -13,22 +13,14 @@
 #define EXECUTE_CMD_OUT_PORT_SIZE	10
 #define EXECUTE_CMD_ID_SIZE			4
 
-IHarbor* Slave::s_harbor = nullptr;
-int32 Slave::s_startPort = 0;
-int32 Slave::s_endPort = 0;
-int32 Slave::s_startOutPort = 0;
-int32 Slave::s_endOutPort = 0;
-std::unordered_map<int64, Slave::CMD_INFO> Slave::s_cmds;
-std::unordered_map<int32, Slave::EXECUTE_INFO> Slave::s_executes;
-
 bool Slave::initialize(sl::api::IKernel * pKernel){
 	return true;
 }
 
 bool Slave::launched(sl::api::IKernel * pKernel){
-	s_harbor = (IHarbor*)pKernel->findModule("Harbor");
-	SLASSERT(s_harbor, "not find module harbor");
-	s_harbor->rgsNodeMessageHandler(NodeProtocol::MASTER_MSG_START_NODE, Slave::openNewNode);
+	FIND_MODULE(_harbor, Harbor);
+
+	RGS_NODE_HANDLER(NodeProtocol::MASTER_MSG_START_NODE, Slave::openNewNode);
 
 	sl::XmlReader server_conf;
 	if (!server_conf.loadXml(pKernel->getCoreFile())){
@@ -37,16 +29,16 @@ bool Slave::launched(sl::api::IKernel * pKernel){
 	}
 
 	const sl::xml::ISLXmlNode& port = server_conf.root()["starter"][0]["port"][0];
-	s_startPort = port.getAttributeInt32("start");
-	s_endPort = port.getAttributeInt32("end");
+	_startPort = port.getAttributeInt32("start");
+	_endPort = port.getAttributeInt32("end");
 	const sl::xml::ISLXmlNode& outPort = server_conf.root()["starter"][0]["out_port"][0];
-	s_startOutPort = outPort.getAttributeInt32("start");
-	s_endOutPort = outPort.getAttributeInt32("end");
+	_startOutPort = outPort.getAttributeInt32("start");
+	_endOutPort = outPort.getAttributeInt32("end");
 	const sl::xml::ISLXmlNode& nodes = server_conf.root()["starter"][0]["node"];
 	for (int32 i = 0; i < nodes.count(); i++){
 		int32 type = nodes[i].getAttributeInt32("type");
-		SafeSprintf(s_executes[type].name, sizeof(s_executes[type].name), "%s", nodes[i].getAttributeString("name"));
-		SafeSprintf(s_executes[type].cmd, sizeof(s_executes[type].cmd), "%s", nodes[i].getAttributeString("cmd"));
+		SafeSprintf(_executes[type].name, sizeof(_executes[type].name), "%s", nodes[i].getAttributeString("name"));
+		SafeSprintf(_executes[type].cmd, sizeof(_executes[type].cmd), "%s", nodes[i].getAttributeString("cmd"));
 	}
 	return true;
 }
@@ -59,14 +51,14 @@ void Slave::openNewNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId,
 	int32 newNodeType = args.getInt32(0);
 	int32 newNodeId = args.getInt32(1);
 	ECHO_TRACE("open new Node [%d:%d]", newNodeType, newNodeId);
-	SLASSERT(s_executes.find(newNodeType) != s_executes.end(), "unknown nodetype %d", newNodeType);
-	if (s_executes.find(newNodeType) != s_executes.end()){
+	SLASSERT(_executes.find(newNodeType) != _executes.end(), "unknown nodetype %d", newNodeType);
+	if (_executes.find(newNodeType) != _executes.end()){
 		int64 node = (((int64)newNodeType) << 32) | nodeId;
-		auto iter = s_cmds.find(node);
-		if (iter != s_cmds.end())
+		auto iter = _cmds.find(node);
+		if (iter != _cmds.end())
 			startNode(pKernel, iter->second.cmd);
 		else
-			startNewNode(pKernel, s_executes[newNodeType].name, s_executes[newNodeType].cmd, newNodeType, newNodeId);
+			startNewNode(pKernel, _executes[newNodeType].name, _executes[newNodeType].cmd, newNodeType, newNodeId);
 	}
 }
 
@@ -74,24 +66,24 @@ void Slave::startNewNode(sl::api::IKernel* pKernel, const char* name, const char
 	std::string tmp(cmd);
 	std::string::size_type pos = tmp.find(EXECUTE_CMD_PORT);
 	while (pos != std::string::npos){
-		SLASSERT(s_startPort <= s_endPort, "wtf");
-		if (s_startPort > s_endPort)
+		SLASSERT(_startPort <= _endPort, "wtf");
+		if (_startPort > _endPort)
 			return;
 		
 		char portStr[64];
-		SafeSprintf(portStr, sizeof(portStr), "%d", s_startPort++);
+		SafeSprintf(portStr, sizeof(portStr), "%d", _startPort++);
 		tmp.replace(pos, EXECUTE_CMD_PORT_SIZE, portStr);
 		pos = tmp.find(EXECUTE_CMD_PORT);
 	}
 
 	pos = tmp.find(EXECUTE_CMD_OUT_PORT);
 	while (pos != std::string::npos){
-		SLASSERT(s_startOutPort <= s_endOutPort, "wtf");
-		if (s_startOutPort > s_endOutPort)
+		SLASSERT(_startOutPort <= _endOutPort, "wtf");
+		if (_startOutPort > _endOutPort)
 			return;
 		
 		char outPortStr[64];
-		SafeSprintf(outPortStr, sizeof(outPortStr), "%d", s_startOutPort++);
+		SafeSprintf(outPortStr, sizeof(outPortStr), "%d", _startOutPort++);
 		tmp.replace(pos, EXECUTE_CMD_OUT_PORT_SIZE, outPortStr);
 		pos = tmp.find(EXECUTE_CMD_OUT_PORT);
 	}
@@ -104,9 +96,9 @@ void Slave::startNewNode(sl::api::IKernel* pKernel, const char* name, const char
 	}
 
 	int64 node = (((int64)nodeType) << 32) | nodeId;
-	SafeSprintf(s_cmds[node].cmd, sizeof(s_cmds[node].cmd), "%s", tmp.c_str());
+	SafeSprintf(_cmds[node].cmd, sizeof(_cmds[node].cmd), "%s", tmp.c_str());
 	
-	startNode(pKernel, s_cmds[node].cmd);
+	startNode(pKernel, _cmds[node].cmd);
 }
 
 int32 Slave::startNode(sl::api::IKernel* pKernel, const char* cmd){

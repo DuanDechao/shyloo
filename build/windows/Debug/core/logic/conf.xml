@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <config>
 	<loop tick="33" />
-	<net frametick="20" reconnect="500" />
+	<net tick="20" reconnect="500" />
 	<timer tick="10" />
-	<db tick="10" minThreadNum="5" maxThreadNum="8" connectionNum="5" />
+	<async tick="10" threadNum="5" />
 	<harbor type="2" />
 </config>

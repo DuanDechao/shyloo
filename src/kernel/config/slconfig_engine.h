@@ -2,20 +2,14 @@
 #define SL_CONFIG_ENGINE_H
 #include "sliconfig_engine.h"
 #include <vector>
-
+#include "slsingleton.h"
 namespace sl
 {
 namespace core
 {
-class ConfigEngine : public IConfigEngine
-{
-private:
-	ConfigEngine(){}
-	~ConfigEngine(){}
-
+class ConfigEngine : public SLSingleton<ConfigEngine>{
+	friend class SLSingleton<ConfigEngine>;
 public:
-	static IConfigEngine* getInstance();
-
 	virtual bool ready();
 	virtual bool initialize();
 	virtual bool destory();
@@ -26,6 +20,11 @@ public:
 	virtual const char* getEnvirPath() { return m_envirPath.c_str(); }
 	virtual const char* getCoreFile() { return m_coreFile.c_str(); }
 	virtual const char* getConfigFile() { return m_configFile.c_str(); }
+
+private:
+	ConfigEngine(){}
+	~ConfigEngine(){}
+
 private:
 	bool loadModuleConfig();
 	bool loadCoreConfig();

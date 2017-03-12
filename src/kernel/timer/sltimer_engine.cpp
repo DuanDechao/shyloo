@@ -4,20 +4,6 @@ namespace sl
 namespace core
 {
 
-ITimerEngine* TimerEngine::getInstance()
-{
-	static TimerEngine* g_timerEngine = nullptr;
-	if (!g_timerEngine){
-		g_timerEngine = NEW TimerEngine;
-		if (!g_timerEngine->ready()){
-			SLASSERT(false, "time engine not ready");
-			DEL g_timerEngine;
-			g_timerEngine = nullptr;
-		}
-	}
-	return g_timerEngine;
-}
-
 bool TimerEngine::initialize()
 {
 	m_pTimerMgr = timer::getSLTimerModule();
@@ -96,7 +82,7 @@ bool TimerEngine::resumeTimer(api::ITimer* pTimer)
 	return true;
 }
 
-int64 TimerEngine::processing(int64 overTime)
+int64 TimerEngine::loop(int64 overTime)
 {
 	int64 beginTime = getTimeMilliSecond();
 	m_pTimerMgr->process(overTime);

@@ -3,7 +3,8 @@
 #include "sltimer_engine.h"
 #include "sllogic_engine.h"
 #include "slconfig_engine.h"
-#include "sldb_engine.h"
+#include "slasync_engine.h"
+
 #include <time.h>
 namespace sl
 {
@@ -26,7 +27,7 @@ bool Kernel::ready(){
 	return ConfigEngine::getInstance() &&
 		TimerEngine::getInstance() &&
 		NetEngine::getInstance() &&
-		DBEngine::getInstance() &&
+		AsyncEngine::getInstance() &&
 		LogicEngine::getInstance();
 		
 }
@@ -37,7 +38,7 @@ bool Kernel::initialize(int32 argc, char ** argv){
 	return ConfigEngine::getInstance()->initialize() &&
 		TimerEngine::getInstance()->initialize() &&
 		NetEngine::getInstance()->initialize() &&
-		DBEngine::getInstance()->initialize() &&
+		AsyncEngine::getInstance()->initialize() &&
 		LogicEngine::getInstance()->initialize();
 		
 }
@@ -46,7 +47,7 @@ bool Kernel::destory(){
 	ConfigEngine::getInstance()->destory();
 	TimerEngine::getInstance()->destory();
 	NetEngine::getInstance()->destory();
-	DBEngine::getInstance()->destory();
+	AsyncEngine::getInstance()->destory();
 	LogicEngine::getInstance()->destory();
 	DEL this;
 	return true;
@@ -57,16 +58,16 @@ void Kernel::loop() {
 	m_bShutDown = false;
 	while(!m_bShutDown){
 		int64 startTick = sl::getTimeMilliSecond();
-		int64 netTick = NetEngine::getInstance()->processing(ConfigEngine::getInstance()->getCoreConfig()->sNetlooptick);
-		int64 dbTick = DBEngine::getInstance()->processing(ConfigEngine::getInstance()->getCoreConfig()->sDBlooptick);
-		int64 timerTick = TimerEngine::getInstance()->processing(ConfigEngine::getInstance()->getCoreConfig()->sTimerlooptick);
+		int64 netTick = NetEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sNetlooptick);
+		int64 asyncTick = AsyncEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sAsynclooptick);
+		int64 timerTick = TimerEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sTimerlooptick);
 		
 
 		int64 useTick = sl::getTimeMilliSecond() - startTick;
 		if (useTick > ConfigEngine::getInstance()->getCoreConfig()->sLoopduration ||
 			netTick > ConfigEngine::getInstance()->getCoreConfig()->sNetlooptick ||
 			timerTick > ConfigEngine::getInstance()->getCoreConfig()->sTimerlooptick ||
-			dbTick > ConfigEngine::getInstance()->getCoreConfig()->sDBlooptick){
+			asyncTick > ConfigEngine::getInstance()->getCoreConfig()->sAsynclooptick){
 			//ECHO_ERROR("Loop use %d(%d, %d)", useTick, netTick, timerTick);
 		}
 		else{
@@ -122,8 +123,12 @@ void Kernel::resumeTimer(api::ITimer* timer){
 	TimerEngine::getInstance()->resumeTimer(timer);
 }
 
-bool Kernel::addDBTask(api::IDBTaskCall* pDBTask){
-	return DBEngine::getInstance()->addDBTaskCall(pDBTask);
+void Kernel::startAsync(const int64 threadId, api::IAsyncHandler* handler, const char* debug){
+	AsyncEngine::getInstance()->start(threadId, handler, debug);
+}
+
+void Kernel::stopAsync(api::IAsyncHandler* handler){
+	AsyncEngine::getInstance()->stop(handler);
 }
 
 

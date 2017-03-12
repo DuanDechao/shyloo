@@ -59,6 +59,7 @@ SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/slargs.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slbinary_stream.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slcallback.h"
+	"${PROJECT_SOURCE_DIR}/src/public/slcycle_queue.h"
 )
 
 IF(WIN32)

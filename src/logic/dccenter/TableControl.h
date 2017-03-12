@@ -20,9 +20,9 @@ public:
 	TableControl(const int32 name, const TableColumn* pTableColumn, IObject* pHost = nullptr);
 	~TableControl();
 
-	int32 getName() const { return m_name; }
-	virtual IObject* getHost() const { return m_pHost; }
-	virtual int32 rowCount() const { return (int32)m_tableRows.size(); }
+	int32 getName() const { return _name; }
+	virtual IObject* getHost() const { return _pHost; }
+	virtual int32 rowCount() const { return (int32)_tableRows.size(); }
 	virtual void clearRows();
 	virtual const IRow* findRow(const int64 key) const;
 	virtual const IRow* findRow(const char* key) const;
@@ -43,12 +43,12 @@ public:
 
 	void updateRowKeyIndex(const int32 index);
 private:
-	const int32			m_name;
-	const TableColumn*	m_pTableColumn;
-	IObject*			m_pHost;
-	TABLE_ROWS			m_tableRows;
-	KEY_INT_MAP			m_keyToColIdx;
-	KEY_STRING_MAP		m_strToColIdx;
+	const int32			_name;
+	const TableColumn*	_pTableColumn;
+	IObject*			_pHost;
+	TABLE_ROWS			_tableRows;
+	KEY_INT_MAP			_keyToColIdx;
+	KEY_STRING_MAP		_strToColIdx;
 
 	
 };

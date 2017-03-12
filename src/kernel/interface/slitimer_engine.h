@@ -13,7 +13,7 @@ public:
 	virtual bool killTimer(api::ITimer* pTimer) = 0;
 	virtual bool pauseTimer(api::ITimer* pTimer) = 0;
 	virtual bool resumeTimer(api::ITimer* pTimer) = 0;
-	virtual int64 processing(int64 overTime) = 0;
+	virtual int64 loop(int64 overTime) = 0;
 };
 }
 }

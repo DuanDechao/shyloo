@@ -44,6 +44,8 @@ extern "C"
 	((p) ? (void)0 : (void)__AssertionFail(__FILE__, __LINE__, __FUNCTION__, debug)); \
 }
 
+#define CSLEEP(t) Sleep(t)
+
 #endif // SL_OS_WINDOWS
 
 #ifdef SL_OS_LINUX
@@ -52,6 +54,8 @@ extern "C"
 	SafeSprintf(debug, sizeof(debug), format, ##a);	\
 	((p) ? (void)0 : (void)__AssertionFail(__FILE__, __LINE__, __FUNCTION__, debug));	\
 }
+
+#define CSLEEP(t) usleep((t) * 1000)
 #endif
 
 #else

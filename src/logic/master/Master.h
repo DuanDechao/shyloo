@@ -25,8 +25,8 @@ public:
 	void sendNewNode(const int32 nodeType, const int32 nodeId, const int32 newNodeType, const int32 newNodeId, const char* ip, const int32 port);
 
 private:
-	static IHarbor* s_harbor;
-	static std::unordered_map<int64, Node> s_nodes;
-	static std::unordered_set<int32> s_exposes;
+	IHarbor* _harbor;
+	std::unordered_map<int64, Node> _nodes;
+	std::unordered_set<int32> _exposes;
 };
 #endif

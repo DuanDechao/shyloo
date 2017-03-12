@@ -4,17 +4,16 @@
 #include "slmulti_sys.h"
 #include "IHarbor.h"
 #include <set>
-class Cluster : public sl::api::IModule
-{
+class Cluster : public sl::api::IModule{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
 
-	static void newNodeComing(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
+	void newNodeComing(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 
 private:
-	static IHarbor* s_harbor;
-	static std::set<int64> s_openNodes;
+	IHarbor* _harbor;
+	std::set<int64> _openNodes;
 };
 #endif

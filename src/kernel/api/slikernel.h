@@ -11,8 +11,7 @@ namespace api
 {
 class IKernel;
 class IModule;
-class IPipe
-{
+class IPipe{
 public:
 	virtual ~IPipe() {}
 	virtual void send(const void* pContext, int dwLen) = 0;
@@ -21,15 +20,13 @@ public:
 	virtual const char* getRemoteIP() = 0;
 };
 
-class ISocket
-{
+class ISocket{
 public:
 	virtual ~ISocket(){}
 	IPipe* m_pPipe;
 };
 
-class ITcpSession: public ISocket
-{
+class ITcpSession: public ISocket{
 public:
 	virtual ~ITcpSession(){}
 	virtual int32 onRecv(IKernel* pKernel, const char* pContext, int dwLen) = 0;
@@ -53,23 +50,20 @@ public:
 	}
 };
 
-class ITcpServer
-{
+class ITcpServer{
 public:
 	virtual ~ITcpServer(){}
 	virtual ITcpSession* mallocTcpSession(IKernel* pKernel) = 0;
 };
 
 class ITimer;
-class ITimerBase
-{
+class ITimerBase{
 public:
 	virtual ~ITimerBase(){}
 	virtual void setITimer(ITimer* pITimer) = 0;
 };
 
-class ITimer
-{
+class ITimer{
 public:
 	virtual ~ITimer(){}
 
@@ -91,38 +85,28 @@ private:
 
 };
 
-class IDBTaskCall{
+class IAsyncBase {
 public:
-	virtual ~IDBTaskCall(){}
-	virtual bool threadProcess(IKernel* pKernel, db::ISLDBConnection* pDBConnection) = 0;
-	virtual thread::TPTaskState mainThreadProcess(IKernel* pKernel) = 0;
-	virtual void release() = 0;
+	virtual ~IAsyncBase() {}
 };
 
-class IDBTask{
+class IAsyncHandler{
 public:
-	virtual ~IDBTask(){}
-	virtual bool threadProcess(IKernel* pKernel, db::ISLDBConnection* pDBConnection, const OArgs& args) = 0;
-	virtual thread::TPTaskState mainThreadProcess(IKernel* pKernel) = 0;
-	virtual void release() = 0;
-	virtual sl::db::ISLDBResult* getTaskResult() = 0;
+	virtual ~IAsyncHandler() {}
+
+	inline void setBase(IAsyncBase* base) { _base = base; }
+	inline IAsyncBase* getBase() { return _base; }
+
+	virtual bool onExecute(IKernel* pKernel) = 0;
+	virtual bool onSuccess(IKernel* pKernel) = 0;
+	virtual bool onFailed(IKernel* pKernel, bool nonviolent) = 0;
+	virtual void onRelease(IKernel* pKernel) = 0;
+
+private:
+	IAsyncBase* _base;
 };
 
-class ICacheDataResult{
-public:
-	virtual ~ICacheDataResult(){}
-	virtual bool next() const = 0;
-	virtual int32 count() const = 0;
-	virtual int8 getDataInt8(const char* colName) const = 0;
-	virtual int16 getDataInt16(const char* colName) const = 0;
-	virtual int32 getDataInt32(const char* colName) const = 0;
-	virtual int64 getDataInt64(const char* colName) const = 0;
-	virtual float getDataFloat(const char* colName) const = 0;
-	virtual const char * getDataString(const char* colName) const = 0;
-};
-
-class IKernel
-{
+class IKernel{
 public:
 	virtual bool ready() = 0;
 	virtual bool initialize(int32 argc, char ** argv) = 0;
@@ -147,9 +131,10 @@ public:
 	virtual const char* getConfigFile() = 0;
 	virtual const char* getEnvirPath() = 0;
 
-	//db interface
-	virtual bool addDBTask(IDBTaskCall* pDBTask) = 0;
-	
+	//async interface
+	virtual void startAsync(const int64 threadId, IAsyncHandler* handler, const char* debug) = 0;
+	virtual void stopAsync(IAsyncHandler* handler) = 0;
+
 };
 }
 }
@@ -158,5 +143,9 @@ public:
 	pKernel->startTimer(timer, delay, count, interval);	\
 }
 
+#define FIND_MODULE(m, name) {\
+	m = (I##name *)pKernel->findModule(#name); \
+	SLASSERT(m, "where is #name"); \
+}
 #define TIMER_BEAT_FOREVER	-1
 #endif

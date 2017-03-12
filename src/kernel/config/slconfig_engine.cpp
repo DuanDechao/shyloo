@@ -8,27 +8,13 @@ namespace sl
 {
 namespace core
 {
-IConfigEngine* ConfigEngine::getInstance(){
-	static IConfigEngine* p = nullptr;
-	if (!p){
-		p = NEW ConfigEngine;
-		if (!p->ready()){
-			SLASSERT(false, "config Engine not ready");
-			DEL p;
-			p = nullptr;
-		}
-	}
-	return p;
-}
 bool ConfigEngine::initialize()
 {
-	m_stCoreConfig.sDBConnetionNum = 0;
-	m_stCoreConfig.sDBMinWorkThreadNum = 0;
-	m_stCoreConfig.sDBMaxWorkThreadNum = 0;
 	m_stCoreConfig.sLoopduration = 0;
-	m_stCoreConfig.sOpenDBSvr = false;
 	m_stCoreConfig.sTimerlooptick = 0;
-	m_stCoreConfig.sDBlooptick = 0;
+	m_stCoreConfig.sAsynclooptick = 0;
+	m_stCoreConfig.sAsyncThreadNum = 0;
+	m_stCoreConfig.sNetlooptick = 0;
 
 	return loadModuleConfig() && loadCoreConfig();
 }
@@ -72,21 +58,17 @@ bool ConfigEngine::loadCoreConfig(){
 	}
 	m_configFile = moduleConfPath;
 
-	m_stCoreConfig.sNetlooptick = conf.root()["net"][0].getAttributeInt32("frametick");
+	m_stCoreConfig.sNetlooptick = conf.root()["net"][0].getAttributeInt32("tick");
 	m_stCoreConfig.sTimerlooptick = conf.root()["timer"][0].getAttributeInt32("tick");
 	m_stCoreConfig.sLoopduration = conf.root()["loop"][0].getAttributeInt32("tick");
-	if (conf.root().subNodeExist("db")){
-		m_stCoreConfig.sOpenDBSvr = true;
-		m_stCoreConfig.sDBlooptick = conf.root()["db"][0].getAttributeInt32("tick");
-		m_stCoreConfig.sDBMinWorkThreadNum = conf.root()["db"][0].getAttributeInt32("minThreadNum");
-		m_stCoreConfig.sDBMaxWorkThreadNum = conf.root()["db"][0].getAttributeInt32("maxThreadNum");
-		m_stCoreConfig.sDBConnetionNum = conf.root()["db"][0].getAttributeInt32("connectionNum");
+	if (conf.root().subNodeExist("async")){
+		m_stCoreConfig.sAsynclooptick = conf.root()["async"][0].getAttributeInt32("tick");
+		m_stCoreConfig.sAsyncThreadNum = conf.root()["async"][0].getAttributeInt32("threadNum");
 	}
 	return true;
 }
 
-bool ConfigEngine::loadModuleConfig()
-{
+bool ConfigEngine::loadModuleConfig(){
 	const char* moduleName = Kernel::getInstance()->getCmdArg("name");
 	SLASSERT(moduleName, "invaild cmd params");
 

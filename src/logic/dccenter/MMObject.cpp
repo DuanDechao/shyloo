@@ -1,37 +1,47 @@
 #include "MMObject.h"
 #include "TableControl.h"
 #include "ObjectProp.h"
+#include "ObjectFSM.h"
 MMObject::MMObject(const char* name, const ObjectPropInfo* pPropInfo)
-	:m_name(name),
-	m_poPropInfo(pPropInfo),
-	m_objectId(0)
+	:_name(name),
+	_poPropInfo(pPropInfo),
+	_objectId(0),
+	_objectFSM(nullptr)
 {
-	m_memory = NEW OMemory(m_poPropInfo->getMemSize());
-	m_poPropInfo->queryTables([this](const int32 name, const TableColumn* pTableColumn){
+	_memory = NEW OMemory(_poPropInfo->getMemSize());
+	_poPropInfo->queryTables([this](const int32 name, const TableColumn* pTableColumn){
 		TableControl * pTable = NEW TableControl(name, pTableColumn, this);
-		m_tables[name] = pTable;
+		_tables[name] = pTable;
 	});
+	_objectFSM = NEW ObjectFSM();
 }
 
 MMObject::~MMObject(){
-	DEL m_memory;
-	for (auto& table = m_tables.begin(); table != m_tables.end(); ++table){
+	if (_memory)
+		DEL _memory;
+	_memory = nullptr;
+
+	for (auto& table = _tables.begin(); table != _tables.end(); ++table){
 		DEL table->second;
 	}
-	m_tables.clear();
+	_tables.clear();
+
+	if (_objectFSM)
+		DEL _objectFSM;
+	_objectFSM = nullptr;
 }
 
 const std::vector<const IProp*>& MMObject::getObjProps(bool noParent) const{
-	return m_poPropInfo->getObjectProp(noParent);
+	return _poPropInfo->getObjectProp(noParent);
 }
 
 bool MMObject::setData(const IProp* prop, const int8 type, const void* data, const int32 size){
-	const PropLayout* layout = ((ObjectProp*)prop)->getLayout(m_poPropInfo->getObjTypeId());
+	const PropLayout* layout = ((ObjectProp*)prop)->getLayout(_poPropInfo->getObjTypeId());
 	SLASSERT(layout, "wtf");
 	if (layout != nullptr){
 		SLASSERT(layout->_type == type && layout->_size >= size, "wtf");
 		if (layout->_type == type && layout->_size >= size){
-			m_memory->setData(layout, data, size);
+			_memory->setData(layout, data, size);
 			return true;
 		}
 	}
@@ -39,21 +49,21 @@ bool MMObject::setData(const IProp* prop, const int8 type, const void* data, con
 }
 
 const void* MMObject::getData(const IProp* prop, const int8 type, int32& size)const{
-	const PropLayout* layout = ((ObjectProp*)prop)->getLayout(m_poPropInfo->getObjTypeId());
+	const PropLayout* layout = ((ObjectProp*)prop)->getLayout(_poPropInfo->getObjTypeId());
 	SLASSERT(layout, "wtf");
 	if (layout != nullptr){
 		SLASSERT(layout->_type == type && layout->_size >= size, "wtf");
 		if (layout->_type == type && layout->_size >= size){
 			size = layout->_size;
-			return m_memory->getData(layout);
+			return _memory->getData(layout);
 		}
 	}
 	return nullptr;
 }
 
 ITableControl* MMObject::findTable(const int32 name) const{
-	auto itor = m_tables.find(name);
-	if (itor != m_tables.end()){
+	auto itor = _tables.find(name);
+	if (itor != _tables.end()){
 		return itor->second;
 	}
 	return nullptr;

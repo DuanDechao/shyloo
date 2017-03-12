@@ -23,13 +23,9 @@ bool Gate::launched(sl::api::IKernel * pKernel){
 	SLASSERT(s_harbor, "not find module harbor");
 	s_db = (IDB*)pKernel->findModule("DB");
 	SLASSERT(s_db, "not find module s_db");
-
-	//s_db->rgsDBTaskCallBack(32, Gate::queryCB);
-
+	
 	s_gate->rgsAgentMessageHandler(AgentProtocol::CLIENT_MSG_LOGIN_REQ, &Gate::onClientLoginReq);
-
-	test();
-
+	
 	return true;
 }
 bool Gate::destory(sl::api::IKernel * pKernel){
@@ -97,18 +93,4 @@ void Gate::transMsgToLogic(sl::api::IKernel* pKernel, const int64 id, const void
 
 void Gate::onClientLoginReq(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
 
-}
-
-
-void Gate::test(){
-	static int64 uid = 3333253457678888;
-	IArgs<2, 128> args;
-	args << uid;
-	args << "fsdfgsdg";
-	args.fix();
-	CALL_DB(s_db, NEW testDBTask(), args.out());
-}
-
-void Gate::queryCB(sl::api::IKernel* pKernel, const sl::api::ICacheDataResult& result){
-	ECHO_ERROR("call back sucess!");
 }

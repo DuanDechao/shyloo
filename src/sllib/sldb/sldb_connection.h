@@ -12,7 +12,8 @@ public:
 	~SLDBConnection();
 	virtual bool SLAPI open(const char* szHostName, const int32 port, const char* szName, const char* szPwd, const char* szDBName, const char* szCharSet);
 	virtual bool SLAPI reOpen();
-	virtual ISLDBResult* SLAPI execute(const char* commandSql);
+	virtual ISLDBResult* SLAPI executeWithResult(const char* commandSql);
+	virtual bool SLAPI execute(const char* commandSql);
 	virtual int32 SLAPI getLastErrno(void);
 	virtual const char* SLAPI getLastError(void);
 	virtual void SLAPI release(void);

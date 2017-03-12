@@ -4,19 +4,6 @@ namespace sl
 {
 namespace core
 {
-INetEngine* NetEngine::getInstance(){
-	static NetEngine* p = nullptr;
-	if (!p){
-		p = NEW NetEngine;
-		if (!p->ready()){
-			SLASSERT(false, "netEngine not ready");
-			DEL p;
-			p = nullptr;
-		}
-	}
-	return p;
-}
-
 NetEngine::~NetEngine(){
 	m_pSLNetModule->release();
 }
@@ -79,7 +66,7 @@ bool NetEngine::addTcpClient(sl::api::ITcpSession* session, const char* ip, cons
 	return true;
 }
 
-int64 NetEngine::processing(int64 overTime){
+int64 NetEngine::loop(int64 overTime){
 	int64 startTime = sl::getTimeMilliSecond();
 	m_pSLNetModule->run(overTime);
 	return sl::getTimeMilliSecond() - startTime;

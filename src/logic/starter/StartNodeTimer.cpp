@@ -9,13 +9,13 @@ void StartNodeTimer::release(){
 }
 
 void StartNodeTimer::onStart(sl::api::IKernel* pKernel, int64 timetick){
-	Starter::onNodeTimerStart(pKernel, m_type, timetick);
+	Starter::getInstance()->onNodeTimerStart(pKernel, m_type, timetick);
 }
 
 void StartNodeTimer::onTime(sl::api::IKernel* pKernel, int64 timetick){
-	Starter::onNodeTimer(pKernel, m_type, timetick);
+	Starter::getInstance()->onNodeTimer(pKernel, m_type, timetick);
 }
 
 void StartNodeTimer::onTerminate(sl::api::IKernel* pKernel, int64 timetick){
-	Starter::onNodeTimerEnd(pKernel, m_type, timetick);
+	Starter::getInstance()->onNodeTimerEnd(pKernel, m_type, timetick);
 }

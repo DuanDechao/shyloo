@@ -34,6 +34,42 @@ public:
 #define SL_SINGLETON_INIT(TYPE)							\
 	template <> TYPE * CSingleton<TYPE>::m_singleton = 0;	\
 
+
+template <typename T>
+class SLSingleton{
+public:
+	SLSingleton() {}
+	virtual ~SLSingleton() {}
+
+	inline static T* getInstance(){
+		static T* instance = nullptr;
+
+		if (instance == nullptr){
+			instance = NEW T;
+			if (!instance->ready()){
+				delete instance;
+				instance = nullptr;
+			}
+		}
+
+		return instance;
+	}
+};
+
+template<typename T>
+class SLHolder{
+public:
+	SLHolder() { s_instance = (T*)this; }
+	virtual ~SLHolder() {}
+
+	inline static T* getInstance(){ return s_instance; }
+private:
+	static T* s_instance;
+};
+
+template<typename T>
+T* SLHolder<T>::s_instance = nullptr;
+
 }// namespace sl
 
 #endif

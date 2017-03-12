@@ -3,20 +3,14 @@
 #include "slitimer_engine.h"
 #include "sltimer.h"
 #include "slkr_timer.h"
-
+#include "slsingleton.h"
 namespace sl
 {
 namespace core
 {
-class TimerEngine: public ITimerEngine
-{
-private:
-	TimerEngine(){}
-	~TimerEngine(){}
-
+class TimerEngine: public SLSingleton<TimerEngine>{
+	friend class SLSingleton<TimerEngine>;
 public:
-	static ITimerEngine* getInstance();
-	
 	virtual bool ready();
 	virtual bool initialize();
 	virtual bool destory();
@@ -25,9 +19,13 @@ public:
 	virtual bool killTimer(api::ITimer* pTimer);
 	virtual bool pauseTimer(api::ITimer* pTimer);
 	virtual bool resumeTimer(api::ITimer* pTimer);
-	virtual int64 processing(int64 overTime);
+	virtual int64 loop(int64 overTime);
 
 	timer::SLTimerHandler getTimerHander(api::ITimer* pTimer);
+
+private:
+	TimerEngine(){}
+	~TimerEngine(){}
 
 private:
 	timer::ISLTimerMgr*		m_pTimerMgr;

@@ -11,6 +11,7 @@ INCLUDE_DIRECTORIES(
 	"${PROJECT_SOURCE_DIR}/src/kernel/net"
 	"${PROJECT_SOURCE_DIR}/src/kernel/config"
 	"${PROJECT_SOURCE_DIR}/src/kernel/db"
+	"${PROJECT_SOURCE_DIR}/src/kernel/async"
 )
 ENDIF(WIN32)
 
@@ -47,12 +48,22 @@ SET(SL_KERNEL_CONFIG
 	"${PROJECT_SOURCE_DIR}/src/kernel/config/slconfig_engine.cpp"
 )
 
-SET(SL_KERNEL_DB
-	"${PROJECT_SOURCE_DIR}/src/kernel/db/sldb_task.h"
-	"${PROJECT_SOURCE_DIR}/src/kernel/db/sldb_task.cpp"
-	"${PROJECT_SOURCE_DIR}/src/kernel/db/sldb_engine.h"
-	"${PROJECT_SOURCE_DIR}/src/kernel/db/sldb_engine.cpp"
+# SET(SL_KERNEL_DB
+	# "${PROJECT_SOURCE_DIR}/src/kernel/db/sldb_task.h"
+	# "${PROJECT_SOURCE_DIR}/src/kernel/db/sldb_task.cpp"
+	# "${PROJECT_SOURCE_DIR}/src/kernel/db/sldb_engine.h"
+	# "${PROJECT_SOURCE_DIR}/src/kernel/db/sldb_engine.cpp"
+# )
+
+SET(SL_KERNEL_ASYNC
+	"${PROJECT_SOURCE_DIR}/src/kernel/async/slasync_base.h"
+	"${PROJECT_SOURCE_DIR}/src/kernel/async/slasync_base.cpp"
+	"${PROJECT_SOURCE_DIR}/src/kernel/async/slasync_thread.h"
+	"${PROJECT_SOURCE_DIR}/src/kernel/async/slasync_thread.cpp"
+	"${PROJECT_SOURCE_DIR}/src/kernel/async/slasync_engine.h"
+	"${PROJECT_SOURCE_DIR}/src/kernel/async/slasync_engine.cpp"
 )
+
 
 SET(SL_KERNEL
 	"${PROJECT_SOURCE_DIR}/src/kernel/slkernel.h"
@@ -66,7 +77,8 @@ SOURCE_GROUP(src\\net FILES ${SL_KERNEL_NET})
 SOURCE_GROUP(src\\timer FILES ${SL_KERNEL_TIMER})
 SOURCE_GROUP(src\\logic FILES ${SL_KERNEL_LOGIC})
 SOURCE_GROUP(src\\config FILES ${SL_KERNEL_CONFIG})
-SOURCE_GROUP(src\\db FILES ${SL_KERNEL_DB})
+#SOURCE_GROUP(src\\db FILES ${SL_KERNEL_DB})
+SOURCE_GROUP(src\\async FILES ${SL_KERNEL_ASYNC})
 SOURCE_GROUP(\\ FILES ${SL_KERNEL})
 
 IF(WIN32)
@@ -78,7 +90,7 @@ ADD_EXECUTABLE(shyloo
 	${SL_KERNEL_TIMER}
 	${SL_KERNEL_LOGIC}
 	${SL_KERNEL_CONFIG}
-	${SL_KERNEL_DB}
+	${SL_KERNEL_ASYNC}
 	${SL_KERNEL}
 )
 ENDIF(WIN32)

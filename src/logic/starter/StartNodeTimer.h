@@ -4,8 +4,7 @@
 #include "Starter.h"
 #include "slobjectpool.h"
 using namespace sl;
-class StartNodeTimer : public sl::api::ITimer
-{
+class StartNodeTimer : public sl::api::ITimer{
 public:
 	StartNodeTimer(){}
 	StartNodeTimer(int32 type) :m_type(type){}
@@ -20,7 +19,6 @@ public:
 	virtual void onTerminate(sl::api::IKernel* pKernel, int64 timetick);
 	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick) {}
-
 
 private:
 	int32		m_type;

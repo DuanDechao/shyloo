@@ -2,23 +2,17 @@
 #include "AgentSession.h"
 #include "slxml_reader.h"
 #include "slstring_utils.h"
-sl::api::IKernel* Agent::s_kernel = nullptr;
-IHarbor* Agent::s_harbor = nullptr;
-int64 Agent::s_agentNextId = 0;
-IAgentListener*	Agent::s_listener = nullptr;
-std::unordered_map<int64, AgentSession*> Agent::s_agentSessions;
 
 sl::api::ITcpSession* AgentSessionServer::mallocTcpSession(sl::api::IKernel* pKernel){
 	return CREATE_POOL_OBJECT(AgentSession, m_agent);
 }
 bool Agent::initialize(sl::api::IKernel * pKernel){
-	s_kernel = pKernel;
+	_kernel = pKernel;
 	return true;
 }
 
 bool Agent::launched(sl::api::IKernel * pKernel){
-	s_harbor = (IHarbor*)pKernel->findModule("Harbor");
-	SLASSERT(s_harbor, "not find module harbor");
+	FIND_MODULE(_harbor, Harbor);
 
 	sl::XmlReader server_conf;
 	if (!server_conf.loadXml(pKernel->getCoreFile())){
@@ -30,13 +24,13 @@ bool Agent::launched(sl::api::IKernel * pKernel){
 	int32 agentSendSize = agentConf.getAttributeInt32("send");
 	int32 agentPort = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("agent"));
 	
-	m_agentServer = NEW AgentSessionServer(this);
-	if (!m_agentServer){
+	_agentServer = NEW AgentSessionServer(this);
+	if (!_agentServer){
 		SLASSERT(false, "wtf");
 		return false;
 	}
 
-	if (!pKernel->startTcpServer(m_agentServer, "0.0.0.0", agentPort, agentSendSize, agentRecvSize)){
+	if (!pKernel->startTcpServer(_agentServer, "0.0.0.0", agentPort, agentSendSize, agentRecvSize)){
 		SLASSERT(false, "wtf");
 		return false;
 	}
@@ -44,54 +38,54 @@ bool Agent::launched(sl::api::IKernel * pKernel){
 }
 
 bool Agent::destory(sl::api::IKernel * pKernel){
-	if (m_agentServer)
-		DEL m_agentServer;
-	m_agentServer = nullptr;
+	if (_agentServer)
+		DEL _agentServer;
+	_agentServer = nullptr;
 	
-	s_listener = nullptr;
-	s_agentNextId = 0;
-	s_harbor = nullptr;
+	_listener = nullptr;
+	_agentNextId = 0;
+	_harbor = nullptr;
 	
 	DEL this;
 	return true;
 }
 
 int64 Agent::onOpen(AgentSession* pSession){
-	if (s_agentNextId <= 0)
-		s_agentNextId = 1;
+	if (_agentNextId <= 0)
+		_agentNextId = 1;
 	
-	int64 ret = s_agentNextId++;
-	s_agentSessions[ret] = pSession;
+	int64 ret = _agentNextId++;
+	_agentSessions[ret] = pSession;
 	
-	if (s_listener)
-		s_listener->onAgentOpen(s_kernel, ret);
+	if (_listener)
+		_listener->onAgentOpen(_kernel, ret);
 
 	return ret;
 }
 
 int32 Agent::onRecv(int64 id, const char* pContext, const int32 size){
-	SLASSERT(s_agentSessions.find(id) != s_agentSessions.end(), "where is agent %lld", id);
-	if (s_listener == nullptr)
+	SLASSERT(_agentSessions.find(id) != _agentSessions.end(), "where is agent %lld", id);
+	if (_listener == nullptr)
 		return 0;
 
-	return s_listener->onAgentRecv(s_kernel, id, pContext, size);
+	return _listener->onAgentRecv(_kernel, id, pContext, size);
 }
 
 void Agent::onClose(int64 id){
-	SLASSERT(s_agentSessions.find(id) != s_agentSessions.end(), "where is agent %lld", id);
-	s_agentSessions.erase(id);
+	SLASSERT(_agentSessions.find(id) != _agentSessions.end(), "where is agent %lld", id);
+	_agentSessions.erase(id);
 	
-	if (s_listener)
-		s_listener->onAgentClose(s_kernel, id);
+	if (_listener)
+		_listener->onAgentClose(_kernel, id);
 }
 
 void Agent::setListener(IAgentListener* pListener){
-	s_listener = pListener;
+	_listener = pListener;
 }
 
 void Agent::send(const int64 id, const void* pBuf, const int32 size){
-	auto itor = s_agentSessions.find(id);
-	if (itor == s_agentSessions.end()){
+	auto itor = _agentSessions.find(id);
+	if (itor == _agentSessions.end()){
 		SLASSERT(false, "where is agent %lld", id);
 		return;
 	}
@@ -100,8 +94,8 @@ void Agent::send(const int64 id, const void* pBuf, const int32 size){
 }
 
 void Agent::kick(const int64 id){
-	auto itor = s_agentSessions.find(id);
-	if (itor == s_agentSessions.end()){
+	auto itor = _agentSessions.find(id);
+	if (itor == _agentSessions.end()){
 		SLASSERT(false, "where is agent %lld", id);
 		return;
 	}

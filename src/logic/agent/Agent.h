@@ -2,6 +2,7 @@
 #define __SL_CORE_AGENT_H__
 #include "IAgent.h"
 #include <unordered_map>
+#include "slsingleton.h"
 class IHarbor;
 class AgentSession;
 class Agent;
@@ -15,8 +16,7 @@ private:
 	Agent* m_agent;
 };
 
-class Agent : public IAgent
-{
+class Agent : public IAgent, public sl::SLHolder<Agent>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);
@@ -32,11 +32,11 @@ public:
 	virtual void kick(const int64 id);
 
 private:
-	static sl::api::IKernel*    s_kernel;
-	static IHarbor*				s_harbor;
-	static int64				s_agentNextId;
-	static IAgentListener*		s_listener;
-	AgentSessionServer*			m_agentServer;
-	static std::unordered_map<int64, AgentSession*> s_agentSessions;
+	sl::api::IKernel*   _kernel;
+	IHarbor*			_harbor;
+	int64				_agentNextId;
+	IAgentListener*		_listener;
+	AgentSessionServer* _agentServer;
+	std::unordered_map<int64, AgentSession*> _agentSessions;
 };
 #endif

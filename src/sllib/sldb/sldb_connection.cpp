@@ -38,7 +38,7 @@ bool SLDBConnection::reOpen(){
 	return connectDBSvr();
 }
 
-ISLDBResult* SLDBConnection::execute(const char* commandSql){
+ISLDBResult* SLDBConnection::executeWithResult(const char* commandSql){
 	if (!isActive())
 		return NULL;
 
@@ -52,6 +52,17 @@ ISLDBResult* SLDBConnection::execute(const char* commandSql){
 	res->setResult(m_mysqlHandler);
 	
 	return res;
+}
+
+bool SLDBConnection::execute(const char* commandSql){
+	if (!isActive())
+		return false;
+
+	if (mysql_real_query(&m_mysqlHandler, commandSql, (unsigned long)strlen(commandSql))){
+		SLASSERT(false, "mysql query sql:%s failed", commandSql);
+		return false;
+	}
+	return true;
 }
 
 int32 SLDBConnection::getLastErrno(){

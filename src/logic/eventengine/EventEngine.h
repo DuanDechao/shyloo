@@ -1,9 +1,10 @@
-#ifndef __SL_FRAMEWORK_GATE_H__
-#define __SL_FRAMEWORK_GATE_H__
+#ifndef __SL_CORE_EVENT_ENGINE_H__
+#define __SL_CORE_EVENT_ENGINE_H__
 #include "slikernel.h"
 #include "IEventEngine.h"
 #include "slcallback.h"
-class EventEngine :public IEventEngine{
+#include "slsingleton.h"
+class EventEngine :public IEventEngine, public sl::SLHolder<EventEngine>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);
@@ -16,8 +17,8 @@ public:
 	virtual bool ExecJudge(const int32 eventId, const void * context, const int32 size);
 
 private:
-	static sl::api::IKernel*	s_kernel;
-	static sl::CallBackType<int32, EventCB>::type s_events;
-	static sl::CallBackType<int32, JudgeCB>::type s_judges;
+	sl::api::IKernel*	_kernel;
+	sl::CallBackType<int32, EventCB>::type _events;
+	sl::CallBackType<int32, JudgeCB>::type _judges;
 };
 #endif
