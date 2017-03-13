@@ -92,6 +92,7 @@ public:
 
 class IAsyncHandler{
 public:
+	IAsyncHandler() :_base(nullptr){}
 	virtual ~IAsyncHandler() {}
 
 	inline void setBase(IAsyncBase* base) { _base = base; }

@@ -7,6 +7,21 @@ SQLBuilder::SQLBuilder()
 	 _selectExpr("*")
 {}
 
+SQLBuilder::~SQLBuilder(){
+	for (auto& wWxpr : _whereExpr.exprs()){
+		if (wWxpr)
+			DEL wWxpr;
+	}
+
+	for (auto& vExpr : _valuesExpr.exprs()){
+		if (vExpr)
+			DEL vExpr;
+	}
+
+	_whereExpr.exprs().clear();
+	_valuesExpr.exprs().clear();
+}
+
 ISQLBuilder* SQLBuilder::table(const char* table){
 	SLASSERT(table, "wtf");
 	_table.append("`");
@@ -77,7 +92,7 @@ ISQLBuilder* SQLBuilder::update(const SetExpr* val){
 		return this;
 	}
 
-	_optType = DB_OPT_INSERT;
+	_optType = DB_OPT_UPDATE;
 	_valuesExpr.append(val);
 	return this;
 }
@@ -109,9 +124,9 @@ bool SQLBuilder::submit(){
 			}
 			
 			_finalExpr += "INSERT " + _table + " (";
-			std::list<const SetExpr*>& values = _valuesExpr.exprs();
+			
 			int32 i = 0;
-			for (auto& val : values){
+			for (auto& val : _valuesExpr.exprs()){
 				if (i != 0)
 					_finalExpr += ",";
 				_finalExpr += val->field();
@@ -119,13 +134,15 @@ bool SQLBuilder::submit(){
 			}
 
 			_finalExpr += ") VALUES (";
+
 			i = 0;
-			for (auto& val : values){
+			for (auto& val : _valuesExpr.exprs()){
 				if (i != 0)
 					_finalExpr += ",";
 				escapeString(_finalExpr, val);
 				i++;
 			}
+			_finalExpr += ")";
 
 			break;
 		}
@@ -204,7 +221,9 @@ void SQLBuilder::escapeString(string& dest, const SetExpr* val){
 		int32 srcSize = val->value().size();
 		char* destStr = (char*)alloca(srcSize * 2 + 3);
 		int32 escapeLen = MysqlMgr::escapeString(destStr, srcSize * 2 + 3, val->value().c_str(), srcSize);
+		dest.append("'");
 		dest.append(destStr, escapeLen);
+		dest.append("'");
 	}
 }
 

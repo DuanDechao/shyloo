@@ -22,17 +22,17 @@ struct SerializeHelper{
 	}
 
 	inline static bool Serialize(std::ostream& os, const uint8 val){
-		os << (int32)val;
+		os << (int)val;
 		return false;
 	}
 
 	inline static bool Serialize(std::ostream& os, const char* val){
-		os << "'" << val << "'";
+		os << val;
 		return true;
 	}
 
 	inline static bool Serialize(std::ostream& os, const string& val){
-		os << "'" << val << "'";
+		os << val;
 		return true;
 	}
 };
@@ -65,7 +65,7 @@ struct Field{
 	SetExpr* operator = (const T value){
 		ostringstream os;
 		bool bEscape = SerializeHelper::Serialize(os, value);
-		return NEW SetExpr(_field, os.str().c_str(), os.str().size, bEscape);
+		return NEW SetExpr(_field, os.str().c_str(), os.str().size(), bEscape);
 	}
 
 	SetExpr* addStruct(const char* val, const int32 size){

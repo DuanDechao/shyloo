@@ -91,7 +91,7 @@ public:
 	template<typename... Args>
 	SQLCommand& insertInner(const SetExpr* val, Args... args){
 		_sqlBuilder->insert(val);
-		return insertInner(val, args...);
+		return insertInner(args...);
 	}
 	SQLCommand& insertInner(const SetExpr* val){
 		_sqlBuilder->insert(val);
@@ -142,7 +142,7 @@ class IMysqlMgr : public sl::api::IModule{
 public:
 	virtual  ~IMysqlMgr(){}
 
-	virtual void execSql(const int64 id, IMysqlHandler* handler, SQLCommnandFunc& f) = 0;
+	virtual void execSql(const int64 id, IMysqlHandler* handler, const SQLCommnandFunc& f) = 0;
 	virtual void stopSql(IMysqlHandler* handler) = 0;
 };
 #endif

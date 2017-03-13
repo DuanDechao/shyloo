@@ -26,7 +26,11 @@ bool MysqlBase::onExecute(sl::api::IKernel* pKernel){
 		}
 
 		while (dbResult->next()){
-
+			unordered_map<string, string> rowResult;
+			for (int32 i = 0; i < (int32)dbResult->fieldNum(); i++){
+				rowResult.insert(make_pair(dbResult->fieldName(i), string(dbResult->fieldValue(i), dbResult->fieldLength(i) + 1)));
+			}
+			_result.push_back(std::move(rowResult));
 		}
 	}
 	else{

@@ -65,7 +65,14 @@ bool SLDBConnection::execute(const char* commandSql){
 	return true;
 }
 
-int32 SLDBConnection::getLastErrno(){
+unsigned long SLDBConnection::escapeString(char* dest, const char* src, unsigned long srcSize){
+	if (!isActive())
+		return 0;
+
+	return mysql_real_escape_string(&m_mysqlHandler, dest, src, srcSize);
+}
+
+unsigned int SLDBConnection::getLastErrno(){
 	return mysql_errno(&m_mysqlHandler);
 }
 

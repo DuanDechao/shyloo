@@ -21,20 +21,21 @@ public:
 	virtual float SLAPI toFloat(const int32 index) = 0;
 	virtual const char* SLAPI toString(const int32 index) = 0;
 
-	virtual unsigned int SLAPI filedNum() const = 0;
+	virtual unsigned int SLAPI fieldNum() const = 0;
 	virtual unsigned int SLAPI rowNum() const = 0;
-	virtual int32 SLAPI colNameToIdx(const char* colName) const = 0;
+	virtual const char* SLAPI fieldName(const int32 index) const = 0;
+	virtual const char* SLAPI fieldValue(const int32 index) const = 0;
+	virtual unsigned long SLAPI fieldLength(const int32 index) const = 0;
 };
 
-class ISLDBConnection
-{
+class ISLDBConnection{
 public:
-	virtual bool SLAPI open(const char* szHostName, const int32 port, const char* szName, const char* szPwd, const char* szDBName, const char* szCharSet) = 0;
 	virtual bool SLAPI reOpen() = 0;
 	virtual ISLDBResult* SLAPI executeWithResult(const char* commandSql) = 0;
 	virtual bool SLAPI execute(const char* commandSql) = 0;
-	virtual int32 SLAPI getLastErrno(void) = 0;
+	virtual unsigned int SLAPI getLastErrno(void) = 0;
 	virtual const char* SLAPI getLastError(void) = 0;
+	virtual unsigned long SLAPI escapeString(char* dest, const char* src, unsigned long srcSize) = 0;
 	virtual void SLAPI release(void) = 0;
 };
 

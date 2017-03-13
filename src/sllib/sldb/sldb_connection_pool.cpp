@@ -41,7 +41,7 @@ ISLDBConnection* SLDBConnectionPool::allocConnection(){
 	EnterCriticalSection(&m_allocConnectionMutex);
 	
 	SLDBConnection* pConnection = NULL;
-	if (m_freeConns.empty() && (int32)m_allConns.size() < m_maxConnectionNum){
+	if (m_freeConns.empty() && (int32)m_allConns.size() <= m_maxConnectionNum){
 		pConnection = NEW SLDBConnection(this);
 		SLASSERT(pConnection, "new db connection failed");
 

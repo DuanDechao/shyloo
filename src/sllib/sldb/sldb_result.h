@@ -25,17 +25,15 @@ public:
 	virtual uint64 SLAPI toUint64(const int32 index);
 	virtual float SLAPI toFloat(const int32 index);
 	virtual const char* SLAPI toString(const int32 index);
+	
+	virtual unsigned int SLAPI fieldNum() const { return m_filedNum; }
+	virtual unsigned int SLAPI rowNum() const { return m_rowNum; }
+	virtual const char* SLAPI fieldName(const int32 index) const;
+	virtual const char* SLAPI fieldValue(const int32 index) const;
+	virtual unsigned long SLAPI fieldLength(const int32 index) const;
 
 	void setResult(MYSQL& mysql);
 
-	virtual unsigned int SLAPI filedNum() const { return m_filedNum; }
-	virtual unsigned int SLAPI rowNum() const { return m_rowNum; }
-	virtual int32 SLAPI colNameToIdx(const char* colName) const{
-		auto itor = m_colNameIdxMap.find(colName);
-		if (itor == m_colNameIdxMap.end())
-			return -1;
-		return itor->second;
-	}
 private:
 	MYSQL_RES*		m_result;
 	MYSQL_FIELD*	m_fields;
@@ -44,7 +42,6 @@ private:
 	unsigned long*	m_curRowfieldLengths;
 	unsigned int	m_filedNum;
 	unsigned int    m_rowNum;
-	std::unordered_map<std::string, int32> m_colNameIdxMap;
 };
 
 CREATE_OBJECT_POOL(SLDBResult);

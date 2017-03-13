@@ -32,10 +32,6 @@ void SLDBResult::setResult(MYSQL& mysql){
 		m_fields = mysql_fetch_fields(m_result);
 		m_filedNum = mysql_num_fields(m_result);
 		m_rowNum = (unsigned int)mysql_num_rows(m_result);
-
-		for (int32 i = 0; i < m_filedNum; i++){
-			m_colNameIdxMap[m_fields[i].name] = i;
-		}
 	}
 }
 
@@ -132,6 +128,33 @@ const char* SLDBResult::toString(const int32 index){
 			return (const char*)m_currRow[index];
 	}
 	return NULL;
+}
+
+const char* SLDBResult::fieldName(const int32 index) const{
+	if (index >= 0 && index < (int32)m_filedNum){
+		if (m_fields){
+			return m_fields[index].name;
+		}
+	}
+	return NULL;
+}
+
+const char* SLDBResult::fieldValue(const int32 index) const{
+	if (index >= 0 && index < (int32)m_filedNum){
+		if (m_currRow && m_currRow[index]){
+			return (const char*)m_currRow[index];
+		}
+	}
+	return NULL;
+}
+
+unsigned long SLDBResult::fieldLength(const int32 index) const{
+	if (index >= 0 && index < (int32)m_filedNum){
+		if (m_curRowfieldLengths){
+			return m_curRowfieldLengths[index];
+		}
+	}
+	return 0;
 }
 
 
