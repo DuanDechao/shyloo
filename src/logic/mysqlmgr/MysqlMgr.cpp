@@ -55,6 +55,10 @@ bool MysqlMgr::destory(sl::api::IKernel * pKernel){
 	}
 	_dbConnections.clear();
 
+	if (_escapeConnection)
+		_escapeConnection->release();
+	_escapeConnection = nullptr;
+
 	DEL this;
 
 	return true;

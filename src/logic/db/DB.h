@@ -5,9 +5,9 @@
 #include "slobjectpool.h"
 #include "slikernel.h"
 #include <list>
-
+#include "slsingleton.h"
 class IHarbor;
-class DB :public IDB
+class DB :public IDB, public sl::SLHolder<DB> 
 {
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
