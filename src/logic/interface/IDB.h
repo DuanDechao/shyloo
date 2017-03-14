@@ -1,10 +1,27 @@
 #ifndef _SL_IDBMGR_H__
 #define _SL_IDBMGR_H__
 #include "slimodule.h"
-#define INVAILD_CB_ID -1
+#include <functional>
+class IDBColumnsAdder{
+
+};
+
+class IDBConditionAdder{
+
+};
+
+class IDBValueAdder{
+
+};
+
+typedef std::function<void(sl::api::IKernel* pKernel, IDBColumnsAdder* adder, IDBConditionAdder* condition)> DBQueryCommandFunc;
+typedef std::function<void(sl::api::IKernel* pKernel, IDBValueAdder* adder)> DBInsertCommandFunc;
+typedef std::function<void(sl::api::IKernel* pKernel, IDBValueAdder* adder, IDBConditionAdder* condition)> DBUpdateCommandFunc;
+typedef std::function<void(sl::api::IKernel* pKernel, IDBConditionAdder* condition)> DBDeleteCommandFunc;
 
 class IDBCall{
-
+public:
+	virtual ~IDBCall() {}
 };
 
 class IDB : public sl::api::IModule{
