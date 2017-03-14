@@ -5,13 +5,12 @@
 #include "DBTaskCall.h"
 
 bool DB::initialize(sl::api::IKernel * pKernel){
-	m_kernel = pKernel;
+	_kernel = pKernel;
 	return true;
 }
 
 bool DB::launched(sl::api::IKernel * pKernel){
-	m_harbor = (IHarbor*)pKernel->findModule("Harbor");
-	SLASSERT(m_harbor, "not find module harbor");
+	FIND_MODULE(_harbor, Harbor);
 
 	return true;
 }
@@ -21,11 +20,8 @@ bool DB::destory(sl::api::IKernel * pKernel){
 	return true;
 }
 
-void DB::execDBTask(sl::api::IDBTask* pTask, const OArgs& args, DBTaskCallBackType cb){
-	if (!pTask)
-		return;
+IDBCall* DB::create(int64 threadId, const int64 id, const char* file, const int32 line, const void* context, const int32 size = 0){
 
-	DBTaskCall* pTaskCall = DBTaskCall::newDBTaskCall(pTask, cb, args);
-	m_kernel->addDBTask(pTaskCall);
 }
+
 

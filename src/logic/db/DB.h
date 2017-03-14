@@ -7,17 +7,16 @@
 #include <list>
 #include "slsingleton.h"
 class IHarbor;
-class DB :public IDB, public sl::SLHolder<DB> 
-{
+class DB : public IDB, public sl::SLHolder<DB> {
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
 
-	virtual void execDBTask(sl::api::IDBTask* pTask, const OArgs& args, DBTaskCallBackType cb = nullptr);
+	virtual IDBCall* create(int64 threadId, const int64 id, const char* file, const int32 line, const void* context, const int32 size = 0);
 private:
-	sl::api::IKernel*	m_kernel;
-	IHarbor*			m_harbor;
+	sl::api::IKernel*	_kernel;
+	IHarbor*			_harbor;
 };
 
 

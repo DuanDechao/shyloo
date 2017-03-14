@@ -5,7 +5,7 @@
 #include "slsingleton.h"
 class IHarbor;
 class OArgs;
-class IdMgr :public IIdMgr, sl::api::ITimer, public sl::SLHolder<IdMgr>{
+class IdMgr :public IIdMgr, public sl::api::ITimer, public sl::SLHolder<IdMgr>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);

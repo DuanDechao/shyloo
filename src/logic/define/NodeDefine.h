@@ -9,6 +9,6 @@ enum NodeType{
 	RELATION = 4,
 	SCENEMGR = 6,
 	LOGIN = 7,
-	DB = 8
+	DATEBASE = 8
 };
 #endif
