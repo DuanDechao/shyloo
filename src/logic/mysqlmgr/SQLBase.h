@@ -38,9 +38,9 @@ struct SerializeHelper{
 };
 
 struct SetExpr{
-	SetExpr(const string& field, const char* value, const int32 size, bool needEscape){
+	SetExpr(const string& field, const void* value, const int32 size, bool needEscape){
 		_field = std::move(field);
-		_value.append(value, size);
+		_value.append((const char*)value, size);
 		_needEscape = needEscape;
 	}
 
@@ -68,7 +68,7 @@ struct Field{
 		return NEW SetExpr(_field, os.str().c_str(), os.str().size(), bEscape);
 	}
 
-	SetExpr* addStruct(const char* val, const int32 size){
+	SetExpr* addStruct(const void* val, const int32 size){
 		return NEW SetExpr(_field, val, size, true);
 	}
 

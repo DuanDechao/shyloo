@@ -2,8 +2,8 @@
 #include "IHarbor.h"
 #include "NodeDefine.h"
 #include "NodeProtocol.h"
-#include "DBTaskCall.h"
 #include "IMysqlMgr.h"
+
 bool DB::initialize(sl::api::IKernel * pKernel){
 	_self = this;
 	_kernel = pKernel;
@@ -21,8 +21,8 @@ bool DB::destory(sl::api::IKernel * pKernel){
 	return true;
 }
 
-IDBCall* DB::create(int64 threadId, const int64 id, const char* file, const int32 line, const void* context, const int32 size = 0){
-
+IDBCall* DB::create(int64 threadId, const int64 id, const char* file, const int32 line, const void* context, const int32 size){
+	return nullptr;
 }
 
 

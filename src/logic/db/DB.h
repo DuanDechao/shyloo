@@ -17,6 +17,7 @@ public:
 	virtual IDBCall* create(int64 threadId, const int64 id, const char* file, const int32 line, const void* context, const int32 size = 0);
 
 	IMysqlMgr* getMysqlMgr(){ return _mysql; }
+
 private:
 	sl::api::IKernel*	_kernel;
 	DB*					_self;

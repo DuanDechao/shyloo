@@ -2,22 +2,52 @@
 #define _SL_IDBMGR_H__
 #include "slimodule.h"
 #include <functional>
-class IDBColumnsAdder{
+class IDBCallCondition{
+public:
+	enum DBConditionOpType{
+		DBOP_EQ = 0, //  =
+		DBOP_NE,	 // !=
+		DBOP_GT,	 // >
+		DBOP_GE,	 // >=
+		DBOP_LS,	 // <
+		DBOP_LE,	 // <=
+	};
+
+	virtual void AddCondition(const char* key, const DBConditionOpType opt, const int8 value) = 0;
+	virtual void AddCondition(const char* key, const DBConditionOpType opt, const int16 value) = 0;
+	virtual void AddCondition(const char* key, const DBConditionOpType opt, const int32 value) = 0;
+	virtual void AddCondition(const char* key, const DBConditionOpType opt, const int64 value) = 0;
+	virtual void AddCondition(const char* key, const DBConditionOpType opt, const char* value) = 0;
+};
+
+class IDBQueryParamAdder{
 
 };
 
-class IDBConditionAdder{
+class IDBInsertParamAdder{
 
 };
 
-class IDBValueAdder{
+class IDBUpdateParamAdder{
 
 };
 
-typedef std::function<void(sl::api::IKernel* pKernel, IDBColumnsAdder* adder, IDBConditionAdder* condition)> DBQueryCommandFunc;
-typedef std::function<void(sl::api::IKernel* pKernel, IDBValueAdder* adder)> DBInsertCommandFunc;
-typedef std::function<void(sl::api::IKernel* pKernel, IDBValueAdder* adder, IDBConditionAdder* condition)> DBUpdateCommandFunc;
-typedef std::function<void(sl::api::IKernel* pKernel, IDBConditionAdder* condition)> DBDeleteCommandFunc;
+typedef std::function<void(sl::api::IKernel* pKernel, IDBQueryParamAdder* adder, IDBCallCondition* condition)> DBQueryCommandFunc;
+typedef std::function<void(sl::api::IKernel* pKernel, IDBInsertParamAdder* adder)> DBInsertCommandFunc;
+typedef std::function<void(sl::api::IKernel* pKernel, IDBUpdateParamAdder* adder, IDBCallCondition* condition)> DBUpdateCommandFunc;
+typedef std::function<void(sl::api::IKernel* pKernel, IDBCallCondition* condition)> DBDeleteCommandFunc;
+
+class IDBCallSource{
+public:
+	virtual ~IDBCallSource() {}
+};
+
+class IDBResult{
+public:
+	virtual ~IDBResult() {}
+};
+
+typedef std::function<void(sl::api::IKernel* pKernel, const int64 id, const bool success, const int32 affectedRow, const IDBCallSource* source, const IDBResult* result)> DBCallBack;
 
 class IDBCall{
 public:
