@@ -4,27 +4,17 @@
 #include "IAgent.h"
 #include "NodeDefine.h"
 #include "NodeProtocol.h"
-Gate* Gate::s_gate = nullptr;
-IHarbor* Gate::s_harbor = nullptr;
-sl::api::IKernel* Gate::s_kernel = nullptr;
-IAgent*	Gate::s_agent = nullptr;
-IDB* Gate::s_db = nullptr;
-std::unordered_map<int64, Gate::Player> Gate::s_players;
-std::unordered_map<int32, std::unordered_set<int64>> Gate::s_logicPlayers;
-std::unordered_map<int32, Gate::agent_args_cb> Gate::s_gateProtos;
 
 bool Gate::initialize(sl::api::IKernel * pKernel){
-	s_gate = this;
+	_self = this;
 	return true;
 }
 
 bool Gate::launched(sl::api::IKernel * pKernel){
-	s_harbor = (IHarbor*)pKernel->findModule("Harbor");
-	SLASSERT(s_harbor, "not find module harbor");
-	s_db = (IDB*)pKernel->findModule("DB");
-	SLASSERT(s_db, "not find module s_db");
+	FIND_MODULE(_harbor, Harbor);
+	FIND_MODULE(_db, DB);
 	
-	s_gate->rgsAgentMessageHandler(AgentProtocol::CLIENT_MSG_LOGIN_REQ, &Gate::onClientLoginReq);
+	_self->rgsAgentMessageHandler(AgentProtocol::CLIENT_MSG_LOGIN_REQ, &Gate::onClientLoginReq);
 	
 	return true;
 }
@@ -41,18 +31,18 @@ void Gate::onClose(sl::api::IKernel* pKernel, const int32 nodeType, const int32 
 }
 
 void Gate::onAgentOpen(sl::api::IKernel* pKernel, const int64 id){
-	SLASSERT(s_players.find(id) == s_players.end(), "duplicate agent id£º%d", id);
-	s_players[id] = { id, 0, 0, 0, GATE_STATE_NONE };
+	SLASSERT(_players.find(id) == _players.end(), "duplicate agent id£º%d", id);
+	_players[id] = { id, 0, 0, 0, GATE_STATE_NONE };
 }
 
 void Gate::onAgentClose(sl::api::IKernel* pKernel, const int64 id){
-	SLASSERT(s_players.find(id) != s_players.end(), "where is agent %d", id);
+	SLASSERT(_players.find(id) != _players.end(), "where is agent %d", id);
 
-	if (s_players[id].state != GATE_STATE_NONE){
+	if (_players[id].state != GATE_STATE_NONE){
 
 	}
 
-	s_players.erase(id);
+	_players.erase(id);
 }
 
 int32 Gate::onAgentRecv(sl::api::IKernel* pKernel, const int64 id, const void* context, const int32 size){
@@ -66,12 +56,12 @@ int32 Gate::onAgentRecv(sl::api::IKernel* pKernel, const int64 id, const void* c
 	}
 
 	int32 msgId = *((int32*)context);
-	if (s_gateProtos.find(msgId) != s_gateProtos.end()){
+	if (_gateProtos.find(msgId) != _gateProtos.end()){
 		OBStream buf((const char*)context + sizeof(int32)* 2, len);
-		(this->*s_gateProtos[msgId])(pKernel, id, buf);
+		(this->*_gateProtos[msgId])(pKernel, id, buf);
 	}
 	else{
-		if (s_players[id].state == GATE_STATE_ONLINE){
+		if (_players[id].state == GATE_STATE_ONLINE){
 			transMsgToLogic(pKernel, id, context, len);
 		}
 	}
@@ -79,16 +69,16 @@ int32 Gate::onAgentRecv(sl::api::IKernel* pKernel, const int64 id, const void* c
 }
 
 void Gate::rgsAgentMessageHandler(int32 messageId, agent_args_cb handler){
-	SLASSERT(s_gateProtos.find(messageId) == s_gateProtos.end(), "duplicate agent msg %d", messageId);
+	SLASSERT(_gateProtos.find(messageId) == _gateProtos.end(), "duplicate agent msg %d", messageId);
 	
-	s_gateProtos[messageId] = handler;
+	_gateProtos[messageId] = handler;
 }
 
 void Gate::transMsgToLogic(sl::api::IKernel* pKernel, const int64 id, const void* pContext, const int32 size){
-	Player& player = s_players[id];
-	s_harbor->prepareSend(NodeType::LOGIC, player.logic, NodeProtocol::GATE_MSG_TRANSMIT_MSG_TO_LOGIC, size + sizeof(int64));
-	s_harbor->send(NodeType::LOGIC, player.logic, &id, sizeof(id));
-	s_harbor->send(NodeType::LOGIC, player.logic, pContext, size);
+	Player& player = _players[id];
+	_harbor->prepareSend(NodeType::LOGIC, player.logic, NodeProtocol::GATE_MSG_TRANSMIT_MSG_TO_LOGIC, size + sizeof(int64));
+	_harbor->send(NodeType::LOGIC, player.logic, &id, sizeof(id));
+	_harbor->send(NodeType::LOGIC, player.logic, pContext, size);
 }
 
 void Gate::onClientLoginReq(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){

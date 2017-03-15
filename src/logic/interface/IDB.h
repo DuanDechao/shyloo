@@ -40,11 +40,20 @@ typedef std::function<void(sl::api::IKernel* pKernel, IDBCallCondition* conditio
 class IDBCallSource{
 public:
 	virtual ~IDBCallSource() {}
+
+	virtual const void* getContext(const int32 size = 0) = 0;
 };
 
 class IDBResult{
 public:
 	virtual ~IDBResult() {}
+
+	virtual int32 rowCount() = 0;
+	virtual int8 getDataInt8(const int32 i, const char* key) = 0;
+	virtual int16 getDataInt16(const int32 i, const char* key) = 0;
+	virtual int32 getDataInt32(const int32 i, const char* key) = 0;
+	virtual int64 getDataInt64(const int32 i, const char* key) = 0;
+	virtual const char* getDataString(const int32 i, const char* key) = 0;
 };
 
 typedef std::function<void(sl::api::IKernel* pKernel, const int64 id, const bool success, const int32 affectedRow, const IDBCallSource* source, const IDBResult* result)> DBCallBack;
@@ -52,6 +61,11 @@ typedef std::function<void(sl::api::IKernel* pKernel, const int64 id, const bool
 class IDBCall{
 public:
 	virtual ~IDBCall() {}
+
+	virtual void query(const char* tableName, const DBQueryCommandFunc& f, const DBCallBack& cb) = 0;
+	virtual void insert(const char* tableName, const DBInsertCommandFunc& f, const DBCallBack& cb) = 0;
+	virtual void update(const char* tableName, const DBUpdateCommandFunc& f, const DBCallBack& cb) = 0;
+	virtual void del(const char* tableName, const DBDeleteCommandFunc& f, const DBCallBack& cb) = 0;
 };
 
 class IDB : public sl::api::IModule{

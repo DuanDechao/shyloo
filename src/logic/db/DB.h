@@ -9,6 +9,12 @@
 class IHarbor;
 class IMysqlMgr;
 class DB : public IDB, public sl::SLHolder<DB> {
+	enum{
+		SIZE_32 = 32,
+		SIZE_64 = 64,
+		SIZE_128 = 128,
+		SIZE_256 = 256
+	};
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);

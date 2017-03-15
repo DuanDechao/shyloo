@@ -17,7 +17,7 @@ public:
 	}
 
 	virtual void AddCondition(const char* key, const DBConditionOpType opt, const int16 value){
-		switch (opt){
+		switch (opt){ 
 		case DBConditionOpType::DBOP_EQ: _sqlCommand.where(Field(key) == value); break;
 		case DBConditionOpType::DBOP_NE: _sqlCommand.where(Field(key) != value); break;
 		case DBConditionOpType::DBOP_GT: _sqlCommand.where(Field(key) > value); break;
@@ -161,5 +161,24 @@ void DBCall::del(const char* tableName, const DBDeleteCommandFunc& f, const DBCa
 
 		sqlCommand.del();
 	});
+}
+
+bool DBCall::onSuccess(sl::api::IKernel* pKernel, const int32 optType, const int32 affectedRow, const MysqlResult& result){
+	DBResult res(result);
+	_cb(pKernel, _id, true, affectedRow, this, &res);
+
+	return true;
+}
+
+bool DBCall::onFailed(sl::api::IKernel* pKernel, const int32 optType, const int32 errCode){
+	const MysqlResult result;
+	DBResult res(result);
+	_cb(pKernel, _id, false, 0, this, &res);
+
+	return true;
+}
+
+void DBCall::onRelease(){
+	release();
 }
 

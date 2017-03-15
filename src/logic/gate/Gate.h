@@ -9,8 +9,10 @@
 #include "slbinary_stream.h"
 #include <unordered_map>
 #include <unordered_set>
+#include "slsingleton.h"
+
 using namespace sl;
-class Gate :public IGate, public IAgentListener, public INodeListener{
+class Gate :public IGate, public IAgentListener, public INodeListener, public SLHolder<Gate>{
 	enum {
 		GATE_STATE_NONE = 0,
 		GATE_STATE_ROLELOADED,
@@ -53,37 +55,14 @@ public:
 	void transMsgToLogic(sl::api::IKernel* pKernel, const int64 id, const void* pContext, const int32 size);
 
 private:
-	static Gate*		s_gate;
-	static IHarbor*		s_harbor;
-	static IAgent*		s_agent;
-	static IDB*			s_db;
-	static sl::api::IKernel* s_kernel;
-	static std::unordered_map<int64, Player> s_players;
-	static std::unordered_map<int32, std::unordered_set<int64>> s_logicPlayers;
-
-	static std::unordered_map<int32, agent_args_cb> s_gateProtos;
-};
-
-class testDBTask : public sl::api::IDBTask{
-public:
-	bool threadProcess(sl::api::IKernel* pKernel, db::ISLDBConnection* pDBConnection, const OArgs& args){
-		int64 uid = args.getInt64(0);
-		const char* uName = args.getString(1);
-
-		char* sql = "INSERT user(id, name) VALUES(%lld, \'%s\')";
-		char exeSql[1024] = { 0 };
-		SafeSprintf(exeSql, 1024, sql, uid, uName);
-		_dbResult = pDBConnection->execute(exeSql);
-		return true;
-	}
-	virtual thread::TPTaskState mainThreadProcess(sl::api::IKernel* pKernel){
-		return sl::thread::TPTASK_STATE_COMPLETED;
-	}
-	sl::db::ISLDBResult* getTaskResult() { return _dbResult; }
-
-	virtual void release() { DEL this; }
-private:
-	sl::db::ISLDBResult* _dbResult;
-
+	sl::api::IKernel* _kernel;
+	Gate*		_self;
+	IHarbor*	_harbor;
+	IAgent*		_agent;
+	IDB*		_db;
+	
+	std::unordered_map<int64, Player> _players;
+	std::unordered_map<int32, std::unordered_set<int64>> _logicPlayers;
+	std::unordered_map<int32, agent_args_cb> _gateProtos;
 };
 #endif
