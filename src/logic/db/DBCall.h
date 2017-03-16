@@ -65,11 +65,12 @@ public:
 
 	void setContext(const void* context, const int32 size){
 		SLASSERT(size <= maxSize, "out of range");
+		_size = size;
 		sl::SafeMemcpy(_context, maxSize, context, size);
 	}
 
-	const void* getContext(const int32 size = 0){
-		SLASSERT(size == _size, "wtf");
+	const void* getContext(const int32 size){
+		SLASSERT(size <= maxSize && size == _size, "wtf");
 		return _context;
 	}
 

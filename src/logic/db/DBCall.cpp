@@ -164,16 +164,17 @@ void DBCall::del(const char* tableName, const DBDeleteCommandFunc& f, const DBCa
 }
 
 bool DBCall::onSuccess(sl::api::IKernel* pKernel, const int32 optType, const int32 affectedRow, const MysqlResult& result){
-	DBResult res(result);
-	_cb(pKernel, _id, true, affectedRow, this, &res);
+	if (_cb){
+		DBResult res(result);
+		_cb(pKernel, _id, true, affectedRow, this, &res);
+	}
 
 	return true;
 }
 
 bool DBCall::onFailed(sl::api::IKernel* pKernel, const int32 optType, const int32 errCode){
-	const MysqlResult result;
-	DBResult res(result);
-	_cb(pKernel, _id, false, 0, this, &res);
+	if (_cb)
+		_cb(pKernel, _id, false, 0, this, nullptr);
 
 	return true;
 }

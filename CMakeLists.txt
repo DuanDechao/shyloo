@@ -60,6 +60,7 @@ SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/slbinary_stream.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slcallback.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slcycle_queue.h"
+	"${PROJECT_SOURCE_DIR}/src/public/slpool.h"
 )
 
 IF(WIN32)
