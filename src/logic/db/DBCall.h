@@ -3,6 +3,7 @@
 #include "IDB.h"
 #include "IMysqlMgr.h"
 #include "sltools.h"
+#include "slpool.h"
 
 class DB;
 class DBCall : public IDBCall, public IMysqlHandler, public IDBCallSource{
@@ -63,6 +64,10 @@ public:
 		_size(0)
 	{}
 
+	static IDBCall* create(DB* db, int64 threadId, int64 id){
+		return CREATE_FROM_POOL(s_pool, db, threadId, id);
+	}
+
 	void setContext(const void* context, const int32 size){
 		SLASSERT(size <= maxSize, "out of range");
 		_size = size;
@@ -79,6 +84,8 @@ public:
 private:
 	char _context[maxSize];
 	int32 _size;
+	static sl::SLPool<DBContext> s_pool;
 };
+template<int32 maxSize> sl::SLPool<DBContext<maxSize>> DBContext<maxSize>::s_pool;
 
 #endif

@@ -1,6 +1,8 @@
 #ifndef __SL_PUBLIC_POOL_H__
 #define __SL_PUBLIC_POOL_H__
 #include "slmulti_sys.h"
+namespace sl{
+
 template<typename T, int32 chunkCount = 1, int32 chunkSize = 64>
 class SLPool{
 	enum{
@@ -8,9 +10,10 @@ class SLPool{
 		IN_USE,
 	};
 
+	struct ChunkList;
 	struct Chunk{
-		char buffer[sizeof(T)];
-		ChunkList* parent;
+		char _buffer[sizeof(T)];
+		ChunkList* _parent;
 		Chunk* _prev;
 		Chunk* _next;
 		int8   _state;
@@ -18,15 +21,59 @@ class SLPool{
 	};
 
 	struct ChunkList{
-		ChunkList* _prev;
-		ChunkList* _next;
+		ChunkList*	_prev;
+		ChunkList*	_next;
 		int32		_useCount;
 		Chunk		_chunk[chunkSize];
 	};
+
 public:
+	template<typename... Args>
+	T* create(Args... args){
+		Chunk* newChunk = alloc();
+		SLASSERT(newChunk, "create chunk failed");
+		return new(newChunk->_buffer)T(args...);
+	}
+
+	T* create(){
+		Chunk* newChunk = alloc();
+		SLASSERT(newChunk, "create chunk failed");
+		return new(newChunk->_buffer)T();
+	}
+
+	void recover(T* obj){
+		obj->~T();
+		recover((Chunk*)obj);
+	}
+
+private:
+	Chunk* alloc(){
+		if (!_head)
+			allocChunk(1);
+
+		SLASSERT(_head, "create chunk failed");
+
+		Chunk* ret = _head;
+		remove(_head);
+		SLASSERT(ret->_state == IN_FREE, "buffer is not in free");
+
+		ret->_state = IN_USE;
+		ret->_parent->_useCount++;
+
+		return ret;
+	}
 
 	void recover(Chunk* chunk){
 		SLASSERT(chunk->_len == sizeof(Chunk) && chunk->_state == IN_USE, "invaild object memory or not in use");
+		SLASSERT(chunk->_parent->_useCount > 0, "chunk is not in list");
+
+		chunk->_state = IN_FREE;
+		chunk->_parent->_useCount--;
+
+		if (chunk->_parent->_useCount == 0 && _chunkCount > chunkCount)
+			freeChunkList(chunk->_parent);
+		else
+			add(chunk);
 	}
 
 	void allocChunk(int32 count){
@@ -55,6 +102,7 @@ public:
 			chunkList->_chunk[i]._next = nullptr;
 			chunkList->_chunk[i]._state = IN_FREE;
 			chunkList->_chunk[i]._len = sizeof(Chunk);
+			chunkList->_chunk[i]._parent = chunkList;
 			add(&(chunkList->_chunk[i]));
 		}
 	}
@@ -104,8 +152,12 @@ public:
 	}
 
 private:
-	chunk*		_head;
-	chunkList*	_listHead;
+	Chunk*		_head;
+	ChunkList*	_listHead;
 	int32		_chunkCount;
 };
+
+}
+
+#define CREATE_FROM_POOL(pool, ...) pool.create(##__VA_ARGS__);
 #endif
