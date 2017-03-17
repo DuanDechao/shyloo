@@ -79,7 +79,7 @@ public:
 		return _context;
 	}
 
-	void release(){ DEL this; }
+	void release(){ s_pool.recover(this); }
 
 private:
 	char _context[maxSize];

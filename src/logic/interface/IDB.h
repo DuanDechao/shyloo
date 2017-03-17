@@ -13,6 +13,8 @@ public:
 		DBOP_LE,	 // <=
 	};
 
+	virtual ~IDBCallCondition(){}
+
 	virtual void AddCondition(const char* key, const DBConditionOpType opt, const int8 value) = 0;
 	virtual void AddCondition(const char* key, const DBConditionOpType opt, const int16 value) = 0;
 	virtual void AddCondition(const char* key, const DBConditionOpType opt, const int32 value) = 0;
@@ -21,15 +23,34 @@ public:
 };
 
 class IDBQueryParamAdder{
+public:
+	virtual ~IDBQueryParamAdder(){}
 
+	virtual void AddColumn(const char* key) = 0;
 };
 
 class IDBInsertParamAdder{
+public:
+	virtual ~IDBInsertParamAdder(){}
 
+	virtual void AddColumn(const char* key, const int8 value) = 0;
+	virtual void AddColumn(const char* key, const int16 value) = 0;
+	virtual void AddColumn(const char* key, const int32 value) = 0;
+	virtual void AddColumn(const char* key, const int64 value) = 0;
+	virtual void AddColumn(const char* key, const char* value) = 0;
+	virtual void AddColumn(const char* key, const void* value, const int32 size) = 0;
 };
 
 class IDBUpdateParamAdder{
+public:
+	virtual ~IDBUpdateParamAdder(){}
 
+	virtual void AddColumn(const char* key, const int8 value) = 0;
+	virtual void AddColumn(const char* key, const int16 value) = 0;
+	virtual void AddColumn(const char* key, const int32 value) = 0;	
+	virtual void AddColumn(const char* key, const int64 value) = 0;
+	virtual void AddColumn(const char* key, const char* value) = 0;
+	virtual void AddColumn(const char* key, const void* value, const int32 size) = 0;
 };
 
 typedef std::function<void(sl::api::IKernel* pKernel, IDBQueryParamAdder* adder, IDBCallCondition* condition)> DBQueryCommandFunc;
@@ -75,6 +96,6 @@ public:
 	virtual IDBCall* create(int64 threadId, const int64 id, const char* file, const int32 line, const void* context, const int32 size = 0) = 0;
 };
 
-#define CREATE_DB_CALL(_db, _task, _params, _cb) _db->execDBTask(_task, _params, std::bind(&_cb, this, std::placeholders::_1,std::placeholders::_2))
-#define CREATE_DB_CALL_CONTEXT(_db, _task, _params) _db->execDBTask(_task, _params)
+#define CREATE_DB_CALL(_db, _threadId, _id) _db->create(_threadId, _id, __FILE__, __LINE__, nullptr)
+#define CREATE_DB_CALL_CONTEXT(_db, _threadId, _id, _context, _size) _db->create(_threadId, _id, __FILE__, __LINE__, _context, _size)
 #endif

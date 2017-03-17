@@ -18,6 +18,11 @@ class SLPool{
 		Chunk* _next;
 		int8   _state;
 		int32  _len;
+#ifdef _DEBUG
+		const char _file[SL_PATH_MAX];
+		int32 _line;
+#endif // _DEBUG
+
 	};
 
 	struct ChunkList{
@@ -28,15 +33,29 @@ class SLPool{
 	};
 
 public:
+	SLPool() :_head(nullptr), _listHead(nullptr), _chunkCount(0){
+		allocChunk(1);
+	}
+
+	~SLPool(){
+		while (_listHead){
+			ChunkList* next = _listHead->_next;
+			SLFREE(_listHead);
+			_listHead = next;
+		}
+	}
+
+	inline int32 count() { return _chunkCount * chunkSize; }
+
 	template<typename... Args>
-	T* create(Args... args){
-		Chunk* newChunk = alloc();
+	T* create(const char* file, int32 line, Args... args){
+		Chunk* newChunk = alloc(file, line);
 		SLASSERT(newChunk, "create chunk failed");
 		return new(newChunk->_buffer)T(args...);
 	}
 
-	T* create(){
-		Chunk* newChunk = alloc();
+	T* create(const char* file, int32 line){
+		Chunk* newChunk = alloc(file, line);
 		SLASSERT(newChunk, "create chunk failed");
 		return new(newChunk->_buffer)T();
 	}
@@ -47,7 +66,7 @@ public:
 	}
 
 private:
-	Chunk* alloc(){
+	Chunk* alloc(const char* file, int32 line){
 		if (!_head)
 			allocChunk(1);
 
@@ -55,10 +74,14 @@ private:
 
 		Chunk* ret = _head;
 		remove(_head);
-		SLASSERT(ret->_state == IN_FREE, "buffer is not in free");
+		SLASSERT(ret->_state == IN_FREE && ret->_len == sizeof(Chunk), "buffer is not in free");
 
 		ret->_state = IN_USE;
-		ret->_parent->_useCount++;
+		++ret->_parent->_useCount;
+#ifdef _DEBUG
+		sl::SafeMemcpy((void*)ret->_file, sizeof(ret->_file), file, strlen(file));
+		ret->_line = line;
+#endif
 
 		return ret;
 	}
@@ -67,6 +90,7 @@ private:
 		SLASSERT(chunk->_len == sizeof(Chunk) && chunk->_state == IN_USE, "invaild object memory or not in use");
 		SLASSERT(chunk->_parent->_useCount > 0, "chunk is not in list");
 
+		sl::SafeMemset(chunk->_buffer, sizeof(chunk->_buffer), 0, sizeof(chunk->_buffer));
 		chunk->_state = IN_FREE;
 		chunk->_parent->_useCount--;
 
@@ -158,6 +182,10 @@ private:
 };
 
 }
+#ifdef SL_OS_WINDOWS
+#define CREATE_FROM_POOL(pool, ...) pool.create(__FILE__, __LINE__, ##__VA_ARGS__)
+#else
+#define CREATE_FROM_POOL(pool, a...) pool.create(__FILE__, __LINE__, ##a)
+#endif
 
-#define CREATE_FROM_POOL(pool, ...) pool.create(##__VA_ARGS__);
 #endif

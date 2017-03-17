@@ -44,7 +44,7 @@ bool MysqlMgr::initialize(sl::api::IKernel * pKernel){
 }
 
 bool MysqlMgr::launched(sl::api::IKernel * pKernel){
-	test();
+	//test();
 	return true;
 }
 

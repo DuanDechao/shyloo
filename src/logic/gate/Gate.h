@@ -54,6 +54,8 @@ public:
 	void rgsAgentMessageHandler(int32 messageId, agent_args_cb handler);
 	void transMsgToLogic(sl::api::IKernel* pKernel, const int64 id, const void* pContext, const int32 size);
 
+	void test();
+
 private:
 	sl::api::IKernel* _kernel;
 	Gate*		_self;

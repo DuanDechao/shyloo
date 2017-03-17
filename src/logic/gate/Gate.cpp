@@ -4,6 +4,7 @@
 #include "IAgent.h"
 #include "NodeDefine.h"
 #include "NodeProtocol.h"
+#include "IDB.h"
 
 bool Gate::initialize(sl::api::IKernel * pKernel){
 	_self = this;
@@ -16,6 +17,7 @@ bool Gate::launched(sl::api::IKernel * pKernel){
 	
 	_self->rgsAgentMessageHandler(AgentProtocol::CLIENT_MSG_LOGIN_REQ, &Gate::onClientLoginReq);
 	
+	test();
 	return true;
 }
 bool Gate::destory(sl::api::IKernel * pKernel){
@@ -83,4 +85,12 @@ void Gate::transMsgToLogic(sl::api::IKernel* pKernel, const int64 id, const void
 
 void Gate::onClientLoginReq(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
 
+}
+
+void Gate::test(){
+	auto dbCall = CREATE_DB_CALL(_db, 0, 0);
+	dbCall->insert("user", [&](sl::api::IKernel* pKernel, IDBInsertParamAdder* adder){
+		adder->AddColumn("id", 877777888888);
+		adder->AddColumn("name", "ddc");
+	}, nullptr);
 }
