@@ -46,10 +46,8 @@ public:
 	virtual void SLAPI release(void) = 0;
 };
 
-
-ISLDBConnectionPool* SLAPI newDBConnectionPool(int32 maxConnectionNum, const char* szHostName, const int32 port, const char* szName, const char* szPwd,
+}
+}
+sl::db::ISLDBConnectionPool* SLAPI newDBConnectionPool(int32 maxConnectionNum, const char* szHostName, const int32 port, const char* szName, const char* szPwd,
 	const char* szDBName, const char* szCharSet);
-}
-
-}
 #endif

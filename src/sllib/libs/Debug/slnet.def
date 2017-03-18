@@ -1,0 +1,20 @@
+Microsoft (R) COFF/PE Dumper Version 12.00.21005.1
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+Dump of file D:\shyloo\src\sllib\libs\Debug\slnet.dll
+
+File Type: DLL
+
+  Summary
+
+        4000 .data
+        2000 .idata
+        C000 .pdata
+       2A000 .rdata
+        2000 .reloc
+        1000 .rsrc
+       7D000 .text
+
+EXPORTS
+getSLNetModule =getSLNetModule    @2

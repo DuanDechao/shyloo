@@ -1,0 +1,3 @@
+LIBRARY "sldb.dll"
+EXPORTS
+newDBConnectionPool @ 1

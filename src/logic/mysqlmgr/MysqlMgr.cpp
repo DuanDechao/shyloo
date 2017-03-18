@@ -27,7 +27,7 @@ bool MysqlMgr::initialize(sl::api::IKernel * pKernel){
 	}
 	int32 threadCount = conf.root()["async"][0].getAttributeInt32("threadNum");
 	if (threadCount > 0){
-		_dbConnectionPool = sl::db::newDBConnectionPool(threadCount + 1, host, port, user, pwd, dbName, charset);
+		_dbConnectionPool = newDBConnectionPool(threadCount + 1, host, port, user, pwd, dbName, charset);
 		SLASSERT(_dbConnectionPool, "create connectionPool failed");
 		
 		for (int32 i = 0; i < threadCount; i++){
