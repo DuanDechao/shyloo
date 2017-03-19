@@ -5,7 +5,7 @@ SL_SINGLETON_INIT(timer::TimersT);
 
 namespace timer
 {
-ISLTimerMgr* SLAPI getSLTimerModule()
+extern "C" ISLTimerMgr* SLAPI getSLTimerModule()
 {
 	TimersT* g_timersPtr = TimersT::getSingletonPtr();
 	if(g_timersPtr == NULL)

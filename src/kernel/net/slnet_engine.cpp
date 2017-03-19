@@ -1,5 +1,6 @@
 #include "slnet_engine.h"
 #include "slnet_session.h"
+using namespace sl::network;
 namespace sl
 {
 namespace core
@@ -10,7 +11,7 @@ NetEngine::~NetEngine(){
 
 bool NetEngine::initialize()
 {
-	m_pSLNetModule = network::getSLNetModule();
+	m_pSLNetModule = getSLNetModule();
 	if(nullptr == m_pSLNetModule)
 		return false;
 	return true;

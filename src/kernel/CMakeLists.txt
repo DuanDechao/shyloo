@@ -95,8 +95,9 @@ ADD_EXECUTABLE(shyloo
 )
 ENDIF(WIN32)
 TARGET_LINK_LIBRARIES(shyloo
-	${SL_LIB_DEBUG}
-	${SL_LIB_RELEASE}
+	"${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/slnet.lib"
+	"${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/sltimer.lib"
+	"${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/slxml.lib"
 )
 IF(WIN32)
 SET(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/build/windows")

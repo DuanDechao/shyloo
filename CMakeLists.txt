@@ -64,8 +64,15 @@ SET(PUBLIC
 )
 
 IF(WIN32)
+	SET(THIRD_LIB_DEBUG
+		debug "${PROJECT_SOURCE_DIR}/thirdlibrary/mysql/lib/libmysql"
+	)
+	
+	SET(SL_LIB_RELEASE
+		optimized "${PROJECT_SOURCE_DIR}/thirdlibrary/mysql/lib/libmysql"
+	)
+	
 	SET(SL_LIB_DEBUG
-		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/libmysql"
 		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/slnet"
 		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/sltimer"
 		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/slxml"
@@ -73,7 +80,6 @@ IF(WIN32)
 		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/slthread"
 	)
 	SET(SL_LIB_RELEASE
-		optimized "${PROJECT_SOURCE_DIR}/src/sllib/libs/Release/libmysql"
 		optimized "${PROJECT_SOURCE_DIR}/src/sllib/libs/Release/slnet"
 		optimized "${PROJECT_SOURCE_DIR}/src/sllib/libs/Release/sltimer"
 		optimized "${PROJECT_SOURCE_DIR}/src/sllib/libs/Release/slxml"

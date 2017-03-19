@@ -95,9 +95,11 @@ public:
 	virtual void SLAPI release() = 0;
 };
 
-ISLNet* SLAPI getSLNetModule(void);
+extern "C" sl::network::ISLNet* SLAPI getSLNetModule(void);
+
 }
 }
+
 
 
 #endif

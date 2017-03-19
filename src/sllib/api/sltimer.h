@@ -30,7 +30,7 @@ public:
 	virtual int64 SLAPI process(int64 overTime) = 0;
 };
 
-ISLTimerMgr* SLAPI getSLTimerModule(void);
+extern "C" ISLTimerMgr* SLAPI getSLTimerModule(void);
 }
 }
 #endif

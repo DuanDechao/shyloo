@@ -72,5 +72,5 @@ ADD_LIBRARY(slnet SHARED
 	${PUBLIC}
 	${SL_LIB_NET}
 )
-TARGET_LINK_LIBRARIES(slnet "ws2_32.lib" "Iphlpapi.lib")
+#TARGET_LINK_LIBRARIES(slnet "ws2_32.lib" "Iphlpapi.lib")
 SET_PROPERTY(TARGET slnet PROPERTY FOLDER "sllib")

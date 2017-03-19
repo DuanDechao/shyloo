@@ -28,7 +28,7 @@ public:
 	virtual void SLAPI release() = 0;
 };
 
-ISLXmlReader* SLAPI createXmlReader(void);
+extern "C" ISLXmlReader* SLAPI createXmlReader(void);
 }
 }
 #endif

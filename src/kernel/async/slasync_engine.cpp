@@ -38,6 +38,9 @@ bool AsyncEngine::destory(){
 
 int64 AsyncEngine::loop(int64 overTime){
 	int64 tick = sl::getTimeMilliSecond();
+	if (_threads.size() <= 0)
+		return 0;
+
 	int64 perOverTime = overTime / _threads.size();
 	for (AsyncThread* t : _threads){
 		t->loop(perOverTime);

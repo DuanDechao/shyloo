@@ -211,26 +211,62 @@ namespace sl
 	}; // class CFileUtils
 
 
-	void getAllFilesInDir(const char* path, std::vector<std::string>& files){
-		long   hFile = 0;
-		struct _finddata_t fileinfo;
+	void ListFileInDirection(const char * path, const char * extension, const std::function<void(const char *, const char *)> &f) {
+#ifdef SL_OS_WINDOWS
+		WIN32_FIND_DATA finder;
 
-		std::string stPath(path);
-		if ((hFile = _findfirst(stPath.append("/*").c_str(), &fileinfo)) != -1){
-			do{
-				if ((fileinfo.attrib &  _A_SUBDIR)){
-					if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0){
-						stPath = path;
-						getAllFilesInDir(stPath.append("/").append(fileinfo.name).c_str(), files);
-					}
+		char tmp[512] = { 0 };
+		SafeSprintf(tmp, sizeof(tmp), "%s/*.*", path);
+
+		HANDLE handle = FindFirstFile(path, &finder);
+		if (INVALID_HANDLE_VALUE == handle)
+			return;
+
+		while (FindNextFile(handle, &finder)) {
+			if (strcmp(finder.cFileName, ".") == 0 || strcmp(finder.cFileName, "..") == 0)
+				continue;
+
+			SafeSprintf(tmp, sizeof(tmp), "%s/%s", path, finder.cFileName);
+			if (finder.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+				ListFileInDirection(tmp, extension, f);
+			else {
+				if (0 == strcmp(extension, PathFindExtension(finder.cFileName))) {
+					PathRemoveExtension(finder.cFileName);
+					f(finder.cFileName, tmp);
 				}
-				else{
-					stPath = path;
-					files.push_back(stPath.append("/").append(fileinfo.name));
-				}
-			} while (_findnext(hFile, &fileinfo) == 0);
-			_findclose(hFile);
+			}
 		}
+#else
+		DIR * dp = opendir(path);
+		if (dp == nullptr)
+			return;
+
+		struct dirent * dirp;
+		while ((dirp = readdir(dp)) != nullptr) {
+			if (dirp->d_name[0] == '.')
+				continue;
+
+			char tmp[256] = { 0 };
+			SafeSprintf(tmp, sizeof(tmp), "%s/%s", path, dirp->d_name);
+
+			struct stat st;
+			if (stat(tmp, &st) == -1)
+				continue;
+
+			if (S_ISDIR(st.st_mode))
+				ListFileInDirection(tmp, extension, f);
+			else {
+				if (0 == strcmp(extension, GetFileExt(dirp->d_name))) {
+					char name[256];
+					SafeSprintf(name, sizeof(name), "%s", dirp->d_name);
+					char * dot = strrchr(name, '.');
+					if (dot != nullptr)
+						*dot = 0;
+					f(name, tmp);
+				}
+			}
+		}
+#endif
 	}
 
 }// namespace sl

@@ -5,6 +5,4 @@
 	<module name="Cluster" />
 	<module name="Starter" />
 	<module name="IdMgr" />
-	<module name="Gate" />
-	<module name="DB" />
 </modules>

@@ -2,7 +2,7 @@
 #define SL_DB_DEFINE_H
 #include "sldb.h"
 #include "slmulti_sys.h"
-#include "mysql/include/mysql.h"
+#include "mysql.h"
 #include <string>
 namespace sl
 {

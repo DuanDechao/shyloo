@@ -9,7 +9,12 @@
 
 bool ObjectMgr::initialize(sl::api::IKernel * pKernel){
 	_self = this;
-	return initPropDefineConfig(pKernel) && loadObjectPropConfig(pKernel);
+	if (!initPropDefineConfig(pKernel) || loadObjectPropConfig(pKernel)){
+		SLASSERT(false, "init config failed");
+		return false;
+	}
+
+	return true;
 }
 
 bool ObjectMgr::launched(sl::api::IKernel * pKernel){
@@ -95,14 +100,13 @@ bool ObjectMgr::loadObjectPropConfig(sl::api::IKernel * pKernel){
 	char path[256] = { 0 };
 	SafeSprintf(path, sizeof(path)-1, "%s/dccenter", pKernel->getEnvirPath());
 
-	std::vector<std::string> files;
-	sl::getAllFilesInDir(path, files);
-	for (int32 i = 0; i < (int32)files.size(); i++){
-		int32 pos1 = files[i].find_last_of('/');
-		int32 pos2 = files[i].find_last_of('.');
-		std::string objectName(files[i].substr(pos1 + 1, pos2 - pos1-1));
-		_propConfigsPath.insert(make_pair(objectName, files[i]));
-	}
+	sl::ListFileInDirection(path, ".xml", [this](const char * name, const char * path) {
+		if (_propConfigsPath.end() != _propConfigsPath.find(name)) {
+			SLASSERT(false, "prop xml name repeated");
+			return;
+		}
+		_propConfigsPath.insert(std::make_pair(name, path));
+	});
 
 	PROP_CONFIG_PATH_MAP::iterator itor = _propConfigsPath.begin();
 	PROP_CONFIG_PATH_MAP::iterator itorEnd = _propConfigsPath.end();

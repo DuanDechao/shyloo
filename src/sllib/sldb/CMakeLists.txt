@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 INCLUDE_DIRECTORIES(
 	"${PROJECT_SOURCE_DIR}/src/public"
 	"${PROJECT_SOURCE_DIR}/src/sllib/api"
-	"${PROJECT_SOURCE_DIR}/thirdlibrary/mysql/include"
+	"${PROJECT_SOURCE_DIR}/thirdlibrary/mysql/x64/include"
 )
 
 IF(WIN32)
@@ -30,10 +30,10 @@ SOURCE_GROUP(\\ FILES ${SL_LIB_DB})
 
 IF(WIN32)
 	SET(MYSQL_LIB_DEBUG
-		debug "${PROJECT_SOURCE_DIR}/src/sllib/sldb/mysql/lib/libmysql.lib"
+		debug "${PROJECT_SOURCE_DIR}/src/sllib/sldb/mysql/x64/lib/libmysql.lib"
 	)
 	SET(MYSQL_LIB_RELEASE
-		optimized "${PROJECT_SOURCE_DIR}/src/sllib/sldb/mysql/lib/libmysql.lib"
+		optimized "${PROJECT_SOURCE_DIR}/src/sllib/sldb/mysql/x64/lib/libmysql.lib"
 	)
 ENDIF(WIN32)
 
@@ -45,7 +45,7 @@ ADD_LIBRARY(sldb SHARED
 )
 
 TARGET_LINK_LIBRARIES(sldb
-	"${PROJECT_SOURCE_DIR}/thirdlibrary/mysql/lib/libmysql.lib"
+	"${PROJECT_SOURCE_DIR}/thirdlibrary/mysql/x64/lib/libmysql.lib"
 )
 
 SET_PROPERTY(TARGET sldb PROPERTY FOLDER "sllib")

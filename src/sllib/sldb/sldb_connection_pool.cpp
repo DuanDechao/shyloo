@@ -87,10 +87,11 @@ bool SLDBConnectionPool::hasConnection(ISLDBConnection* pConn){
 	return false;
 }
 
-ISLDBConnectionPool* SLAPI newDBConnectionPool(int32 maxConnectionNum, const char* szHostName, const int32 port, const char* szName, const char* szPwd,
+sl::db::ISLDBConnectionPool* SLAPI newDBConnectionPool(int32 maxConnectionNum, const char* szHostName, const int32 port, const char* szName, const char* szPwd,
 	const char* szDBName, const char* szCharSet){
-	return NEW SLDBConnectionPool(maxConnectionNum, szHostName, port, szName, szPwd, szDBName, szCharSet);
+	return NEW sl::db::SLDBConnectionPool(maxConnectionNum, szHostName, port, szName, szPwd, szDBName, szCharSet);
 }
 
 }
 }
+

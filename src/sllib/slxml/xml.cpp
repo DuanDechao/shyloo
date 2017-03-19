@@ -153,7 +153,7 @@ void CSLXmlReader::release()
 	DEL this;
 }
 
-ISLXmlReader* SLAPI createXmlReader(){
+extern "C" ISLXmlReader* SLAPI createXmlReader(){
 	return NEW CSLXmlReader;
 }
 
