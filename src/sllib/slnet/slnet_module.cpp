@@ -1,3 +1,4 @@
+#define SL_DLL_EXPORT
 #include "slnet_module.h"
 #include "slnet.h"
 namespace sl
@@ -6,7 +7,7 @@ SL_SINGLETON_INIT(network::CSLNetModule);
 namespace network
 {
 
-extern "C" ISLNet* SLAPI getSLNetModule()
+extern "C" SL_DLL_API ISLNet* SLAPI getSLNetModule()
 {
 	CSLNetModule* g_netModulePtr = CSLNetModule::getSingletonPtr();
 	if(g_netModulePtr == NULL)

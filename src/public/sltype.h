@@ -24,5 +24,10 @@ typedef uint64				uid_t;          ///< 用户ID类型
 
 #define SLAPI __stdcall
 
+#ifdef SL_DLL_EXPORT
+#define SL_DLL_API __declspec (dllexport)
+#else
+#define SL_DLL_API __declspec (dllimport)
+#endif
 
 #endif

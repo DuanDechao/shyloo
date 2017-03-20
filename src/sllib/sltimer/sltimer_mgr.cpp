@@ -1,3 +1,4 @@
+#define SL_DLL_EXPORT
 #include "sltimer_mgr.h"
 namespace sl
 {
@@ -5,7 +6,7 @@ SL_SINGLETON_INIT(timer::TimersT);
 
 namespace timer
 {
-extern "C" ISLTimerMgr* SLAPI getSLTimerModule()
+extern "C" SL_DLL_API ISLTimerMgr* SLAPI getSLTimerModule()
 {
 	TimersT* g_timersPtr = TimersT::getSingletonPtr();
 	if(g_timersPtr == NULL)

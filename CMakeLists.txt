@@ -65,26 +65,26 @@ SET(PUBLIC
 
 IF(WIN32)
 	SET(THIRD_LIB_DEBUG
-		debug "${PROJECT_SOURCE_DIR}/thirdlibrary/mysql/lib/libmysql"
+		debug "${PROJECT_SOURCE_DIR}/thirdlibrary/mysql/lib/libmysql.lib"
 	)
 	
-	SET(SL_LIB_RELEASE
-		optimized "${PROJECT_SOURCE_DIR}/thirdlibrary/mysql/lib/libmysql"
+	SET(THIRD_LIB_RELEASE
+		optimized "${PROJECT_SOURCE_DIR}/thirdlibrary/mysql/lib/libmysql.lib"
 	)
 	
 	SET(SL_LIB_DEBUG
-		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/slnet"
-		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/sltimer"
-		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/slxml"
-		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/sldb"
-		debug "${PROJECT_SOURCE_DIR}/src/sllib/libs/Debug/slthread"
+		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/slnet.lib"
+		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/sltimer.lib"
+		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/slxml.lib"
+		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/sldb.lib"
+		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/slthread.lib"
 	)
 	SET(SL_LIB_RELEASE
-		optimized "${PROJECT_SOURCE_DIR}/src/sllib/libs/Release/slnet"
-		optimized "${PROJECT_SOURCE_DIR}/src/sllib/libs/Release/sltimer"
-		optimized "${PROJECT_SOURCE_DIR}/src/sllib/libs/Release/slxml"
-		optimized "${PROJECT_SOURCE_DIR}/src/sllib/libs/Release/sldb"
-		optimized "${PROJECT_SOURCE_DIR}/src/sllib/libs/Release/slthread"
+		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/slnet.lib"
+		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/sltimer.lib"
+		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/slxml.lib"
+		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/sldb.lib"
+		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/slthread.lib"
 	)
 ENDIF(WIN32)
 

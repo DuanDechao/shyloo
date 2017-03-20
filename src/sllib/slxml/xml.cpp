@@ -1,3 +1,4 @@
+#define SL_DLL_EXPORT
 #include "xml.h"
 #include "slstring_utils.h"
 namespace sl
@@ -153,7 +154,7 @@ void CSLXmlReader::release()
 	DEL this;
 }
 
-extern "C" ISLXmlReader* SLAPI createXmlReader(){
+extern "C" SL_DLL_API ISLXmlReader* SLAPI createXmlReader(){
 	return NEW CSLXmlReader;
 }
 

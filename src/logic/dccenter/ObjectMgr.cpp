@@ -9,7 +9,7 @@
 
 bool ObjectMgr::initialize(sl::api::IKernel * pKernel){
 	_self = this;
-	if (!initPropDefineConfig(pKernel) || loadObjectPropConfig(pKernel)){
+	if (!initPropDefineConfig(pKernel) || !loadObjectPropConfig(pKernel)){
 		SLASSERT(false, "init config failed");
 		return false;
 	}

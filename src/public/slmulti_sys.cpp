@@ -32,8 +32,8 @@ void OpenAllocLog() {
 void __AssertionFail(const char* file, int line, const char* funname, const char* debug){
 	fflush(stdout);
 	fprintf(stderr,
-		"\nAssertion failed: %s\n=======assert string=======\nfile:%s\nline:%d\nfunction:%s\ndebug:%s",
-		sl::getCurrentTimeStr(), file, line, funname, debug);
+		"\nAssertion failed: %s\n=======assert string=======\nfile:%s\nline:%d\nfunction:%s\ndebug:%s\n",
+		sl::getCurrentTimeStr().c_str(), file, line, funname, debug);
 	fflush(stderr);
 	assert(false);
 }

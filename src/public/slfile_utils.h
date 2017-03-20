@@ -11,6 +11,7 @@
 #include <fcntl.h>
 #include <io.h>
 #include <vector>
+#include <>
 namespace sl
 {
 	//读写文件的封装类
@@ -222,7 +223,7 @@ namespace sl
 		if (INVALID_HANDLE_VALUE == handle)
 			return;
 
-		while (FindNextFile(handle, &finder)) {
+		while (::FindNextFile(handle, &finder)) {
 			if (strcmp(finder.cFileName, ".") == 0 || strcmp(finder.cFileName, "..") == 0)
 				continue;
 
@@ -267,6 +268,10 @@ namespace sl
 			}
 		}
 #endif
+	}
+
+	bool UTF8ToGB2312(char* dest, const char* src){
+		iconv_t = iconv_open()
 	}
 
 }// namespace sl
