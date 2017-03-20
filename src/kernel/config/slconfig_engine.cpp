@@ -44,7 +44,9 @@ bool ConfigEngine::loadCoreConfig(){
 		return false;
 	}
 
-	m_envirPath = server_conf.root()["envir"][0].getAttributeString("path");
+	char envirPath[MAX_PATH] = { 0 };
+	SafeSprintf(envirPath, sizeof(envirPath), "%s/%s", sl::getAppPath(), server_conf.root()["envir"][0].getAttributeString("path"));
+	m_envirPath = envirPath;
 	m_envirPath += "/";
 
 	char moduleConfPath[MAX_PATH] = { 0 };

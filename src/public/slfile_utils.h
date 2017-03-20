@@ -11,7 +11,6 @@
 #include <fcntl.h>
 #include <io.h>
 #include <vector>
-#include <>
 namespace sl
 {
 	//读写文件的封装类
@@ -218,12 +217,12 @@ namespace sl
 
 		char tmp[512] = { 0 };
 		SafeSprintf(tmp, sizeof(tmp), "%s/*.*", path);
-
-		HANDLE handle = FindFirstFile(path, &finder);
+		
+		HANDLE handle = FindFirstFileA(tmp, &finder);
 		if (INVALID_HANDLE_VALUE == handle)
 			return;
 
-		while (::FindNextFile(handle, &finder)) {
+		while (::FindNextFileA(handle, &finder)) {
 			if (strcmp(finder.cFileName, ".") == 0 || strcmp(finder.cFileName, "..") == 0)
 				continue;
 
@@ -269,10 +268,6 @@ namespace sl
 		}
 #endif
 	}
-
-	bool UTF8ToGB2312(char* dest, const char* src){
-		iconv_t = iconv_open()
-	}
-
+	
 }// namespace sl
 #endif
