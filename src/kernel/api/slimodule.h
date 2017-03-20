@@ -62,9 +62,10 @@ typedef IModule * (*GetModuleFun)(void);
 	public:	\
 		factory##name(IModule* & pModule)	\
 		{    \
-			IModule* pModule##name = new name;	\
-			pModule = pModule##name;	\
-			pModule->setName(#name);	\
+			IModule * module##name = new name;    \
+			module##name->setName(#name);    \
+			module##name->setNext(pModule); \
+			pModule = module##name;    \
 		}	\
 	};	\
 	factory##name factory##name(plogicModule);
