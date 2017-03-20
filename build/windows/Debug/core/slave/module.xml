@@ -3,4 +3,5 @@
 	<module name="Harbor" />
 	<module name="Slave" />
 	<module name="Cluster" />
+	<module name="Capacity" />
 </modules>

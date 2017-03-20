@@ -3,6 +3,7 @@
 	<module name="Harbor" />
 	<module name="Master" />
 	<module name="Cluster" />
+	<module name="Capacity" />
 	<module name="Starter" />
 	<module name="IdMgr" />
 </modules>

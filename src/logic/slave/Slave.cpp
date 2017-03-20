@@ -14,14 +14,6 @@
 #define EXECUTE_CMD_ID_SIZE			4
 
 bool Slave::initialize(sl::api::IKernel * pKernel){
-	return true;
-}
-
-bool Slave::launched(sl::api::IKernel * pKernel){
-	FIND_MODULE(_harbor, Harbor);
-
-	RGS_NODE_HANDLER(NodeProtocol::MASTER_MSG_START_NODE, Slave::openNewNode);
-
 	sl::XmlReader server_conf;
 	if (!server_conf.loadXml(pKernel->getCoreFile())){
 		SLASSERT(false, "load core file %s failed", pKernel->getCoreFile());
@@ -40,6 +32,15 @@ bool Slave::launched(sl::api::IKernel * pKernel){
 		SafeSprintf(_executes[type].name, sizeof(_executes[type].name), "%s", nodes[i].getAttributeString("name"));
 		SafeSprintf(_executes[type].cmd, sizeof(_executes[type].cmd), "%s", nodes[i].getAttributeString("cmd"));
 	}
+
+	return true;
+}
+
+bool Slave::launched(sl::api::IKernel * pKernel){
+	FIND_MODULE(_harbor, Harbor);
+
+	RGS_NODE_HANDLER(_harbor, NodeProtocol::MASTER_MSG_START_NODE, Slave::openNewNode);
+
 	return true;
 }
 bool Slave::destory(sl::api::IKernel * pKernel){

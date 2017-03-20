@@ -2,8 +2,10 @@
 <modules path="./">
 	<module name="Harbor" />
 	<module name="Cluster" />
+	<module name="Capacity" />
 	<module name="IdMgr" />
 	<module name="DCCenter" />
+	
 	<!-- <module name="MysqlMgr" /> -->
 	<!-- <module name="DB" /> -->
 </modules>

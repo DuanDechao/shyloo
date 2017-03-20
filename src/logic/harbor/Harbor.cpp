@@ -155,6 +155,29 @@ void Harbor::send(int32 nodeType, int32 nodeId, const void* pContext, const int3
 	}
 }
 
+void Harbor::broadcast(int32 nodeType, int32 messageId, const OArgs& args){
+	auto itor = _allNode.find(nodeType);
+	if (itor == _allNode.end()){
+		//SLASSERT(false, "wtf");
+		return;
+	}
+
+	for (auto node : itor->second){
+		node.second->prepareSendNodeMessage(messageId, args.getSize());
+		node.second->send(args.getContext(), args.getSize());
+	}
+}
+
+
+void Harbor::broadcast(int32 messageId, const OArgs& args){
+	for (auto nodeType : _allNode){
+		for (auto node : nodeType.second){
+			node.second->prepareSendNodeMessage(messageId, args.getSize());
+			node.second->send(args.getContext(), args.getSize());
+		}
+	}
+}
+
 void Harbor::onTime(sl::api::IKernel* pKernel, int64 timetick){
 	startListening(pKernel);
 }

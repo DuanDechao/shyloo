@@ -79,6 +79,9 @@ public:
 	virtual void send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& args);
 	virtual void connect(const char* ip, const int32 port);
 
+	virtual void broadcast(int32 nodeType, int32 messageId, const OArgs& args);
+	virtual void broadcast(int32 messageId, const OArgs& args);
+
 	virtual void rgsNodeMessageHandler(int32 messageId, const NodeArgsCB& handler);
 	virtual void rgsNodeMessageHandler(int32 messageId, node_cb handler);
 	virtual void startListening(sl::api::IKernel* pKernel);
