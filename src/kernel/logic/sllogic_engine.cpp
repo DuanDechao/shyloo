@@ -53,8 +53,7 @@ bool LogicEngine::initialize()
 		while (plogic){
 			const char* pName = plogic->getName();
 			std::map<std::string, api::IModule *>::iterator mitor = m_mapModule.find(pName);
-			if(mitor != m_mapModule.end())
-			{
+			if(mitor != m_mapModule.end()){
 				return false;
 			}
 
@@ -70,8 +69,10 @@ bool LogicEngine::initialize()
 		std::vector<api::IModule *>::iterator vitor = m_vecModule.begin();
 		std::vector<api::IModule *>::iterator viend = m_vecModule.end();
 		while(vitor != viend){
+			ECHO_TRACE("initializing name %s.", (*vitor)->getName());
 			bool res = (*vitor)->initialize(core::Kernel::getInstance());
 			if(!res){
+				ECHO_ERROR("initialize name %s failed.", (*vitor)->getName());
 				return false;
 			}
 			++vitor;
@@ -80,7 +81,9 @@ bool LogicEngine::initialize()
 		vitor = m_vecModule.begin();
 		while(vitor != viend){
 			bool res = (*vitor)->launched(Kernel::getInstance());
+			ECHO_TRACE("launching name %s.", (*vitor)->getName());
 			if(!res){
+				ECHO_TRACE("launch name %s failed.", (*vitor)->getName());
 				return false;
 			}
 			++vitor;
