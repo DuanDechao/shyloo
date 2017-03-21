@@ -1,5 +1,5 @@
-#ifndef __SL_IIDMGR_H__
-#define __SL_IIDMGR_H__
+#ifndef __SL_INTERFACE_IIDMGR_H__
+#define __SL_INTERFACE_IIDMGR_H__
 #include "slimodule.h"
 
 class IIdMgr : public sl::api::IModule{

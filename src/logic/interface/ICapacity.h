@@ -1,5 +1,5 @@
-#ifndef __SL_IIDMGR_H__
-#define __SL_IIDMGR_H__
+#ifndef __SL_INTERFACE_CAPACITY_H__
+#define __SL_INTERFACE_CAPACITY_H__
 #include "slimodule.h"
 
 class ICapacityPublisher : public sl::api::IModule{

@@ -7,6 +7,7 @@ enum NodeType{
 	LOGIC = 2,
 	SCENE = 3,
 	RELATION = 4,
+	ACCOUNT = 5,
 	SCENEMGR = 6,
 	LOGIN = 7,
 	DATEBASE = 8

@@ -2,5 +2,13 @@
 #define SL_AGENT_PROTOCOL_H
 enum AgentProtocol{
 	CLIENT_MSG_LOGIN_REQ = 1,
+
+
+
+	SERVER_MSG_SELECT_ROLE_RSP = 100000,
+};
+
+enum ProtocolError{
+	ERROR_DISTRIBUTE_LOGIC_FAILED = 1,
 };
 #endif

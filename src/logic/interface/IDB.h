@@ -62,19 +62,19 @@ class IDBCallSource{
 public:
 	virtual ~IDBCallSource() {}
 
-	virtual const void* getContext(const int32 size = 0) = 0;
+	virtual const void* getContext(const int32 size = 0) const = 0;
 };
 
 class IDBResult{
 public:
 	virtual ~IDBResult() {}
 
-	virtual int32 rowCount() = 0;
-	virtual int8 getDataInt8(const int32 i, const char* key) = 0;
-	virtual int16 getDataInt16(const int32 i, const char* key) = 0;
-	virtual int32 getDataInt32(const int32 i, const char* key) = 0;
-	virtual int64 getDataInt64(const int32 i, const char* key) = 0;
-	virtual const char* getDataString(const int32 i, const char* key) = 0;
+	virtual int32 rowCount() const = 0;
+	virtual int8 getDataInt8(const int32 i, const char* key) const = 0;
+	virtual int16 getDataInt16(const int32 i, const char* key) const = 0;
+	virtual int32 getDataInt32(const int32 i, const char* key) const = 0;
+	virtual int64 getDataInt64(const int32 i, const char* key) const = 0;
+	virtual const char* getDataString(const int32 i, const char* key) const = 0;
 };
 
 typedef std::function<void(sl::api::IKernel* pKernel, const int64 id, const bool success, const int32 affectedRow, const IDBCallSource* source, const IDBResult* result)> DBCallBack;
@@ -98,4 +98,5 @@ public:
 
 #define CREATE_DB_CALL(_db, _threadId, _id) _db->create(_threadId, _id, __FILE__, __LINE__, nullptr)
 #define CREATE_DB_CALL_CONTEXT(_db, _threadId, _id, _context, _size) _db->create(_threadId, _id, __FILE__, __LINE__, _context, _size)
+#define CALLOR_CB(_handler) std::bind(&_handler, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6)
 #endif

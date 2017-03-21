@@ -37,15 +37,15 @@ class DBResult : public IDBResult{
 public:
 	DBResult(const MysqlResult& root) :_root(root){}
 
-	virtual int32 rowCount(){ return (int32)_root.size(); }
-	virtual int8 getDataInt8(const int32 i, const char* key){ return sl::CStringUtils::StringAsInt8(getData(i, key).c_str());}
-	virtual int16 getDataInt16(const int32 i, const char* key) { return sl::CStringUtils::StringAsInt16(getData(i, key).c_str()); }
-	virtual int32 getDataInt32(const int32 i, const char* key){ return sl::CStringUtils::StringAsInt32(getData(i, key).c_str()); }
-	virtual int64 getDataInt64(const int32 i, const char* key) { return sl::CStringUtils::StringAsInt64(getData(i, key).c_str()); }
-	virtual const char* getDataString(const int32 i, const char* key) { return getData(i, key).c_str(); }
+	virtual int32 rowCount() const { return (int32)_root.size(); }
+	virtual int8 getDataInt8(const int32 i, const char* key) const { return sl::CStringUtils::StringAsInt8(getData(i, key).c_str());}
+	virtual int16 getDataInt16(const int32 i, const char* key) const { return sl::CStringUtils::StringAsInt16(getData(i, key).c_str()); }
+	virtual int32 getDataInt32(const int32 i, const char* key) const { return sl::CStringUtils::StringAsInt32(getData(i, key).c_str()); }
+	virtual int64 getDataInt64(const int32 i, const char* key) const { return sl::CStringUtils::StringAsInt64(getData(i, key).c_str()); }
+	virtual const char* getDataString(const int32 i, const char* key) const { return getData(i, key).c_str(); }
 
 private:
-	const std::string& getData(const int32 i, const char* key){
+	const std::string& getData(const int32 i, const char* key) const {
 		SLASSERT(i >= 0 && i < (int32)_root.size(), "out of range");
 		auto itor = _root[i].find(key);
 		SLASSERT(itor != _root[i].end(), "cannot find key %s", key);
@@ -74,7 +74,7 @@ public:
 		sl::SafeMemcpy(_context, maxSize, context, size);
 	}
 
-	const void* getContext(const int32 size){
+	const void* getContext(const int32 size) const {
 		SLASSERT(size <= maxSize && size == _size, "wtf");
 		return _context;
 	}
