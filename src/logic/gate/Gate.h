@@ -13,6 +13,8 @@
 using namespace sl;
 
 class IIdMgr;
+class IRoleMgr;
+class IRole;
 class Gate :public IGate, public IAgentListener, public INodeListener, public SLHolder<Gate>{
 	enum {
 		GATE_STATE_NONE = 0,
@@ -25,6 +27,7 @@ class Gate :public IGate, public IAgentListener, public INodeListener, public SL
 
 	struct Role{
 		int64 actorId;
+		IRole* role;
 	};
 
 	struct Player{
@@ -52,6 +55,7 @@ public:
 	virtual void onClose(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId);
 
 	void onSceneMgrDistributeLogic(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
+	void onAccountBindAccountAck(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 
 	void rgsAgentMessageHandler(int32 messageId, agent_args_cb handler);
 	void transMsgToLogic(sl::api::IKernel* pKernel, const int64 id, const void* pContext, const int32 size);
@@ -74,6 +78,7 @@ private:
 	IAgent*		_agent;
 	IDB*		_db;
 	IIdMgr*		_IdMgr;
+	IRoleMgr*	_roleMgr;
 	
 	std::unordered_map<int64, Player> _players;
 	std::unordered_map<int64, int64> _actors;

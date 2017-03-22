@@ -7,6 +7,7 @@
 		<node type="-2" name="master" />
 		<node type="1" name="gate" />
 		<node type="2" name="logic" />
+		<node type="5" name="account" />
 		<node type="6" name="scenemgr" />
 	</harbor>
 	<starter check="2000" dead="10000">
@@ -14,6 +15,7 @@
 		<out_port node="1" start="7200" end="7210" />
 		<node name="gate" type="1" min="1" max="1" delay="1000" cmd=" --name=gate --harbor=$port$ --agent=$out_port$ --node_id=$id$" />
 		<node name="logic" type="2" min="1" max="1" delay="5000" cmd=" --name=logic --harbor=$port$ --node_id=$id$" />
+		<node name="account" type="5" min="1" max="1" delay="5000" cmd=" --name=account --harbor=$port$ --node_id=$id$" />
 		<node name="scenemgr" type="6" min="1" max="1" delay="5000" cmd=" --name=scenemgr --harbor=$port$ --node_id=$id$" />
 	</starter>
 	<master ip="127.0.0.1" port="7700" />
