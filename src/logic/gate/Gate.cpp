@@ -199,6 +199,8 @@ void Gate::onAccountBindAccountAck(sl::api::IKernel* pKernel, const int32 nodeTy
 			}
 		}
 		else{
+			reset(pKernel, agentId, GATE_STATE_NONE);
+
 			IBStream<128> buf;
 			buf << errorCode;
 			sendToClient(pKernel, player.agentId, AgentProtocol::SERVER_MSG_LOGIN_RSP, buf.out());
