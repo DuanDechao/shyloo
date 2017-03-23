@@ -22,6 +22,7 @@ bool Gate::launched(sl::api::IKernel * pKernel){
 
 	RGS_NODE_HANDLER(_harbor, NodeProtocol::SCENEMGR_MSG_DISTRIBUTE_LOGIC_ACK, Gate::onSceneMgrDistributeLogic);
 	RGS_NODE_HANDLER(_harbor, NodeProtocol::ACCOUNT_MSG_BIND_ACCOUNT_ACK, Gate::onSceneMgrDistributeLogic);
+	RGS_NODE_HANDLER(_harbor, NodeProtocol::ACCOUNT_MSG_KICK_FROM_ACCOUNT, Gate::onAccountKickFromAccount);
 
 	_self->rgsAgentMessageHandler(AgentProtocol::CLIENT_MSG_LOGIN_REQ, &Gate::onClientLoginReq);
 	
@@ -181,14 +182,14 @@ void Gate::onAccountBindAccountAck(sl::api::IKernel* pKernel, const int32 nodeTy
 			});
 
 			if (ret){
-				player.state = GATE_STATE_ROLELOADED;
-
 				IBStream<4096> buf;
 				buf << (int32)ProtocolError::ERROR_NO_ERROR << (int32)player.roles.size();
 				for (const auto& role : player.roles){
 					buf << role.actorId;
 				}
 				sendToClient(pKernel, player.agentId, AgentProtocol::SERVER_MSG_LOGIN_RSP, buf.out());
+
+				player.state = GATE_STATE_ROLELOADED;
 			}
 			else{
 				reset(pKernel, agentId, GATE_STATE_NONE);
@@ -199,12 +200,20 @@ void Gate::onAccountBindAccountAck(sl::api::IKernel* pKernel, const int32 nodeTy
 			}
 		}
 		else{
-			reset(pKernel, agentId, GATE_STATE_NONE);
-
 			IBStream<128> buf;
 			buf << errorCode;
 			sendToClient(pKernel, player.agentId, AgentProtocol::SERVER_MSG_LOGIN_RSP, buf.out());
 		}
+	}
+}
+
+void Gate::onAccountKickFromAccount(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
+	int64 agentId = args.getInt64(0);
+	if (_players.find(agentId) != _players.end()){
+		Player& player = _players[agentId];
+		SLASSERT(player.state >= GATE_STATE_ROLELOADED, "wtf");
+
+		reset(pKernel, agentId, GATE_STATE_NONE);
 	}
 }
 
