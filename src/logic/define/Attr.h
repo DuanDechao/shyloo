@@ -1,9 +1,16 @@
 #ifndef __ATTR_H__
 #define __ATTR_H__
-namespace attr_def{
-	enum {
-		exp = 1923516200,
-		id = 926444256,
-	};
+
+#ifdef ATTR_EXPORT
+#define ATTR_API __declspec (dllexport)
+#else
+#define ATTR_API __declspec (dllimport)
+#endif
+
+extern "C" ATTR_API struct attr_def{
+	const IProp* exp		= nullptr;
+	const IProp* id		= nullptr;
+	const IProp* status		= nullptr;
 }
+
 #endif

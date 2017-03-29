@@ -21,7 +21,7 @@ bool Gate::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_roleMgr, RoleMgr);
 
 	RGS_NODE_HANDLER(_harbor, NodeProtocol::SCENEMGR_MSG_DISTRIBUTE_LOGIC_ACK, Gate::onSceneMgrDistributeLogic);
-	RGS_NODE_HANDLER(_harbor, NodeProtocol::ACCOUNT_MSG_BIND_ACCOUNT_ACK, Gate::onSceneMgrDistributeLogic);
+	RGS_NODE_HANDLER(_harbor, NodeProtocol::ACCOUNT_MSG_BIND_ACCOUNT_ACK, Gate::onAccountBindAccountAck);
 	RGS_NODE_HANDLER(_harbor, NodeProtocol::ACCOUNT_MSG_KICK_FROM_ACCOUNT, Gate::onAccountKickFromAccount);
 
 	_self->rgsAgentMessageHandler(AgentProtocol::CLIENT_MSG_LOGIN_REQ, &Gate::onClientLoginReq);
@@ -50,7 +50,7 @@ void Gate::onAgentClose(sl::api::IKernel* pKernel, const int64 id){
 	SLASSERT(_players.find(id) != _players.end(), "where is agent %d", id);
 
 	if (_players[id].state != GATE_STATE_NONE){
-
+		reset(pKernel, id, GATE_STATE_NONE);
 	}
 
 	_players.erase(id);

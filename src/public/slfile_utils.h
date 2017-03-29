@@ -11,6 +11,8 @@
 #include <fcntl.h>
 #include <io.h>
 #include <vector>
+#include <functional>
+#include <Shlwapi.h>
 namespace sl
 {
 	//读写文件的封装类
@@ -230,7 +232,7 @@ namespace sl
 			if (finder.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 				ListFileInDirection(tmp, extension, f);
 			else {
-				if (0 == strcmp(extension, PathFindExtension(finder.cFileName))) {
+				if (0 == strcmp(extension, ::PathFindExtension(finder.cFileName))) {
 					PathRemoveExtension(finder.cFileName);
 					f(finder.cFileName, tmp);
 				}

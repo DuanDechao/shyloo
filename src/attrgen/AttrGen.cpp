@@ -16,21 +16,21 @@ void propEnumGen(const char* attrFileName, std::set<std::string>& propNames){
 		return;
 	}
 	attrFile << "#ifndef __ATTR_H__" << endl;
-	attrFile << "#define __ATTR_H__" << endl;
-	attrFile << "namespace attr_def{" << endl;
-	attrFile << "	enum {" << endl;
-	
-	int32 i = 1;
+	attrFile << "#define __ATTR_H__" << endl << endl;
+	attrFile << "#ifdef ATTR_EXPORT" << endl;
+	attrFile << "#define ATTR_API __declspec (dllexport)" << endl;
+	attrFile << "#else" << endl;
+	attrFile << "#define ATTR_API __declspec (dllimport)" << endl;
+	attrFile << "#endif" << endl <<endl;
+
+	attrFile << "extern \"C\" ATTR_API struct attr_def{" << endl;
 	std::set<std::string>::iterator itor = propNames.begin();
 	std::set<std::string>::iterator itorEnd = propNames.end();
 	while (itor != itorEnd){
-		attrFile << "		" << *itor << " = " << std::hash<std::string>()((*itor).c_str()) << "," << endl;
+		attrFile << "	const IProp* " << *itor << "		= nullptr;" << endl;
 		++itor;
-		i++;
 	}
-	
-	attrFile << "	};" << endl;
-	attrFile << "}" << endl;
+	attrFile << "}" << endl << endl;
 	attrFile << "#endif" << endl;
 	attrFile.close();                   //¹Ø±ÕÎÄ¼þ
 }
@@ -39,10 +39,13 @@ int main(){
 	char dccenterPath[256] = { 0 };
 	SafeSprintf(dccenterPath, sizeof(dccenterPath), "%s/envir/dccenter/", sl::getAppPath());
 
-	std::set<std::string> propNames;
-
+	
 	std::vector<std::string> files;
-	sl::getAllFilesInDir(dccenterPath, files);
+	sl::ListFileInDirection(dccenterPath, ".xml", [&files](const char * name, const char * path) {
+		files.push_back(path);
+	});
+
+	std::set<std::string> propNames;
 	for (int32 i = 0; i < (int32)files.size(); i++){
 		sl::XmlReader propConf;
 		if (!propConf.loadXml(files[i].c_str())){

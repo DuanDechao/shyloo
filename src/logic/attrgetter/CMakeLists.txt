@@ -1,0 +1,35 @@
+INCLUDE_DIRECTORIES(
+	"${PROJECT_SOURCE_DIR}/src/public"
+	"${PROJECT_SOURCE_DIR}/src/kernel/api"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface"
+	"${PROJECT_SOURCE_DIR}/src/logic/define"
+	"${PROJECT_SOURCE_DIR}/src/sllib/api"
+)
+
+SET(ATTRGETTER
+	"${PROJECT_SOURCE_DIR}/src/logic/attrgetter/AttrGetter.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/attrgetter/AttrGetter.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/attrgetter/main.cpp"
+)
+
+SOURCE_GROUP(api FILES ${SL_KERNEL_API})
+SOURCE_GROUP(public FILES ${PUBLIC})
+SOURCE_GROUP(interface FILES ${SL_LOGIC_INTERFACE})
+SOURCE_GROUP(define FILES ${SL_LOGIC_DEFINE})
+SOURCE_GROUP(\\ FILES ${ATTRGETTER})
+
+ADD_LIBRARY(AttrGetter SHARED
+	${ATTRGETTER}
+	${SL_KERNEL_API}
+	${PUBLIC}
+	${SL_LOGIC_INTERFACE}
+	${SL_LOGIC_DEFINE}
+)
+
+TARGET_LINK_LIBRARIES(AttrGetter
+	${SL_LIB_DEBUG}
+	${SL_LIB_RELEASE}
+)
+
+#SET_PROPERTY(TARGET FSM PROPERTY FOLDER "core")
+SET_PROPERTY(TARGET AttrGetter PROPERTY FOLDER "framework")
