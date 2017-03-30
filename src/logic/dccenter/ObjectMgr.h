@@ -19,7 +19,7 @@ public:
 	virtual IObject* create(const char* name);
 	virtual IObject* createById(const char* name, const uint64 id);
 	virtual void recover(IObject* object);
-	virtual const IObject* findObject(const uint64 id) const;
+	virtual IObject* findObject(const uint64 id);
 	
 	virtual ITableControl* createStaticTable(const char* name);
 	virtual void recoverStaticTable(ITableControl* table);

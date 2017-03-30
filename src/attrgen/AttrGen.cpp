@@ -23,15 +23,64 @@ void propEnumGen(const char* attrFileName, std::set<std::string>& propNames){
 	attrFile << "#define ATTR_API __declspec (dllimport)" << endl;
 	attrFile << "#endif" << endl <<endl;
 
-	attrFile << "extern \"C\" ATTR_API struct attr_def{" << endl;
+	attrFile << "class IProp;" << endl << endl;
+	attrFile << "struct ATTR_API attr_def{" << endl;
 	std::set<std::string>::iterator itor = propNames.begin();
 	std::set<std::string>::iterator itorEnd = propNames.end();
 	while (itor != itorEnd){
-		attrFile << "	const IProp* " << *itor << "		= nullptr;" << endl;
+		attrFile << "	static const IProp* " << *itor << ";" << endl;
+		++itor;
+	}
+	attrFile << "};" << endl << endl;
+	attrFile << "#endif" << endl;
+	attrFile.close();                   //关闭文件
+}
+
+void attrGetterGen(const char* attrFileName, std::set<std::string>& propNames){
+	std::ofstream attrFile(attrFileName);
+	if (!attrFile){
+		SLASSERT(false, "can not open file %s", attrFileName);
+		ECHO_ERROR("can not open file %s", attrFileName);
+		return;
+	}
+	attrFile << "#define ATTR_EXPORT" << endl;
+	attrFile << "#include \"AttrGetter.h\"" << endl;
+	attrFile << "#include \"Attr.h\"" << endl;
+	attrFile << "#include \"IDCCenter.h\"" << endl << endl;
+
+	attrFile << "void getAttrProp(IObjectMgr* objectMgr);" << endl << endl;
+
+	attrFile << "bool AttrGetter::initialize(sl::api::IKernel * pKernel){" << endl;
+	attrFile << "	_kernel = pKernel;" << endl;
+	attrFile << "	FIND_MODULE(_objectMgr, ObjectMgr);" << endl << endl;
+	attrFile << "	getAttrProp(_objectMgr);" << endl;
+	attrFile << "	return true;" << endl;
+	attrFile << "}" << endl << endl;
+
+	attrFile << "bool AttrGetter::launched(sl::api::IKernel * pKernel){" << endl;
+	attrFile << "	return true;" << endl;
+	attrFile << "}" << endl << endl;
+
+	attrFile << "bool AttrGetter::destory(sl::api::IKernel * pKernel){" << endl;
+	attrFile << "	DEL this;" << endl;
+	attrFile << "	return true;" << endl;
+	attrFile << "}" << endl << endl;
+
+	std::set<std::string>::iterator itor = propNames.begin();
+	std::set<std::string>::iterator itorEnd = propNames.end();
+	while (itor != itorEnd){
+		attrFile << "const IProp* attr_def::" << *itor << " = nullptr;" << endl;
+		++itor;
+	}
+
+	attrFile << endl;
+	attrFile << "void getAttrProp(IObjectMgr* objectMgr){" << endl;
+	itor = propNames.begin();
+	while (itor != itorEnd){
+		attrFile << "	attr_def::" << *itor << " = objectMgr->getPropByName(\"" << *itor << "\");" << endl;
 		++itor;
 	}
 	attrFile << "}" << endl << endl;
-	attrFile << "#endif" << endl;
 	attrFile.close();                   //关闭文件
 }
 
@@ -68,6 +117,10 @@ int main(){
 	char attrFile[256] = { 0 };
 	SafeSprintf(attrFile, sizeof(attrFile), "%s/../../../src/logic/define/Attr.h", sl::getAppPath());
 	propEnumGen(attrFile, propNames);
+
+	char attrGetterFile[256] = { 0 };
+	SafeSprintf(attrGetterFile, sizeof(attrGetterFile), "%s/../../../src/logic/attrgetter/AttrGetter.cpp", sl::getAppPath());
+	attrGetterGen(attrGetterFile, propNames);
 	printf("genentor attr define file success %s\n", attrFile);
 	system("pause");
 	return 0;

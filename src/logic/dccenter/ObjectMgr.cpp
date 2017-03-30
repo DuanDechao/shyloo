@@ -221,7 +221,7 @@ void ObjectMgr::recover(IObject* object){
 	DEL object;
 }
 
-const IObject* ObjectMgr::findObject(const uint64 id) const{
+IObject* ObjectMgr::findObject(const uint64 id){
 	auto itor = _allObjects.find(id);
 	if (itor == _allObjects.end())
 		return nullptr;

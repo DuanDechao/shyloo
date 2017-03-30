@@ -1,6 +1,6 @@
-#include "EventEngine.h"
+#include "AttrGetter.h"
 using namespace sl::api;
 
 GET_DLL_ENTRANCE
 
-CREATE_MODULE(EventEngine)
+CREATE_MODULE(AttrGetter)

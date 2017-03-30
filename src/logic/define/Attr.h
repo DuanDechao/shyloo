@@ -7,10 +7,13 @@
 #define ATTR_API __declspec (dllimport)
 #endif
 
-extern "C" ATTR_API struct attr_def{
-	const IProp* exp		= nullptr;
-	const IProp* id		= nullptr;
-	const IProp* status		= nullptr;
-}
+class IProp;
+
+struct ATTR_API attr_def{
+	static const IProp* exp;
+	static const IProp* gate;
+	static const IProp* id;
+	static const IProp* status;
+};
 
 #endif

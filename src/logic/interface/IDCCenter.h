@@ -98,6 +98,6 @@ public:
 	virtual IObject* create(const char* name) = 0;
 	virtual IObject* createById(const char* name, const uint64 id) = 0;
 	virtual void recover(IObject* object) = 0;
-	virtual const IObject* findObject(const uint64 id) const = 0;
+	virtual IObject* findObject(const uint64 id) = 0;
 };
 #endif

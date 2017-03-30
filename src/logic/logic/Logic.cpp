@@ -28,9 +28,9 @@ void Logic::onGateBindPlayerOnLogic(sl::api::IKernel* pKernel, const int32 nodeT
 	int64 actorId = args.getInt64(0);
 	int64 accountId = args.getInt64(1);
 
-	const IObject* player = _objectMgr->findObject(actorId);
+	IObject* player = _objectMgr->findObject(actorId);
 	if (player){
-		//player->setPropInt32()
+		player->setPropInt32(attr_def::gate, nodeId);
 	}
 	
 }

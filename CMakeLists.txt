@@ -86,6 +86,12 @@ IF(WIN32)
 		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/sldb.lib"
 		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/slthread.lib"
 	)
+	SET(ATTR_LIBD
+		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/AttrGetter.lib"
+	)
+	SET(ATTR_LIB
+		optimized "${PROJECT_SOURCE_DIR}/build/windows/Debug/AttrGetter.lib"
+	)
 ENDIF(WIN32)
 
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/sllib)
