@@ -15,6 +15,8 @@ bool Distribution::launched(sl::api::IKernel * pKernel){
 		FIND_MODULE(_capacity, CapacitySubscriber);
 
 		RGS_NODE_HANDLER(_harbor, NodeProtocol::GATE_MSG_DISTRIBUTE_LOGIC_REQ, Distribution::onGateDistributeLogic);
+		RGS_NODE_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_NOTIFY_ADD_PLAYER, Distribution::onLogicAddPlayer);
+		RGS_NODE_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_NOTIFY_REMOVE_PLAYER, Distribution::onLogicRemovePlayer);
 	}
 	return true;
 }
@@ -52,3 +54,13 @@ void Distribution::onGateDistributeLogic(sl::api::IKernel* pKernel, const int32 
 	_harbor->send(nodeType, nodeId, NodeProtocol::SCENEMGR_MSG_DISTRIBUTE_LOGIC_ACK, res.out());
 }
 
+void Distribution::onLogicAddPlayer(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
+	int64 actorId = args.getInt64(0);
+	_players[actorId] = nodeId;
+	_distributes.erase(actorId);
+}
+
+void Distribution::onLogicRemovePlayer(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
+	int64 actorId = args.getInt64(0);
+	_players.erase(actorId);
+}

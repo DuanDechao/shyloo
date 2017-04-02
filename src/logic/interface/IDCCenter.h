@@ -95,9 +95,12 @@ public:
 	virtual ~IObjectMgr() {}
 
 	virtual const IProp* getPropByName(const char* name) const = 0;
-	virtual IObject* create(const char* name) = 0;
-	virtual IObject* createById(const char* name, const uint64 id) = 0;
+	virtual IObject* create(const char* file, const int32 line, const char* name) = 0;
+	virtual IObject* createById(const char* file, const int32 line, const char* name, const uint64 id) = 0;
 	virtual void recover(IObject* object) = 0;
 	virtual IObject* findObject(const uint64 id) = 0;
 };
+
+#define CREATE_OBJECT(mgr, ...) mgr->create(__FILE__, __LINE__, __VA_ARGS__)
+#define CREATE_OBJECT_BYID(mgr, ...) mgr->createById(__FILE__, __LINE__, __VA_ARGS__)
 #endif

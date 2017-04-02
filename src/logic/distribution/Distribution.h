@@ -13,6 +13,8 @@ public:
 	virtual bool destory(sl::api::IKernel * pKernel);
 
 	void onGateDistributeLogic(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
+	void onLogicAddPlayer(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
+	void onLogicRemovePlayer(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 
 private:
 	sl::api::IKernel*		_kernel;

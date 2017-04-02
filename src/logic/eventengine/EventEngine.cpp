@@ -14,19 +14,19 @@ bool EventEngine::destory(sl::api::IKernel * pKernel){
 	return true;
 }
 
-void EventEngine::RgsEvent(const int32 eventId, const EventCB& cb, const char* debug){
+void EventEngine::rgsEvent(const int32 eventId, const EventCB& cb, const char* debug){
 	_events.Register(eventId, cb, debug);
 }
 
-void EventEngine::ExecEvent(const int32 eventId, const void * context, const int32 size){
+void EventEngine::execEvent(const int32 eventId, const void * context, const int32 size){
 	_events.Call(eventId, _kernel, context, size);
 }
 
-void EventEngine::RgsJudge(const int32 eventId, const JudgeCB& cb, const char* debug){
+void EventEngine::rgsJudge(const int32 eventId, const JudgeCB& cb, const char* debug){
 	_judges.Register(eventId, cb, debug);
 }
 
-bool EventEngine::ExecJudge(const int32 eventId, const void * context, const int32 size){
+bool EventEngine::execJudge(const int32 eventId, const void * context, const int32 size){
 	return _judges.Call(eventId, false, _kernel, context, size);
 }
 

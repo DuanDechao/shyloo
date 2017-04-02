@@ -2,4 +2,7 @@
 <root parent="Object">
 	<prop name="exp" type="int64" visible="true" share="false" save="true" blob="true" />
 	<prop name="gate" type="int32" visible="false" share="false" save="false" blob="false" />
+	<prop name="logic" type="int32" visible="false" share="false" save="false" blob="false" />
+	<prop name="account" type="int64" visible="false" share="false" save="false" blob="false" />
+	<prop name="recoverTimer" type="int64" visible="false" share="false" save="false" blob="false" />
 </root>

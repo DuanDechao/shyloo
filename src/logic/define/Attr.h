@@ -10,9 +10,12 @@
 class IProp;
 
 struct ATTR_API attr_def{
+	static const IProp* account;
 	static const IProp* exp;
 	static const IProp* gate;
 	static const IProp* id;
+	static const IProp* logic;
+	static const IProp* recoverTimer;
 	static const IProp* status;
 };
 

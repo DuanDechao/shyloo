@@ -14,6 +14,9 @@ public:
 	virtual bool destory(sl::api::IKernel * pKernel);
 
 	virtual bool getRoleList(int64 account, const std::function <void(sl::api::IKernel* pKernel, const int64 actorId, IRole* role)>& f);
+	virtual IRole* createRole(int64 actorId, const sl::OBStream& buf);
+	virtual bool loadRole(const int64 actorId, IObject* object);
+	virtual void recoverPlayer(IObject* player);
 
 private:
 	RoleMgr* _self;

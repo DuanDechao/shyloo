@@ -64,7 +64,7 @@ bool ObjectMgr::destory(sl::api::IKernel * pKernel){
 }
 
 void ObjectMgr::onTime(sl::api::IKernel* pKernel, int64 timetick){
-	IObject* player = create("Player");
+	IObject* player = create("ddc", 1, "Player");
 	uint64 playerId = player->getID();
 	ECHO_ERROR("player id:%llu", player->getID());
 }
@@ -183,11 +183,11 @@ const IProp* ObjectMgr::getPropByName(const char* name) const{
 	return nullptr;
 }
 
-IObject* ObjectMgr::create(const char* name){
-	return createById(name, _idMgr->allocID());
+IObject* ObjectMgr::create(const char* file, const int32 line, const char* name){
+	return createById(file, line, name, _idMgr->allocID());
 }
 
-IObject* ObjectMgr::createById(const char* name, const uint64 id){
+IObject* ObjectMgr::createById(const char* file, const int32 line, const char* name, const uint64 id){
 	auto itor = _allObjects.find(id);
 	if (itor != _allObjects.end()){
 		SLASSERT(false, "object[%lld] has exist!", id);

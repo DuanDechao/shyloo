@@ -10,11 +10,11 @@ public:
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
 
-	virtual void RgsEvent(const int32 eventId, const EventCB& cb, const char* debug);
-	virtual void ExecEvent(const int32 eventId, const void * context, const int32 size);
+	virtual void rgsEvent(const int32 eventId, const EventCB& cb, const char* debug);
+	virtual void execEvent(const int32 eventId, const void * context, const int32 size);
 
-	virtual void RgsJudge(const int32 eventId, const JudgeCB& cb, const char* debug);
-	virtual bool ExecJudge(const int32 eventId, const void * context, const int32 size);
+	virtual void rgsJudge(const int32 eventId, const JudgeCB& cb, const char* debug);
+	virtual bool execJudge(const int32 eventId, const void * context, const int32 size);
 
 private:
 	sl::api::IKernel*	_kernel;

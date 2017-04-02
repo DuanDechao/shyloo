@@ -23,6 +23,7 @@ SET(SL_LOGIC_DEFINE
 	"${PROJECT_SOURCE_DIR}/src/logic/define/GameDefine.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/define/Attr.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/define/DBDef.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/define/EventID.h"
 ) 
  
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/harbor)

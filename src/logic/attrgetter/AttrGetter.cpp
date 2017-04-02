@@ -22,15 +22,21 @@ bool AttrGetter::destory(sl::api::IKernel * pKernel){
 	return true;
 }
 
+const IProp* attr_def::account = nullptr;
 const IProp* attr_def::exp = nullptr;
 const IProp* attr_def::gate = nullptr;
 const IProp* attr_def::id = nullptr;
+const IProp* attr_def::logic = nullptr;
+const IProp* attr_def::recoverTimer = nullptr;
 const IProp* attr_def::status = nullptr;
 
 void getAttrProp(IObjectMgr* objectMgr){
+	attr_def::account = objectMgr->getPropByName("account");
 	attr_def::exp = objectMgr->getPropByName("exp");
 	attr_def::gate = objectMgr->getPropByName("gate");
 	attr_def::id = objectMgr->getPropByName("id");
+	attr_def::logic = objectMgr->getPropByName("logic");
+	attr_def::recoverTimer = objectMgr->getPropByName("recoverTimer");
 	attr_def::status = objectMgr->getPropByName("status");
 }
 

@@ -35,7 +35,9 @@ class Gate :public IGate, public IAgentListener, public INodeListener, public SL
 		int64 selectActorId;
 		int64 accountId;
 		int32 logic;
+		int64 lastActorId;
 		int8 state;
+
 		std::list<Role> roles;
 	};
 
@@ -51,12 +53,13 @@ public:
 	virtual int32 onAgentRecv(sl::api::IKernel* pKernel, const int64 id, const void* context, const int32 size);
 	virtual void onAgentClose(sl::api::IKernel* pKernel, const int64 id);
 
-	virtual void onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* ip, const int32 port);
+	virtual void onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* ip, const int32 port){}
 	virtual void onClose(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId);
 
 	void onSceneMgrDistributeLogic(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 	void onAccountBindAccountAck(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 	void onAccountKickFromAccount(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
+	void onLogicBindPlayerAck(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 
 	void rgsAgentMessageHandler(int32 messageId, agent_args_cb handler);
 	void transMsgToLogic(sl::api::IKernel* pKernel, const int64 id, const void* pContext, const int32 size);
@@ -65,6 +68,7 @@ public:
 	void onQueryAccountCB(sl::api::IKernel* pKernel, const int64 id, const bool success, const int32 affectedRow, const IDBCallSource* source, const IDBResult* result);
 
 	void onClientSelectRoleReq(sl::api::IKernel* pKernel, const int64 id, const OBStream& args);
+	void onClientCreateRoleReq(sl::api::IKernel* pKernel, const int64 id, const OBStream& args);
 
 	void test();
 
@@ -81,6 +85,7 @@ private:
 	IIdMgr*		_IdMgr;
 	IRoleMgr*	_roleMgr;
 	
+	int32		_maxRoleNum;
 	std::unordered_map<int64, Player> _players;
 	std::unordered_map<int64, int64> _actors;
 	std::unordered_map<int32, std::unordered_set<int64>> _logicPlayers;

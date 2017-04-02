@@ -16,8 +16,8 @@ public:
 	virtual bool destory(sl::api::IKernel * pKernel);
 
 	virtual const IProp* getPropByName(const char* name) const;
-	virtual IObject* create(const char* name);
-	virtual IObject* createById(const char* name, const uint64 id);
+	virtual IObject* create(const char* file, const int32 line, const char* name);
+	virtual IObject* createById(const char* file, const int32 line, const char* name, const uint64 id);
 	virtual void recover(IObject* object);
 	virtual IObject* findObject(const uint64 id);
 	
