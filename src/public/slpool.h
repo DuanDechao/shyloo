@@ -1,6 +1,7 @@
 #ifndef __SL_PUBLIC_POOL_H__
 #define __SL_PUBLIC_POOL_H__
 #include "slmulti_sys.h"
+#include "sltools.h"
 namespace sl{
 
 template<typename T, int32 chunkCount = 1, int32 chunkSize = 64>

@@ -57,9 +57,13 @@ IF(WIN32)
 ENDIF(WIN32)
 
 SET(SL_LIB_REDIS
-	#"${PROJECT_SOURCE_DIR}/src/sllib/slredis/test.c"
+	#"${PROJECT_SOURCE_DIR}/src/sllib/slredis/slr.c"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slredis/slredis_callresult.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slredis/slredis_callresult.cpp"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slredis/slredis_connection.h"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slredis/slredis_connection.cpp"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slredis/slredis_mgr.h"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slredis/slredis_mgr.cpp"
 )
 
 SOURCE_GROUP(api FILES ${SL_LIB_API})
