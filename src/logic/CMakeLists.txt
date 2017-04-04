@@ -13,7 +13,8 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IDistribution.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IAccount.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IRoleMgr.h"
-	"${PROJECT_SOURCE_DIR}/src/logic/interface/ILogic.h"	
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/ILogic.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IRedis.h"		
 )
 
 SET(SL_LOGIC_DEFINE
@@ -44,4 +45,5 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/account)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/rolemgr)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/logic)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/attrgetter)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/redis)
 #ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/fsm)
