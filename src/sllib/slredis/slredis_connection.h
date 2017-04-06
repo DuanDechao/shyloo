@@ -16,7 +16,7 @@ public:
 	virtual bool SLAPI isActive();
 	virtual const char* SLAPI getIp(){ return _ip; }
 	virtual int32 SLAPI getPort() { return _port; }
-	virtual bool SLAPI exec(char* command, std::function<bool(ISLRedisResult* result)>& f);
+	virtual bool SLAPI exec(char* command, const std::function<bool(ISLRedisResult* result)>& f);
 	bool ping();
 
 private:

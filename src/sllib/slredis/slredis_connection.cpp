@@ -1,5 +1,4 @@
 #include "slredis_connection.h"
-#include "slmulti_sys.h"
 #include "slredis_callresult.h"
 #include "slredis_mgr.h"
 namespace sl{
@@ -69,7 +68,7 @@ bool SLRedisConnection::ping(){
 	return reconnect();
 }
 
-bool SLRedisConnection::exec(char* command, std::function<bool(ISLRedisResult* result)>& f){
+bool SLRedisConnection::exec(char* command, const std::function<bool(ISLRedisResult* result)>& f){
 	if (!ping()){
 		SLASSERT(false, "connect redis failed");
 		return false;

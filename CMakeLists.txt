@@ -79,6 +79,7 @@ IF(WIN32)
 		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/slxml.lib"
 		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/sldb.lib"
 		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/slthread.lib"
+		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/slredis.lib"
 	)
 	SET(SL_LIB_RELEASE
 		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/slnet.lib"
@@ -86,6 +87,7 @@ IF(WIN32)
 		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/slxml.lib"
 		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/sldb.lib"
 		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/slthread.lib"
+		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/slredis.lib"
 	)
 	SET(ATTR_LIBD
 		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/AttrGetter.lib"

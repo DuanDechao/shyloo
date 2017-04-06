@@ -19,6 +19,7 @@ public:
 	virtual const int32 SLAPI count(void) const = 0;
 	virtual bool SLAPI hasAttribute(const char* name) const = 0;
 	virtual bool SLAPI subNodeExist(const char* name) const = 0;
+	virtual const char* text() const = 0;
 };
 
 class ISLXmlReader{

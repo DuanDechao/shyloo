@@ -44,7 +44,7 @@ public:
 		_dataSize = _size - (sizeof(int32)+sizeof(arg_info)*(*_count) + sizeof(int32)+sizeof(int16));
 	}
 
-	inline int8 getType(const int32 index){
+	inline int8 getType(const int32 index)const {
 		return getArgs(index).type;
 	}
 

@@ -23,6 +23,7 @@ class CSLXMLNull : public ISLXmlNode
 	virtual const int32 SLAPI count(void) const { SLASSERT(false, "this is null xml node"); return 0; }
 	virtual bool SLAPI hasAttribute(const char* name)const{ SLASSERT(false, "this is null xml node"); return false; }
 	virtual bool SLAPI subNodeExist(const char* name) const { SLASSERT(false, "this is null xml node"); return false; }
+	virtual const char* text() const { SLASSERT(false, "this is null xml node"); return nullptr; }
 };
 
 class CSLXmlArray;
@@ -54,6 +55,8 @@ public:
 			return true;
 		return false;
 	}
+
+	virtual const char* text() const { return m_text.c_str(); }
 	virtual bool SLAPI subNodeExist(const char* name) const { return m_xmlChilds.find(name) != m_xmlChilds.end(); }
 	void loadChildren(const TiXmlElement* element);
 	void loadAttributes(const TiXmlElement* element);
@@ -61,6 +64,7 @@ public:
 private:
 	std::map<std::string, CSLXmlArray*> m_xmlChilds;
 	std::map<std::string, AttrVal> m_xmlAttrs;
+	std::string m_text;
 	CSLXMLNull	m_xmlNull;
 };
 
@@ -94,7 +98,7 @@ public:
 	}
 
 	virtual const int32 SLAPI count(void) const { return m_elements.size(); }
-
+	virtual const char* text() const { SLASSERT(false, "this is null xml node"); return nullptr; }
 	void addElement(CSLXmlNode* poXmlNode){
 		if (poXmlNode)
 			m_elements.push_back(poXmlNode);

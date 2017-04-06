@@ -5,8 +5,7 @@
 using namespace sl;
 class Harbor;
 #define RECONNECT_INTERVAL 1 * SECOND
-class NodeSession : public sl::api::ITcpSession, public sl::api::ITimer
-{
+class NodeSession : public sl::api::ITcpSession, public sl::api::ITimer{
 public:
 	NodeSession()
 		:m_pHarbor(nullptr),
