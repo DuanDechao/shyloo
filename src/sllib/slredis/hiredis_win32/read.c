@@ -434,92 +434,92 @@ redisReader *redisReaderCreateWithFunctions(redisReplyObjectFunctions *fn) {
     return r;
 }
 
-void redisReaderFree(redisReader *r) {
-    if (r->reply != NULL && r->fn && r->fn->freeObject)
-        r->fn->freeObject(r->reply);
-    if (r->buf != NULL)
-        sdsfree(r->buf);
-    free(r);
-}
+//void redisReaderFree(redisReader *r) {
+//    if (r->reply != NULL && r->fn && r->fn->freeObject)
+//        r->fn->freeObject(r->reply);
+//    if (r->buf != NULL)
+//        sdsfree(r->buf);
+//    free(r);
+//}
 
-int redisReaderFeed(redisReader *r, const char *buf, size_t len) {
-    sds newbuf;
+//int redisReaderFeed(redisReader *r, const char *buf, size_t len) {
+//    sds newbuf;
+//
+//    /* Return early when this reader is in an erroneous state. */
+//    if (r->err)
+//        return REDIS_ERR;
+//
+//    /* Copy the provided buffer. */
+//    if (buf != NULL && len >= 1) {
+//        /* Destroy internal buffer when it is empty and is quite large. */
+//        if (r->len == 0 && r->maxbuf != 0 && sdsavail(r->buf) > r->maxbuf) {
+//            sdsfree(r->buf);
+//            r->buf = sdsempty();
+//            r->pos = 0;
+//
+//            /* r->buf should not be NULL since we just free'd a larger one. */
+//            assert(r->buf != NULL);
+//        }
+//
+//        newbuf = sdscatlen(r->buf,buf,len);
+//        if (newbuf == NULL) {
+//            __redisReaderSetErrorOOM(r);
+//            return REDIS_ERR;
+//        }
+//
+//        r->buf = newbuf;
+//        r->len = sdslen(r->buf);
+//    }
+//
+//    return REDIS_OK;
+//}
 
-    /* Return early when this reader is in an erroneous state. */
-    if (r->err)
-        return REDIS_ERR;
-
-    /* Copy the provided buffer. */
-    if (buf != NULL && len >= 1) {
-        /* Destroy internal buffer when it is empty and is quite large. */
-        if (r->len == 0 && r->maxbuf != 0 && sdsavail(r->buf) > r->maxbuf) {
-            sdsfree(r->buf);
-            r->buf = sdsempty();
-            r->pos = 0;
-
-            /* r->buf should not be NULL since we just free'd a larger one. */
-            assert(r->buf != NULL);
-        }
-
-        newbuf = sdscatlen(r->buf,buf,len);
-        if (newbuf == NULL) {
-            __redisReaderSetErrorOOM(r);
-            return REDIS_ERR;
-        }
-
-        r->buf = newbuf;
-        r->len = sdslen(r->buf);
-    }
-
-    return REDIS_OK;
-}
-
-int redisReaderGetReply(redisReader *r, void **reply) {
-    /* Default target pointer to NULL. */
-    if (reply != NULL)
-        *reply = NULL;
-
-    /* Return early when this reader is in an erroneous state. */
-    if (r->err)
-        return REDIS_ERR;
-
-    /* When the buffer is empty, there will never be a reply. */
-    if (r->len == 0)
-        return REDIS_OK;
-
-    /* Set first item to process when the stack is empty. */
-    if (r->ridx == -1) {
-        r->rstack[0].type = -1;
-        r->rstack[0].elements = -1;
-        r->rstack[0].idx = -1;
-        r->rstack[0].obj = NULL;
-        r->rstack[0].parent = NULL;
-        r->rstack[0].privdata = r->privdata;
-        r->ridx = 0;
-    }
-
-    /* Process items in reply. */
-    while (r->ridx >= 0)
-        if (processItem(r) != REDIS_OK)
-            break;
-
-    /* Return ASAP when an error occurred. */
-    if (r->err)
-        return REDIS_ERR;
-
-    /* Discard part of the buffer when we've consumed at least 1k, to avoid
-     * doing unnecessary calls to memmove() in sds.c. */
-    if (r->pos >= 1024) {
-        sdsrange(r->buf,r->pos,-1);
-        r->pos = 0;
-        r->len = sdslen(r->buf);
-    }
-
-    /* Emit a reply when there is one. */
-    if (r->ridx == -1) {
-        if (reply != NULL)
-            *reply = r->reply;
-        r->reply = NULL;
-    }
-    return REDIS_OK;
-}
+//int redisReaderGetReply(redisReader *r, void **reply) {
+//    /* Default target pointer to NULL. */
+//    if (reply != NULL)
+//        *reply = NULL;
+//
+//    /* Return early when this reader is in an erroneous state. */
+//    if (r->err)
+//        return REDIS_ERR;
+//
+//    /* When the buffer is empty, there will never be a reply. */
+//    if (r->len == 0)
+//        return REDIS_OK;
+//
+//    /* Set first item to process when the stack is empty. */
+//    if (r->ridx == -1) {
+//        r->rstack[0].type = -1;
+//        r->rstack[0].elements = -1;
+//        r->rstack[0].idx = -1;
+//        r->rstack[0].obj = NULL;
+//        r->rstack[0].parent = NULL;
+//        r->rstack[0].privdata = r->privdata;
+//        r->ridx = 0;
+//    }
+//
+//    /* Process items in reply. */
+//    while (r->ridx >= 0)
+//        if (processItem(r) != REDIS_OK)
+//            break;
+//
+//    /* Return ASAP when an error occurred. */
+//    if (r->err)
+//        return REDIS_ERR;
+//
+//    /* Discard part of the buffer when we've consumed at least 1k, to avoid
+//     * doing unnecessary calls to memmove() in sds.c. */
+//    if (r->pos >= 1024) {
+//        sdsrange(r->buf,r->pos,-1);
+//        r->pos = 0;
+//        r->len = sdslen(r->buf);
+//    }
+//
+//    /* Emit a reply when there is one. */
+//    if (r->ridx == -1) {
+//        if (reply != NULL)
+//            *reply = r->reply;
+//        r->reply = NULL;
+//    }
+//    return REDIS_OK;
+//}

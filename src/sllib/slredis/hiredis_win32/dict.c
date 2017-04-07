@@ -71,7 +71,7 @@ static void _dictReset(dict *ht) {
 
 /* Create a NEW hash table */
 static dict *dictCreate(dictType *type, void *privDataPtr) {
-	dict *ht = TMALLOC(sizeof(*ht));
+	dict *ht = malloc(sizeof(*ht));
     _dictInit(ht,type,privDataPtr);
     return ht;
 }
@@ -124,7 +124,7 @@ static int dictExpand(dict *ht, unsigned long size) {
         }
     }
     assert(ht->used == 0);
-	TFREE(ht->table);
+	free(ht->table);
 
     /* Remap the NEW hashtable in the old */
     *ht = n;
@@ -142,7 +142,7 @@ static int dictAdd(dict *ht, void *key, void *val) {
         return DICT_ERR;
 
     /* Allocates the memory and stores key */
-	entry = TMALLOC(sizeof(*entry));
+	entry = malloc(sizeof(*entry));
     entry->next = ht->table[index];
     ht->table[index] = entry;
 
@@ -199,7 +199,7 @@ static int dictDelete(dict *ht, const void *key) {
 
             dictFreeEntryKey(ht,de);
             dictFreeEntryVal(ht,de);
-			TFREE(de);
+			free(de);
             ht->used--;
             return DICT_OK;
         }
@@ -222,13 +222,13 @@ static int _dictClear(dict *ht) {
             nextHe = he->next;
             dictFreeEntryKey(ht, he);
             dictFreeEntryVal(ht, he);
-			TFREE(he);
+			free(he);
             ht->used--;
             he = nextHe;
         }
     }
     /* Free the table and the allocated cache structure */
-	TFREE(ht->table);
+	free(ht->table);
     /* Re-initialize the table */
     _dictReset(ht);
     return DICT_OK; /* never fails */
@@ -237,7 +237,7 @@ static int _dictClear(dict *ht) {
 /* Clear & Release the hash table */
 static void dictRelease(dict *ht) {
     _dictClear(ht);
-	TFREE(ht);
+	free(ht);
 }
 
 static dictEntry *dictFind(dict *ht, const void *key) {
@@ -256,7 +256,7 @@ static dictEntry *dictFind(dict *ht, const void *key) {
 }
 
 static dictIterator *dictGetIterator(dict *ht) {
-	dictIterator *iter = TMALLOC(sizeof(*iter));
+	dictIterator *iter = malloc(sizeof(*iter));
 
     iter->ht = ht;
     iter->index = -1;
@@ -286,7 +286,7 @@ static dictEntry *dictNext(dictIterator *iter) {
 }
 
 static void dictReleaseIterator(dictIterator *iter) {
-	TFREE(iter);
+	free(iter);
 }
 
 /* ------------------------- private functions ------------------------------ */

@@ -4,10 +4,10 @@
 #include <vector>
 #include "slpool.h"
 #include "slredis_connection.h"
-
+#include "slsingleton.h"
 namespace sl{
 namespace db{
-class SLRedisMgr: public ISLRedisMgr{
+class SLRedisMgr : public ISLRedisMgr, public CSingleton<SLRedisMgr>{
 public:
 	ISLRedisConnection* SLAPI create(const char* ip, const int32 port, const int32 timeout = CONNECT_TIME_OUT);
 	void SLAPI release(void) { DEL this; }

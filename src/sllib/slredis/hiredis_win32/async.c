@@ -70,7 +70,7 @@ static unsigned int callbackHash(const void *key) {
 static void *callbackValDup(void *privdata, const void *src) {
     redisCallback *dup;
     ((void) privdata);
-	dup = TMALLOC(sizeof(*dup));
+	dup = malloc(sizeof(*dup));
     memcpy(dup,src,sizeof(*dup));
     return dup;
 }
@@ -92,7 +92,7 @@ static void callbackKeyDestructor(void *privdata, void *key) {
 
 static void callbackValDestructor(void *privdata, void *val) {
     ((void) privdata);
-	TFREE(val);
+	free(val);
 }
 
 static dictType callbackDict = {
@@ -105,7 +105,7 @@ static dictType callbackDict = {
 };
 
 static redisAsyncContext *redisAsyncInitialize(redisContext *c) {
-	redisAsyncContext *ac = TREALLOC(c, sizeof(redisAsyncContext));
+	redisAsyncContext *ac = malloc(c, sizeof(redisAsyncContext));
     c = &(ac->c);
 
     /* The regular connect functions will always set the flag REDIS_CONNECTED.
@@ -186,7 +186,7 @@ static int __redisPushCallback(redisCallbackList *list, redisCallback *source) {
     redisCallback *cb;
 
     /* Copy callback from stack to heap */
-	cb = TMALLOC(sizeof(*cb));
+	cb = malloc(sizeof(*cb));
     if (source != NULL) {
         memcpy(cb,source,sizeof(*cb));
         cb->next = NULL;
@@ -211,7 +211,7 @@ static int __redisShiftCallback(redisCallbackList *list, redisCallback *target) 
         /* Copy callback from heap to stack */
         if (target != NULL)
             memcpy(target,cb,sizeof(*cb));
-		TFREE(cb);
+		free(cb);
         return REDIS_OK;
     }
     return REDIS_ERR;
@@ -585,7 +585,7 @@ int redisvAsyncCommand(redisAsyncContext *ac, redisCallbackFn *fn, void *privdat
     int status;
     len = redisvFormatCommand(&cmd,format,ap);
     status = __redisAsyncCommand(ac,fn,privdata,cmd,len);
-	TFREE(cmd);
+	free(cmd);
     return status;
 }
 
@@ -604,6 +604,6 @@ int redisAsyncCommandArgv(redisAsyncContext *ac, redisCallbackFn *fn, void *priv
     int status;
     len = redisFormatCommandArgv(&cmd,argc,argv,argvlen);
     status = __redisAsyncCommand(ac,fn,privdata,cmd,len);
-	TFREE(cmd);
+	free(cmd);
     return status;
 }

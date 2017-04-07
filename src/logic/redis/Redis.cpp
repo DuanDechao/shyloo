@@ -104,7 +104,7 @@ bool Redis::loadScript(sl::api::IKernel* pKernel, const int64 id, const char* pr
 			});
 		}
 	}
-	return false;
+	return true;
 }
 void Redis::append(CommandBuf& buf, const OArgs& args){
 	for (int32 i = 0; i < args.getCount(); i++){
