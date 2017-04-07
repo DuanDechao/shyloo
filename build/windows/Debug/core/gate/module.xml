@@ -4,6 +4,7 @@
 	<module name="Cluster" />
 	<module name="Capacity" />
 	<module name="RoleMgr" />
+	<module name="Redis" />
 	<!-- <module name="MysqlMgr" /> -->
 	<!-- <module name="DB" /> -->
 </modules>

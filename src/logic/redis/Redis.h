@@ -22,6 +22,8 @@ public:
 	virtual bool exec(const int64 id, const char* command, const OArgs& args, const std::function<bool(sl::api::IKernel *, const sl::db::ISLRedisResult *)>& f = nullptr);
 	virtual bool call(const int64 id, const char* proc, const int32 keyCount, const OArgs& args, const std::function<bool(sl::api::IKernel *, const sl::db::ISLRedisResult *)>& f = nullptr);
 
+	void test();
+
 private:
 	bool loadScript(sl::api::IKernel* pKernel, const int64 id, const char* proc);
 

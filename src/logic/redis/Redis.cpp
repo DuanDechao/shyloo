@@ -37,6 +37,7 @@ bool Redis::initialize(sl::api::IKernel * pKernel){
 	return true;
 }
 bool Redis::launched(sl::api::IKernel * pKernel){
+	test();
 	return true;
 }
 bool Redis::destory(sl::api::IKernel * pKernel){
@@ -58,11 +59,12 @@ bool Redis::exec(const int64 id, const char* command, const OArgs& args, const s
 	append(buf, args);
 
 	bool ret = true;
-	if (f){
-		ret = redisConn->exec(buf._data, [&](sl::db::ISLRedisResult* result){
+	ret = redisConn->exec(buf._data, [&](sl::db::ISLRedisResult* result){
+		if (f){
 			return f(_kernel, result);
-		});
-	}
+		}
+		return true;
+	});
 	return ret;
 }
 
@@ -173,4 +175,11 @@ void Redis::append(CommandBuf& buf, const char* val, const int32 size){
 	buf._size += size;
 	SafeSprintf(buf._data + buf._size, sizeof(buf._data) - buf._size, "\r\n");
 	buf._size += (int32)strlen(buf._data + buf._size);
+}
+
+void Redis::test(){
+	IArgs<1, 32> args;
+	args << 1234;
+	args.fix();
+	exec(0, "set foo", args.out());
 }
