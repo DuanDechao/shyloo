@@ -74,13 +74,13 @@ bool SLRedisConnection::exec(char* command, const std::function<bool(ISLRedisRes
 		return false;
 	}
 
-	_ctx->obuf = command;
 	redisReply * reply = NULL;
+	__redisAppendCommand(_ctx, command, strlen(command));
 	redisGetReply(_ctx, (void**)&reply);
 	if (NULL == reply) {
 		return false;
 	}
-
+	
 	if (REDIS_REPLY_ERROR == reply->type || REDIS_REPLY_NIL == reply->type) {
 		freeReplyObject(reply);
 		return false;
