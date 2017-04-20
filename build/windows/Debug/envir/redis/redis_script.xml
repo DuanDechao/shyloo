@@ -3,7 +3,7 @@
 	<script name="db_get">
 	<![CDATA[
 		local ret = {}
-		for i, v ipairs(ARGV) then
+		for i, v in ipairs(ARGV) then
 			local tmp = redis.call('hget', v, unpack(KEYS))
 			if tmp ~= nil then
 				ret[#ret + 1] = tmp

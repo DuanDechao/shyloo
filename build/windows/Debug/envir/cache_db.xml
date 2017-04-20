@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<cache_db>
+	<table name="actor" del="true">
+		<column name="id" type="s64" key="true" />
+		<column name="name" type="string" />
+	</table>
+</cache_db>
