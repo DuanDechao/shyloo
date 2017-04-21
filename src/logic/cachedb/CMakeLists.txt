@@ -1,0 +1,37 @@
+INCLUDE_DIRECTORIES(
+	"${PROJECT_SOURCE_DIR}/src/public"
+	"${PROJECT_SOURCE_DIR}/src/kernel/api"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface"
+	"${PROJECT_SOURCE_DIR}/src/logic/define"
+	"${PROJECT_SOURCE_DIR}/src/sllib/api"
+)
+
+SET(CACHEDB
+	"${PROJECT_SOURCE_DIR}/src/logic/cachedb/CacheDB.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/cachedb/CacheDB.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/cachedb/main.cpp"
+)
+
+SOURCE_GROUP(api FILES ${SL_KERNEL_API})
+SOURCE_GROUP(public FILES ${PUBLIC})
+SOURCE_GROUP(interface FILES ${SL_LOGIC_INTERFACE})
+SOURCE_GROUP(define FILES ${SL_LOGIC_DEFINE})
+SOURCE_GROUP(\\ FILES ${CACHEDB})
+
+ADD_LIBRARY(CacheDB SHARED
+	${CACHEDB}
+	${SL_KERNEL_API}
+	${PUBLIC}
+	${SL_LOGIC_INTERFACE}
+	${SL_LOGIC_DEFINE}
+)
+
+TARGET_LINK_LIBRARIES(CacheDB
+	${SL_LIB_DEBUG}
+	${SL_LIB_RELEASE}
+)
+TARGET_LINK_LIBRARIES(CacheDB
+	"${PROJECT_SOURCE_DIR}/build/windows/Debug/slredis.lib"
+)
+
+SET_PROPERTY(TARGET CacheDB PROPERTY FOLDER "core")
