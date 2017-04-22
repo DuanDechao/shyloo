@@ -19,6 +19,10 @@ struct ATTR_API attr_def{
 	static const IProp* status;
 };
 
+struct ATTR_API OCTempProp{
+	static const IProp* AITIMER;
+};
+
 namespace OCTableMacro {
 	namespace AITABLE {
 		static int32 TABLE_NAME = 1700400206;

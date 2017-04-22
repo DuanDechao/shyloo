@@ -175,9 +175,33 @@ const IProp* ObjectMgr::setObjectProp(const char* propName, const int32 objTypeI
 	return prop;
 }
 
+const IProp* ObjectMgr::setObjectTempProp(const char* propName, const int32 objTypeId, PropLayout* layout){
+	ObjectProp * prop = nullptr;
+	auto itor = _allTempProps.find(propName);
+	if (itor != _allTempProps.end()){
+		prop = itor->second;
+	}
+	else{
+		prop = NEW ObjectProp(sl::CalcStringUniqueId(propName), _propConfigsPath.size());
+		_allTempProps[propName] = prop;
+	}
+	prop->setLayout(objTypeId, layout);
+	return prop;
+}
+
 const IProp* ObjectMgr::getPropByName(const char* name) const{
 	auto itor = _allProps.find(name);
+	SLASSERT(itor != _allProps.end(), "wtf");
 	if (itor != _allProps.end()){
+		return itor->second;
+	}
+	return nullptr;
+}
+
+const IProp* ObjectMgr::getTempPropByName(const char* name) const{
+	auto itor = _allTempProps.find(name);
+	SLASSERT(itor != _allTempProps.end(), "wtf");
+	if (itor != _allTempProps.end()){
 		return itor->second;
 	}
 	return nullptr;

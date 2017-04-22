@@ -6,8 +6,14 @@ ObjectPropInfo::ObjectPropInfo(int32 objTypeId, const char* objName, ObjectPropI
 	if (parenter){
 		_layouts = parenter->_layouts;
 		for (auto& layout : _layouts){
-			const IProp* prop = ObjectMgr::getInstance()->setObjectProp(layout._name.c_str(), _objTypeId, &layout);
-			_props.push_back(prop);
+			if (!layout._isTemp){
+				const IProp* prop = ObjectMgr::getInstance()->setObjectProp(layout._name.c_str(), _objTypeId, &layout);
+				_props.push_back(prop);
+			}
+			else{
+				ObjectMgr::getInstance()->setObjectTempProp(layout._name.c_str(), _objTypeId, &layout);
+			}
+			
 		}
 		_size = parenter->_size;
 	}
@@ -26,6 +32,10 @@ ObjectPropInfo::~ObjectPropInfo(){
 bool ObjectPropInfo::loadFrom(const sl::ISLXmlNode& root, PROP_DEFDINE_MAP& defines){
 	if (!loadProps(root["prop"], defines))
 		return false;
+
+	if (root.subNodeExist("temp")){
+		return loadTemps(root["temp"]);
+	}
 
 	if (root.subNodeExist("table")){
 		return loadTables(root["table"]);
@@ -66,6 +76,7 @@ bool ObjectPropInfo::loadProps(const sl::ISLXmlNode& props, PROP_DEFDINE_MAP& de
 
 		_size += layout._size;
 		layout._setting = 0;
+		layout._isTemp = false;
 		for (auto& def : defines){
 			if (props[i].hasAttribute(def.first.c_str()) && props[i].getAttributeBoolean(def.first.c_str())){
 				layout._setting |= def.second;
@@ -77,6 +88,47 @@ bool ObjectPropInfo::loadProps(const sl::ISLXmlNode& props, PROP_DEFDINE_MAP& de
 		const IProp * prop = ObjectMgr::getInstance()->setObjectProp(layout._name.c_str(), _objTypeId, &(*_layouts.rbegin()));
 		_props.push_back(prop);
 		_selfProps.push_back(prop);
+	}
+	return true;
+}
+
+bool ObjectPropInfo::loadTemps(const sl::ISLXmlNode& temps){
+	for (int32 i = 0; i < temps.count(); i++){
+		PropLayout layout;
+		layout._name = temps[i].getAttributeString("name");
+		layout._offset = _size;
+		const char* type = temps[i].getAttributeString("type");
+		if (!strcmp(type, "int8")){
+			layout._type = DTYPE_INT8;
+			layout._size = sizeof(int8);
+		}
+		else if (!strcmp(type, "int16")){
+			layout._type = DTYPE_INT16;
+			layout._size = sizeof(int16);
+		}
+		else if (!strcmp(type, "int32")){
+			layout._type = DTYPE_INT32;
+			layout._size = sizeof(int32);
+		}
+		else if (!strcmp(type, "int64")){
+			layout._type = DTYPE_INT64;
+			layout._size = sizeof(int64);
+		}
+		else if (!strcmp(type, "float")){
+			layout._type = DTYPE_FLOAT;
+			layout._size = sizeof(float);
+		}
+		else{
+			SLASSERT(false, "invaild prop type %s", type);
+			return false;
+		}
+
+		_size += layout._size;
+		layout._setting = 0;
+		layout._isTemp = true;
+		_layouts.push_back(layout);
+
+		ObjectMgr::getInstance()->setObjectTempProp(layout._name.c_str(), _objTypeId, &(*_layouts.rbegin()));
 	}
 	return true;
 }

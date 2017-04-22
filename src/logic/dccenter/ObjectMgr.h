@@ -16,6 +16,8 @@ public:
 	virtual bool destory(sl::api::IKernel * pKernel);
 
 	virtual const IProp* getPropByName(const char* name) const;
+	virtual const IProp* getTempPropByName(const char* name) const;
+
 	virtual IObject* create(const char* file, const int32 line, const char* name);
 	virtual IObject* createById(const char* file, const int32 line, const char* name, const uint64 id);
 	virtual void recover(IObject* object);
@@ -25,6 +27,7 @@ public:
 	virtual void recoverStaticTable(ITableControl* table);
 	
 	const IProp* setObjectProp(const char* propName, const int32 objTypeId, PropLayout* layout);
+	const IProp* setObjectTempProp(const char* propName, const int32 objTypeId, PropLayout* layout);
 
 	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick);
@@ -54,6 +57,7 @@ private:
 	PROP_DEFINE_MAP _propDefine;
 	PROP_CONFIG_PATH_MAP _propConfigsPath;
 	PROP_MAP _allProps;
+	PROP_MAP _allTempProps;
 	OBJECT_MODEL_MAP _objPropInfo;
 	int32 _nextObjTypeId;
 	unordered_map<uint64, MMObject*> _allObjects;

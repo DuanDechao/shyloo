@@ -4,13 +4,15 @@
 #include "IAI.h"
 #include "slsingleton.h"
 class IHarbor;
+class IObject;
 class AI :public IAI, public sl::SLHolder<AI>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
 
-	void test();
+	virtual void startAI(IObject* object);
+	virtual void stopAI(IObject* object);
 
 private:
 	sl::api::IKernel*   _kernel;

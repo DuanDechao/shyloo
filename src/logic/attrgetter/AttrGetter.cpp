@@ -30,6 +30,8 @@ const IProp* attr_def::logic = nullptr;
 const IProp* attr_def::recoverTimer = nullptr;
 const IProp* attr_def::status = nullptr;
 
+const IProp* OCTempProp::AITIMER = nullptr;
+
 void getAttrProp(IObjectMgr* objectMgr){
 	attr_def::account = objectMgr->getPropByName("account");
 	attr_def::exp = objectMgr->getPropByName("exp");
@@ -38,5 +40,7 @@ void getAttrProp(IObjectMgr* objectMgr){
 	attr_def::logic = objectMgr->getPropByName("logic");
 	attr_def::recoverTimer = objectMgr->getPropByName("recoverTimer");
 	attr_def::status = objectMgr->getPropByName("status");
+
+	OCTempProp::AITIMER = objectMgr->getPropByName("AITIMER");
 }
 

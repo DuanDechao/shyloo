@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <functional>
 struct PropLayout : public MemLayout{
+	bool    _isTemp;
 	int8	_type;
 	int32	_setting;
 	sl::SLString<MAX_PROP_NAME_LEN> _name;
@@ -38,6 +39,7 @@ public:
 
 private:
 	bool loadProps(const sl::ISLXmlNode& prop, PROP_DEFDINE_MAP& defines);
+	bool loadTemps(const sl::ISLXmlNode& temp);
 	bool loadTables(const sl::ISLXmlNode& table);
 
 private:

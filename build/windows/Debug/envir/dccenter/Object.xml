@@ -3,6 +3,8 @@
 	<prop name="id" type="int64" visible="true" share="false" save="true" blob="true" />
 	<prop name="status" type="int64" visible="true" share="false" save="true" blob="true" />
 	
+	<temp name="AITIMER" type="int64" />
+	
 	<table name="AITABLE">
 		<column name="STATE" type="int8" key="false"/>
 		<column name="PARAM1" type="int64" key="false"/>

@@ -16,6 +16,6 @@ bool AI::destory(sl::api::IKernel * pKernel){
 	return true;
 }
 
-void AI::test(){
-	
+void AI::startAI(IObject* object){
+
 }

@@ -9,7 +9,7 @@
 #include "slfile_utils.h"
 #include "sltools.h"
 using namespace std;
-void propEnumGen(const char* attrFileName, std::set<std::string>& propNames, std::unordered_map<std::string, std::vector<std::string>>& tablesInfo){
+void propEnumGen(const char* attrFileName, std::set<std::string>& propNames, std::set<std::string>& tempPropNames, std::unordered_map<std::string, std::vector<std::string>>& tablesInfo){
 	std::ofstream attrFile(attrFileName);
 	if (!attrFile){
 		SLASSERT(false, "can not open file %s", attrFileName);
@@ -31,6 +31,15 @@ void propEnumGen(const char* attrFileName, std::set<std::string>& propNames, std
 	while (itor != itorEnd){
 		attrFile << "	static const IProp* " << *itor << ";" << endl;
 		++itor;
+	}
+	attrFile << "};" << endl << endl;
+
+	attrFile << "struct ATTR_API OCTempProp{" << endl;
+	std::set<std::string>::iterator tempItor = tempPropNames.begin();
+	std::set<std::string>::iterator tempItorEnd = tempPropNames.end();
+	while (tempItor != tempItorEnd){
+		attrFile << "	static const IProp* " << *tempItor << ";" << endl;
+		++tempItor;
 	}
 	attrFile << "};" << endl << endl;
 
@@ -61,7 +70,7 @@ void propEnumGen(const char* attrFileName, std::set<std::string>& propNames, std
 	attrFile.close();                   //关闭文件
 }
 
-void attrGetterGen(const char* attrFileName, std::set<std::string>& propNames){
+void attrGetterGen(const char* attrFileName, std::set<std::string>& propNames, std::set<std::string>& tempPropNames){
 	std::ofstream attrFile(attrFileName);
 	if (!attrFile){
 		SLASSERT(false, "can not open file %s", attrFileName);
@@ -97,6 +106,14 @@ void attrGetterGen(const char* attrFileName, std::set<std::string>& propNames){
 		attrFile << "const IProp* attr_def::" << *itor << " = nullptr;" << endl;
 		++itor;
 	}
+	attrFile << endl;
+
+	std::set<std::string>::iterator tempItor = tempPropNames.begin();
+	std::set<std::string>::iterator tempItorEnd = tempPropNames.end();
+	while (tempItor != tempItorEnd){
+		attrFile << "const IProp* OCTempProp::" << *tempItor << " = nullptr;" << endl;
+		++tempItor;
+	}
 
 	attrFile << endl;
 	attrFile << "void getAttrProp(IObjectMgr* objectMgr){" << endl;
@@ -105,6 +122,15 @@ void attrGetterGen(const char* attrFileName, std::set<std::string>& propNames){
 		attrFile << "	attr_def::" << *itor << " = objectMgr->getPropByName(\"" << *itor << "\");" << endl;
 		++itor;
 	}
+
+	attrFile << endl;
+	
+	tempItor = tempPropNames.begin();
+	while (tempItor != tempItorEnd){
+		attrFile << "	OCTempProp::" << *tempItor << " = objectMgr->getPropByName(\"" << *tempItor << "\");" << endl;
+		++tempItor;
+	}
+
 	attrFile << "}" << endl << endl;
 	attrFile.close();                   //关闭文件
 }
@@ -120,6 +146,7 @@ int main(){
 	});
 
 	std::set<std::string> propNames;
+	std::set<std::string> tempPropNames;
 	std::unordered_map<std::string, std::vector<std::string>> tablesInfo;
 	for (int32 i = 0; i < (int32)files.size(); i++){
 		sl::XmlReader propConf;
@@ -132,11 +159,24 @@ int main(){
 		for (int32 i = 0; i < props.count(); i++){
 			std::string name = props[i].getAttributeString("name");
 			if (propNames.find(name) != propNames.end()){
-				SLASSERT(false, "has duplicate prop name %s", name);
-				ECHO_ERROR("has duplicate prop name %s", name);
+				SLASSERT(false, "has duplicate prop name %s", name.c_str());
+				ECHO_ERROR("has duplicate prop name %s", name.c_str());
 				return -1;
 			}
 			propNames.insert(name);
+		}
+
+		if (propConf.root().subNodeExist("temp")){
+			const sl::ISLXmlNode& tempProps = propConf.root()["temp"];
+			for (int32 i = 0; i < tempProps.count(); i++){
+				std::string name = tempProps[i].getAttributeString("name");
+				if (tempPropNames.find(name) != tempPropNames.end()){
+					SLASSERT(false, "has duplicate prop name %s", name.c_str());
+					ECHO_ERROR("has duplicate prop name %s", name.c_str());
+					return -1;
+				}
+				tempPropNames.insert(name);
+			}
 		}
 
 		if (propConf.root().subNodeExist("table")){
@@ -158,11 +198,11 @@ int main(){
 
 	char attrFile[256] = { 0 };
 	SafeSprintf(attrFile, sizeof(attrFile), "%s/../../../src/logic/define/Attr.h", sl::getAppPath());
-	propEnumGen(attrFile, propNames, tablesInfo);
+	propEnumGen(attrFile, propNames, tempPropNames, tablesInfo);
 
 	char attrGetterFile[256] = { 0 };
 	SafeSprintf(attrGetterFile, sizeof(attrGetterFile), "%s/../../../src/logic/attrgetter/AttrGetter.cpp", sl::getAppPath());
-	attrGetterGen(attrGetterFile, propNames);
+	attrGetterGen(attrGetterFile, propNames, tempPropNames);
 	printf("genentor attr define file success %s\n", attrFile);
 	system("pause");
 	return 0;

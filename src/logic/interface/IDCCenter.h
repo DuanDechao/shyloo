@@ -98,6 +98,7 @@ public:
 	virtual ~IObjectMgr() {}
 
 	virtual const IProp* getPropByName(const char* name) const = 0;
+	virtual const IProp* getTempPropByName(const char* name) const = 0;
 	virtual IObject* create(const char* file, const int32 line, const char* name) = 0;
 	virtual IObject* createById(const char* file, const int32 line, const char* name, const uint64 id) = 0;
 	virtual void recover(IObject* object) = 0;
