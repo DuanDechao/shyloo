@@ -19,4 +19,21 @@ struct ATTR_API attr_def{
 	static const IProp* status;
 };
 
+namespace OCTableMacro {
+	namespace AITABLE {
+		static int32 TABLE_NAME = 1700400206;
+		enum {
+			OCTM_START = 0,
+			STATE = OCTM_START,
+			PARAM1,
+			PARAM2,
+			PARAM3,
+			PARAM4,
+			PARAM5,
+			OCTM_END,
+		};
+	}
+
+};
+
 #endif

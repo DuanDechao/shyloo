@@ -72,15 +72,15 @@ public:
 	virtual float getDataFloat(const int32 col) const{ int32 size = sizeof(float); return *(float*)getData(col, DTYPE_FLOAT, size); }
 	virtual const char* getDataString(const int32 col) const{ int32 size = 0; return (const char *)getData(col, DTYPE_STRING, size); }
 
-	virtual void setDataInt8(const int32 col, const int8 val){ setData(col, DTYPE_INT8, &val, sizeof(int8)); }
-	virtual void setDataInt16(const int32 col, const int16 val){ setData(col, DTYPE_INT16, &val, sizeof(int16)); }
-	virtual void setDataInt32(const int32 col, const int32 val){ setData(col, DTYPE_INT32, &val, sizeof(int32)); }
-	virtual void setDataInt64(const int32 col, const int64 val){ setData(col, DTYPE_INT64, &val, sizeof(int64)); }
-	virtual void setDataFloat(const int32 col, const float val){ setData(col, DTYPE_FLOAT, &val, sizeof(float)); }
-	virtual void setDataString(const int32 col, const char* val){ setData(col, DTYPE_STRING, val, (int32)(strlen(val) + 1)); }
+	virtual void setDataInt8(const int32 col, const int8 val) const { setData(col, DTYPE_INT8, &val, sizeof(int8)); }
+	virtual void setDataInt16(const int32 col, const int16 val) const { setData(col, DTYPE_INT16, &val, sizeof(int16)); }
+	virtual void setDataInt32(const int32 col, const int32 val) const { setData(col, DTYPE_INT32, &val, sizeof(int32)); }
+	virtual void setDataInt64(const int32 col, const int64 val) const{ setData(col, DTYPE_INT64, &val, sizeof(int64)); }
+	virtual void setDataFloat(const int32 col, const float val) const { setData(col, DTYPE_FLOAT, &val, sizeof(float)); }
+	virtual void setDataString(const int32 col, const char* val)const { setData(col, DTYPE_STRING, val, (int32)(strlen(val) + 1)); }
 
 	const void* getData(const int32 col, const int8 type, int32 & size) const;
-	void setData(const int32 col, const int8 tpye, const void* pszBuf, const int32 size, bool changeKey = true);
+	void setData(const int32 col, const int8 tpye, const void* pszBuf, const int32 size, bool changeKey = true) const;
 
 private:
 	OMemory*			_pRowData;

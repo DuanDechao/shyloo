@@ -1,5 +1,5 @@
-#ifndef SL_LOGIC_SLAVE_H
-#define SL_LOGIC_SLAVE_H
+#ifndef SL_LOGIC_IDMGR_H
+#define SL_LOGIC_IDMGR_H
 #include "slikernel.h"
 #include "IIdmgr.h"
 #include "slsingleton.h"

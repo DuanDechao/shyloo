@@ -40,12 +40,12 @@ public:
 	virtual float getDataFloat(const int32 col) const = 0;
 	virtual const char * getDataString(const int32 col) const = 0;
 
-	virtual void setDataInt8(const int32 col, const int8 value) = 0;
-	virtual void setDataInt16(const int32 col, const int16 value) = 0;
-	virtual void setDataInt32(const int32 col, const int32 value) = 0;
-	virtual void setDataInt64(const int32 col, const int64 value) = 0;
-	virtual void setDataFloat(const int32 col, const float value) = 0;
-	virtual void setDataString(const int32 col, const char * value) = 0;
+	virtual void setDataInt8(const int32 col, const int8 value) const = 0;
+	virtual void setDataInt16(const int32 col, const int16 value) const = 0;
+	virtual void setDataInt32(const int32 col, const int32 value) const = 0;
+	virtual void setDataInt64(const int32 col, const int64 value) const = 0;
+	virtual void setDataFloat(const int32 col, const float value) const = 0;
+	virtual void setDataString(const int32 col, const char * value) const = 0;
 };
 
 
@@ -57,6 +57,7 @@ public:
 	virtual void clearRows() = 0;
 	virtual const IRow* findRow(const int64 key) const = 0;
 	virtual const IRow* findRow(const char* key) const = 0;
+	virtual const IRow* getRow(const int32 index) const = 0;
 	virtual bool delRow(const int32 index) = 0;
 
 	virtual IRow* addRow() = 0;
@@ -85,6 +86,8 @@ public:
 	virtual int64 getPropInt64(const IProp* prop) const = 0;
 	virtual float getPropFloat(const IProp* prop) const = 0;
 	virtual const char* getPropString(const IProp* prop) const = 0;
+
+	virtual ITableControl* findTable(const int32 name) const = 0;
 
 };
 

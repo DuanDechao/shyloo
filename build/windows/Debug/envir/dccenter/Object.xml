@@ -2,4 +2,13 @@
 <root>
 	<prop name="id" type="int64" visible="true" share="false" save="true" blob="true" />
 	<prop name="status" type="int64" visible="true" share="false" save="true" blob="true" />
+	
+	<table name="AITABLE">
+		<column name="STATE" type="int8" key="false"/>
+		<column name="PARAM1" type="int64" key="false"/>
+		<column name="PARAM2" type="int64" key="false"/>
+		<column name="PARAM3" type="int64" key="false"/>
+		<column name="PARAM4" type="int64" key="false"/>
+		<column name="PARAM5" type="int64" key="false"/>
+	</table>
 </root>

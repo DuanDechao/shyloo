@@ -1,6 +1,6 @@
-#include "IdMgr.h"
+#include "AI.h"
 using namespace sl::api;
 
 GET_DLL_ENTRANCE
 
-CREATE_MODULE(IdMgr)
+CREATE_MODULE(AI)

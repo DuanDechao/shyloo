@@ -1,37 +1,20 @@
-#ifndef SL_LOGIC_SLAVE_H
-#define SL_LOGIC_SLAVE_H
+#ifndef SL_LOGIC_AI_H
+#define SL_LOGIC_AI_H
 #include "slikernel.h"
-#include "IIdmgr.h"
+#include "IAI.h"
 #include "slsingleton.h"
 class IHarbor;
-class OArgs;
-class IdMgr :public IIdMgr, public sl::api::ITimer, public sl::SLHolder<IdMgr>{
+class AI :public IAI, public sl::SLHolder<AI>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
 
-	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){}
-	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick);
-	virtual void onTerminate(sl::api::IKernel* pKernel, int64 timetick){}
-	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick){}
-	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick) {}
-
-	virtual uint64 allocID();
-	void askIds(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
-	void giveIds(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
+	void test();
 
 private:
-	uint64 generateId();
-
-private:
-	IdMgr*				_self;
-	IHarbor*			_harbor;
-	int32				_svrNodeType;
-	int32				_areaId;
-	int32				_poolSize;
-	std::vector<uint64>	_idPool;
-	bool				_bIsMultiProcess;
+	sl::api::IKernel*   _kernel;
+	AI*					_self;
 };
 
 #endif

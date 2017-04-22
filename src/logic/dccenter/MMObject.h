@@ -34,7 +34,7 @@ public:
 	virtual const char* getPropString(const IProp* prop) const { int32 size = 0; return (const char*)getData(prop, DTYPE_STRING, size); }
 	virtual const void* getData(const IProp* prop, const int8 type, int32& size) const;
 
-	ITableControl* findTable(const int32 name) const;
+	virtual ITableControl* findTable(const int32 name) const;
 
 private:
 	const sl::SLString<MAX_OBJECT_NAME_LEN>		_name;

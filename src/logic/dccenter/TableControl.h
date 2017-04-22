@@ -26,7 +26,7 @@ public:
 	virtual void clearRows();
 	virtual const IRow* findRow(const int64 key) const;
 	virtual const IRow* findRow(const char* key) const;
-	const IRow* getRow(const int32 index) const;
+	virtual const IRow* getRow(const int32 index) const;
 
 	virtual IRow* addRow();
 	virtual IRow* addRowKeyInt8(const int8 key) { return addRowKey(DTYPE_INT8, &key, sizeof(key), key); }

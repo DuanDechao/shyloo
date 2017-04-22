@@ -58,7 +58,7 @@ const void* TableRow::getData(const int32 col, const int8 type, int32 & size) co
 	return _pRowData->getData(info);
 }
 
-void TableRow::setData(const int32 col, const int8 type, const void* pszBuf, const int32 size, bool changeKey){
+void TableRow::setData(const int32 col, const int8 type, const void* pszBuf, const int32 size, bool changeKey) const{
 	const TableLayout* info = _pTableColumn->query(col, type, size);
 	if (!info)
 		return;

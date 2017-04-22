@@ -3,12 +3,13 @@
 #include <set>
 #include <string>
 #include <iomanip>
+#include <unordered_map>
 #include "slmulti_sys.h"
 #include "slxml_reader.h"
 #include "slfile_utils.h"
 #include "sltools.h"
 using namespace std;
-void propEnumGen(const char* attrFileName, std::set<std::string>& propNames){
+void propEnumGen(const char* attrFileName, std::set<std::string>& propNames, std::unordered_map<std::string, std::vector<std::string>>& tablesInfo){
 	std::ofstream attrFile(attrFileName);
 	if (!attrFile){
 		SLASSERT(false, "can not open file %s", attrFileName);
@@ -32,6 +33,30 @@ void propEnumGen(const char* attrFileName, std::set<std::string>& propNames){
 		++itor;
 	}
 	attrFile << "};" << endl << endl;
+
+	attrFile << "namespace OCTableMacro {" << endl;
+	if (!tablesInfo.empty()){
+		auto tableItor = tablesInfo.begin();
+		for (; tableItor != tablesInfo.end(); ++tableItor){
+			if (tableItor->second.empty())
+				continue;
+			attrFile << "	namespace " << tableItor->first << " {" << endl;
+			attrFile << "		static int32 TABLE_NAME = " << sl::CalcStringUniqueId(tableItor->first.c_str()) << ";" << endl;
+			attrFile << "		enum {" << endl;
+			attrFile << "			OCTM_START = 0," << endl;
+			for (int32 i = 0; i < tableItor->second.size(); i++){
+				if (i == 0)
+					attrFile << "			" << tableItor->second[i] << " = OCTM_START," << endl;
+				else
+					attrFile << "			" << tableItor->second[i] << "," << endl;
+			}
+			attrFile << "			OCTM_END," << endl;
+			attrFile << "		};" << endl;
+			attrFile << "	}" << endl << endl;
+		}
+	}
+	attrFile << "};" << endl << endl;
+
 	attrFile << "#endif" << endl;
 	attrFile.close();                   //¹Ø±ÕÎÄ¼þ
 }
@@ -95,6 +120,7 @@ int main(){
 	});
 
 	std::set<std::string> propNames;
+	std::unordered_map<std::string, std::vector<std::string>> tablesInfo;
 	for (int32 i = 0; i < (int32)files.size(); i++){
 		sl::XmlReader propConf;
 		if (!propConf.loadXml(files[i].c_str())){
@@ -112,11 +138,27 @@ int main(){
 			}
 			propNames.insert(name);
 		}
+
+		if (propConf.root().subNodeExist("table")){
+			const sl::ISLXmlNode& tables = propConf.root()["table"];
+			for (int32 i = 0; i < tables.count(); i++){
+				const char* tableName = tables[i].getAttributeString("name");
+				if (tablesInfo.find(tableName) != tablesInfo.end())
+					continue;
+
+				const sl::ISLXmlNode& columns = tables[i]["column"];
+				for (int32 j = 0; j < columns.count(); j++){
+					const char* columnName = columns[j].getAttributeString("name");
+					tablesInfo[tableName].push_back(columnName);
+				}
+			}
+		}
+		
 	}
 
 	char attrFile[256] = { 0 };
 	SafeSprintf(attrFile, sizeof(attrFile), "%s/../../../src/logic/define/Attr.h", sl::getAppPath());
-	propEnumGen(attrFile, propNames);
+	propEnumGen(attrFile, propNames, tablesInfo);
 
 	char attrGetterFile[256] = { 0 };
 	SafeSprintf(attrGetterFile, sizeof(attrGetterFile), "%s/../../../src/logic/attrgetter/AttrGetter.cpp", sl::getAppPath());
