@@ -4,6 +4,7 @@
 #include "slsingleton.h"
 #include "slredis.h"
 #include <unordered_map>
+
 class Redis : public IRedis, public sl::SLHolder<Redis>{
 	struct CommandBuf{
 		int32 _size;
@@ -14,6 +15,7 @@ class Redis : public IRedis, public sl::SLHolder<Redis>{
 		sl::db::ISLRedisConnection* _conn;
 		std::unordered_map<std::string, std::string> _scriptIds;
 	};
+
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);

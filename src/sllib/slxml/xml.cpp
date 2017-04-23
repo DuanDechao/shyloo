@@ -9,6 +9,7 @@ namespace xml
 CSLXmlNode::CSLXmlNode(const TiXmlElement* poTiXmlNode){
 	loadChildren(poTiXmlNode);
 	loadAttributes(poTiXmlNode);
+	loadText(poTiXmlNode);
 }
 
 CSLXmlNode::~CSLXmlNode()
@@ -98,6 +99,11 @@ void CSLXmlNode::loadAttributes(const TiXmlElement* element){
 		attrVal.AttrBoolean = CStringUtils::StringAsBoolean(value);
 		m_xmlAttrs[name] = attrVal;
 	}
+}
+
+void CSLXmlNode::loadText(const TiXmlElement* element){
+	if (element->GetText())
+		m_text = element->GetText();
 }
 
 const CSLXmlNode::AttrVal* CSLXmlNode::findAttr(const char* name) const

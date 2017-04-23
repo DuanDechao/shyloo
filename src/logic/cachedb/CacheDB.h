@@ -3,6 +3,8 @@
 #include "ICacheDB.h"
 #include "slsingleton.h"
 #include <unordered_map>
+
+class IRedis;
 class CacheDB : public ICacheDB, public sl::SLHolder<CacheDB>{
 	enum{
 		CDB_TYPE_NONE = 0,
@@ -42,8 +44,11 @@ public:
 	virtual bool delByIndex(const char* table, const int64 index);
 	virtual bool delByIndex(const char* table, const char* index);
 
+	void test();
+
 private:
 	sl::api::IKernel*		_kernel;
+	IRedis*					_redis;
 
 	std::unordered_map<std::string, CacheTable> _tables;
 };

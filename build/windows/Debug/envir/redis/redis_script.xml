@@ -46,10 +46,10 @@
 		for i = 1, count do
 			--del old index
 			if index ~= nil then
-				local old = redis.call('hget', ARGV[2 + i] index.col)
+				local old = redis.call('hget', ARGV[2 + i], index.col)
 				local ret = redis.call('hmset', ARGV[2 + i], key, ARGV[2 + i], unpack(KEYS))
 				if ret then
-					local new = redis.call('hget', ARGV[2 + i] index.col)
+					local new = redis.call('hget', ARGV[2 + i], index.col)
 					if new ~= old then
 						if old then
 							redis.call('srem', index.name..old, ARGV[2 + i])

@@ -60,6 +60,7 @@ public:
 	virtual bool SLAPI subNodeExist(const char* name) const { return m_xmlChilds.find(name) != m_xmlChilds.end(); }
 	void loadChildren(const TiXmlElement* element);
 	void loadAttributes(const TiXmlElement* element);
+	void loadText(const TiXmlElement* element);
 	const AttrVal* findAttr(const char* name) const;
 private:
 	std::map<std::string, CSLXmlArray*> m_xmlChilds;

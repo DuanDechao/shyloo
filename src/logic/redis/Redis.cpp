@@ -77,18 +77,21 @@ bool Redis::call(const int64 id, const char* proc, const int32 keyCount, const O
 
 	const char* scriptId = _redisContexts[(uint64)id % (uint64)_redisContexts.size()]._scriptIds[proc].c_str();
 	int32 len = (int32)strlen(scriptId);
-	SafeSprintf(buf._data + buf._size, sizeof(buf._data) - buf._size, "*%d\r\n$7\r\nEVALSHA\r\n$%d\r\n%s\r\n", args.getCount() + 2, len, scriptId);
+
+	char keyCountStr[32] = { 0 };
+	SafeSprintf(keyCountStr, 32, "%d", keyCount);
+	SafeSprintf(buf._data + buf._size, sizeof(buf._data) - buf._size, "*%d\r\n$7\r\nEVALSHA\r\n$%d\r\n%s\r\n$%d\r\n%s\r\n", args.getCount() + 3, len, scriptId, strlen(keyCountStr), keyCountStr);
 	buf._size += (int32)strlen(buf._data + buf._size);
 
 	append(buf, args);
 
 	Context& ctx = _redisContexts[(uint64)id % (uint64)_redisContexts.size()];
 	bool ret = true;
-	if (f){
-		ret = ctx._conn->exec(buf._data, [&](sl::db::ISLRedisResult* result){
+	ret = ctx._conn->exec(buf._data, [&](sl::db::ISLRedisResult* result){
+		if (f)
 			return f(_kernel, result);
-		});
-	}
+		return true;
+	});
 	return ret;
 }
 
@@ -100,6 +103,7 @@ bool Redis::loadScript(sl::api::IKernel* pKernel, const int64 id, const char* pr
 		if (itorId == ctx._scriptIds.end()){
 			IArgs<2, 1024> args;
 			args << "LOAD" << itor->second.c_str();
+			args.fix();
 			return exec(id, "SCRIPT", args.out(), [&ctx, proc](sl::api::IKernel* pKernel, const sl::db::ISLRedisResult* result){
 				ctx._scriptIds[proc] = result->toString();
 				return true;

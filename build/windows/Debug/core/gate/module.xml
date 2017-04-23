@@ -5,6 +5,7 @@
 	<module name="Capacity" />
 	<module name="RoleMgr" />
 	<module name="Redis" />
+	<module name="CacheDB" />
 	<!-- <module name="MysqlMgr" /> -->
 	<!-- <module name="DB" /> -->
 </modules>
