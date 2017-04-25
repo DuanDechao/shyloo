@@ -21,10 +21,15 @@ class CacheDB : public ICacheDB, public sl::SLHolder<CacheDB>{
 	};
 
 public:
+	struct CacheTableKey{
+		int8 type;
+		std::string name;
+	};
 	struct CacheTable{
 		std::string name;
 		std::unordered_map<std::string, int8> columns;
 		std::string key;
+		CacheTableKey index;
 		bool del;
 	};
 public:

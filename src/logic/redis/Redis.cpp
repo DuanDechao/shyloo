@@ -101,7 +101,7 @@ bool Redis::loadScript(sl::api::IKernel* pKernel, const int64 id, const char* pr
 	if (itor != _scripts.end()){
 		auto itorId = ctx._scriptIds.find(proc);
 		if (itorId == ctx._scriptIds.end()){
-			IArgs<2, 1024> args;
+			IArgs<2, 2048> args;
 			args << "LOAD" << itor->second.c_str();
 			args.fix();
 			return exec(id, "SCRIPT", args.out(), [&ctx, proc](sl::api::IKernel* pKernel, const sl::db::ISLRedisResult* result){

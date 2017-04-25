@@ -50,17 +50,21 @@ public:
 	CacheDBContext(const CacheDB::CacheTable& desc, IArgs<MAX_KEYS, MAX_ARGS>& args) : _desc(desc), _args(args),_index(false), _count(0) {}
 	virtual ~CacheDBContext() {}
 
-	virtual void writeInt8(const char* col, int8 val) { _args << col << val; ++_count; }
-	virtual void writeInt16(const char* col, int16 val) { _args << col << val; ++_count; }
-	virtual void writeInt32(const char* col, int32 val) { _args << col << val; ++_count; }
-	virtual void writeInt64(const char* col, int64 val) { _args << col << val; ++_count; }
-	virtual void writeFloat(const char* col, float val) { _args << col << val; ++_count; }
-	virtual void writeString(const char* col, const char* val) { _args << col << val; ++_count; }
+	virtual void writeInt8(const char* col, int8 val) { _args << col << val; ++_count; checkIndex(col); }
+	virtual void writeInt16(const char* col, int16 val) { _args << col << val; ++_count; checkIndex(col); }
+	virtual void writeInt32(const char* col, int32 val) { _args << col << val; ++_count; checkIndex(col); }
+	virtual void writeInt64(const char* col, int64 val) { _args << col << val; ++_count; checkIndex(col); }
+	virtual void writeFloat(const char* col, float val) { _args << col << val; ++_count; checkIndex(col); }
+	virtual void writeString(const char* col, const char* val) { _args << col << val; ++_count; checkIndex(col); }
 
 	inline void checkIndex(const char* col){
 		//if (_desc.)
+		if (_desc.index.name == col){
+			_index = true;
+		}
 	}
 
+	inline bool isChangedIndex() const { return _index; }
 	inline int32 count() const { return _count; }
 
 private:

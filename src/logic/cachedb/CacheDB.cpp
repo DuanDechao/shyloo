@@ -57,6 +57,21 @@ bool CacheDB::initialize(sl::api::IKernel * pKernel){
 				}
 			}
 		}
+		if (tableDesc.key == ""){
+			SLASSERT(false, "etyf");
+			return false;
+		}
+		if (tables[i].subNodeExist("index")){
+			const char* index = tables[i]["index"][0].getAttributeString("name");
+			auto itor = tableDesc.columns.find(index);
+			if (itor != tableDesc.columns.end()){
+				tableDesc.index = { itor->second, itor->first };
+			}
+			else{
+				SLASSERT(false, "eyf");
+				return false;
+			}
+		}
 		_tables[tableDesc.name] = tableDesc;
 	}
 
@@ -102,7 +117,9 @@ bool CacheDB::write(const char* table, const CacheDBWriteFuncType& f, int32 coun
 		va_list ap;
 		va_start(ap, count);
 		int8 type = desc.columns[desc.key];
-		args << desc.key.c_str() << count;
+		char temp[128];
+		SafeSprintf(temp, 128, "%s|", table);
+		args << temp << desc.key.c_str() << count;
 		for (int32 i = 0; i < count; i++){
 			switch (type){
 			case CDB_TYPE_INT8: args << (int8)va_arg(ap, int8); break;
@@ -114,6 +131,12 @@ bool CacheDB::write(const char* table, const CacheDBWriteFuncType& f, int32 coun
 			}
 		}
 		va_end(ap);
+
+		if (context.isChangedIndex()){
+			char tmp[128];
+			SafeSprintf(tmp, sizeof(tmp), "%s|i+", table);
+			args << tmp << desc.index.name.c_str();
+		}
 
 		args.fix();
 		return _redis->call(0, "db_set", context.count() * 2, args.out());

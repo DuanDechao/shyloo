@@ -3,5 +3,6 @@
 	<table name="actor" del="true">
 		<column name="id" type="int64" key="true" />
 		<column name="name" type="string" />
+		<index name="id" />
 	</table>
 </cache_db>
