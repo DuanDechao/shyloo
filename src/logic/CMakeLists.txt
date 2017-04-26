@@ -15,7 +15,8 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IRoleMgr.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/ILogic.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IRedis.h"
-    "${PROJECT_SOURCE_DIR}/src/logic/interface/ICacheDB.h"	
+    "${PROJECT_SOURCE_DIR}/src/logic/interface/ICacheDB.h"
+    "${PROJECT_SOURCE_DIR}/src/logic/interface/IScriptEngine.h"	
 )
 
 SET(SL_LOGIC_DEFINE
@@ -41,6 +42,7 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/gate)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/db)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/eventengine)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/mysqlmgr)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/scriptengine)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/distribution)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/account)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/rolemgr)
