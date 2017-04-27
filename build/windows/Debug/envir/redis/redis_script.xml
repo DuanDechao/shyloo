@@ -29,7 +29,7 @@
 	</script>
 	<script name="db_set">
 	<![CDATA[
-	    local tableName = ARGV[1]
+		local keyName = ARGV[1]
 		local key = ARGV[2]
 		local count = ARGV[3]
 		
@@ -47,22 +47,22 @@
 		for i = 1, count do
 			--del old index
 			if index ~= nil then
-				local old = redis.call('hget', tableName..ARGV[3 + i], index.col)
-				local ret = redis.call('hmset', tableName..ARGV[3 + i], key, ARGV[3 + i], unpack(KEYS))
+				local old = redis.call('hget', keyName..ARGV[3 + i], index.col)
+				local ret = redis.call('hmset', keyName..ARGV[3 + i], key, ARGV[3 + i], unpack(KEYS))
 				if ret then
-					local new = redis.call('hget', tableName..ARGV[3 + i], index.col)
+					local new = redis.call('hget', keyName..ARGV[3 + i], index.col)
 					if new ~= old then
 						if old then
-							redis.call('srem', index.name..old, tableName..ARGV[3 + i])
+							redis.call('srem', index.name..old, keyName..ARGV[3 + i])
 						end
 						if new then
-							redis.call('sadd', index.name..new, tableName..ARGV[3 + i]) 
+							redis.call('sadd', index.name..new, keyName..ARGV[3 + i]) 
 						end
 					end
 					effect = effect + 1
 				end
 			else
-				local ret = redis.call('hmset', tableName..ARGV[3 + i], key, ARGV[3 + i], unpack(KEYS))
+				local ret = redis.call('hmset', keyName..ARGV[3 + i], key, ARGV[3 + i], unpack(KEYS))
 				if ret then
 					effect = effect + 1
 				end

@@ -183,7 +183,12 @@ bool CacheDB::delByIndex(const char* table, const char* index){
 }
 
 void CacheDB::test(){
-	write("actor", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
+	/*write("actor", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
+		context->writeInt64("account", 1454565);
 		context->writeString("name", "fyyyy");
-	}, 1, (int64)234326666);
+		}, 1, (int64)23432);*/
+
+	writeByIndex("actor", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
+		context->writeString("name", "ddc");
+	}, (int64)1454565);
 }
