@@ -69,6 +69,14 @@ SET(LUASRC
     )
 
 SET(SCRIPTENGINE
+	"${PROJECT_SOURCE_DIR}/src/logic/scriptengine/LuaReader.h"
+    "${PROJECT_SOURCE_DIR}/src/logic/scriptengine/LuaReader.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/scriptengine/LuaWriter.h"
+    "${PROJECT_SOURCE_DIR}/src/logic/scriptengine/LuaWriter.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/scriptengine/ScriptCallor.h"
+    "${PROJECT_SOURCE_DIR}/src/logic/scriptengine/ScriptCallor.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/scriptengine/ScriptResult.h"
+    "${PROJECT_SOURCE_DIR}/src/logic/scriptengine/ScriptResult.cpp"
     "${PROJECT_SOURCE_DIR}/src/logic/scriptengine/ScriptEngine.h"
     "${PROJECT_SOURCE_DIR}/src/logic/scriptengine/ScriptEngine.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/scriptengine/main.cpp"
