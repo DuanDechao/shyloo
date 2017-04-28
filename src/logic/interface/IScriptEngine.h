@@ -77,4 +77,26 @@ public:
 	virtual IScriptCallor* prepareCall(const char* module, const char* func) = 0;
 	virtual void RsgModuleFunc(const char* module, const char* func, const ScriptFuncType& f) = 0;
 };
+
+class IScriptTable{
+public:
+	virtual ~IScriptTable() {}
+
+	virtual void release() = 0;
+
+	virtual bool getBoolean(const int64 key);
+	virtual int8 getInt8(const int64 key);
+	virtual int16 getInt16(const int64 key);
+	virtual int32 getInt32(const int64 key);
+	virtual int64 getInt64(const int64 key);
+	virtual float getFloat(const int64 key);
+	virtual void* getPointer(const int64 key);
+	virtual int32 getArrayCount();
+
+	template<int16 size>
+	void getString(const int32 key, string& str){
+		str = getString(key);
+		freeString();
+	}
+};
 #endif
