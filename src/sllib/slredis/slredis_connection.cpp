@@ -82,6 +82,7 @@ bool SLRedisConnection::exec(char* command, const std::function<bool(ISLRedisRes
 	}
 	
 	if (REDIS_REPLY_ERROR == reply->type || REDIS_REPLY_NIL == reply->type) {
+		SLASSERT(false, "error:%s", reply->str);
 		freeReplyObject(reply);
 		return false;
 	}

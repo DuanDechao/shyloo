@@ -88,22 +88,103 @@ bool CacheDB::destory(sl::api::IKernel * pKernel){
 }
 
 bool CacheDB::read(const char* table, const CacheDBColumnFuncType& cf, const CacheDBReadFuncType& f, int32 count, ...){
+	if (count > 0 && _tables.find(table) != _tables.end()){
+		CacheTable& desc = _tables[table];
+		IArgs<MAX_KEYS, MAX_ARGS> args;
 
-	return true;
+		CacheDBReader reader(desc, args);
+		cf(_kernel, &reader);
+
+		char keyName[128] = { 0 };
+		SafeSprintf(keyName, 128, "%s|", table);
+		args << keyName << count;
+
+		va_list ap;
+		va_start(ap, count);
+		int8 type = desc.columns[desc.key];
+		for (int32 i = 0; i < count; ++i){
+			switch (type){
+			case CDB_TYPE_INT8: args << (int8)va_arg(ap, int8); break;
+			case CDB_TYPE_INT16: args << (int16)va_arg(ap, int16); break;
+			case CDB_TYPE_INT32: args << (int32)va_arg(ap, int32); break;
+			case CDB_TYPE_INT64: args << (int64)va_arg(ap, int64); break;
+			case CDB_TYPE_STRING: args << (const char*)va_arg(ap, const char*); break;
+			default: SLASSERT(false, "wtf");
+			}
+		}
+		va_end(ap);
+
+		SLASSERT(reader.count() > 0, "wtf");
+		args.fix();
+		return _redis->call(0, "db_get", reader.count(), args.out(), [this, &f](const sl::api::IKernel* pKernel, const sl::db::ISLRedisResult* rst){
+			CacheDBReadResult result(rst);
+			f(_kernel, &result);
+			return true;
+		});
+	}
+	else{
+		SLASSERT(false, "wtf");
+	}
+	return false;
 }
 
 bool CacheDB::readByIndex(const char* table, const CacheDBColumnFuncType& cf, const CacheDBReadFuncType& f, const int64 index){
-	if (_tables.find(table) == _tables.end())
+	if (_tables.find(table) == _tables.end()){
+		SLASSERT(false, "wtf");
 		return false;
+	}
 
 	CacheTable& desc = _tables[table];
+	if (desc.index.type < CDB_TYPE_CANT_BE_KEY && desc.index.type != CDB_TYPE_STRING && desc.index.type != CDB_TYPE_NONE){
+		IArgs<MAX_KEYS, MAX_ARGS> args;
+		CacheDBReader reader(desc, args);
+		cf(_kernel, &reader);
+		SLASSERT(reader.count() > 0, "wtf");
 
+		char tmp[128];
+		SafeSprintf(tmp, sizeof(tmp), "%s|i+%lld", table, index);
+		args << tmp;
+		args.fix();
 
-	return true;
+		return _redis->call(0, "db_get_index", reader.count(), args.out(), [this, &f](const sl::api::IKernel* pKernel, const sl::db::ISLRedisResult* rst){
+			CacheDBReadResult result(rst);
+			f(_kernel, &result);
+			return true;
+		});
+	}
+	else{
+		SLASSERT(false, "wrtf");
+	}
+	return false;
 }
 
 bool CacheDB::readByIndex(const char* table, const CacheDBColumnFuncType& cf, const CacheDBReadFuncType& f, const char* index){
-	return true;
+	if (_tables.find(table) == _tables.end()){
+		SLASSERT(false, "wtf");
+		return false;
+	}
+
+	CacheTable& desc = _tables[table];
+	if (desc.index.type != CDB_TYPE_STRING){
+		SLASSERT(false, "wtf");
+		return false;
+	}
+
+	IArgs<MAX_KEYS, MAX_ARGS> args;
+	CacheDBReader reader(desc, args);
+	cf(_kernel, &reader);
+	SLASSERT(reader.count() > 0, "wtf");
+
+	char tmp[128];
+	SafeSprintf(tmp, sizeof(tmp), "%s|i+%s", table, index);
+	args << tmp;
+	args.fix();
+
+	return _redis->call(0, "db_get_index", reader.count(), args.out(), [this, &f](const sl::api::IKernel* pKernel, const sl::db::ISLRedisResult* rst){
+		CacheDBReadResult result(rst);
+		f(_kernel, &result);
+		return true;
+	});
 }
 
 bool CacheDB::write(const char* table, const CacheDBWriteFuncType& f, int32 count, ...){
@@ -126,7 +207,7 @@ bool CacheDB::write(const char* table, const CacheDBWriteFuncType& f, int32 coun
 			case CDB_TYPE_INT16: args << (int16)va_arg(ap, int16); break;
 			case CDB_TYPE_INT32: args << (int32)va_arg(ap, int32); break;
 			case CDB_TYPE_INT64: args << (int64)va_arg(ap, int64); break;
-			case CDB_TYPE_STRING: args << va_arg(ap, const char*); break;
+			case CDB_TYPE_STRING: args << (const char*)va_arg(ap, const char*); break;
 			default: SLASSERT(false, "wtf");
 			}
 		}
@@ -141,41 +222,120 @@ bool CacheDB::write(const char* table, const CacheDBWriteFuncType& f, int32 coun
 		args.fix();
 		return _redis->call(0, "db_set", context.count() * 2, args.out());
 	}
+	else{
+		SLASSERT(false, "wtf");
+	}
 	return false;
 }
 
 bool CacheDB::writeByIndex(const char* table, const CacheDBWriteFuncType& f, const int64 index){
-	if (_tables.find(table) == _tables.end())
+	if (_tables.find(table) == _tables.end()){
+		SLASSERT(false, "wtf");
 		return false;
+	}
 	
 	CacheTable& desc = _tables[table];
+	if (desc.index.type < CDB_TYPE_CANT_BE_KEY && desc.index.type != CDB_TYPE_STRING && desc.index.type != CDB_TYPE_NONE){
+		IArgs<MAX_KEYS, MAX_ARGS> args;
+
+		CacheDBContext context(desc, args);
+		f(_kernel, &context);
+
+		char temp[128];
+		SafeSprintf(temp, 128, "%s|i+%lld", table, index);
+		args << temp;
+
+		args.fix();
+
+		return _redis->call(0, "db_set_index", context.count() * 2, args.out());
+	}
+	else{
+		SLASSERT(false, "wtf");
+	}
+	
+	return false;
+}
+
+bool CacheDB::writeByIndex(const char* table, const CacheDBWriteFuncType& f, const char* index){
+	if (_tables.find(table) == _tables.end()){
+		SLASSERT(false, "wtf");
+		return false;
+	}
+
+	CacheTable& desc = _tables[table];
+	if (desc.index.type != CDB_TYPE_STRING){
+		SLASSERT(false, "wtf");
+		return false;
+	}
 
 	IArgs<MAX_KEYS, MAX_ARGS> args;
 
 	CacheDBContext context(desc, args);
 	f(_kernel, &context);
 
-	char temp[128];
-	SafeSprintf(temp, 128, "%s|i+%lld", table, index);
-	args << temp;
-
+	char tmp[128];
+	SafeSprintf(tmp, sizeof(tmp), "%s|i+%s", table, index);
+	args << tmp;
 	args.fix();
 
 	return _redis->call(0, "db_set_index", context.count() * 2, args.out());
-
-	return true;
-}
-
-bool CacheDB::writeByIndex(const char* table, const CacheDBWriteFuncType& f, const char* index){
-	return true;
 }
 
 bool CacheDB::del(const char* table, int32 count, ...){
-	return true;
+	if (count > 0 && _tables.find(table) != _tables.end()){
+		CacheTable& desc = _tables[table];
+		IArgs<MAX_KEYS, MAX_ARGS> args;
+		args << (desc.del ? 1 : 0);
+
+		char keyName[128];
+		SafeSprintf(keyName, 128, "%s|", table);
+		args << keyName << count;
+
+		va_list ap;
+		va_start(ap, count);
+		int8 type = desc.columns[desc.key];
+		for (int32 i = 0; i < count; i++){
+			switch (type){
+			case CDB_TYPE_INT8: args << (int8)va_arg(ap, int8); break;
+			case CDB_TYPE_INT16: args << (int16)va_arg(ap, int16); break;
+			case CDB_TYPE_INT32: args << (int32)va_arg(ap, int32); break;
+			case CDB_TYPE_INT64: args << (int64)va_arg(ap, int64); break;
+			case CDB_TYPE_STRING: args << (const char*)va_arg(ap, const char*); break;
+			default: SLASSERT(false, "wtf");
+			}
+		}
+		va_end(ap);
+
+		args.fix();
+		return _redis->call(0, "db_del", 1, args.out());
+	}
+	else{
+		SLASSERT(false, "wtf");
+	}
+	return false;
 }
 
 bool CacheDB::delByIndex(const char* table, const int64 index){
-	return true;
+	if (_tables.find(table) != _tables.end()){
+		CacheTable& desc = _tables[table];
+		if (desc.index.type < CDB_TYPE_CANT_BE_KEY && desc.index.type != CDB_TYPE_STRING && desc.index.type != CDB_TYPE_NONE){
+			char indesStr[128];
+			SafeSprintf(indesStr, sizeof(indesStr), "%s|i+%lld", table, index);
+			
+			IArgs<MAX_KEYS, MAX_ARGS> args;
+			args << indesStr << (desc.del ? 1 : 0);
+			args.fix();
+
+			return _redis->call(0, "db_del_index", 0, args.out());
+		}
+		else{
+			SLASSERT(false, "wtf");
+		}
+	}
+	else{
+		SLASSERT(false, "wtf");
+	}
+	return false;
 }
 
 bool CacheDB::delByIndex(const char* table, const char* index){
@@ -183,12 +343,29 @@ bool CacheDB::delByIndex(const char* table, const char* index){
 }
 
 void CacheDB::test(){
-	/*write("actor", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
+	write("actor", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
 		context->writeInt64("account", 1454565);
 		context->writeString("name", "fyyyy");
-		}, 1, (int64)23432);*/
+	}, 1, (int64)2345);
 
-	writeByIndex("actor", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
+	/*writeByIndex("actor", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
 		context->writeString("name", "ddc");
-	}, (int64)1454565);
+		}, (int64)1454565);*/
+
+	/*auto& cf = [&](sl::api::IKernel* pKernel, ICacheDBReader* reader){
+		reader->readColumn("name");
+		reader->readColumn("account");
+		};
+
+		auto& rf = [&](sl::api::IKernel* pKernel, ICacheDBReadResult* result){
+		int32 rowCount = result->count();
+		for (int32 i = 0; i < rowCount; i++){
+		const char* name = result->getString(i, 0);
+		int32 account = result->getInt64(i, 1);
+		int32 s = 0;
+		}
+		};*/
+	
+	//readByIndex("actor", cf, rf, 1454565);
+	delByIndex("actor", 1454565);
 }
