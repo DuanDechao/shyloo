@@ -12,7 +12,7 @@ public:
 	virtual bool destory(sl::api::IKernel * pKernel);
 
 	virtual IScriptCallor* prepareCall(const char* module, const char* func);
-	virtual void RsgModuleFunc(const char* module, const char* func, const ScriptFuncType& f);
+	virtual void RsgModuleFunc(const char* module, const char* func, const ScriptFuncType& f, const char* debug);
 
 	static int32 callBack(lua_State* state);
 
@@ -23,6 +23,8 @@ public:
 	inline void pushPointer(void* value){ lua_pushlightuserdata(_state, value); }
 	inline void resetTop(const int32 top) { lua_settop(_state, top); }
 	bool executeGlobalFunction(sl::api::IKernel* pKernel, int32 argc, const char* func, const ScriptResultReadFuncType& f);
+
+	void test();
 
 private:
 	void addSearchPath(sl::api::IKernel* pKernel, const char* path);

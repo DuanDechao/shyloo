@@ -53,6 +53,7 @@ bool ScriptEngine::initialize(sl::api::IKernel * pKernel){
 	return true;	
 }
 bool ScriptEngine::launched(sl::api::IKernel * pKernel){
+	test();
 	return true;
 }
 bool ScriptEngine::destory(sl::api::IKernel * pKernel){
@@ -69,7 +70,7 @@ IScriptCallor* ScriptEngine::prepareCall(const char* module, const char* func){
 	return _callor;
 }
 
-void ScriptEngine::RsgModuleFunc(const char* module, const char* func, const ScriptFuncType& f){
+void ScriptEngine::RsgModuleFunc(const char* module, const char* func, const ScriptFuncType& f, const char* debug){
 	char moduleName[512] = { 0 };
 	SafeSprintf(moduleName, sizeof(moduleName), "shyloo.%s", module);
 
@@ -179,5 +180,15 @@ bool ScriptEngine::executeFunction(sl::api::IKernel* pKernel, int32 argc, const 
 		lua_pop(_state, 1);
 
 	return true;
+}
+
+void ScriptEngine::test(){
+	IScriptCallor* callor = prepareCall("ai.condition", "call");
+	callor->addString("IsNumber(3)");
+	callor->addPointer(nullptr);
+	callor->call(s_kernel, [&](sl::api::IKernel* pKernel, const IScriptResult* result){
+		bool ret = result->getBool(0);
+		int32 temp = 0;
+	});
 }
 

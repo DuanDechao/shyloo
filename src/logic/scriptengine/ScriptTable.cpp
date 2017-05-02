@@ -1,5 +1,6 @@
 #include "ScriptTable.h"
 
+sl::SLPool<ScriptTable> ScriptTable::s_pool;
 ScriptTable::ScriptTable(lua_State* state, int32 tableIndex, bool pop)
 	:_state(state),
 	_tableIndex(tableIndex),
@@ -20,7 +21,7 @@ bool ScriptTable::getBoolean(const int64 key){
 	lua_pushinteger(_state, key);
 	lua_rawget(_state, _tableIndex);
 	SLASSERT(lua_isboolean(_state, -1), "wtf");
-	return lua_toboolean(_state, -1);
+	return (bool)lua_toboolean(_state, -1);
 }
 
 int8 ScriptTable::getInt8(const int64 key){
@@ -63,6 +64,13 @@ void* ScriptTable::getPointer(const int64 key){
 	lua_rawget(_state, _tableIndex);
 	SLASSERT(lua_islightuserdata(_state, -1), "wtfd");
 	return (void*)lua_touserdata(_state, -1);
+}
+
+IScriptTable* ScriptTable::getTable(const int64 key){
+	lua_pushinteger(_state, key);
+	lua_rawget(_state, _tableIndex);
+	SLASSERT(lua_istable(_state, -1), "wtf");
+	return ScriptTable::create(_state, lua_gettop(_state), true);
 }
 
 int32 ScriptTable::getArrayCount(){
@@ -116,6 +124,13 @@ void* ScriptTable::getPointer(const char* key){
 	lua_rawget(_state, _tableIndex);
 	SLASSERT(lua_islightuserdata(_state, -1), "wtfd");
 	return (void*)lua_touserdata(_state, -1);
+}
+
+IScriptTable* ScriptTable::getTable(const char* key){
+	lua_pushstring(_state, key);
+	lua_rawget(_state, _tableIndex);
+	SLASSERT(lua_istable(_state, -1), "wtfd");
+	return ScriptTable::create(_state, lua_gettop(_state), true);
 }
 
 const char* ScriptTable::getString(const int32 key){

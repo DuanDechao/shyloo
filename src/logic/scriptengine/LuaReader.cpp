@@ -1,5 +1,5 @@
 #include "LuaReader.h"
-
+#include "ScriptTable.h"
 int32 LuaReader::count() const{
 	return lua_gettop(_state);
 }
@@ -48,4 +48,10 @@ void* LuaReader::getPointer(const int32 index) const{
 	SLASSERT(index >= 0 && index < lua_gettop(_state), "out of range");
 	SLASSERT(lua_islightuserdata(_state, index + 1) || lua_isnil(_state, index + 1), "wtf");
 	return (void*)lua_touserdata(_state, index + 1);
+}
+
+IScriptTable* LuaReader::getTable(const int32 index) const{
+	SLASSERT(index >= 0 && index < lua_gettop(_state), "out of range");
+	SLASSERT(lua_istable(_state, index + 1), "wtf");
+	return ScriptTable::create(_state, index + 1, false);
 }

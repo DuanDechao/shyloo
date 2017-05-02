@@ -3,7 +3,7 @@
 #include "slmulti_sys.h"
 #include "lua/lua.hpp"
 #include "slpool.h"
-#include ""
+#include "IScriptEngine.h"
 class ScriptTable: public IScriptTable{
 	friend class sl::SLPool<ScriptTable>;
 public:
@@ -17,6 +17,7 @@ public:
 	virtual int64 getInt64(const int64 key);
 	virtual float getFloat(const int64 key);
 	virtual void* getPointer(const int64 key);
+	virtual IScriptTable* getTable(const int64 key);
 	virtual int32 getArrayCount();
 
 	virtual bool getBoolean(const char* key);
@@ -26,7 +27,7 @@ public:
 	virtual int64 getInt64(const char* key);
 	virtual float getFloat(const char* key);
 	virtual void* getPointer(const char* key);
-	virtual int32 getArrayCount();
+	virtual IScriptTable* getTable(const char* key);
 
 protected:
 	virtual const char* getString(const int32 key);

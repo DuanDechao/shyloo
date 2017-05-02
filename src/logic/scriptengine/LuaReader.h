@@ -17,6 +17,7 @@ public:
 	virtual float getFloat(const int32 index) const;
 	virtual const char* getString(const int32 index) const;
 	virtual void* getPointer(const int32 index) const;
+	virtual IScriptTable* getTable(const int32 index) const;
 
 private:
 	lua_State* _state;

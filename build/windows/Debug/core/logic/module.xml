@@ -3,9 +3,10 @@
 	<module name="Harbor" />
 	<module name="Cluster" />
 	<module name="Capacity" />
+	<module name="DCCenter" />
 	<module name="AttrGetter" />
 	<module name="IdMgr" />
-	<module name="DCCenter" />
+	<module name="ScriptEngine" />
 	
 	<!-- <module name="MysqlMgr" /> -->
 	<!-- <module name="DB" /> -->
