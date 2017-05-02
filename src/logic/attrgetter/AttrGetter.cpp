@@ -41,6 +41,6 @@ void getAttrProp(IObjectMgr* objectMgr){
 	attr_def::recoverTimer = objectMgr->getPropByName("recoverTimer");
 	attr_def::status = objectMgr->getPropByName("status");
 
-	OCTempProp::AITIMER = objectMgr->getPropByName("AITIMER");
+	OCTempProp::AITIMER = objectMgr->getTempPropByName("AITIMER");
 }
 

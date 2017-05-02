@@ -127,7 +127,7 @@ void attrGetterGen(const char* attrFileName, std::set<std::string>& propNames, s
 	
 	tempItor = tempPropNames.begin();
 	while (tempItor != tempItorEnd){
-		attrFile << "	OCTempProp::" << *tempItor << " = objectMgr->getPropByName(\"" << *tempItor << "\");" << endl;
+		attrFile << "	OCTempProp::" << *tempItor << " = objectMgr->getTempPropByName(\"" << *tempItor << "\");" << endl;
 		++tempItor;
 	}
 

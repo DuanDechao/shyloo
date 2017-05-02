@@ -1,5 +1,6 @@
 local load = load
 local error = error
+_ENV = {}
 
 local funcs = {}
 function get_func(str)
@@ -7,7 +8,7 @@ function get_func(str)
 		return funcs[str]
 	end
 	
-	local chunk = load("return "..str, "get_func", "t", {})
+	local chunk = load("return "..str, "get_func", "t", _ENV)
 	local func = chunk()
 	if func ~= nil then
 		funcs[str] = func
@@ -46,3 +47,5 @@ function or_(func1, func2)
 		return func1(object) or func2(object)
 	end
 end
+
+return _ENV
