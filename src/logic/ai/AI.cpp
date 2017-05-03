@@ -1,5 +1,6 @@
 #include "AI.h"
 
+IScriptEngine* AI::s_scriptEngine = nullptr;
 bool AI::initialize(sl::api::IKernel * pKernel){
 	_self = this;
 	_kernel = pKernel;
@@ -8,6 +9,7 @@ bool AI::initialize(sl::api::IKernel * pKernel){
 }
 
 bool AI::launched(sl::api::IKernel * pKernel){
+	FIND_MODULE(s_scriptEngine, ScriptEngine);
 	return true;
 }
 
@@ -17,5 +19,9 @@ bool AI::destory(sl::api::IKernel * pKernel){
 }
 
 void AI::startAI(IObject* object){
+
+}
+
+void AI::stopAI(IObject* object){
 
 }
