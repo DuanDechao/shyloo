@@ -2,8 +2,14 @@
 <root>
 	<prop name="id" type="int64" visible="true" share="false" save="true" blob="true" />
 	<prop name="status" type="int64" visible="true" share="false" save="true" blob="true" />
+	<prop name="ai" type="string" size="64" visible="false" share="false" save="false" blob="false" />
+	<prop name="aiInterval" type="int32" visible="false" share="false" save="false" blob="false" />
 	
 	<temp name="AITIMER" type="int64" />
+	
+	<table name="CHECK_TIMER">
+		<column name="TIMER" type="int64" key="true"/>
+	</table>
 	
 	<table name="AITABLE">
 		<column name="STATE" type="int8" key="false"/>

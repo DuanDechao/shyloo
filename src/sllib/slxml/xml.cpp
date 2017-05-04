@@ -7,6 +7,8 @@ namespace xml
 {
 
 CSLXmlNode::CSLXmlNode(const TiXmlElement* poTiXmlNode){
+	m_value = poTiXmlNode->Value();
+	m_poTiXmlNode = poTiXmlNode;
 	loadChildren(poTiXmlNode);
 	loadAttributes(poTiXmlNode);
 	loadText(poTiXmlNode);
@@ -20,6 +22,7 @@ CSLXmlNode::~CSLXmlNode()
 	}
 	m_xmlChilds.clear();
 	m_xmlAttrs.clear();
+	m_allChilds.clear();
 }
 
 int8 CSLXmlNode::getAttributeInt8(const char* name) const
@@ -81,9 +84,11 @@ const ISLXmlNode& CSLXmlNode::operator[](const char* nodeName) const
 void CSLXmlNode::loadChildren(const TiXmlElement* element){
 	for (auto * node = element->FirstChildElement(); node; node = node->NextSiblingElement()){
 		if (m_xmlChilds.find(node->Value()) == m_xmlChilds.end()){
-			m_xmlChilds[node->Value()] = NEW CSLXmlArray();
+			m_xmlChilds[node->Value()] = NEW CSLXmlArray(node->Value());
 		}
-		m_xmlChilds[node->Value()]->addElement(NEW CSLXmlNode(node));
+		CSLXmlNode* child = NEW CSLXmlNode(node);
+		m_xmlChilds[node->Value()]->addElement(child);
+		m_allChilds.push_back(child);
 	}
 }
 

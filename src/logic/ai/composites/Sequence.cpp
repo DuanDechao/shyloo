@@ -7,7 +7,13 @@ Sequence::Sequence(AICondition* condition)
 	: AINode(condition)
 {}
 
-Sequence::~Sequence(){}
+Sequence::~Sequence(){
+	for (auto& node : _childNodes){
+		if (node)
+			DEL node;
+	}
+	_childNodes.clear();
+}
 
 bool Sequence::onEnter(sl::api::IKernel* pKernel, IObject* object, int32 level){
 	if (_childNodes.empty()){

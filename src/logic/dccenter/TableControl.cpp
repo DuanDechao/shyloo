@@ -83,6 +83,70 @@ IRow* TableControl::addRowKeyString(const char* key){
 	return nullptr;
 }
 
+bool TableControl::swapRowIndex(const int32 src, const int32 dst){
+	if (src == dst)
+		return true;
+
+	TableRow* srcRow = (TableRow*)getRow(src);
+	if (!srcRow){
+		return false;
+	}
+
+	TableRow* dstRow = (TableRow*)getRow(dst);
+	if (!dstRow){
+		return false;
+	}
+
+	const int8 keyType = _pTableColumn->getKeyType();
+	switch (keyType){
+	case DTYPE_INT8:{
+		int8 srcKey = srcRow->getDataInt8(_pTableColumn->getKeyColumn());
+		int8 dstKey = dstRow->getDataInt8(_pTableColumn->getKeyColumn());
+		_keyToColIdx[srcKey] = dst;
+		_keyToColIdx[dstKey] = src;
+		break;
+	}
+	case DTYPE_INT16:{
+		int16 srcKey = srcRow->getDataInt16(_pTableColumn->getKeyColumn());
+		int16 dstKey = dstRow->getDataInt16(_pTableColumn->getKeyColumn());
+		_keyToColIdx[srcKey] = dst;
+		_keyToColIdx[dstKey] = src;
+		break;
+	}
+	case DTYPE_INT32:{
+		int32 srcKey = srcRow->getDataInt32(_pTableColumn->getKeyColumn());
+		int32 dstKey = dstRow->getDataInt32(_pTableColumn->getKeyColumn());
+		_keyToColIdx[srcKey] = dst;
+		_keyToColIdx[dstKey] = src;
+		break;
+	}
+	case DTYPE_INT64:{
+		int64 srcKey = srcRow->getDataInt64(_pTableColumn->getKeyColumn());
+		int64 dstKey = dstRow->getDataInt64(_pTableColumn->getKeyColumn());
+		_keyToColIdx[srcKey] = dst;
+		_keyToColIdx[dstKey] = src;
+		break;
+	}
+	case DTYPE_STRING:{
+		const char* srcKey = srcRow->getDataString(_pTableColumn->getKeyColumn());
+		const char* dstKey = dstRow->getDataString(_pTableColumn->getKeyColumn());
+		_strToColIdx[srcKey] = dst;
+		_strToColIdx[dstKey] = src;
+		break;
+	}
+	default:
+		break;
+	}
+
+	_tableRows[src] = dstRow;
+	_tableRows[dst] = srcRow;
+
+	srcRow->setRowIndex(dst);
+	dstRow->setRowIndex(src);
+
+	return true;
+}
+
 bool TableControl::delRow(const int32 index){
 	const IRow* row = getRow(index);
 	if (!row){

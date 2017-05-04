@@ -66,7 +66,19 @@ public:
 	virtual IRow* addRowKeyInt32(const int32 key) = 0;
 	virtual IRow* addRowKeyInt64(const int64 key) = 0;
 	virtual IRow* addRowKeyString(const char* key) = 0;
+	virtual bool swapRowIndex(const int32 src, const int32 dst) = 0;
 };
+
+#define DEL_TABLE_ROW(table, row) { \
+	SLASSERT(table && row, "table or row index is not invailed"); \
+	if (table && row) {	\
+		int32 lastRow = table->rowCount() - 1; \
+		if (lastRow != row->getRowIndex()){	\
+			table->swapRowIndex(row->getRowIndex(), lastRow); \
+		}	\
+		table->delRow(lastRow); \
+	}\
+}
 
 class IObject{
 public:
@@ -80,12 +92,26 @@ public:
 	virtual bool setPropFloat(const IProp* prop, const float data) = 0;
 	virtual bool setPropString(const IProp* prop, const char* data) = 0;
 
+	virtual bool setTempInt8(const IProp* prop, const int8 data) = 0;
+	virtual bool setTempInt16(const IProp* prop, const int16 data) = 0;
+	virtual bool setTempInt32(const IProp* prop, const int32 data) = 0;
+	virtual bool setTempInt64(const IProp* prop, const int64 data) = 0;
+	virtual bool setTempFloat(const IProp* prop, const float data) = 0;
+	virtual bool setTempString(const IProp* prop, const char* data) = 0;
+
 	virtual int8 getPropInt8(const IProp* prop) const = 0;
 	virtual int16 getPropInt16(const IProp* prop) const = 0;
 	virtual int32 getPropInt32(const IProp* prop) const = 0;
 	virtual int64 getPropInt64(const IProp* prop) const = 0;
 	virtual float getPropFloat(const IProp* prop) const = 0;
 	virtual const char* getPropString(const IProp* prop) const = 0;
+
+	virtual int8 getTempInt8(const IProp* prop) const = 0;
+	virtual int16 getTempInt16(const IProp* prop) const = 0;
+	virtual int32 getTempInt32(const IProp* prop) const = 0;
+	virtual int64 getTempInt64(const IProp* prop) const = 0;
+	virtual float getTempFloat(const IProp* prop) const = 0;
+	virtual const char* getTempString(const IProp* prop) const = 0;
 
 	virtual ITableControl* findTable(const int32 name) const = 0;
 

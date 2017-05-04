@@ -11,6 +11,8 @@ class IProp;
 
 struct ATTR_API attr_def{
 	static const IProp* account;
+	static const IProp* ai;
+	static const IProp* aiInterval;
 	static const IProp* exp;
 	static const IProp* gate;
 	static const IProp* id;
@@ -21,6 +23,7 @@ struct ATTR_API attr_def{
 
 struct ATTR_API OCTempProp{
 	static const IProp* AITIMER;
+	static const IProp* AI_REF;
 };
 
 namespace OCTableMacro {
@@ -34,6 +37,15 @@ namespace OCTableMacro {
 			PARAM3,
 			PARAM4,
 			PARAM5,
+			OCTM_END,
+		};
+	}
+
+	namespace CHECK_TIMER {
+		static int32 TABLE_NAME = -1844346954;
+		enum {
+			OCTM_START = 0,
+			TIMER = OCTM_START,
 			OCTM_END,
 		};
 	}

@@ -5,4 +5,6 @@
 	<prop name="logic" type="int32" visible="false" share="false" save="false" blob="false" />
 	<prop name="account" type="int64" visible="false" share="false" save="false" blob="false" />
 	<prop name="recoverTimer" type="int64" visible="false" share="false" save="false" blob="false" />
+	
+	<temp name="AI_REF" type="int32" />
 </root>

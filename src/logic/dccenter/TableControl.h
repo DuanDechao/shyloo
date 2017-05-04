@@ -34,6 +34,8 @@ public:
 	virtual IRow* addRowKeyInt32(const int32 key) { return addRowKey(DTYPE_INT32, &key, sizeof(key), key); }
 	virtual IRow* addRowKeyInt64(const int64 key) { return addRowKey(DTYPE_INT64, &key, sizeof(key), key); }
 	virtual IRow* addRowKeyString(const char* key);
+	virtual bool swapRowIndex(const int32 src, const int32 dst);
+
 	IRow* addRowKey(const int8 type, const void * data, const int32 size, const int64 key);
 
 	virtual bool delRow(const int32 index);

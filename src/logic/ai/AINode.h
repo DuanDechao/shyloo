@@ -19,6 +19,8 @@ public:
 
 	bool checkCondition(sl::api::IKernel* pKernel, IObject* object);
 
+	AIState getState(IObject* object, int32 level = 0) const;
+
 protected:
 	virtual bool onEnter(sl::api::IKernel* pKernel, IObject* object, int32 level) = 0;
 	virtual AIState onTick(sl::api::IKernel* pKernel, IObject* object, int32 level) = 0;

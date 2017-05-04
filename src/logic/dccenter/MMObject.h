@@ -50,8 +50,6 @@ public:
 
 	virtual const void* getData(const IProp* prop, const bool temp, const int8 type, int32& size) const;
 
-	virtual 
-
 	virtual ITableControl* findTable(const int32 name) const;
 
 private:

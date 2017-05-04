@@ -1,6 +1,7 @@
 #ifndef SLLIB_SLXML_H
 #define SLLIB_SLXML_H
 #include "slmulti_sys.h"
+#include <vector>
 namespace sl
 {
 namespace xml
@@ -19,7 +20,9 @@ public:
 	virtual const int32 SLAPI count(void) const = 0;
 	virtual bool SLAPI hasAttribute(const char* name) const = 0;
 	virtual bool SLAPI subNodeExist(const char* name) const = 0;
-	virtual const char* text() const = 0;
+	virtual const char* SLAPI text() const = 0;
+	virtual const char* SLAPI value() const = 0;
+	virtual const std::vector<ISLXmlNode*>& SLAPI getAllChilds() const = 0;
 };
 
 class ISLXmlReader{

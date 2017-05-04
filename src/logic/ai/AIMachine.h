@@ -5,7 +5,11 @@ class IObject;
 class AIMachine{
 public:
 	AIMachine(AINode* root) :_root(root){}
-	~AIMachine(){}
+	~AIMachine(){
+		if (_root)
+			DEL _root;
+		_root = nullptr;
+	}
 
 	void run(sl::api::IKernel* pKernel, IObject* object);
 

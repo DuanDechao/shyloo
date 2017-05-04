@@ -41,6 +41,17 @@ bool AINode::checkCondition(sl::api::IKernel* pKernel, IObject* object){
 	return true;
 }
 
+AINode::AIState AINode::getState(IObject* object, int32 level) const{
+	ITableControl* aiTable = object->findTable(OCTableMacro::AITABLE::TABLE_NAME);
+	SLASSERT(aiTable, "wtf");
+	if (level < aiTable->rowCount()){
+		const IRow* row = aiTable->getRow(level);
+		SLASSERT(row, "wtf");
+		return (AINode::AIState)row->getDataInt8(OCTableMacro::AITABLE::STATE);
+	}
+	return AINode::AIState::AINODE_COMPLETE;
+}
+
 void AINode::setState(IObject* object, int32 level, int8 state)const{
 	ITableControl* aiTable = object->findTable(OCTableMacro::AITABLE::TABLE_NAME);
 	SLASSERT(aiTable && level < aiTable->rowCount(), "find no ai table or table level is invailed for object %lld", object->getID());

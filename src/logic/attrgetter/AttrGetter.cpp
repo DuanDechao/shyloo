@@ -23,6 +23,8 @@ bool AttrGetter::destory(sl::api::IKernel * pKernel){
 }
 
 const IProp* attr_def::account = nullptr;
+const IProp* attr_def::ai = nullptr;
+const IProp* attr_def::aiInterval = nullptr;
 const IProp* attr_def::exp = nullptr;
 const IProp* attr_def::gate = nullptr;
 const IProp* attr_def::id = nullptr;
@@ -31,9 +33,12 @@ const IProp* attr_def::recoverTimer = nullptr;
 const IProp* attr_def::status = nullptr;
 
 const IProp* OCTempProp::AITIMER = nullptr;
+const IProp* OCTempProp::AI_REF = nullptr;
 
 void getAttrProp(IObjectMgr* objectMgr){
 	attr_def::account = objectMgr->getPropByName("account");
+	attr_def::ai = objectMgr->getPropByName("ai");
+	attr_def::aiInterval = objectMgr->getPropByName("aiInterval");
 	attr_def::exp = objectMgr->getPropByName("exp");
 	attr_def::gate = objectMgr->getPropByName("gate");
 	attr_def::id = objectMgr->getPropByName("id");
@@ -42,5 +47,6 @@ void getAttrProp(IObjectMgr* objectMgr){
 	attr_def::status = objectMgr->getPropByName("status");
 
 	OCTempProp::AITIMER = objectMgr->getTempPropByName("AITIMER");
+	OCTempProp::AI_REF = objectMgr->getTempPropByName("AI_REF");
 }
 

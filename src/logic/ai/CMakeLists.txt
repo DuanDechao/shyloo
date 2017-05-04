@@ -7,6 +7,8 @@ INCLUDE_DIRECTORIES(
 	"${PROJECT_SOURCE_DIR}/src/logic/ai/composites"
 )
 SET(COMPOSITES
+	"${PROJECT_SOURCE_DIR}/src/logic/ai/composites/Selector.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/ai/composites/Selector.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/ai/composites/Sequence.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/ai/composites/Sequence.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/ai/composites/Parallel.h"
@@ -53,6 +55,9 @@ ADD_LIBRARY(AI SHARED
 TARGET_LINK_LIBRARIES(AI
 	${SL_LIB_DEBUG}
 	${SL_LIB_RELEASE}
+	${ATTR_LIBD}
+	${ATTR_LIB}
 )
+TARGET_LINK_LIBRARIES(AI "AttrGetter.lib")
 
 SET_PROPERTY(TARGET AI PROPERTY FOLDER "framework")

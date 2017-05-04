@@ -16,7 +16,9 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/ILogic.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IRedis.h"
     "${PROJECT_SOURCE_DIR}/src/logic/interface/ICacheDB.h"
-    "${PROJECT_SOURCE_DIR}/src/logic/interface/IScriptEngine.h"	
+    "${PROJECT_SOURCE_DIR}/src/logic/interface/IScriptEngine.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/OCTimer.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/OCTimer.cpp"
 )
 
 SET(SL_LOGIC_DEFINE

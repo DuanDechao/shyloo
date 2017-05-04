@@ -23,7 +23,9 @@ class CSLXMLNull : public ISLXmlNode
 	virtual const int32 SLAPI count(void) const { SLASSERT(false, "this is null xml node"); return 0; }
 	virtual bool SLAPI hasAttribute(const char* name)const{ SLASSERT(false, "this is null xml node"); return false; }
 	virtual bool SLAPI subNodeExist(const char* name) const { SLASSERT(false, "this is null xml node"); return false; }
-	virtual const char* text() const { SLASSERT(false, "this is null xml node"); return nullptr; }
+	virtual const char* SLAPI text() const { SLASSERT(false, "this is null xml node"); return nullptr; }
+	virtual const char* SLAPI value() const { SLASSERT(false, "this is null xml node"); return nullptr; }
+	virtual const std::vector<ISLXmlNode*>& SLAPI getAllChilds() const { SLASSERT(false, "this is null xml node"); std::vector<ISLXmlNode*> tmp;  return tmp; }
 };
 
 class CSLXmlArray;
@@ -55,8 +57,10 @@ public:
 			return true;
 		return false;
 	}
+	virtual const std::vector<ISLXmlNode*>& SLAPI getAllChilds() const { return m_allChilds; }
 
-	virtual const char* text() const { return m_text.c_str(); }
+	virtual const char* SLAPI text() const { return m_text.c_str(); }
+	virtual const char* SLAPI value() const { return m_value.c_str(); }
 	virtual bool SLAPI subNodeExist(const char* name) const { return m_xmlChilds.find(name) != m_xmlChilds.end(); }
 	void loadChildren(const TiXmlElement* element);
 	void loadAttributes(const TiXmlElement* element);
@@ -64,14 +68,18 @@ public:
 	const AttrVal* findAttr(const char* name) const;
 private:
 	std::map<std::string, CSLXmlArray*> m_xmlChilds;
+	std::vector<ISLXmlNode*> m_allChilds;
 	std::map<std::string, AttrVal> m_xmlAttrs;
 	std::string m_text;
+	std::string m_value;
 	CSLXMLNull	m_xmlNull;
+	const TiXmlElement* m_poTiXmlNode;
 };
 
 class CSLXmlArray : public ISLXmlNode
 {
 public:
+	CSLXmlArray(const char* value) :m_value(value){}
 	~CSLXmlArray()
 	{
 		for (int32 i = 0; i < (int32)m_elements.size(); i++){
@@ -97,15 +105,18 @@ public:
 		}
 		return *m_elements[i];
 	}
+	virtual const std::vector<ISLXmlNode*>& SLAPI getAllChilds() const { SLASSERT(false, "this is xml array"); std::vector<ISLXmlNode*> tmp;  return tmp; }
 
 	virtual const int32 SLAPI count(void) const { return m_elements.size(); }
-	virtual const char* text() const { SLASSERT(false, "this is null xml node"); return nullptr; }
+	virtual const char* SLAPI text() const { SLASSERT(false, "this is xml array"); return nullptr; }
+	virtual const char* SLAPI value() const { return m_value.c_str(); }
 	void addElement(CSLXmlNode* poXmlNode){
 		if (poXmlNode)
 			m_elements.push_back(poXmlNode);
 	}
 private:
 	std::vector<CSLXmlNode*> m_elements;
+	std::string m_value;
 	CSLXMLNull	m_xmlNull;
 };
 
