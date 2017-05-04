@@ -7,6 +7,8 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(ROLEMGR
+	"${PROJECT_SOURCE_DIR}/src/logic/rolemgr/Role.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/rolemgr/Role.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/rolemgr/RoleMgr.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/rolemgr/RoleMgr.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/rolemgr/main.cpp"

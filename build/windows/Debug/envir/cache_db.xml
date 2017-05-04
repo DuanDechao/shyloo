@@ -4,6 +4,8 @@
 		<column name="id" type="int64" key="true" />
 		<column name="account" type="int64" />
 		<column name="name" type="string" />
+		<column name="occupation" type="int8" />
+		<column name="sex" type="int8" />
 		<index name="account" />
 	</table>
 </cache_db>

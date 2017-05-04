@@ -7,5 +7,6 @@ enum game{
 	MAX_PROP_NAME_LEN = 64,
 	MAX_PATH_LEN = 256,
 	MAX_CAPACITY_LOAD = 10000,
+	MAX_ROLE_NAME_LEN = 64,
 };
 #endif

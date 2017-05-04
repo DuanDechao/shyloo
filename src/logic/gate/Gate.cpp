@@ -342,7 +342,7 @@ void Gate::onClientCreateRoleReq(sl::api::IKernel* pKernel, const int64 id, cons
 		}
 
 		int64 actorId = _IdMgr->allocID();
-		IRole* role = _roleMgr->createRole(actorId, args);
+		IRole* role = _roleMgr->createRole(player.accountId, actorId, args);
 		if (role){
 			player.roles.push_back({ actorId, role });
 
