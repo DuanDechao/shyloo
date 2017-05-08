@@ -181,7 +181,8 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 	if(pSvrChannel->getPacketSender() == nullptr)
 	{
 		TCPPacketSender* pPackerSender = CREATE_POOL_OBJECT(TCPPacketSender, pSvrEndPoint, this);
-		getDispatcher().registerWriteFileDescriptor((int32)(*pSvrEndPoint), pPackerSender);
+		pSvrChannel->setPacketSender(pPackerSender);
+		//getDispatcher().registerWriteFileDescriptor((int32)(*pSvrEndPoint), pPackerSender);
 	}
 
 	return true;

@@ -69,6 +69,11 @@ bool ObjectPropInfo::loadProps(const sl::ISLXmlNode& props, PROP_DEFDINE_MAP& de
 			layout._type = DTYPE_FLOAT;
 			layout._size = sizeof(float);
 		}
+		else if (!strcmp(type, "string")){
+			int32 size = props[i].getAttributeInt32("size");
+			layout._type = DTYPE_STRING;
+			layout._size = size;
+		}
 		else{
 			SLASSERT(false, "invaild prop type %s", type);
 			return false;

@@ -2,10 +2,10 @@
 #define __SL_FRAMEWORK_GATE_H__
 #include "slikernel.h"
 #include "slimodule.h"
-#include "IHarbor.h"
-#include "IAgent.h"
 #include "IGate.h"
-#include "IDB.h"
+//#include "IDB.h"
+#include "IAgent.h"
+#include "IHarbor.h"
 #include "slbinary_stream.h"
 #include <unordered_map>
 #include <unordered_set>
@@ -65,7 +65,7 @@ public:
 	void transMsgToLogic(sl::api::IKernel* pKernel, const int64 id, const void* pContext, const int32 size);
 
 	void onClientLoginReq(sl::api::IKernel* pKernel, const int64 id, const OBStream& args);
-	void onQueryAccountCB(sl::api::IKernel* pKernel, const int64 id, const bool success, const int32 affectedRow, const IDBCallSource* source, const IDBResult* result);
+//	void onQueryAccountCB(sl::api::IKernel* pKernel, const int64 id, const bool success, const int32 affectedRow, const IDBCallSource* source, const IDBResult* result);
 
 	void onClientSelectRoleReq(sl::api::IKernel* pKernel, const int64 id, const OBStream& args);
 	void onClientCreateRoleReq(sl::api::IKernel* pKernel, const int64 id, const OBStream& args);
@@ -81,7 +81,7 @@ private:
 	Gate*		_self;
 	IHarbor*	_harbor;
 	IAgent*		_agent;
-	IDB*		_db;
+	//IDB*		_db;
 	IIdMgr*		_IdMgr;
 	IRoleMgr*	_roleMgr;
 	

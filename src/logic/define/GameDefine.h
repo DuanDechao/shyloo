@@ -8,5 +8,6 @@ enum game{
 	MAX_PATH_LEN = 256,
 	MAX_CAPACITY_LOAD = 10000,
 	MAX_ROLE_NAME_LEN = 64,
+	INVAILD_GATE_NODE_ID = -1,
 };
 #endif

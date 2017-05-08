@@ -2,6 +2,7 @@
 <core>
 	<envir path="./envir" />
 	<agent send="1024" recv="1024" />
+	<client send="1024" recv="1024"/>
 	<harbor send="1048576" recv="1048576">
 		<node type="-3" name="slave" hidden="true"/>
 		<node type="-2" name="master" />
@@ -9,6 +10,7 @@
 		<node type="2" name="logic" />
 		<node type="5" name="account" />
 		<node type="6" name="scenemgr" />
+		<node type="10" name="robot" />
 	</harbor>
 	<starter check="2000" dead="10000">
 		<port node="1" start="7241" end="7299" />
@@ -17,6 +19,7 @@
 		<node name="logic" type="2" min="1" max="1" delay="5000" cmd=" --name=logic --harbor=$port$ --node_id=$id$" />
 		<node name="account" type="5" min="1" max="1" delay="5000" cmd=" --name=account --harbor=$port$ --node_id=$id$" />
 		<node name="scenemgr" type="6" min="1" max="1" delay="5000" cmd=" --name=scenemgr --harbor=$port$ --node_id=$id$" />
+		<node name="robot" type="10" min="1" max="1" delay="20000" cmd=" --name=robot --harbor=$port$ --node_id=$id$" />
 	</starter>
 	<master ip="127.0.0.1" port="7700" />
 	<id multiProc="true" server="-2" area="1" poolSize="1000" />

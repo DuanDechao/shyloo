@@ -17,7 +17,10 @@ struct ATTR_API attr_def{
 	static const IProp* gate;
 	static const IProp* id;
 	static const IProp* logic;
+	static const IProp* name;
+	static const IProp* occupation;
 	static const IProp* recoverTimer;
+	static const IProp* sex;
 	static const IProp* status;
 };
 

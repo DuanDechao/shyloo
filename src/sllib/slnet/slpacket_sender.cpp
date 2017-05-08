@@ -46,6 +46,7 @@ int PacketSender::handleOutputNotification(int fd)
 		ISLSession* poSession = activeChannel->getSession();
 		poSession->onEstablish();
 		activeChannel->setConnected();
+		//m_pNetworkInterface->getDispatcher().deregisterWriteFileDescriptor((int32)*m_pEndPoint);
 		return 0;
 	}
 

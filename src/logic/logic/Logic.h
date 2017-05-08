@@ -8,9 +8,9 @@
 #include <unordered_set>
 #include "IHarbor.h"
 class IObjectMgr;
-class IRoleMgr;
 class IEventEngine;
 class IObject;
+class IPlayerMgr;
 class Logic :public ILogic, public INodeListener, public sl::SLHolder<Logic>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
@@ -23,18 +23,18 @@ public:
 	void onGateBindPlayerOnLogic(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 	void onGateUnBindPlayerOnLogic(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 
-	void recoverObject(sl::api::IKernel* pKernel, const int64 id);
 private:
+	void sendGateBindAck(sl::api::IKernel* pKernel, int32 nodeId, int64 accountId, int64 actorId, int32 errorCode);
+	void sendSceneMgrBindNotify(sl::api::IKernel* pKernel, int64 accountId, int64 actorId, int32 errorCode);
 
 private:
 	Logic*		_self;
 	IHarbor*	_harbor;
 	IObjectMgr* _objectMgr;
-	IRoleMgr*	_roleMgr;
+	IPlayerMgr* _playerMgr;
 	IEventEngine* _eventEngine;
 
 	std::unordered_map<int32, std::unordered_set<int64>> _gateActors;
-	int64	_recoverInterval;
 };
 
 #endif

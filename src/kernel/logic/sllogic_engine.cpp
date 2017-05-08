@@ -41,7 +41,7 @@ bool LogicEngine::initialize()
 		SafeSprintf(path, sizeof(path), "%s/%s/%s.dll", sl::getAppPath(), pModuleConfig->strModulePath.c_str(), (*itor).c_str());
 		HINSTANCE hinst = ::LoadLibrary(path);
 		api::GetModuleFun fun = (api::GetModuleFun)::GetProcAddress(hinst, NAME_OF_GET_LOGIC_FUN);
-		SLASSERT(fun, "get function:GetLogicModule error");
+		SLASSERT(fun, "get function:GetLogicModule error[%d]", GetLastError());
 #endif // SL_OS_WINDOWS
 
 		if(!fun){

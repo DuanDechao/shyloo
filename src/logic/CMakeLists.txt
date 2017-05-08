@@ -17,6 +17,8 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IRedis.h"
     "${PROJECT_SOURCE_DIR}/src/logic/interface/ICacheDB.h"
     "${PROJECT_SOURCE_DIR}/src/logic/interface/IScriptEngine.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IPlayerMgr.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IClient.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/OCTimer.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/OCTimer.cpp"
 )
@@ -53,3 +55,6 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/attrgetter)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/redis)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/cachedb)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/ai)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/playermgr)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/client)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/robot)

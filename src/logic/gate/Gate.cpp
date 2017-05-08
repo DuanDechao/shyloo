@@ -1,10 +1,9 @@
 #include "AgentProtocol.h"
 #include "Gate.h"
-#include "IHarbor.h"
 #include "IAgent.h"
 #include "NodeDefine.h"
 #include "NodeProtocol.h"
-#include "IDB.h"
+//#include "IDB.h"
 #include "IIdmgr.h"
 #include "DBDef.h"
 #include "IRoleMgr.h"
@@ -16,9 +15,12 @@ bool Gate::initialize(sl::api::IKernel * pKernel){
 
 bool Gate::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
-	FIND_MODULE(_db, DB);
+	//FIND_MODULE(_db, DB);
 	FIND_MODULE(_IdMgr, IdMgr);
 	FIND_MODULE(_roleMgr, RoleMgr);
+	FIND_MODULE(_agent, Agent);
+
+	_agent->setListener(this);
 
 	RGS_NODE_HANDLER(_harbor, NodeProtocol::SCENEMGR_MSG_DISTRIBUTE_LOGIC_ACK, Gate::onSceneMgrDistributeLogic);
 	RGS_NODE_HANDLER(_harbor, NodeProtocol::ACCOUNT_MSG_BIND_ACCOUNT_ACK, Gate::onAccountBindAccountAck);
@@ -267,44 +269,44 @@ void Gate::onClientLoginReq(sl::api::IKernel* pKernel, const int64 id, const OBS
 	if (player.state != GATE_STATE_NONE)
 		return;
 
-	AccountInfo info{ accountName };
+	/*AccountInfo info{ accountName };
 	auto callor = CREATE_DB_CALL_CONTEXT(_db, 0, id, &info, sizeof(info));
 	callor->query("account", [&](sl::api::IKernel* pKernel, IDBQueryParamAdder* adder, IDBCallCondition* condition){
 		adder->AddColumn("id");
 		condition->AddCondition("name", IDBCallCondition::DBConditionOpType::DBOP_EQ, accountName);
-	}, CALLOR_CB(Gate::onQueryAccountCB));
+	}, CALLOR_CB(Gate::onQueryAccountCB));*/
 }
 
-void Gate::onQueryAccountCB(sl::api::IKernel* pKernel, const int64 id, const bool success, const int32 affectedRow, const IDBCallSource* source, const IDBResult* result){
-	if (!success){
-		SLASSERT(false, "wtf");
-		return;
-	}
-
-	int64 accountId = 0;
-	if (result->rowCount() > 0){
-		accountId = result->getDataInt64(0, "id");
-	}else{
-		AccountInfo* info = (AccountInfo*)source->getContext(sizeof(AccountInfo));
-		accountId = (int64)_IdMgr->allocID();
-		
-		auto callor = CREATE_DB_CALL(_db, 0, 0);
-		callor->insert("account", [&](sl::api::IKernel* pKernel, IDBInsertParamAdder* adder){
-			adder->AddColumn("id", accountId);
-			adder->AddColumn("name", info->name.c_str());
-		}, nullptr);
-	}
-
-	Player& player = _players[id];
-	player.accountId = accountId;
-	player.state = GATE_STATE_AUTHENING;
-
-	IArgs<3, 128> args;
-	args << player.agentId << player.accountId;
-	args.fix();
-
-	_harbor->send(NodeType::ACCOUNT, 1, NodeProtocol::GATE_MSG_BIND_ACCOUNT_REQ, args.out());
-}
+//void Gate::onQueryAccountCB(sl::api::IKernel* pKernel, const int64 id, const bool success, const int32 affectedRow, const IDBCallSource* source, const IDBResult* result){
+//	if (!success){
+//		SLASSERT(false, "wtf");
+//		return;
+//	}
+//
+//	int64 accountId = 0;
+//	if (result->rowCount() > 0){
+//		accountId = result->getDataInt64(0, "id");
+//	}else{
+//		AccountInfo* info = (AccountInfo*)source->getContext(sizeof(AccountInfo));
+//		accountId = (int64)_IdMgr->allocID();
+//		
+//		/*auto callor = CREATE_DB_CALL(_db, 0, 0);
+//		callor->insert("account", [&](sl::api::IKernel* pKernel, IDBInsertParamAdder* adder){
+//			adder->AddColumn("id", accountId);
+//			adder->AddColumn("name", info->name.c_str());
+//		}, nullptr);*/
+//	}
+//
+//	Player& player = _players[id];
+//	player.accountId = accountId;
+//	player.state = GATE_STATE_AUTHENING;
+//
+//	IArgs<3, 128> args;
+//	args << player.agentId << player.accountId;
+//	args.fix();
+//
+//	_harbor->send(NodeType::ACCOUNT, 1, NodeProtocol::GATE_MSG_BIND_ACCOUNT_REQ, args.out());
+//}
 
 void Gate::onClientSelectRoleReq(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
 	int64 actorId = 0;
@@ -361,9 +363,9 @@ void Gate::onClientCreateRoleReq(sl::api::IKernel* pKernel, const int64 id, cons
 }
 
 void Gate::test(){
-	auto dbCall = CREATE_DB_CALL(_db, 0, 0);
+	/*auto dbCall = CREATE_DB_CALL(_db, 0, 0);
 	dbCall->insert("user", [&](sl::api::IKernel* pKernel, IDBInsertParamAdder* adder){
 		adder->AddColumn("id", 877777888888);
 		adder->AddColumn("name", "ddc");
-	}, nullptr);
+	}, nullptr);*/
 }
