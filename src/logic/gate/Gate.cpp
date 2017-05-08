@@ -1,4 +1,3 @@
-#include "AgentProtocol.h"
 #include "Gate.h"
 #include "IAgent.h"
 #include "NodeDefine.h"
@@ -7,6 +6,7 @@
 #include "IIdmgr.h"
 #include "DBDef.h"
 #include "IRoleMgr.h"
+#include "ProtocolID.pb.h"
 
 bool Gate::initialize(sl::api::IKernel * pKernel){
 	_self = this;
@@ -27,9 +27,9 @@ bool Gate::launched(sl::api::IKernel * pKernel){
 	RGS_NODE_HANDLER(_harbor, NodeProtocol::ACCOUNT_MSG_KICK_FROM_ACCOUNT, Gate::onAccountKickFromAccount);
 	RGS_NODE_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_BIND_PLAYER_ACK, Gate::onLogicBindPlayerAck);
 
-	_self->rgsAgentMessageHandler(AgentProtocol::CLIENT_MSG_LOGIN_REQ, &Gate::onClientLoginReq);
-	_self->rgsAgentMessageHandler(AgentProtocol::CLIENT_MSG_SELECT_ROLE_REQ, &Gate::onClientSelectRoleReq);
-	_self->rgsAgentMessageHandler(AgentProtocol::CLIENT_MSG_CREATE_ROLE_REQ, &Gate::onClientCreateRoleReq);
+	_self->rgsAgentMessageHandler(ClientMsgID::CLIENT_MSG_LOGIN_REQ, &Gate::onClientLoginReq);
+	_self->rgsAgentMessageHandler(ClientMsgID::CLIENT_MSG_SELECT_ROLE_REQ, &Gate::onClientSelectRoleReq);
+	_self->rgsAgentMessageHandler(ClientMsgID::CLIENT_MSG_CREATE_ROLE_REQ, &Gate::onClientCreateRoleReq);
 	
 	test();
 	return true;
