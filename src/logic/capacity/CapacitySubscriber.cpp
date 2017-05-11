@@ -40,5 +40,5 @@ int32 CapacitySubscriber::choose(int32 nodeType){
 void CapacitySubscriber::nodeLoadReport(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
 	float nodeLoad = args.getFloat(0);
 	_allNodeLoad[nodeType][nodeId] = { nodeLoad };
-	ECHO_ERROR("node[%d:%d] load updated: %f", nodeType, nodeId, nodeLoad);
+	//ECHO_ERROR("node[%d:%d] load updated: %f", nodeType, nodeId, nodeLoad);
 }

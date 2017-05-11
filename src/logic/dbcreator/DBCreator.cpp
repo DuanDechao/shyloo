@@ -860,9 +860,9 @@ void DBCreator::broadcastDBUpdateFinished(){
 
 	s_updateFinished = true;
 
-	/*IArgs<1, 32> args;
+	IArgs<1, 32> args;
 	args.fix();
-	s_harbor->broadcast(NodeProtocol::DB_MSG_UPDATE_DATABASE_FINISHED, args.out());*/
+	s_harbor->broadcast(NodeProtocol::DB_MSG_UPDATE_DATABASE_FINISHED, args.out());
 
 	logic_event::DBUpdateFinished info;
 	s_eventEngine->execEvent(logic_event::EVENT_DB_UPDATE_FINISHED, &info, sizeof(info));
