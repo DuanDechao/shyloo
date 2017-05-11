@@ -143,6 +143,7 @@ public:
 	virtual  ~IMysqlMgr(){}
 
 	virtual void execSql(const int64 id, IMysqlHandler* handler, const SQLCommnandFunc& f) = 0;
+	virtual void execSql(const int64 id, IMysqlHandler* handler, const char* sql, const char* table, const int8 optType) = 0;
 	virtual void stopSql(IMysqlHandler* handler) = 0;
 };
 #endif

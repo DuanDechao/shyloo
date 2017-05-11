@@ -5,8 +5,15 @@
 	<module name="Capacity" />
 	<module name="DCCenter" />
 	<module name="AttrGetter" />
+	<module name="Logic" />
 	<module name="IdMgr" />
+	<module name="Redis" />
+	<module name="CacheDB" />
 	<module name="ScriptEngine" />
+	<module name="EventEngine" />
+	<module name="PlayerMgr" />
+	<module name="RoleMgr" />
+	
 	
 	<!-- <module name="MysqlMgr" /> -->
 	<!-- <module name="DB" /> -->

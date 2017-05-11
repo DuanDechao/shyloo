@@ -2,11 +2,12 @@
 #include "IAgent.h"
 #include "NodeDefine.h"
 #include "NodeProtocol.h"
-//#include "IDB.h"
+#include "ICacheDB.h"
 #include "IIdmgr.h"
 #include "DBDef.h"
 #include "IRoleMgr.h"
 #include "ProtocolID.pb.h"
+#include "Protocol.pb.h"
 
 bool Gate::initialize(sl::api::IKernel * pKernel){
 	_self = this;
@@ -15,12 +16,14 @@ bool Gate::initialize(sl::api::IKernel * pKernel){
 
 bool Gate::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
-	//FIND_MODULE(_db, DB);
+	FIND_MODULE(_cacheDB, CacheDB);
 	FIND_MODULE(_IdMgr, IdMgr);
 	FIND_MODULE(_roleMgr, RoleMgr);
 	FIND_MODULE(_agent, Agent);
 
 	_agent->setListener(this);
+
+	_maxRoleNum = 4;
 
 	RGS_NODE_HANDLER(_harbor, NodeProtocol::SCENEMGR_MSG_DISTRIBUTE_LOGIC_ACK, Gate::onSceneMgrDistributeLogic);
 	RGS_NODE_HANDLER(_harbor, NodeProtocol::ACCOUNT_MSG_BIND_ACCOUNT_ACK, Gate::onAccountBindAccountAck);
@@ -172,8 +175,8 @@ void Gate::onSceneMgrDistributeLogic(sl::api::IKernel* pKernel, const int32 node
 			reset(pKernel, agentId, GATE_STATE_ROLELOADED);
 
 			IBStream<128> buf;
-			buf << (int32)ProtocolError::ERROR_DISTRIBUTE_LOGIC_FAILED;
-			sendToClient(pKernel, agentId, AgentProtocol::SERVER_MSG_SELECT_ROLE_RSP, buf.out());
+			buf << (int32)ErrorCode::ERROR_DISTRIBUTE_LOGIC_FAILED;
+			sendToClient(pKernel, agentId, ServerMsgID::SERVER_MSG_SELECT_ROLE_RSP, buf.out());
 		}
 	}
 }
@@ -189,18 +192,18 @@ void Gate::onAccountBindAccountAck(sl::api::IKernel* pKernel, const int32 nodeTy
 		if (player.accountId != accountId)
 			return;
 
-		if (errorCode == ProtocolError::ERROR_NO_ERROR){
+		if (errorCode == ErrorCode::ERROR_NO_ERROR){
 			bool ret = _roleMgr->getRoleList(accountId, [&player](sl::api::IKernel* pKernel, const int64 actorId, IRole* role){
 				player.roles.push_back({ actorId, role });
 			});
 
 			if (ret){
 				IBStream<4096> buf;
-				buf << (int32)ProtocolError::ERROR_NO_ERROR << (int32)player.roles.size();
+				buf << (int32)ErrorCode::ERROR_NO_ERROR << (int32)player.roles.size();
 				for (const auto& role : player.roles){
 					buf << role.actorId;
 				}
-				sendToClient(pKernel, player.agentId, AgentProtocol::SERVER_MSG_LOGIN_RSP, buf.out());
+				sendToClient(pKernel, player.agentId, ServerMsgID::SERVER_MSG_LOGIN_RSP, buf.out());
 
 				player.state = GATE_STATE_ROLELOADED;
 			}
@@ -208,14 +211,14 @@ void Gate::onAccountBindAccountAck(sl::api::IKernel* pKernel, const int32 nodeTy
 				reset(pKernel, agentId, GATE_STATE_NONE);
 				
 				IBStream<128> buf;
-				buf << (int32)ProtocolError::ERROR_GET_ROLE_LIST_FAILED;
-				sendToClient(pKernel, player.agentId, AgentProtocol::SERVER_MSG_LOGIN_RSP, buf.out());
+				buf << (int32)ErrorCode::ERROR_GET_ROLE_LIST_FAILED;
+				sendToClient(pKernel, player.agentId, ServerMsgID::SERVER_MSG_LOGIN_RSP, buf.out());
 			}
 		}
 		else{
 			IBStream<128> buf;
 			buf << errorCode;
-			sendToClient(pKernel, player.agentId, AgentProtocol::SERVER_MSG_LOGIN_RSP, buf.out());
+			sendToClient(pKernel, player.agentId, ServerMsgID::SERVER_MSG_LOGIN_RSP, buf.out());
 		}
 	}
 }
@@ -240,7 +243,7 @@ void Gate::onLogicBindPlayerAck(sl::api::IKernel* pKernel, const int32 nodeType,
 		Player& player = _players[_actors[actorId]];
 		SLASSERT(player.state == GATE_STATE_BINDING && actorId == player.selectActorId, "wtf");
 
-		if (errCode == ProtocolError::ERROR_NO_ERROR){
+		if (errCode == ErrorCode::ERROR_NO_ERROR){
 			player.state = GATE_STATE_ONLINE;
 			player.lastActorId = actorId;
 
@@ -253,7 +256,7 @@ void Gate::onLogicBindPlayerAck(sl::api::IKernel* pKernel, const int32 nodeType,
 
 			IBStream<128> buf;
 			buf << errCode;
-			sendToClient(pKernel, player.agentId, AgentProtocol::SERVER_MSG_SELECT_ROLE_RSP, buf.out());
+			sendToClient(pKernel, player.agentId, ServerMsgID::SERVER_MSG_SELECT_ROLE_RSP, buf.out());
 		}
 	}
 }
@@ -269,44 +272,33 @@ void Gate::onClientLoginReq(sl::api::IKernel* pKernel, const int64 id, const OBS
 	if (player.state != GATE_STATE_NONE)
 		return;
 
-	/*AccountInfo info{ accountName };
-	auto callor = CREATE_DB_CALL_CONTEXT(_db, 0, id, &info, sizeof(info));
-	callor->query("account", [&](sl::api::IKernel* pKernel, IDBQueryParamAdder* adder, IDBCallCondition* condition){
-		adder->AddColumn("id");
-		condition->AddCondition("name", IDBCallCondition::DBConditionOpType::DBOP_EQ, accountName);
-	}, CALLOR_CB(Gate::onQueryAccountCB));*/
-}
+	int64 accountId = 0;
+	bool success = _cacheDB->readByIndex("account", [&](sl::api::IKernel* pKernel, ICacheDBReader* reader){
+		reader->readColumn("accountId");
+	}, [&accountId](sl::api::IKernel* pKernel, ICacheDBReadResult* result){
+		if (result->count() == 1)
+			accountId = result->getInt64(0, 0);
+	}, accountName);
 
-//void Gate::onQueryAccountCB(sl::api::IKernel* pKernel, const int64 id, const bool success, const int32 affectedRow, const IDBCallSource* source, const IDBResult* result){
-//	if (!success){
-//		SLASSERT(false, "wtf");
-//		return;
-//	}
-//
-//	int64 accountId = 0;
-//	if (result->rowCount() > 0){
-//		accountId = result->getDataInt64(0, "id");
-//	}else{
-//		AccountInfo* info = (AccountInfo*)source->getContext(sizeof(AccountInfo));
-//		accountId = (int64)_IdMgr->allocID();
-//		
-//		/*auto callor = CREATE_DB_CALL(_db, 0, 0);
-//		callor->insert("account", [&](sl::api::IKernel* pKernel, IDBInsertParamAdder* adder){
-//			adder->AddColumn("id", accountId);
-//			adder->AddColumn("name", info->name.c_str());
-//		}, nullptr);*/
-//	}
-//
-//	Player& player = _players[id];
-//	player.accountId = accountId;
-//	player.state = GATE_STATE_AUTHENING;
-//
-//	IArgs<3, 128> args;
-//	args << player.agentId << player.accountId;
-//	args.fix();
-//
-//	_harbor->send(NodeType::ACCOUNT, 1, NodeProtocol::GATE_MSG_BIND_ACCOUNT_REQ, args.out());
-//}
+	SLASSERT(success, "read cacheDB failed");
+	if (!accountId){
+		accountId = (int64)_IdMgr->allocID();
+		success = _cacheDB->write("account", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
+			context->writeString("username", accountName);
+		}, 1, accountId);
+		SLASSERT(success, "write db failed");
+	}
+	SLASSERT(accountId, "can't get accountID");
+
+	player.accountId = accountId;
+	player.state = GATE_STATE_AUTHENING;
+
+	IArgs<3, 128> inArgs;
+	inArgs << player.agentId << player.accountId;
+	inArgs.fix();
+
+	_harbor->send(NodeType::ACCOUNT, 1, NodeProtocol::GATE_MSG_BIND_ACCOUNT_REQ, inArgs.out());
+}
 
 void Gate::onClientSelectRoleReq(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
 	int64 actorId = 0;
@@ -338,8 +330,8 @@ void Gate::onClientCreateRoleReq(sl::api::IKernel* pKernel, const int64 id, cons
 	if (player.state == GATE_STATE_ROLELOADED){
 		if (player.roles.size() >= _maxRoleNum){
 			IBStream<128> buf;
-			buf << ProtocolError::ERROR_TOO_MUCH_ROLE;
-			sendToClient(pKernel, id, AgentProtocol::SERVER_MSG_CREATE_ROLE_RSP, buf.out());
+			buf << ErrorCode::ERROR_TOO_MUCH_ROLE;
+			sendToClient(pKernel, id, ServerMsgID::SERVER_MSG_CREATE_ROLE_RSP, buf.out());
 			return;
 		}
 
@@ -349,14 +341,14 @@ void Gate::onClientCreateRoleReq(sl::api::IKernel* pKernel, const int64 id, cons
 			player.roles.push_back({ actorId, role });
 
 			sl::IBStream<128> rsp;
-			rsp << ProtocolError::ERROR_NO_ERROR;
+			rsp << ErrorCode::ERROR_NO_ERROR;
 			role->pack();
-			sendToClient(pKernel, id, AgentProtocol::SERVER_MSG_CREATE_ROLE_RSP, rsp.out());
+			sendToClient(pKernel, id, ServerMsgID::SERVER_MSG_CREATE_ROLE_RSP, rsp.out());
 		}
 		else{
 			IBStream<128> buf;
-			buf << ProtocolError::ERROR_CREATE_ROLE_FAILED;
-			sendToClient(pKernel, id, AgentProtocol::SERVER_MSG_CREATE_ROLE_RSP, buf.out());
+			buf << ErrorCode::ERROR_CREATE_ROLE_FAILED;
+			sendToClient(pKernel, id, ServerMsgID::SERVER_MSG_CREATE_ROLE_RSP, buf.out());
 			return;
 		}
 	}

@@ -151,13 +151,13 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 	if ((ret = pSvrEndPoint->connect(htons(serverPort), address)) == -1)
 	{
 		int32 error = WSAGetLastError();
-		if(error != WSAEWOULDBLOCK){
+		if (error != WSAEWOULDBLOCK){
 			//SLASSERT(false, "wtf");
 			pSvrEndPoint->close();
 			return false;
 		}
 	}
-
+	
 	Address addr(serverIp, serverPort);
 	pSvrEndPoint->addr(addr);
 	Channel* pSvrChannel = CREATE_POOL_OBJECT(Channel, this, pSvrEndPoint, poPacketParser);
@@ -183,6 +183,15 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 		TCPPacketSender* pPackerSender = CREATE_POOL_OBJECT(TCPPacketSender, pSvrEndPoint, this);
 		pSvrChannel->setPacketSender(pPackerSender);
 		//getDispatcher().registerWriteFileDescriptor((int32)(*pSvrEndPoint), pPackerSender);
+	}
+
+	if (ret != -1){
+		ISLSession* poSession = pSvrChannel->getSession();
+		poSession->onEstablish();
+		pSvrChannel->setConnected();
+	}
+	else{
+		getDispatcher().registerWriteFileDescriptor((int32)(*pSvrEndPoint), pSvrChannel->getPacketSender());
 	}
 
 	return true;

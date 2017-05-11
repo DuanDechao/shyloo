@@ -12,6 +12,7 @@ int32 ClientSession::onRecv(sl::api::IKernel* pKernel, const char* pContext, int
 }
 
 void ClientSession::onConnected(sl::api::IKernel* pKernel){
+	ECHO_ERROR("client session connected");
 	m_id = m_client->onOpen(this);
 }
 

@@ -15,7 +15,7 @@ bool DB::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
 	FIND_MODULE(_mysql, MysqlMgr);
 
-	test();
+	//test();
 	return true;
 }
 

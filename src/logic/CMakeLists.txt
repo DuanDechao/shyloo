@@ -21,12 +21,12 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IClient.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/OCTimer.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/OCTimer.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/DBType.h"
 )
 
 SET(SL_LOGIC_DEFINE
 	"${PROJECT_SOURCE_DIR}/src/logic/define/NodeDefine.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/define/NodeProtocol.h"
-	"${PROJECT_SOURCE_DIR}/src/logic/define/AgentProtocol.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/define/GameDefine.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/define/Attr.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/define/DBDef.h"
@@ -47,6 +47,7 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/db)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/eventengine)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/mysqlmgr)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/scriptengine)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/dbcreator)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/distribution)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/account)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/rolemgr)
@@ -58,3 +59,4 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/ai)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/playermgr)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/client)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/robot)
+

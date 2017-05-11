@@ -23,14 +23,14 @@ public:
 	virtual bool setPropInt32(const IProp* prop, const int32 data){ return setData(prop, false, DTYPE_INT32, &data, sizeof(int32)); }
 	virtual bool setPropInt64(const IProp* prop, const int64 data){ return setData(prop, false, DTYPE_INT64, &data, sizeof(int64)); }
 	virtual bool setPropFloat(const IProp* prop, const float data){ return setData(prop, false, DTYPE_FLOAT, &data, sizeof(float)); }
-	virtual bool setPropString(const IProp* prop, const char* data){ return setData(prop, false, DTYPE_INT8, data, strlen(data) + 1); }
+	virtual bool setPropString(const IProp* prop, const char* data){ return setData(prop, false, DTYPE_STRING, data, strlen(data) + 1); }
 	
 	virtual bool setTempInt8(const IProp* prop, const int8 data){ return setData(prop, true, DTYPE_INT8, &data, sizeof(int8)); }
 	virtual bool setTempInt16(const IProp* prop, const int16 data){ return setData(prop, true, DTYPE_INT16, &data, sizeof(int16)); }
 	virtual bool setTempInt32(const IProp* prop, const int32 data){ return setData(prop, true, DTYPE_INT32, &data, sizeof(int32)); }
 	virtual bool setTempInt64(const IProp* prop, const int64 data){ return setData(prop, true, DTYPE_INT64, &data, sizeof(int64)); }
 	virtual bool setTempFloat(const IProp* prop, const float data){ return setData(prop, true, DTYPE_FLOAT, &data, sizeof(float)); }
-	virtual bool setTempString(const IProp* prop, const char* data){ return setData(prop, true, DTYPE_INT8, data, strlen(data) + 1); }
+	virtual bool setTempString(const IProp* prop, const char* data){ return setData(prop, true, DTYPE_STRING, data, strlen(data) + 1); }
 
 	virtual bool setData(const IProp* prop, const bool temp, const int8 type, const void* data, const int32 size);
 

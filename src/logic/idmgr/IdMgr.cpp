@@ -14,7 +14,7 @@
 #define SEQUENCE_BITS 5
 #define GIVE_NUM	  20
 #define GIVE_SIZE	  500
-#define ASK_TIME_INTERVAL 500
+#define ASK_TIME_INTERVAL 10000
 
 bool IdMgr::initialize(sl::api::IKernel * pKernel){
 	_self = this;
@@ -40,7 +40,7 @@ bool IdMgr::launched(sl::api::IKernel * pKernel){
 		RGS_NODE_HANDLER(_harbor, NodeProtocol::ASK_FOR_ALLOC_ID_AREA, IdMgr::askIds);
 		RGS_NODE_HANDLER(_harbor, NodeProtocol::GIVE_ID_AREA, IdMgr::giveIds);
 		
-		START_TIMER(_self, 20000, TIMER_BEAT_FOREVER, ASK_TIME_INTERVAL);
+		START_TIMER(_self, 1000, TIMER_BEAT_FOREVER, ASK_TIME_INTERVAL);
 	}
 	return true;
 }

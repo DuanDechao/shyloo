@@ -28,7 +28,7 @@ public:
 		if (!read(size)){
 			return false;
 		}
-		const void* data = getData(size - 1);
+		const void* data = getData(size + 1);
 		if (data != nullptr){
 			val = (const char*)data;
 			return true;
@@ -60,7 +60,7 @@ private:
 template<int32 maxSize>
 class IBStream{
 public:
-	IBStream(){}
+	IBStream():_offset(0){}
 	~IBStream(){}
 
 	IBStream& operator <<(const int8& val) { return write(val); }

@@ -24,7 +24,7 @@ bool ObjectMgr::launched(sl::api::IKernel * pKernel){
 
 	_objectStatus = _self->getPropByName("status");
 
-	START_TIMER(_self, 30000, TIMER_BEAT_FOREVER, 2000);
+	//START_TIMER(_self, 30000, TIMER_BEAT_FOREVER, 2000);
 	return true;
 }
 

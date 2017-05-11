@@ -338,10 +338,16 @@ namespace sl
 		return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	}
 
-	inline const std::string getCurrentTimeStr()
-	{
+	inline const std::string getCurrentTimeStr(){
 		CTime time((time_t)(getTimeMilliSecond()/1000));
 		char buff[128] ={0};
+		time.Format(buff, 127, "%d-%b-%Y %H:%M:%S");
+		return buff;
+	}
+
+	inline const std::string getTimeStr(const int64 tick){
+		CTime time((time_t)(tick / 1000));
+		char buff[128] = { 0 };
 		time.Format(buff, 127, "%d-%b-%Y %H:%M:%S");
 		return buff;
 	}

@@ -3,7 +3,6 @@
 #include "slikernel.h"
 #include "slimodule.h"
 #include "IGate.h"
-//#include "IDB.h"
 #include "IAgent.h"
 #include "IHarbor.h"
 #include "slbinary_stream.h"
@@ -15,6 +14,7 @@ using namespace sl;
 class IIdMgr;
 class IRoleMgr;
 class IRole;
+class ICacheDB;
 class Gate :public IGate, public IAgentListener, public INodeListener, public SLHolder<Gate>{
 	enum {
 		GATE_STATE_NONE = 0,
@@ -65,7 +65,6 @@ public:
 	void transMsgToLogic(sl::api::IKernel* pKernel, const int64 id, const void* pContext, const int32 size);
 
 	void onClientLoginReq(sl::api::IKernel* pKernel, const int64 id, const OBStream& args);
-//	void onQueryAccountCB(sl::api::IKernel* pKernel, const int64 id, const bool success, const int32 affectedRow, const IDBCallSource* source, const IDBResult* result);
 
 	void onClientSelectRoleReq(sl::api::IKernel* pKernel, const int64 id, const OBStream& args);
 	void onClientCreateRoleReq(sl::api::IKernel* pKernel, const int64 id, const OBStream& args);
@@ -81,7 +80,7 @@ private:
 	Gate*		_self;
 	IHarbor*	_harbor;
 	IAgent*		_agent;
-	//IDB*		_db;
+	ICacheDB*	_cacheDB;
 	IIdMgr*		_IdMgr;
 	IRoleMgr*	_roleMgr;
 	

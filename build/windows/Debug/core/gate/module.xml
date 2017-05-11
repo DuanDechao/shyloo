@@ -7,8 +7,8 @@
 	<module name="RoleMgr" />
 	<module name="Redis" />
 	<module name="CacheDB" />
-	<!-- <module name="MysqlMgr" />
-	<module name="DB" /> -->
+	<module name="MysqlMgr" />
+	<module name="DB" />
 	<module name="IdMgr" />
 	<module name="Gate" />
 </modules>

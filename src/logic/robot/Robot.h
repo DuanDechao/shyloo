@@ -11,6 +11,7 @@ using namespace sl;
 class Robot : public sl::api::IModule, public IClientListener, public sl::api::ITimer{
 	struct RobotInfo{
 		int64 clientId;
+		string name;
 	};
 
 	typedef void(Robot::*svr_args_cb)(sl::api::IKernel* pKernel, const int64 id, const OBStream& args);
@@ -31,6 +32,11 @@ public:
 	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick) {}
 
 	virtual void rgsSvrMessageHandler(int32 messageId, svr_args_cb handler);
+
+	void onServerLoginAck(sl::api::IKernel* pKernel, const int64 id, const OBStream& args);
+
+private:
+	void sendToSvr(sl::api::IKernel* pKernel, const int64 id, const int32 msgId, const OBStream& buf);
 
 private:
 	sl::api::IKernel*	_kernel;

@@ -4,5 +4,5 @@
 	<net tick="20" reconnect="500" />
 	<timer tick="10" />
 	<db tick="10" minThreadNum="5" maxThreadNum="8" connectionNum="5" />
-	<harbor type="-2" />
+	<harbor type="10" />
 </config>

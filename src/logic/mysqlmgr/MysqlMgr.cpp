@@ -83,6 +83,20 @@ void MysqlMgr::execSql(const int64 id, IMysqlHandler* handler, const SQLCommnand
 	_kernel->startAsync(id, mysqlBase, "exec mysql command");
 }
 
+void MysqlMgr::execSql(const int64 id, IMysqlHandler* handler, const char* sql, const char* table, const int8 optType){
+	SLASSERT(!handler->getBase() && sql && strcmp(sql, "") != 0, "wtf");
+	SQLCommand* sqlCommand = NEW SQLCommand(NEW SQLBuilder(sql, table, optType));
+	if (!sqlCommand->checkVaild() && !sqlCommand->submit()){
+		SLASSERT(false, "not commit like update¡¢insert¡¢delete¡¢update");
+		return;
+	}
+
+	ISLDBConnection* dbConn = _dbConnections[(uint64)id % _dbConnections.size()];
+	MysqlBase* mysqlBase = NEW MysqlBase(dbConn, sqlCommand);
+	mysqlBase->Exec(handler);
+	_kernel->startAsync(id, mysqlBase, "exec mysql command");
+}
+
 void MysqlMgr::stopSql(IMysqlHandler* handler){
 	SLASSERT(handler->getBase(), "mysql handler is not start");
 	_kernel->stopAsync((MysqlBase*)handler->getBase());

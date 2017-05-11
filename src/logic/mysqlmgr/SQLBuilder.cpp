@@ -7,6 +7,14 @@ SQLBuilder::SQLBuilder()
 	 _selectExpr("*")
 {}
 
+SQLBuilder::SQLBuilder(const char* sql, const char* table, const int8 optType)
+	:_table(table),
+	_optType(optType),
+	_selectExpr("*"),
+	_limit(0),
+	_finalExpr(string(sql))
+{}
+
 SQLBuilder::~SQLBuilder(){
 	for (auto& wWxpr : _whereExpr.exprs()){
 		if (wWxpr)

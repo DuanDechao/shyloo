@@ -50,8 +50,8 @@ bool PlayerMgr::active(int64 actorId, int32 nodeId, int64 accountId, const std::
 
 		f(_kernel, player, true);
 
-		EventID::Biology info{ player };
-		_eventEngine->execEvent(EventID::EVENT_GATE_RECONNECT, &info, sizeof(info));
+		logic_event::Biology info{ player };
+		_eventEngine->execEvent(logic_event::EVENT_GATE_RECONNECT, &info, sizeof(info));
 
 		SLASSERT(player->getPropInt64(attr_def::recoverTimer) != 0, "wtf");
 		RemoveObjectTimer* recoverTimer = (RemoveObjectTimer*)player->getPropInt64(attr_def::recoverTimer);
@@ -69,8 +69,8 @@ bool PlayerMgr::active(int64 actorId, int32 nodeId, int64 accountId, const std::
 		if (_roleMgr->loadRole(actorId, player)){
 			f(_kernel, player, false);
 		
-			EventID::Biology info{ player };
-			_eventEngine->execEvent(EventID::EVENT_PLAYER_ONLINE, &info, sizeof(info));
+			logic_event::Biology info{ player };
+			_eventEngine->execEvent(logic_event::EVENT_PLAYER_ONLINE, &info, sizeof(info));
 		}
 		else{
 			_objectMgr->recover(player);
@@ -92,8 +92,8 @@ bool PlayerMgr::deActive(int64 actorId, int32 nodeId, bool isPlayerOpt){
 
 		object->setPropInt32(attr_def::gate, game::INVAILD_GATE_NODE_ID);
 
-		EventID::Biology info{ object };
-		_eventEngine->execEvent(EventID::EVENT_GATE_LOST, &info, sizeof(info));
+		logic_event::Biology info{ object };
+		_eventEngine->execEvent(logic_event::EVENT_GATE_LOST, &info, sizeof(info));
 
 		SLASSERT(object->getPropInt64(attr_def::recoverTimer) == 0, "wtf");
 		RemoveObjectTimer * recoverTimer = NEW RemoveObjectTimer(object);
@@ -114,8 +114,8 @@ void PlayerMgr::recoverObject(sl::api::IKernel* pKernel, const int64 id){
 	if (object){
 		object->setPropInt64(attr_def::recoverTimer, 0);
 
-		EventID::Biology info{ object };
-		_eventEngine->execEvent(EventID::EVENT_PLAYER_DESTROY, &info, sizeof(info));
+		logic_event::Biology info{ object };
+		_eventEngine->execEvent(logic_event::EVENT_PLAYER_DESTROY, &info, sizeof(info));
 
 		_roleMgr->recoverPlayer(object);
 		_objectMgr->recover(object);

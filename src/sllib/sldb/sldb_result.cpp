@@ -127,7 +127,7 @@ const char* SLDBResult::toString(const int32 index){
 		if (m_currRow && m_currRow[index])
 			return (const char*)m_currRow[index];
 	}
-	return NULL;
+	return "";
 }
 
 const char* SLDBResult::fieldName(const int32 index) const{
@@ -136,7 +136,7 @@ const char* SLDBResult::fieldName(const int32 index) const{
 			return m_fields[index].name;
 		}
 	}
-	return NULL;
+	return "";
 }
 
 const char* SLDBResult::fieldValue(const int32 index) const{
@@ -145,7 +145,7 @@ const char* SLDBResult::fieldValue(const int32 index) const{
 			return (const char*)m_currRow[index];
 		}
 	}
-	return NULL;
+	return "";
 }
 
 unsigned long SLDBResult::fieldLength(const int32 index) const{

@@ -55,17 +55,17 @@ IRole* RoleMgr::createRole(int64 accountId, int64 actorId, const sl::OBStream& b
 	const char* name = nullptr;
 	int8 occupation = 0;
 	int8 sex = 0;
-	if (!buf.read(name) || !buf.read(occupation) || !buf.read(sex)){
+	if (!buf.readString(name) || !buf.read(occupation) || !buf.read(sex)){
 		SLASSERT(false, "wtf");
 		return nullptr;
 	}
 
-	bool ret = _cacheDB->writeByIndex("actor", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
-		context->writeInt64("id", actorId);
+	bool ret = _cacheDB->write("actor", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
+		context->writeInt64("account", accountId);
 		context->writeString("name", name);
 		context->writeInt8("occupation", occupation);
 		context->writeInt8("sex", sex);
-	}, accountId);
+	}, 1, actorId);
 
 	if (!ret)
 		return nullptr;

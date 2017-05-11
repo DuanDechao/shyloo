@@ -1,6 +1,8 @@
-#include "AgentProtocol.h"
 #include "Robot.h"
 #include "slxml_reader.h"
+#include "slbinary_stream.h"
+#include "ProtocolID.pb.h"
+#include "Protocol.pb.h"
 
 bool Robot::initialize(sl::api::IKernel * pKernel){
 	_kernel = pKernel;
@@ -14,7 +16,7 @@ bool Robot::launched(sl::api::IKernel * pKernel){
 	
 	//_self->rgsSvrMessageHandler(AgentProtocol::CLIENT_MSG_LOGIN_REQ, &Robot::onClientLoginReq);
 	//_self->rgsSvrMessageHandler(AgentProtocol::CLIENT_MSG_SELECT_ROLE_REQ, &Robot::onClientSelectRoleReq);
-	//_self->rgsSvrMessageHandler(AgentProtocol::CLIENT_MSG_CREATE_ROLE_REQ, &Robot::onClientCreateRoleReq);
+	_self->rgsSvrMessageHandler(ServerMsgID::SERVER_MSG_LOGIN_RSP, &Robot::onServerLoginAck);
 	
 	_client->setListener(this);
 
@@ -30,7 +32,7 @@ bool Robot::launched(sl::api::IKernel * pKernel){
 	_svrIp = conf.root()["svr"][0].getAttributeString("ip");
 	_svrPort = conf.root()["svr"][0].getAttributeInt32("port");
 
-	START_TIMER(_self, 0, 1, 500);
+	START_TIMER(_self, 0, 1, 5000);
 	
 	return true;
 }
@@ -42,7 +44,11 @@ bool Robot::destory(sl::api::IKernel * pKernel){
 
 void Robot::onAgentOpen(sl::api::IKernel* pKernel, const int64 id){
 	SLASSERT(_robots.find(id) == _robots.end(), "duplicate agent id£º%d", id);
-	_robots[id] = { id};
+	_robots[id] = { id, "ddc"};
+
+	IBStream<64> args;
+	args << _robots[id].name.c_str();
+	sendToSvr(pKernel, id, ClientMsgID::CLIENT_MSG_LOGIN_REQ, args.out());
 }
 
 void Robot::onAgentClose(sl::api::IKernel* pKernel, const int64 id){
@@ -66,7 +72,7 @@ int32 Robot::onAgentRecv(sl::api::IKernel* pKernel, const int64 id, const void* 
 		(this->*_svrProtos[msgId])(pKernel, id, buf);
 	}
 	else{
-		SLASSERT(false, "can not find message id[%d]", msgId);
+		//SLASSERT(false, "can not find message id[%d]", msgId);
 	}
 	return len;
 }
@@ -81,4 +87,47 @@ void Robot::onTime(sl::api::IKernel* pKernel, int64 timetick){
 	for (int32 i = 0; i < _robotCount; i++){
 		_client->connect(_svrIp.c_str(), _svrPort);
 	}
+}
+
+void Robot::sendToSvr(sl::api::IKernel* pKernel, const int64 id, const int32 msgId, const OBStream& buf){
+	int32 header[2];
+	header[0] = msgId;
+	header[1] = buf.getSize() + sizeof(int32)* 2;
+
+	_client->send(id, header, sizeof(header));
+	_client->send(id, buf.getContext(), buf.getSize());
+	ECHO_ERROR("send msg[%d] to svr", msgId);
+}
+
+void Robot::onServerLoginAck(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
+	int32 errCode = ErrorCode::ERROR_NO_ERROR;
+	if (!args.read(errCode) || errCode != ErrorCode::ERROR_NO_ERROR){
+		SLASSERT(false, "login ack failed");
+		return;
+	}
+
+	int32 roleCount = 0;
+	if (!args.read(roleCount)){
+		SLASSERT(false, "wtf");
+		return;
+	}
+
+	if (roleCount < 3){
+		static char names[3][64] = { "world", "wonder", "sky" };
+		IBStream<256> ask;
+		ask << names[roleCount] << (int8)1 << (int8)1;
+		sendToSvr(pKernel, id, ClientMsgID::CLIENT_MSG_CREATE_ROLE_REQ, ask.out());
+	}
+	else{
+		int64 actorId = 0;
+		if (!args.read(actorId)){
+			SLASSERT(false, "wtf");
+			return;
+		}
+
+		IBStream<64> ask;
+		ask << actorId;
+		sendToSvr(pKernel, id, ClientMsgID::CLIENT_MSG_SELECT_ROLE_REQ, ask.out());
+	}
+
 }

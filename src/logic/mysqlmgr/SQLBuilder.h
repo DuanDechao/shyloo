@@ -4,6 +4,7 @@
 class SQLBuilder : public ISQLBuilder{
 public:
 	SQLBuilder();
+	SQLBuilder(const char* sql, const char* table, const int8 optType);
 	~SQLBuilder();
 
 	ISQLBuilder* table(const char* tableName);

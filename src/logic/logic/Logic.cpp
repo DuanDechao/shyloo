@@ -1,11 +1,12 @@
 #include "Logic.h"
 #include "NodeProtocol.h"
-#include "AgentProtocol.h"
 #include "NodeDefine.h"
 #include "IDCCenter.h"
 #include "EventID.h"
 #include "IEventEngine.h"
 #include "IPlayerMgr.h"
+#include "ProtocolID.pb.h"
+#include "Protocol.pb.h"
 
 bool Logic::initialize(sl::api::IKernel * pKernel){
 	_self = this;
@@ -36,12 +37,12 @@ void Logic::onGateBindPlayerOnLogic(sl::api::IKernel* pKernel, const int32 nodeT
 	});
 
 	if (success){
-		sendGateBindAck(pKernel, nodeId, accountId, actorId, ProtocolError::ERROR_NO_ERROR);
-		sendSceneMgrBindNotify(pKernel, accountId, actorId, ProtocolError::ERROR_NO_ERROR);
+		sendGateBindAck(pKernel, nodeId, accountId, actorId, ErrorCode::ERROR_NO_ERROR);
+		sendSceneMgrBindNotify(pKernel, accountId, actorId, ErrorCode::ERROR_NO_ERROR);
 		_gateActors[nodeId].insert(actorId);
 	}
 	else{
-		sendGateBindAck(pKernel, nodeId, accountId, actorId, ProtocolError::ERROR_LOAD_PLAYER_FAILED);
+		sendGateBindAck(pKernel, nodeId, accountId, actorId, ErrorCode::ERROR_LOAD_PLAYER_FAILED);
 	}
 }
 

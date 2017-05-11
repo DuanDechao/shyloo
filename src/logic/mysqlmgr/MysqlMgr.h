@@ -25,6 +25,7 @@ public:
 	virtual bool destory(sl::api::IKernel * pKernel);
 
 	virtual void execSql(const int64 id, IMysqlHandler* handler, const SQLCommnandFunc& f);
+	virtual void execSql(const int64 id, IMysqlHandler* handler, const char* sql, const char* table, const int8 optType);
 	virtual void stopSql(IMysqlHandler* handler);
 
 	static int32 escapeString(char* dest, const int32 destSize, const char* src, const int32 srcSize);

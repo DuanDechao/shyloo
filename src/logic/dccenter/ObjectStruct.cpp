@@ -6,12 +6,12 @@ ObjectPropInfo::ObjectPropInfo(int32 objTypeId, const char* objName, ObjectPropI
 	if (parenter){
 		_layouts = parenter->_layouts;
 		for (auto& layout : _layouts){
-			if (!layout._isTemp){
-				const IProp* prop = ObjectMgr::getInstance()->setObjectProp(layout._name.c_str(), _objTypeId, &layout);
+			if (!layout->_isTemp){
+				const IProp* prop = ObjectMgr::getInstance()->setObjectProp(layout->_name.c_str(), _objTypeId, layout);
 				_props.push_back(prop);
 			}
 			else{
-				ObjectMgr::getInstance()->setObjectTempProp(layout._name.c_str(), _objTypeId, &layout);
+				ObjectMgr::getInstance()->setObjectTempProp(layout->_name.c_str(), _objTypeId, layout);
 			}
 			
 		}
@@ -45,52 +45,23 @@ bool ObjectPropInfo::loadFrom(const sl::ISLXmlNode& root, PROP_DEFDINE_MAP& defi
 
 bool ObjectPropInfo::loadProps(const sl::ISLXmlNode& props, PROP_DEFDINE_MAP& defines){
 	for (int32 i = 0; i < props.count(); i++){
-		PropLayout layout;
-		layout._name = props[i].getAttributeString("name");
-		layout._offset = _size;
-		const char* type = props[i].getAttributeString("type");
-		if (!strcmp(type, "int8")){
-			layout._type = DTYPE_INT8;
-			layout._size = sizeof(int8);
-		}
-		else if (!strcmp(type, "int16")){
-			layout._type = DTYPE_INT16;
-			layout._size = sizeof(int16);
-		}
-		else if (!strcmp(type, "int32")){
-			layout._type = DTYPE_INT32;
-			layout._size = sizeof(int32);
-		}
-		else if (!strcmp(type, "int64")){
-			layout._type = DTYPE_INT64;
-			layout._size = sizeof(int64);
-		}
-		else if (!strcmp(type, "float")){
-			layout._type = DTYPE_FLOAT;
-			layout._size = sizeof(float);
-		}
-		else if (!strcmp(type, "string")){
-			int32 size = props[i].getAttributeInt32("size");
-			layout._type = DTYPE_STRING;
-			layout._size = size;
-		}
-		else{
-			SLASSERT(false, "invaild prop type %s", type);
+		PropLayout* layout = NEW PropLayout();
+		if (!loadPropConfig(props[i], *layout)){
 			return false;
 		}
 
-		_size += layout._size;
-		layout._setting = 0;
-		layout._isTemp = false;
+		_size += layout->_size;
+		layout->_setting = 0;
+		layout->_isTemp = false;
 		for (auto& def : defines){
 			if (props[i].hasAttribute(def.first.c_str()) && props[i].getAttributeBoolean(def.first.c_str())){
-				layout._setting |= def.second;
+				layout->_setting |= def.second;
 			}
 		}
 
 		_layouts.push_back(layout);
 
-		const IProp * prop = ObjectMgr::getInstance()->setObjectProp(layout._name.c_str(), _objTypeId, &(*_layouts.rbegin()));
+		const IProp * prop = ObjectMgr::getInstance()->setObjectProp(layout->_name.c_str(), _objTypeId, (*_layouts.rbegin()));
 		_props.push_back(prop);
 		_selfProps.push_back(prop);
 	}
@@ -99,41 +70,16 @@ bool ObjectPropInfo::loadProps(const sl::ISLXmlNode& props, PROP_DEFDINE_MAP& de
 
 bool ObjectPropInfo::loadTemps(const sl::ISLXmlNode& temps){
 	for (int32 i = 0; i < temps.count(); i++){
-		PropLayout layout;
-		layout._name = temps[i].getAttributeString("name");
-		layout._offset = _size;
-		const char* type = temps[i].getAttributeString("type");
-		if (!strcmp(type, "int8")){
-			layout._type = DTYPE_INT8;
-			layout._size = sizeof(int8);
-		}
-		else if (!strcmp(type, "int16")){
-			layout._type = DTYPE_INT16;
-			layout._size = sizeof(int16);
-		}
-		else if (!strcmp(type, "int32")){
-			layout._type = DTYPE_INT32;
-			layout._size = sizeof(int32);
-		}
-		else if (!strcmp(type, "int64")){
-			layout._type = DTYPE_INT64;
-			layout._size = sizeof(int64);
-		}
-		else if (!strcmp(type, "float")){
-			layout._type = DTYPE_FLOAT;
-			layout._size = sizeof(float);
-		}
-		else{
-			SLASSERT(false, "invaild prop type %s", type);
+		PropLayout* layout = NEW PropLayout();
+		if (!loadPropConfig(temps[i], *layout)){
 			return false;
 		}
-
-		_size += layout._size;
-		layout._setting = 0;
-		layout._isTemp = true;
+		_size += layout->_size;
+		layout->_setting = 0;
+		layout->_isTemp = true;
 		_layouts.push_back(layout);
 
-		ObjectMgr::getInstance()->setObjectTempProp(layout._name.c_str(), _objTypeId, &(*_layouts.rbegin()));
+		ObjectMgr::getInstance()->setObjectTempProp(layout->_name.c_str(), _objTypeId, (*_layouts.rbegin()));
 	}
 	return true;
 }
@@ -147,6 +93,42 @@ bool ObjectPropInfo::loadTables(const sl::ISLXmlNode& tables){
 		}
 		TableInfo tableInfo{ sl::CalcStringUniqueId(name), pNewTable };
 		_tables.push_back(tableInfo);
+	}
+	return true;
+}
+
+bool ObjectPropInfo::loadPropConfig(const sl::ISLXmlNode& prop, PropLayout& layout){
+	layout._name = prop.getAttributeString("name");
+	layout._offset = _size;
+	const char* type = prop.getAttributeString("type");
+	if (!strcmp(type, "int8")){
+		layout._type = DTYPE_INT8;
+		layout._size = sizeof(int8);
+	}
+	else if (!strcmp(type, "int16")){
+		layout._type = DTYPE_INT16;
+		layout._size = sizeof(int16);
+	}
+	else if (!strcmp(type, "int32")){
+		layout._type = DTYPE_INT32;
+		layout._size = sizeof(int32);
+	}
+	else if (!strcmp(type, "int64")){
+		layout._type = DTYPE_INT64;
+		layout._size = sizeof(int64);
+	}
+	else if (!strcmp(type, "float")){
+		layout._type = DTYPE_FLOAT;
+		layout._size = sizeof(float);
+	}
+	else if (!strcmp(type, "string")){
+		int32 size = prop.getAttributeInt32("size");
+		layout._type = DTYPE_STRING;
+		layout._size = size;
+	}
+	else{
+		SLASSERT(false, "invaild prop type %s", type);
+		return false;
 	}
 	return true;
 }

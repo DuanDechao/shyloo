@@ -1,8 +1,8 @@
 #include "Account.h"
 #include "IHarbor.h"
 #include "NodeProtocol.h"
-#include "AgentProtocol.h"
 #include "NodeDefine.h"
+#include "Protocol.pb.h"
 
 bool Account::initialize(sl::api::IKernel * pKernel){
 	_self = this;
@@ -55,7 +55,7 @@ void Account::onGateBindAccount(sl::api::IKernel* pKernel, const int32 nodeType,
 		break;
 	case ACCOUNT_STATE_SWITCH:{
 			IArgs<3, 128> args;
-			args << account.switchAgentId << accountId << (int32)ProtocolError::ERROR_ACCOUNT_AUTHEN_FAILED;
+			args << account.switchAgentId << accountId << (int32)ErrorCode::ERROR_ACCOUNT_AUTHEN_FAILED;
 			args.fix();
 			_harbor->send(NodeType::GATE, account.switchGateId, NodeProtocol::ACCOUNT_MSG_BIND_ACCOUNT_ACK, args.out());
 
@@ -115,7 +115,7 @@ void Account::onGateUnBindAccount(sl::api::IKernel* pKernel, const int32 nodeTyp
 
 void Account::bindAccountSuccess(sl::api::IKernel* pKernel, const AccountInfo& account){
 	IArgs<4, 1024> args;
-	args << account.agentId << account.accountId << (int32)ProtocolError::ERROR_NO_ERROR;
+	args << account.agentId << account.accountId << (int32)ErrorCode::ERROR_NO_ERROR;
 	args.fix();
 	_harbor->send(NodeType::GATE, account.gateId, NodeProtocol::ACCOUNT_MSG_BIND_ACCOUNT_ACK, args.out());
 }

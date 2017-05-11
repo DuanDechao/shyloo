@@ -41,10 +41,11 @@ private:
 	bool loadProps(const sl::ISLXmlNode& prop, PROP_DEFDINE_MAP& defines);
 	bool loadTemps(const sl::ISLXmlNode& temp);
 	bool loadTables(const sl::ISLXmlNode& table);
+	bool loadPropConfig(const sl::ISLXmlNode& prop, PropLayout& layout);
 
 private:
 	int32								_objTypeId;
-	vector<PropLayout>					_layouts;
+	vector<PropLayout*>					_layouts;
 	vector<const IProp*>				_props;
 	vector<const IProp*>				_selfProps;
 	sl::SLString<MAX_OBJECT_NAME_LEN>	_objName;
