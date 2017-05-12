@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include "slikernel.h"
-#include "../mysqlmgr/SQLBase.h"
+#include "SQLBase.h"
 
 class ISQLBuilder{
 public:

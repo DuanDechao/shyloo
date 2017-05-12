@@ -7,7 +7,6 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(MYSQLMGR
-	"${PROJECT_SOURCE_DIR}/src/logic/mysqlmgr/SQLBase.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/mysqlmgr/SQLBuilder.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/mysqlmgr/SQLBuilder.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/mysqlmgr/MysqlBase.h"

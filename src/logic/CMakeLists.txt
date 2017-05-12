@@ -22,6 +22,7 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/OCTimer.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/OCTimer.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/DBType.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/SQLBase.h"
 )
 
 SET(SL_LOGIC_DEFINE
