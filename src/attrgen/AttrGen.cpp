@@ -25,6 +25,27 @@ void propEnumGen(const char* attrFileName, std::set<std::string>& propNames, std
 	attrFile << "#endif" << endl <<endl;
 
 	attrFile << "class IProp;" << endl << endl;
+
+
+	char objectPropDefine[256] = { 0 };
+	SafeSprintf(objectPropDefine, sizeof(objectPropDefine), "%s/envir/object.xml", sl::getAppPath());
+	sl::XmlReader conf;
+	if (!conf.loadXml(objectPropDefine)){
+		return;
+	}
+
+	attrFile << "namespace prop_def {" << endl;
+	attrFile << "	enum {" << endl;
+	if (conf.root().subNodeExist("prop")){
+		const sl::ISLXmlNode& props = conf.root()["prop"];
+		for (int32 i = 0; i < props.count(); i++){
+			const char* name = props[i].getAttributeString("name");
+			attrFile << "		" << props[i].getAttributeString("name") << " = " << (int32)(1 << i)  << "," << endl;
+		}
+	}
+	attrFile << "	};" << endl;
+	attrFile << "}" << endl << endl;
+
 	attrFile << "struct ATTR_API attr_def{" << endl;
 	std::set<std::string>::iterator itor = propNames.begin();
 	std::set<std::string>::iterator itorEnd = propNames.end();

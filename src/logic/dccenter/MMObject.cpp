@@ -2,6 +2,7 @@
 #include "TableControl.h"
 #include "ObjectProp.h"
 #include "ObjectFSM.h"
+
 MMObject::MMObject(const char* name, const ObjectPropInfo* pPropInfo)
 	:_name(name),
 	_poPropInfo(pPropInfo),
@@ -35,13 +36,15 @@ const std::vector<const IProp*>& MMObject::getObjProps(bool noParent) const{
 	return _poPropInfo->getObjectProp(noParent);
 }
 
-bool MMObject::setData(const IProp* prop, const bool temp, const int8 type, const void* data, const int32 size){
+bool MMObject::setData(const IProp* prop, const bool temp, const int8 type, const void* data, const int32 size, const bool sync){
 	const PropLayout* layout = ((ObjectProp*)prop)->getLayout(_poPropInfo->getObjTypeId());
 	SLASSERT(layout, "wtf");
 	if (layout != nullptr){
 		SLASSERT(layout->_type == type && layout->_size >= size && layout->_isTemp == temp, "wtf");
 		if (layout->_type == type && layout->_size >= size){
 			_memory->setData(layout, data, size);
+			if (!layout->_isTemp)
+				propCall(prop, sync);
 			return true;
 		}
 	}

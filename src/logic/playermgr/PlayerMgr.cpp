@@ -6,6 +6,10 @@
 #include "IRoleMgr.h"
 #include "NodeDefine.h"
 #include "NodeProtocol.h"
+#include "Attr.h"
+#include "ICacheDB.h"
+#include "OCTimer.h"
+#include "slxml_reader.h"
 
 class RemoveObjectTimer : public sl::api::ITimer{
 public:
@@ -23,9 +27,18 @@ private:
 	int64 _objectId;
 };
 
+PlayerMgr* PlayerMgr::s_self = nullptr;
 bool PlayerMgr::initialize(sl::api::IKernel * pKernel){
-	_self = this;
+	s_self = this;
 	_kernel = pKernel;
+
+	sl::XmlReader svrConf;
+	if (!svrConf.loadXml(pKernel->getCoreFile())){
+		SLASSERT(false, "cant load core file");
+		return false;
+	}
+	_savePlayerInterval = svrConf.root()["save"][0].getAttributeInt64("player");
+	
 	return true;
 }
 
@@ -34,6 +47,8 @@ bool PlayerMgr::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_objectMgr, ObjectMgr);
 	FIND_MODULE(_eventEngine, EventEngine);
 	FIND_MODULE(_roleMgr, RoleMgr);
+	FIND_MODULE(_cacheDB, CacheDB);
+
 	return true;
 }
 
@@ -69,8 +84,7 @@ bool PlayerMgr::active(int64 actorId, int32 nodeId, int64 accountId, const std::
 		if (_roleMgr->loadRole(actorId, player)){
 			f(_kernel, player, false);
 		
-			logic_event::Biology info{ player };
-			_eventEngine->execEvent(logic_event::EVENT_PLAYER_ONLINE, &info, sizeof(info));
+			onProcessPlayerOnline(_kernel, player);
 		}
 		else{
 			_objectMgr->recover(player);
@@ -79,6 +93,55 @@ bool PlayerMgr::active(int64 actorId, int32 nodeId, int64 accountId, const std::
 	}
 
 	return true;
+}
+
+void PlayerMgr::onProcessPlayerOnline(sl::api::IKernel* pKernel, IObject* object){
+	logic_event::Biology info{ object };
+	_eventEngine->execEvent(logic_event::EVENT_PLAYER_ONLINE, &info, sizeof(info));
+
+	allDataLoadComplete(pKernel, object);
+}
+
+void PlayerMgr::allDataLoadComplete(sl::api::IKernel* pKernel, IObject* object){
+	RGS_PROP_CHANGER(object, ANY_CALL, PlayerMgr::propSync);
+}
+
+void PlayerMgr::propSync(sl::api::IKernel* pKernel, IObject* object, const char* name, const IProp* prop, const bool sync){
+	int32 setting = prop->getSetting(object);
+	if (setting & prop_def::save){
+		if (setting & prop_def::significant){
+			savePlayer(pKernel, object);
+		}
+		else{
+			if (object->getTempInt64(OCTempProp::PROP_UPDATE_TIMER) == 0){
+				OCTimer* timer = OCTimer::create(pKernel, object, OCTempProp::PROP_UPDATE_TIMER, nullptr, PlayerMgr::onSavePlayerTime, PlayerMgr::onSavePlayerTerminate);
+				object->setTempInt64(OCTempProp::PROP_UPDATE_TIMER, (int64)timer);
+				START_TIMER(timer, 0, 1, _savePlayerInterval);
+			}
+		}
+	}
+}
+
+void PlayerMgr::onSavePlayerTime(sl::api::IKernel* pKernel, IObject* object, int64 tick){
+	s_self->savePlayer(pKernel, object);
+}
+
+void PlayerMgr::onSavePlayerTerminate(sl::api::IKernel* pKernel, IObject* object, bool, int64){
+	OCTimer* timer = (OCTimer*)object->getTempInt64(OCTempProp::PROP_UPDATE_TIMER);
+	if (timer)
+		timer->release();
+	object->setTempInt64(OCTempProp::PROP_UPDATE_TIMER, 0);
+}
+
+bool PlayerMgr::savePlayer(sl::api::IKernel* pKernel, IObject* player){
+	bool ret = _cacheDB->writeByIndex("actor", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
+		context->writeInt64("id", player->getID());
+		context->writeString("name", player->getPropString(attr_def::name));
+		context->writeInt8("occupation", player->getPropInt8(attr_def::occupation));
+		context->writeInt8("sex", player->getPropInt8(attr_def::sex));
+	}, player->getPropInt64(attr_def::account));
+
+	return ret;
 }
 
 bool PlayerMgr::deActive(int64 actorId, int32 nodeId, bool isPlayerOpt){

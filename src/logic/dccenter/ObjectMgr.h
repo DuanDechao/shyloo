@@ -37,6 +37,8 @@ public:
 
 	const IProp* getObjectStatusProp(){ return _objectStatus; }
 
+	sl::api::IKernel* getKernel() { return _kernel; }
+
 private:
 	bool initPropDefineConfig(sl::api::IKernel * pKernel);
 	bool loadObjectPropConfig(sl::api::IKernel * pKernel);
@@ -50,6 +52,7 @@ private:
 	typedef std::unordered_map<sl::SLString<MAX_PROP_NAME_LEN>, ObjectProp*, sl::HashFunc<MAX_PROP_NAME_LEN>, sl::EqualFunc<MAX_PROP_NAME_LEN>> PROP_MAP;
 	typedef std::unordered_map<sl::SLString<MAX_OBJECT_NAME_LEN>, ObjectPropInfo *, sl::HashFunc<MAX_OBJECT_NAME_LEN>, sl::EqualFunc<MAX_OBJECT_NAME_LEN>> OBJECT_MODEL_MAP;
 	
+	sl::api::IKernel* _kernel;
 	ObjectMgr* _self;
 	IIdMgr* _idMgr;
 	const IProp* _objectStatus;

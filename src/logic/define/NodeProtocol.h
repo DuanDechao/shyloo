@@ -24,10 +24,27 @@ enum NodeProtocol{
 	LOGIC_MSG_BIND_PLAYER_ACK = 2000,
 	LOGIC_MSG_NOTIFY_ADD_PLAYER,
 	LOGIC_MSG_NOTIFY_REMOVE_PLAYER,
+	LOGIC_MSG_TRANSFOR,
 
 
 	DB_MSG_UPDATE_DATABASE_FINISHED = 3000,
-
-
 };
+
+namespace client{
+	struct Header{
+		int32 messageId;
+		int32 size;
+	};
+
+	struct Transfor{
+		int8 delay;
+		int64 actorId;
+	};
+
+	struct Brocast{
+		int8 delay;
+		int32 gate;
+		int32 count;
+	};
+}
 #endif

@@ -9,6 +9,7 @@
 
 bool ObjectMgr::initialize(sl::api::IKernel * pKernel){
 	_self = this;
+	_kernel = pKernel;
 	_nextObjTypeId = 1;
 
 	if (!initPropDefineConfig(pKernel) || !loadObjectPropConfig(pKernel)){

@@ -9,6 +9,16 @@
 
 class IProp;
 
+namespace prop_def {
+	enum {
+		visible = 1,
+		share = 2,
+		save = 4,
+		significant = 8,
+		blob = 16,
+	};
+}
+
 struct ATTR_API attr_def{
 	static const IProp* account;
 	static const IProp* ai;
@@ -27,6 +37,7 @@ struct ATTR_API attr_def{
 struct ATTR_API OCTempProp{
 	static const IProp* AITIMER;
 	static const IProp* AI_REF;
+	static const IProp* PROP_UPDATE_TIMER;
 };
 
 namespace OCTableMacro {

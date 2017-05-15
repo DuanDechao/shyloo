@@ -3,5 +3,6 @@
 	<prop name="visible" />
 	<prop name="share" />
 	<prop name="save" />
+	<prop name="significant" />
 	<prop name="blob" />
 </object>

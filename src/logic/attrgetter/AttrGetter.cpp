@@ -37,6 +37,7 @@ const IProp* attr_def::status = nullptr;
 
 const IProp* OCTempProp::AITIMER = nullptr;
 const IProp* OCTempProp::AI_REF = nullptr;
+const IProp* OCTempProp::PROP_UPDATE_TIMER = nullptr;
 
 void getAttrProp(IObjectMgr* objectMgr){
 	attr_def::account = objectMgr->getPropByName("account");
@@ -54,5 +55,6 @@ void getAttrProp(IObjectMgr* objectMgr){
 
 	OCTempProp::AITIMER = objectMgr->getTempPropByName("AITIMER");
 	OCTempProp::AI_REF = objectMgr->getTempPropByName("AI_REF");
+	OCTempProp::PROP_UPDATE_TIMER = objectMgr->getTempPropByName("PROP_UPDATE_TIMER");
 }
 

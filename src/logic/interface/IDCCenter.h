@@ -80,17 +80,21 @@ public:
 	}\
 }
 
+#define ANY_CALL nullptr
+typedef std::function<void(sl::api::IKernel *, IObject *, const char *, const IProp *, const bool)> PropCallBack;
+#define RGS_PROP_CHANGER(obj, prop, cb) obj->rgsPropChangeCB(prop, std::bind(&cb, this, std::placeholders::_1, std::placeholders::_2,  std::placeholders::_3, std::placeholders::_4, std::placeholders::_5), #cb)
+
 class IObject{
 public:
 
 	virtual const uint64 getID() const = 0;
 
-	virtual bool setPropInt8(const IProp* prop, const int8 data) = 0;
-	virtual bool setPropInt16(const IProp* prop, const int16 data) = 0;
-	virtual bool setPropInt32(const IProp* prop, const int32 data) = 0;
-	virtual bool setPropInt64(const IProp* prop, const int64 data) = 0;
-	virtual bool setPropFloat(const IProp* prop, const float data) = 0;
-	virtual bool setPropString(const IProp* prop, const char* data) = 0;
+	virtual bool setPropInt8(const IProp* prop, const int8 data, const bool sync = true) = 0;
+	virtual bool setPropInt16(const IProp* prop, const int16 data, const bool sync = true) = 0;
+	virtual bool setPropInt32(const IProp* prop, const int32 data, const bool sync = true) = 0;
+	virtual bool setPropInt64(const IProp* prop, const int64 data, const bool sync = true) = 0;
+	virtual bool setPropFloat(const IProp* prop, const float data, const bool sync = true) = 0;
+	virtual bool setPropString(const IProp* prop, const char* data, const bool sync = true) = 0;
 
 	virtual bool setTempInt8(const IProp* prop, const int8 data) = 0;
 	virtual bool setTempInt16(const IProp* prop, const int16 data) = 0;
@@ -115,6 +119,7 @@ public:
 
 	virtual ITableControl* findTable(const int32 name) const = 0;
 
+	virtual bool rgsPropChangeCB(const IProp* prop, const PropCallBack& cb, const char* info) = 0;
 };
 
 
