@@ -21,6 +21,7 @@ namespace prop_def {
 
 struct ATTR_API attr_def{
 	static const IProp* account;
+	static const IProp* agent;
 	static const IProp* ai;
 	static const IProp* aiInterval;
 	static const IProp* exp;

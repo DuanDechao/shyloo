@@ -8,6 +8,7 @@
 	<prop name="recoverTimer" type="int64" visible="false" share="false" save="false" blob="false" />
 	<prop name="occupation" type="int8" visible="false" share="false" save="false" blob="false" />
 	<prop name="sex" type="int8" visible="false" share="false" save="false" blob="false" />
+	<prop name="agent" type="int64" visible="false" share="false" save="false" blob="false" />
 	
 	<temp name="AI_REF" type="int32" />
 	<temp name="PROP_UPDATE_TIMER" type="int64" />

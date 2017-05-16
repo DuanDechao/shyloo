@@ -23,6 +23,7 @@ bool AttrGetter::destory(sl::api::IKernel * pKernel){
 }
 
 const IProp* attr_def::account = nullptr;
+const IProp* attr_def::agent = nullptr;
 const IProp* attr_def::ai = nullptr;
 const IProp* attr_def::aiInterval = nullptr;
 const IProp* attr_def::exp = nullptr;
@@ -41,6 +42,7 @@ const IProp* OCTempProp::PROP_UPDATE_TIMER = nullptr;
 
 void getAttrProp(IObjectMgr* objectMgr){
 	attr_def::account = objectMgr->getPropByName("account");
+	attr_def::agent = objectMgr->getPropByName("agent");
 	attr_def::ai = objectMgr->getPropByName("ai");
 	attr_def::aiInterval = objectMgr->getPropByName("aiInterval");
 	attr_def::exp = objectMgr->getPropByName("exp");

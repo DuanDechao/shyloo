@@ -135,7 +135,7 @@ void Gate::rgsAgentMessageHandler(int32 messageId, agent_args_cb handler){
 void Gate::transMsgToLogic(sl::api::IKernel* pKernel, const int64 id, const void* pContext, const int32 size){
 	Player& player = _players[id];
 	_harbor->prepareSend(NodeType::LOGIC, player.logic, NodeProtocol::GATE_MSG_TRANSMIT_MSG_TO_LOGIC, size + sizeof(int64));
-	_harbor->send(NodeType::LOGIC, player.logic, &id, sizeof(id));
+	_harbor->send(NodeType::LOGIC, player.logic, &player.selectActorId, sizeof(player.selectActorId));
 	_harbor->send(NodeType::LOGIC, player.logic, pContext, size);
 }
 

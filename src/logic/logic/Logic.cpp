@@ -21,12 +21,19 @@ bool Logic::launched(sl::api::IKernel * pKernel){
 
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::GATE_MSG_BIND_PLAYER_REQ, Logic::onGateBindPlayerOnLogic);
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::GATE_MSG_UNBIND_PLAYER_REQ, Logic::onGateUnBindPlayerOnLogic);
+	RGS_NODE_HANDLER(_harbor, NodeProtocol::GATE_MSG_TRANSMIT_MSG_TO_LOGIC, Logic::onTransforMsgToLogic);
+
 
 	return true;
 }
 bool Logic::destory(sl::api::IKernel * pKernel){
 	DEL this;
 	return true;
+}
+
+void Logic::rgsProtocolHandler(int32 messageId, const HandleFunctionType& f, const char* debug){
+	Handler handler{ NEW BProtocolHandler(f), debug };
+	_protoHandlers[messageId].push_back(handler);
 }
 
 void Logic::onGateBindPlayerOnLogic(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
@@ -50,6 +57,30 @@ void Logic::onGateUnBindPlayerOnLogic(sl::api::IKernel* pKernel, const int32 nod
 	int64 actorId = args.getInt64(0);
 	_playerMgr->deActive(actorId, nodeId, false);
 	_gateActors[nodeId].erase(actorId);
+}
+
+void Logic::onTransforMsgToLogic(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args){
+	const void* context = args.getContext();
+	const int32 size = args.getSize();
+	int64 actorId = *(int64*)context;
+
+	const char* dataBuf = (const char*)context + sizeof(int64);
+	int32 messageId = *(int32*)dataBuf;
+	int32 len = *((int32*)(dataBuf + sizeof(int32)));
+
+	auto itor = _protoHandlers.find(messageId);
+	if (itor == _protoHandlers.end() || itor->second.empty())
+		return;
+
+	IObject* object = _objectMgr->findObject(actorId);
+	if (!object){
+		SLASSERT(false, "not find object[%lld]", actorId);
+		return;
+	}
+
+	for (auto handler : itor->second){
+		handler._handler->dealProtocol(pKernel, object, args.getContext(), args.getSize());
+	}
 }
 
 void Logic::onClose(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId){
