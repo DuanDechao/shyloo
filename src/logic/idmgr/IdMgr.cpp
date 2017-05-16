@@ -37,8 +37,8 @@ bool IdMgr::initialize(sl::api::IKernel * pKernel){
 bool IdMgr::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
 	if (_bIsMultiProcess){
-		RGS_NODE_HANDLER(_harbor, NodeProtocol::ASK_FOR_ALLOC_ID_AREA, IdMgr::askIds);
-		RGS_NODE_HANDLER(_harbor, NodeProtocol::GIVE_ID_AREA, IdMgr::giveIds);
+		RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::ASK_FOR_ALLOC_ID_AREA, IdMgr::askIds);
+		RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::GIVE_ID_AREA, IdMgr::giveIds);
 		
 		START_TIMER(_self, 1000, TIMER_BEAT_FOREVER, ASK_TIME_INTERVAL);
 	}

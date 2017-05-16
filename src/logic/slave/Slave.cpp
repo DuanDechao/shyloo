@@ -39,7 +39,7 @@ bool Slave::initialize(sl::api::IKernel * pKernel){
 bool Slave::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
 
-	RGS_NODE_HANDLER(_harbor, NodeProtocol::MASTER_MSG_START_NODE, Slave::openNewNode);
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::MASTER_MSG_START_NODE, Slave::openNewNode);
 
 	return true;
 }

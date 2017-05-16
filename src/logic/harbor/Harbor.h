@@ -24,33 +24,6 @@ public:
 	virtual void DealNodeMessage(sl::api::IKernel*, const int32, const int32, const char* pContext, const int32 size) = 0;
 };
 
-class NodeCBMessageHandler : public INodeMessageHandler{
-public:
-	NodeCBMessageHandler(const node_cb cb) : m_cb(cb){}
-	virtual ~NodeCBMessageHandler() {}
-
-	virtual void DealNodeMessage(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* pContext, const int32 size){
-		m_cb(pKernel, nodeType, nodeId, pContext, size);
-	}
-private:
-	node_cb		m_cb;
-};
-
-
-class NodeArgsCBMessageHandler : public INodeMessageHandler{
-public:
-	NodeArgsCBMessageHandler(const NodeArgsCB cb) : _cb(cb){}
-	virtual ~NodeArgsCBMessageHandler() {}
-
-	virtual void DealNodeMessage(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* pContext, const int32 size){
-		OArgs args(pContext, size);
-		_cb(pKernel, nodeType, nodeId, args);
-	}
-private:
-	NodeArgsCB		_cb;
-};
-
-
 class Harbor: public IHarbor, public sl::api::ITimer, public sl::SLHolder<Harbor>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
@@ -81,9 +54,11 @@ public:
 
 	virtual void broadcast(int32 nodeType, int32 messageId, const OArgs& args);
 	virtual void broadcast(int32 messageId, const OArgs& args);
+	virtual void prepareBroadcast(int32 nodeType, const int32 messageId, const int32 size);
+	virtual void broadcast(int32 nodeType, const void* context, const int32 size);
 
-	virtual void rgsNodeMessageHandler(int32 messageId, const NodeArgsCB& handler);
-	virtual void rgsNodeMessageHandler(int32 messageId, node_cb handler);
+	virtual void rgsNodeArgsMessageHandler(int32 messageId, const NodeArgsCB& handler);
+	virtual void rgsNodeMessageHandler(int32 messageId, const NodeCB& handler);
 	virtual void startListening(sl::api::IKernel* pKernel);
 
 private:

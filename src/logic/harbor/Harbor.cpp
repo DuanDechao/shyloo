@@ -1,10 +1,36 @@
 #include "Harbor.h"
 #include "slxml_reader.h"
-
+#include "slargs.h"
 
 sl::api::ITcpSession* NodeSessionServer::mallocTcpSession(sl::api::IKernel* pKernel){
 	return CREATE_POOL_OBJECT(NodeSession, m_pHarbor);
 }
+
+class NodeCBMessageHandler : public INodeMessageHandler{
+public:
+	NodeCBMessageHandler(const NodeCB cb) : m_cb(cb){}
+	virtual ~NodeCBMessageHandler() {}
+
+	virtual void DealNodeMessage(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* pContext, const int32 size){
+		m_cb(pKernel, nodeType, nodeId, sl::OBStream(pContext, size));
+	}
+private:
+	NodeCB		m_cb;
+};
+
+
+class NodeArgsCBMessageHandler : public INodeMessageHandler{
+public:
+	NodeArgsCBMessageHandler(const NodeArgsCB cb) : _cb(cb){}
+	virtual ~NodeArgsCBMessageHandler() {}
+
+	virtual void DealNodeMessage(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* pContext, const int32 size){
+		OArgs args(pContext, size);
+		_cb(pKernel, nodeType, nodeId, args);
+	}
+private:
+	NodeArgsCB		_cb;
+};
 
 bool Harbor::initialize(sl::api::IKernel * pKernel){
 	_pKernel = pKernel;
@@ -106,11 +132,11 @@ void Harbor::connect(const char* ip, const int32 port){
 	}
 }
 
-void Harbor::rgsNodeMessageHandler(int32 messageId, const NodeArgsCB& handler){
+void Harbor::rgsNodeArgsMessageHandler(int32 messageId, const NodeArgsCB& handler){
 	_allCBPool[messageId].push_back(NEW NodeArgsCBMessageHandler(handler));
 }
 
-void Harbor::rgsNodeMessageHandler(int32 messageId, node_cb handler){
+void Harbor::rgsNodeMessageHandler(int32 messageId, const NodeCB& handler){
 	_allCBPool[messageId].push_back(NEW NodeCBMessageHandler(handler));
 }
 
@@ -175,6 +201,27 @@ void Harbor::broadcast(int32 messageId, const OArgs& args){
 			node.second->prepareSendNodeMessage(messageId, args.getSize());
 			node.second->send(args.getContext(), args.getSize());
 		}
+	}
+}
+
+void Harbor::prepareBroadcast(int32 nodeType, const int32 messageId, const int32 size){
+	auto itor = _allNode.find(nodeType);
+	if (itor == _allNode.end() || _allNode[nodeType].empty()){
+		return;
+	}
+
+	for (auto node : itor->second){
+		node.second->prepareSendNodeMessage(messageId, size);
+	}
+}
+void Harbor::broadcast(int32 nodeType, const void* context, const int32 size){
+	auto itor = _allNode.find(nodeType);
+	if (itor == _allNode.end() || _allNode[nodeType].empty()){
+		return;
+	}
+
+	for (auto node : itor->second){
+		node.second->send(context, size);
 	}
 }
 

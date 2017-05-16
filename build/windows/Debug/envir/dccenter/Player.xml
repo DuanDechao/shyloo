@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<root parent="Object">
+<root parent="Object" start="300">
 	<prop name="exp" type="int64" visible="true" share="false" save="true" blob="true" />
 	<prop name="gate" type="int32" visible="false" share="false" save="false" blob="false" />
 	<prop name="logic" type="int32" visible="false" share="false" save="false" blob="false" />

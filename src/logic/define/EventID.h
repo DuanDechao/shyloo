@@ -9,6 +9,7 @@ namespace logic_event{
 		EVENT_GATE_LOST = 3,
 		EVENT_PLAYER_DESTROY =4,
 		EVENT_DB_UPDATE_FINISHED = 5,
+		EVENT_DATA_LOAD_COMPLETED = 6,
 	};
 	
 	struct Biology{

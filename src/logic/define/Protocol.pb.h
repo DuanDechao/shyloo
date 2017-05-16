@@ -29,6 +29,10 @@
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include <google/protobuf/generated_enum_reflection.h>
 // @@protoc_insertion_point(includes)
+namespace protocol {
+}  // namespace protocol
+
+namespace protocol {
 
 namespace protobuf_Protocol_2eproto {
 // Internal implementation detail -- do not call these.
@@ -44,6 +48,32 @@ void AddDescriptors();
 void InitDefaults();
 }  // namespace protobuf_Protocol_2eproto
 
+enum AttribType {
+  DTYPE_INVAILED = 0,
+  DTYPE_INT8 = 1,
+  DTYPE_INT16 = 2,
+  DTYPE_INT32 = 3,
+  DTYPE_INT64 = 4,
+  DTYPE_STRING = 5,
+  DTYPE_FLOAT = 6,
+  DTYPE_STRUCT = 7,
+  DTYPE_BLOB = 8
+};
+bool AttribType_IsValid(int value);
+const AttribType AttribType_MIN = DTYPE_INVAILED;
+const AttribType AttribType_MAX = DTYPE_BLOB;
+const int AttribType_ARRAYSIZE = AttribType_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* AttribType_descriptor();
+inline const ::std::string& AttribType_Name(AttribType value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    AttribType_descriptor(), value);
+}
+inline bool AttribType_Parse(
+    const ::std::string& name, AttribType* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<AttribType>(
+    AttribType_descriptor(), name, value);
+}
 enum ErrorCode {
   ERROR_NO_ERROR = 0,
   ERROR_ACCOUNT_AUTHEN_FAILED = 1,
@@ -83,14 +113,21 @@ inline bool ErrorCode_Parse(
 // @@protoc_insertion_point(namespace_scope)
 
 
+}  // namespace protocol
+
 #ifndef SWIG
 namespace google {
 namespace protobuf {
 
-template <> struct is_proto_enum< ::ErrorCode> : ::google::protobuf::internal::true_type {};
+template <> struct is_proto_enum< ::protocol::AttribType> : ::google::protobuf::internal::true_type {};
 template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::ErrorCode>() {
-  return ::ErrorCode_descriptor();
+inline const EnumDescriptor* GetEnumDescriptor< ::protocol::AttribType>() {
+  return ::protocol::AttribType_descriptor();
+}
+template <> struct is_proto_enum< ::protocol::ErrorCode> : ::google::protobuf::internal::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::protocol::ErrorCode>() {
+  return ::protocol::ErrorCode_descriptor();
 }
 
 }  // namespace protobuf

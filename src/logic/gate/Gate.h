@@ -60,6 +60,9 @@ public:
 	void onAccountBindAccountAck(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 	void onAccountKickFromAccount(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 	void onLogicBindPlayerAck(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
+	void onLogicTransforToAgent(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OBStream& args);
+	void onLogicBrocastToAgents(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OBStream& args);
+	void onLogicBrocastToAllAgents(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OBStream& args);
 
 	void rgsAgentMessageHandler(int32 messageId, agent_args_cb handler);
 	void transMsgToLogic(sl::api::IKernel* pKernel, const int64 id, const void* pContext, const int32 size);
@@ -71,9 +74,39 @@ public:
 
 	void test();
 
+	void broadcast(const void* context, const int32 size);
+	void send(int64 actorId, const void* context, const int32 size);
+
 private:
 	void reset(sl::api::IKernel* pKernel, int64 id, int8 state);
 	void sendToClient(sl::api::IKernel* pKernel, const int64 id, const int32 msgId, const OBStream& buf);
+
+	inline Player* findPlayerByActorId(const int64 actorId){
+		auto itor = _actors.find(actorId);
+		if (itor != _actors.end()){
+			SLASSERT(_players.find(itor->second) != _players.end(), "wtf");
+			return &_players[itor->second];
+		}
+		else{
+			return nullptr;
+		}
+	}
+
+	inline Player* findPlayerByAgentId(const int64 agentId){
+		auto itor = _players.find(agentId);
+		if (itor != _players.end())
+			return &(itor->second);
+		else
+			return nullptr;
+	}
+
+	inline void forEach(const function<void(Player& player)>& func){
+		auto itor = _players.begin();
+		auto itorEnd = _players.end();
+		for (; itor != itorEnd; ++itor){
+			func(itor->second);
+		}
+	}
 
 private:
 	sl::api::IKernel* _kernel;

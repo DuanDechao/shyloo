@@ -19,8 +19,8 @@ bool Logic::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_playerMgr, PlayerMgr);
 	FIND_MODULE(_eventEngine, EventEngine);
 
-	RGS_NODE_HANDLER(_harbor, NodeProtocol::GATE_MSG_BIND_PLAYER_REQ, Logic::onGateBindPlayerOnLogic);
-	RGS_NODE_HANDLER(_harbor, NodeProtocol::GATE_MSG_UNBIND_PLAYER_REQ, Logic::onGateUnBindPlayerOnLogic);
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::GATE_MSG_BIND_PLAYER_REQ, Logic::onGateBindPlayerOnLogic);
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::GATE_MSG_UNBIND_PLAYER_REQ, Logic::onGateUnBindPlayerOnLogic);
 
 	return true;
 }
@@ -37,12 +37,12 @@ void Logic::onGateBindPlayerOnLogic(sl::api::IKernel* pKernel, const int32 nodeT
 	});
 
 	if (success){
-		sendGateBindAck(pKernel, nodeId, accountId, actorId, ErrorCode::ERROR_NO_ERROR);
-		sendSceneMgrBindNotify(pKernel, accountId, actorId, ErrorCode::ERROR_NO_ERROR);
+		sendGateBindAck(pKernel, nodeId, accountId, actorId, protocol::ErrorCode::ERROR_NO_ERROR);
+		sendSceneMgrBindNotify(pKernel, accountId, actorId, protocol::ErrorCode::ERROR_NO_ERROR);
 		_gateActors[nodeId].insert(actorId);
 	}
 	else{
-		sendGateBindAck(pKernel, nodeId, accountId, actorId, ErrorCode::ERROR_LOAD_PLAYER_FAILED);
+		sendGateBindAck(pKernel, nodeId, accountId, actorId, protocol::ErrorCode::ERROR_LOAD_PLAYER_FAILED);
 	}
 }
 

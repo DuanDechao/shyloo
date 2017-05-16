@@ -22,6 +22,7 @@ public:
 	virtual const int32 getName() const { return _name; }
 	virtual const int8 getType(IObject* object) const;
 	virtual const int32 getSetting(IObject* object) const;
+	virtual const int32 getIndex(IObject* object) const;
 
 	inline void setLayout(const int32 objTypeId, PropLayout* layout){
 		SLASSERT(objTypeId > 0 && objTypeId <= _size, "out of range");

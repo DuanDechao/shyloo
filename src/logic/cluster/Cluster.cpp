@@ -10,7 +10,7 @@ bool Cluster::initialize(sl::api::IKernel * pKernel){
 bool Cluster::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
 	if (_harbor->getNodeType() != NodeType::MASTER){
-		RGS_NODE_HANDLER(_harbor, NodeProtocol::MASTER_MSG_NEW_NODE, Cluster::newNodeComing);
+		RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::MASTER_MSG_NEW_NODE, Cluster::newNodeComing);
 
 		sl::XmlReader server_conf;
 		if (!server_conf.loadXml(pKernel->getCoreFile())){

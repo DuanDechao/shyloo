@@ -8,6 +8,33 @@
 #include "IRoleMgr.h"
 #include "ProtocolID.pb.h"
 #include "Protocol.pb.h"
+#include <unordered_set>
+
+class DelaySendTimer : public sl::api::ITimer{
+public:
+	DelaySendTimer(const void* context, const int32 size) { _data.assign((const char*)context, size); }
+	virtual ~DelaySendTimer(){}
+	
+	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){}
+	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick){
+		if (_actors.empty())
+			Gate::getInstance()->broadcast(_data.data(), (int32)_data.size());
+		else{
+			for (auto actorId : _actors){
+				Gate::getInstance()->send(actorId, _data.data(), (int32)_data.size());
+			}
+		}
+
+	}
+	virtual void onTerminate(sl::api::IKernel* pKernel, int64 timetick){ DEL this; }
+	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick){}
+	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick){}
+
+	void addActor(const int64 id){ _actors.insert(id); }
+private:
+	std::string	_data;
+	std::unordered_set<int64> _actors;
+};
 
 bool Gate::initialize(sl::api::IKernel * pKernel){
 	_self = this;
@@ -25,10 +52,14 @@ bool Gate::launched(sl::api::IKernel * pKernel){
 
 	_maxRoleNum = 4;
 
-	RGS_NODE_HANDLER(_harbor, NodeProtocol::SCENEMGR_MSG_DISTRIBUTE_LOGIC_ACK, Gate::onSceneMgrDistributeLogic);
-	RGS_NODE_HANDLER(_harbor, NodeProtocol::ACCOUNT_MSG_BIND_ACCOUNT_ACK, Gate::onAccountBindAccountAck);
-	RGS_NODE_HANDLER(_harbor, NodeProtocol::ACCOUNT_MSG_KICK_FROM_ACCOUNT, Gate::onAccountKickFromAccount);
-	RGS_NODE_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_BIND_PLAYER_ACK, Gate::onLogicBindPlayerAck);
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENEMGR_MSG_DISTRIBUTE_LOGIC_ACK, Gate::onSceneMgrDistributeLogic);
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::ACCOUNT_MSG_BIND_ACCOUNT_ACK, Gate::onAccountBindAccountAck);
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::ACCOUNT_MSG_KICK_FROM_ACCOUNT, Gate::onAccountKickFromAccount);
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_BIND_PLAYER_ACK, Gate::onLogicBindPlayerAck);
+	RGS_NODE_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_TRANSFOR, Gate::onLogicTransforToAgent);
+	RGS_NODE_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_BROCAST, Gate::onLogicBrocastToAgents);
+	RGS_NODE_HANDLER(_harbor, NodeProtocol::GATE_MSG_BROCAST, Gate::onLogicBrocastToAgents);
+	RGS_NODE_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_ALLSVR_BROCAST, Gate::onLogicBrocastToAllAgents);
 
 	_self->rgsAgentMessageHandler(ClientMsgID::CLIENT_MSG_LOGIN_REQ, &Gate::onClientLoginReq);
 	_self->rgsAgentMessageHandler(ClientMsgID::CLIENT_MSG_SELECT_ROLE_REQ, &Gate::onClientSelectRoleReq);
@@ -140,6 +171,24 @@ void Gate::reset(sl::api::IKernel* pKernel, int64 id, int8 state){
 	player.state = state;
 }
 
+void Gate::broadcast(const void* context, const int32 size){
+	auto itor = _players.begin();
+	for (; itor != _players.end(); ++itor){
+		if (itor->second.state == GATE_STATE_ONLINE)
+			_agent->send(itor->second.agentId, context, size);
+	}
+}
+
+void Gate::send(int64 actorId, const void* context, const int32 size){
+	auto itor = _actors.find(actorId);
+	if (itor != _actors.end()){
+		SLASSERT(_players.find(itor->second) != _players.end(), "wtf");
+		Player& player = _players[itor->second];
+		if (player.state == GATE_STATE_ONLINE)
+			_agent->send(player.agentId, context, size);
+	}
+}
+
 void Gate::sendToClient(sl::api::IKernel* pKernel, const int64 id, const int32 msgId, const OBStream& buf){
 	int32 header[2];
 	header[0] = msgId;
@@ -175,7 +224,7 @@ void Gate::onSceneMgrDistributeLogic(sl::api::IKernel* pKernel, const int32 node
 			reset(pKernel, agentId, GATE_STATE_ROLELOADED);
 
 			IBStream<128> buf;
-			buf << (int32)ErrorCode::ERROR_DISTRIBUTE_LOGIC_FAILED;
+			buf << (int32)protocol::ErrorCode::ERROR_DISTRIBUTE_LOGIC_FAILED;
 			sendToClient(pKernel, agentId, ServerMsgID::SERVER_MSG_SELECT_ROLE_RSP, buf.out());
 		}
 	}
@@ -192,14 +241,14 @@ void Gate::onAccountBindAccountAck(sl::api::IKernel* pKernel, const int32 nodeTy
 		if (player.accountId != accountId)
 			return;
 
-		if (errorCode == ErrorCode::ERROR_NO_ERROR){
+		if (errorCode == protocol::ErrorCode::ERROR_NO_ERROR){
 			bool ret = _roleMgr->getRoleList(accountId, [&player](sl::api::IKernel* pKernel, const int64 actorId, IRole* role){
 				player.roles.push_back({ actorId, role });
 			});
 
 			if (ret){
 				IBStream<4096> buf;
-				buf << (int32)ErrorCode::ERROR_NO_ERROR << (int32)player.roles.size();
+				buf << (int32)protocol::ErrorCode::ERROR_NO_ERROR << (int32)player.roles.size();
 				for (const auto& role : player.roles){
 					buf << role.actorId;
 				}
@@ -211,7 +260,7 @@ void Gate::onAccountBindAccountAck(sl::api::IKernel* pKernel, const int32 nodeTy
 				reset(pKernel, agentId, GATE_STATE_NONE);
 				
 				IBStream<128> buf;
-				buf << (int32)ErrorCode::ERROR_GET_ROLE_LIST_FAILED;
+				buf << (int32)protocol::ErrorCode::ERROR_GET_ROLE_LIST_FAILED;
 				sendToClient(pKernel, player.agentId, ServerMsgID::SERVER_MSG_LOGIN_RSP, buf.out());
 			}
 		}
@@ -243,7 +292,7 @@ void Gate::onLogicBindPlayerAck(sl::api::IKernel* pKernel, const int32 nodeType,
 		Player& player = _players[_actors[actorId]];
 		SLASSERT(player.state == GATE_STATE_BINDING && actorId == player.selectActorId, "wtf");
 
-		if (errCode == ErrorCode::ERROR_NO_ERROR){
+		if (errCode == protocol::ErrorCode::ERROR_NO_ERROR){
 			player.state = GATE_STATE_ONLINE;
 			player.lastActorId = actorId;
 
@@ -258,6 +307,98 @@ void Gate::onLogicBindPlayerAck(sl::api::IKernel* pKernel, const int32 nodeType,
 			buf << errCode;
 			sendToClient(pKernel, player.agentId, ServerMsgID::SERVER_MSG_SELECT_ROLE_RSP, buf.out());
 		}
+	}
+}
+
+void Gate::onLogicTransforToAgent(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OBStream& args){
+	const void* context = args.getContext();
+	const int32 size = args.getSize();
+	SLASSERT(size > sizeof(client::Transfor) + sizeof(client::Header), "size is not invailed");
+	client::Transfor* info = (client::Transfor*)context;
+	int32 delay = info->delay * 100;
+
+	Player* player = findPlayerByActorId(info->actorId);
+	if (player != nullptr && player->state == GATE_STATE_ONLINE){
+		const int32 messageId = ((client::Header*)((const char*)context + sizeof(client::Transfor)))->messageId;
+		if (delay > 0){
+			DelaySendTimer* timer = NEW DelaySendTimer((const char*)context + sizeof(client::Transfor), size - sizeof(client::Transfor));
+			timer->addActor(info->actorId);
+			START_TIMER(timer, 0, 1, delay);
+		}
+		else{
+			//send(info->actorId, context, size);
+			_agent->send(player->agentId, (const char*)context + sizeof(client::Transfor), size - sizeof(client::Transfor));
+		}
+	}
+	else{
+		ECHO_ERROR("send packet to client, but player[actorid:%lld] is invaild ", info->actorId);
+	}
+}
+
+void Gate::onLogicBrocastToAgents(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OBStream& args){
+	const void* context = args.getContext();
+	const int32 size = args.getSize();
+	SLASSERT(size > sizeof(client::Header), "size is invaild");
+	client::Header* header = (client::Header*)context;
+	const int32 messageId = header->messageId;
+	const int32 packetSize = header->size;
+
+	int32 remainSize = size - packetSize;
+	const char* buff = (const char*)context + packetSize;
+	while (remainSize > sizeof(client::Brocast)){
+		client::Brocast* info = (client::Brocast*)buff;
+		int32 delay = info->delay * 100;
+		int32 gate = info->gate;
+		int32 count = info->count;
+		int32 needSize = sizeof(client::Brocast) + sizeof(int64)* count;
+		SLASSERT(needSize >= needSize, "invalid message packet");
+
+		if (count > 0){
+			if (gate == _harbor->getNodeId()){
+				int64* actors = (int64*)(buff + sizeof(client::Brocast));
+				if (delay > 0){
+					DelaySendTimer* timer = NEW DelaySendTimer(context, packetSize);
+					for (int32 i = 0; i < count; i++){
+						timer->addActor(actors[i]);
+					}
+					START_TIMER(timer, 0, 1, delay);
+				}
+				else{
+					for (int32 i = 0; i < count; i++){
+						Player* player = findPlayerByActorId(actors[i]);
+						if (nullptr != player && player->state == GATE_STATE_ONLINE){
+							_agent->send(player->agentId, context, packetSize);
+						}
+					}
+				}
+			}
+			else{
+				_harbor->prepareSend(NodeType::GATE, gate, NodeProtocol::GATE_MSG_BROCAST, packetSize + needSize);
+				_harbor->send(NodeType::GATE, gate, context, packetSize);
+				_harbor->send(NodeType::GATE, gate, buff, needSize);
+			}
+		}
+
+		buff += needSize;
+		remainSize -= needSize;
+	}
+}
+
+void Gate::onLogicBrocastToAllAgents(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OBStream& args){
+	const void* context = args.getContext();
+	const int32 size = args.getSize();
+	SLASSERT(size > sizeof(int8) + sizeof(client::Header), "size is invaild");
+	int32 delay = (*(int8*)context) * 100;
+	if (delay > 0){
+		DelaySendTimer* timer = NEW DelaySendTimer((const char*)context + sizeof(int8), size - sizeof(int8));
+		START_TIMER(timer, 0, 1, delay);
+	}
+	else{
+		forEach([&](Player& player){
+			if (player.state == GATE_STATE_ONLINE){
+				_agent->send(player.agentId, (const char*)context + sizeof(int8), size - sizeof(int8));
+			}
+		});
 	}
 }
 
@@ -330,7 +471,7 @@ void Gate::onClientCreateRoleReq(sl::api::IKernel* pKernel, const int64 id, cons
 	if (player.state == GATE_STATE_ROLELOADED){
 		if (player.roles.size() >= _maxRoleNum){
 			IBStream<128> buf;
-			buf << ErrorCode::ERROR_TOO_MUCH_ROLE;
+			buf << protocol::ErrorCode::ERROR_TOO_MUCH_ROLE;
 			sendToClient(pKernel, id, ServerMsgID::SERVER_MSG_CREATE_ROLE_RSP, buf.out());
 			return;
 		}
@@ -341,13 +482,13 @@ void Gate::onClientCreateRoleReq(sl::api::IKernel* pKernel, const int64 id, cons
 			player.roles.push_back({ actorId, role });
 
 			sl::IBStream<128> rsp;
-			rsp << ErrorCode::ERROR_NO_ERROR;
+			rsp << protocol::ErrorCode::ERROR_NO_ERROR;
 			role->pack();
 			sendToClient(pKernel, id, ServerMsgID::SERVER_MSG_CREATE_ROLE_RSP, rsp.out());
 		}
 		else{
 			IBStream<128> buf;
-			buf << ErrorCode::ERROR_CREATE_ROLE_FAILED;
+			buf << protocol::ErrorCode::ERROR_CREATE_ROLE_FAILED;
 			sendToClient(pKernel, id, ServerMsgID::SERVER_MSG_CREATE_ROLE_RSP, buf.out());
 			return;
 		}

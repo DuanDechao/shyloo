@@ -100,8 +100,8 @@ void Robot::sendToSvr(sl::api::IKernel* pKernel, const int64 id, const int32 msg
 }
 
 void Robot::onServerLoginAck(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
-	int32 errCode = ErrorCode::ERROR_NO_ERROR;
-	if (!args.read(errCode) || errCode != ErrorCode::ERROR_NO_ERROR){
+	int32 errCode = protocol::ErrorCode::ERROR_NO_ERROR;
+	if (!args.read(errCode) || errCode != protocol::ErrorCode::ERROR_NO_ERROR){
 		SLASSERT(false, "login ack failed");
 		return;
 	}

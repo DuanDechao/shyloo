@@ -16,7 +16,7 @@ public:
 	virtual const char* getObjTypeString() const { return _name.c_str(); }
 	inline const ObjectPropInfo* getObjectPropInfo() const { return _poPropInfo; }
 	
-	virtual const uint64 getID() const { return _objectId; }
+	virtual const int64 getID() const { return (int64)_objectId; }
 	void setID(uint64 id){ _objectId = id; }
 
 	virtual const std::vector<const IProp*>& getObjProps(bool noParent) const;

@@ -27,6 +27,7 @@ public:
 	virtual const int32 getName() const = 0;
 	virtual const int8 getType(IObject* object) const = 0;
 	virtual const int32 getSetting(IObject* object) const = 0;
+	virtual const int32 getIndex(IObject* object) const = 0;
 };
 
 class IRow{
@@ -87,7 +88,7 @@ typedef std::function<void(sl::api::IKernel *, IObject *, const char *, const IP
 class IObject{
 public:
 
-	virtual const uint64 getID() const = 0;
+	virtual const int64 getID() const = 0;
 
 	virtual bool setPropInt8(const IProp* prop, const int8 data, const bool sync = true) = 0;
 	virtual bool setPropInt16(const IProp* prop, const int16 data, const bool sync = true) = 0;

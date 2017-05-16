@@ -14,9 +14,9 @@ bool Distribution::launched(sl::api::IKernel * pKernel){
 	if (_harbor->getNodeType() == NodeType::SCENEMGR){
 		FIND_MODULE(_capacity, CapacitySubscriber);
 
-		RGS_NODE_HANDLER(_harbor, NodeProtocol::GATE_MSG_DISTRIBUTE_LOGIC_REQ, Distribution::onGateDistributeLogic);
-		RGS_NODE_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_NOTIFY_ADD_PLAYER, Distribution::onLogicAddPlayer);
-		RGS_NODE_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_NOTIFY_REMOVE_PLAYER, Distribution::onLogicRemovePlayer);
+		RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::GATE_MSG_DISTRIBUTE_LOGIC_REQ, Distribution::onGateDistributeLogic);
+		RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_NOTIFY_ADD_PLAYER, Distribution::onLogicAddPlayer);
+		RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_NOTIFY_REMOVE_PLAYER, Distribution::onLogicRemovePlayer);
 	}
 	return true;
 }

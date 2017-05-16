@@ -10,8 +10,40 @@
 // Option: missing-value detection (*Specified/ShouldSerialize*/Reset*) enabled
     
 // Generated from: Protocol.proto
-namespace Protocol
+namespace protocol
 {
+    [global::ProtoBuf.ProtoContract(Name=@"AttribType")]
+    public enum AttribType
+    {
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DTYPE_INVAILED", Value=0)]
+      DTYPE_INVAILED = 0,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DTYPE_INT8", Value=1)]
+      DTYPE_INT8 = 1,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DTYPE_INT16", Value=2)]
+      DTYPE_INT16 = 2,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DTYPE_INT32", Value=3)]
+      DTYPE_INT32 = 3,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DTYPE_INT64", Value=4)]
+      DTYPE_INT64 = 4,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DTYPE_STRING", Value=5)]
+      DTYPE_STRING = 5,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DTYPE_FLOAT", Value=6)]
+      DTYPE_FLOAT = 6,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DTYPE_STRUCT", Value=7)]
+      DTYPE_STRUCT = 7,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DTYPE_BLOB", Value=8)]
+      DTYPE_BLOB = 8
+    }
+  
     [global::ProtoBuf.ProtoContract(Name=@"ErrorCode")]
     public enum ErrorCode
     {

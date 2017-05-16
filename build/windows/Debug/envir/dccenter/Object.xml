@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<root>
+<root start="1">
 	<prop name="id" type="int64" visible="true" share="false" save="true" blob="true" />
 	<prop name="status" type="int64" visible="true" share="false" save="true" blob="true" />
 	<prop name="ai" type="string" size="64" visible="false" share="false" save="false" blob="false" />
@@ -18,5 +18,13 @@
 		<column name="PARAM3" type="int64" key="false"/>
 		<column name="PARAM4" type="int64" key="false"/>
 		<column name="PARAM5" type="int64" key="false"/>
+	</table>
+	
+	<table name="PROP_SELF_TABLE">
+		<column name="PROP" type="int64" key="true"/>
+	</table>
+	
+	<table name="PROP_SHARED_TABLE">
+		<column name="PROP" type="int64" key="true"/>
 	</table>
 </root>

@@ -1,3 +1,16 @@
+package protocol;
+enum AttribType{
+	DTYPE_INVAILED = 0;
+	DTYPE_INT8 = 1;
+	DTYPE_INT16 = 2;
+	DTYPE_INT32 = 3;
+	DTYPE_INT64 = 4;
+	DTYPE_STRING = 5;
+	DTYPE_FLOAT = 6;
+	DTYPE_STRUCT = 7;
+	DTYPE_BLOB = 8;
+};
+
 enum ErrorCode{
 	ERROR_NO_ERROR = 0;
 	ERROR_ACCOUNT_AUTHEN_FAILED = 1;

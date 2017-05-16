@@ -30,7 +30,11 @@ ObjectPropInfo::~ObjectPropInfo(){
 }
 
 bool ObjectPropInfo::loadFrom(const sl::ISLXmlNode& root, PROP_DEFDINE_MAP& defines){
-	if (!loadProps(root["prop"], defines))
+	int32 startIndex = 0;
+	if (root.hasAttribute("start"))
+		startIndex = root.getAttributeInt32("start");
+
+	if (!loadProps(root["prop"], defines, startIndex))
 		return false;
 
 	if (root.subNodeExist("temp")){
@@ -43,7 +47,7 @@ bool ObjectPropInfo::loadFrom(const sl::ISLXmlNode& root, PROP_DEFDINE_MAP& defi
 	return true;
 }
 
-bool ObjectPropInfo::loadProps(const sl::ISLXmlNode& props, PROP_DEFDINE_MAP& defines){
+bool ObjectPropInfo::loadProps(const sl::ISLXmlNode& props, PROP_DEFDINE_MAP& defines, int32 startIndex){
 	for (int32 i = 0; i < props.count(); i++){
 		PropLayout* layout = NEW PropLayout();
 		if (!loadPropConfig(props[i], *layout)){
@@ -53,6 +57,8 @@ bool ObjectPropInfo::loadProps(const sl::ISLXmlNode& props, PROP_DEFDINE_MAP& de
 		_size += layout->_size;
 		layout->_setting = 0;
 		layout->_isTemp = false;
+		layout->_index = startIndex++;
+
 		for (auto& def : defines){
 			if (props[i].hasAttribute(def.first.c_str()) && props[i].getAttributeBoolean(def.first.c_str())){
 				layout->_setting |= def.second;

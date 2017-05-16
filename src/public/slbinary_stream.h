@@ -90,7 +90,7 @@ public:
 		return *this;
 	}
 
-	OBStream out(){
+	inline OBStream out(){
 		return OBStream(_buffer, _offset);
 	}
 

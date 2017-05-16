@@ -37,7 +37,10 @@ namespace ProtocolID
       SERVER_MSG_SELECT_ROLE_RSP = 100001,
             
       [global::ProtoBuf.ProtoEnum(Name=@"SERVER_MSG_CREATE_ROLE_RSP", Value=100002)]
-      SERVER_MSG_CREATE_ROLE_RSP = 100002
+      SERVER_MSG_CREATE_ROLE_RSP = 100002,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SERVER_MSG_ATTRIB_SYNC", Value=100003)]
+      SERVER_MSG_ATTRIB_SYNC = 100003
     }
   
 }

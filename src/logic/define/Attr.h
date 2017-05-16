@@ -64,6 +64,24 @@ namespace OCTableMacro {
 		};
 	}
 
+	namespace PROP_SELF_TABLE {
+		static int32 TABLE_NAME = 2026016795;
+		enum {
+			OCTM_START = 0,
+			PROP = OCTM_START,
+			OCTM_END,
+		};
+	}
+
+	namespace PROP_SHARED_TABLE {
+		static int32 TABLE_NAME = -1172264420;
+		enum {
+			OCTM_START = 0,
+			PROP = OCTM_START,
+			OCTM_END,
+		};
+	}
+
 };
 
 #endif

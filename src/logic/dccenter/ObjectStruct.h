@@ -10,6 +10,7 @@ struct PropLayout : public MemLayout{
 	bool    _isTemp;
 	int8	_type;
 	int32	_setting;
+	int32   _index;
 	sl::SLString<MAX_PROP_NAME_LEN> _name;
 };
 
@@ -38,7 +39,7 @@ public:
 	}
 
 private:
-	bool loadProps(const sl::ISLXmlNode& prop, PROP_DEFDINE_MAP& defines);
+	bool loadProps(const sl::ISLXmlNode& prop, PROP_DEFDINE_MAP& defines, int32 startIndex);
 	bool loadTemps(const sl::ISLXmlNode& temp);
 	bool loadTables(const sl::ISLXmlNode& table);
 	bool loadPropConfig(const sl::ISLXmlNode& prop, PropLayout& layout);

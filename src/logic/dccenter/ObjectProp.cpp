@@ -13,3 +13,10 @@ const int32 ObjectProp::getSetting(IObject* object) const {
 
 	return _layouts[objTypeId]->_setting;
 }
+
+const int32 ObjectProp::getIndex(IObject* object) const{
+	int32 objTypeId = ((MMObject*)object)->getObjectPropInfo()->getObjTypeId();
+	SLASSERT(objTypeId > 0 && objTypeId <= _size && _layouts[objTypeId], "wtf");
+
+	return _layouts[objTypeId]->_index;
+}

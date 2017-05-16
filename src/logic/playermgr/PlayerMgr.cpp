@@ -103,6 +103,12 @@ void PlayerMgr::onProcessPlayerOnline(sl::api::IKernel* pKernel, IObject* object
 }
 
 void PlayerMgr::allDataLoadComplete(sl::api::IKernel* pKernel, IObject* object){
+
+	//TODO 向客户端首次同步属性
+
+	logic_event::Biology info{ object };
+	_eventEngine->execEvent(logic_event::EVENT_DATA_LOAD_COMPLETED, &info, sizeof(info));
+
 	RGS_PROP_CHANGER(object, ANY_CALL, PlayerMgr::propSync);
 }
 

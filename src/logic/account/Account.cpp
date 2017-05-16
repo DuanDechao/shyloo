@@ -11,8 +11,8 @@ bool Account::initialize(sl::api::IKernel * pKernel){
 
 bool Account::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
-	RGS_NODE_HANDLER(_harbor, NodeProtocol::GATE_MSG_BIND_ACCOUNT_REQ, Account::onGateBindAccount);
-	RGS_NODE_HANDLER(_harbor, NodeProtocol::GATE_MSG_UNBIND_ACCOUNT_REQ, Account::onGateUnBindAccount);
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::GATE_MSG_BIND_ACCOUNT_REQ, Account::onGateBindAccount);
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::GATE_MSG_UNBIND_ACCOUNT_REQ, Account::onGateUnBindAccount);
 	return true;
 }
 bool Account::destory(sl::api::IKernel * pKernel){
@@ -55,7 +55,7 @@ void Account::onGateBindAccount(sl::api::IKernel* pKernel, const int32 nodeType,
 		break;
 	case ACCOUNT_STATE_SWITCH:{
 			IArgs<3, 128> args;
-			args << account.switchAgentId << accountId << (int32)ErrorCode::ERROR_ACCOUNT_AUTHEN_FAILED;
+			args << account.switchAgentId << accountId << (int32)protocol::ErrorCode::ERROR_ACCOUNT_AUTHEN_FAILED;
 			args.fix();
 			_harbor->send(NodeType::GATE, account.switchGateId, NodeProtocol::ACCOUNT_MSG_BIND_ACCOUNT_ACK, args.out());
 
@@ -115,7 +115,7 @@ void Account::onGateUnBindAccount(sl::api::IKernel* pKernel, const int32 nodeTyp
 
 void Account::bindAccountSuccess(sl::api::IKernel* pKernel, const AccountInfo& account){
 	IArgs<4, 1024> args;
-	args << account.agentId << account.accountId << (int32)ErrorCode::ERROR_NO_ERROR;
+	args << account.agentId << account.accountId << (int32)protocol::ErrorCode::ERROR_NO_ERROR;
 	args.fix();
 	_harbor->send(NodeType::GATE, account.gateId, NodeProtocol::ACCOUNT_MSG_BIND_ACCOUNT_ACK, args.out());
 }

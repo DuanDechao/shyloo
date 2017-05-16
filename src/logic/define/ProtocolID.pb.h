@@ -67,11 +67,12 @@ inline bool ClientMsgID_Parse(
 enum ServerMsgID {
   SERVER_MSG_LOGIN_RSP = 100000,
   SERVER_MSG_SELECT_ROLE_RSP = 100001,
-  SERVER_MSG_CREATE_ROLE_RSP = 100002
+  SERVER_MSG_CREATE_ROLE_RSP = 100002,
+  SERVER_MSG_ATTRIB_SYNC = 100003
 };
 bool ServerMsgID_IsValid(int value);
 const ServerMsgID ServerMsgID_MIN = SERVER_MSG_LOGIN_RSP;
-const ServerMsgID ServerMsgID_MAX = SERVER_MSG_CREATE_ROLE_RSP;
+const ServerMsgID ServerMsgID_MAX = SERVER_MSG_ATTRIB_SYNC;
 const int ServerMsgID_ARRAYSIZE = ServerMsgID_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* ServerMsgID_descriptor();

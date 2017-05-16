@@ -37,7 +37,7 @@ bool DBCreator::launched(sl::api::IKernel * pKernel){
 		updateDBTables();
 	}
 	else{
-		RGS_NODE_HANDLER(s_harbor, NodeProtocol::DB_MSG_UPDATE_DATABASE_FINISHED, DBCreator::onDatabaseUpdateFinished);
+		RGS_NODE_ARGS_HANDLER(s_harbor, NodeProtocol::DB_MSG_UPDATE_DATABASE_FINISHED, DBCreator::onDatabaseUpdateFinished);
 	}
 	
 	return true;

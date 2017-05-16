@@ -12,7 +12,7 @@ bool CapacitySubscriber::initialize(sl::api::IKernel * pKernel){
 bool CapacitySubscriber::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
 
-	RGS_NODE_HANDLER(_harbor, NodeProtocol::NODE_CAPACITY_LOAD_REPORT, CapacitySubscriber::nodeLoadReport);
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::NODE_CAPACITY_LOAD_REPORT, CapacitySubscriber::nodeLoadReport);
 	
 	return true;
 }
