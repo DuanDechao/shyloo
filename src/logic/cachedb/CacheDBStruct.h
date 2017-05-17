@@ -56,6 +56,8 @@ public:
 	virtual void writeInt64(const char* col, int64 val) { _args << col << val; ++_count; checkIndex(col); }
 	virtual void writeFloat(const char* col, float val) { _args << col << val; ++_count; checkIndex(col); }
 	virtual void writeString(const char* col, const char* val) { _args << col << val; ++_count; checkIndex(col); }
+	virtual void writeStruct(const char* col, const void* val, const int32 size) { _args << col; _args.addStruct(val, size); ++_count; checkIndex(col); }
+	virtual void writeBlob(const char* col, const void* val, const int32 size)  { _args << col;  _args.addStruct(val, size); ++_count; checkIndex(col); }
 
 	inline void checkIndex(const char* col){
 		//if (_desc.)

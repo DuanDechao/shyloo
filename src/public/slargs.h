@@ -12,6 +12,7 @@ enum {
 	ARGS_TYPE_INT64,
 	ARGS_TYPE_FLOAT,
 	ARGS_TYPE_STRING,
+	ARGS_TYPE_STRUCT,
 };
 #pragma pack(push, 1)
 struct arg_info{
@@ -96,6 +97,13 @@ public:
 		return _data + info.offset;
 	}
 
+	const void* getStruct(const int32 index, int32& size) const{
+		const arg_info& info = getArgs(index);
+		SLASSERT(info.type == ARGS_TYPE_STRUCT && info.offset + sizeof(int32) <= _dataSize, "out of range");
+		size = *(int32*)(_data + info.offset);
+		return _data + info.offset + sizeof(int32);
+	}
+
 private:
 	const arg_info& getArgs(const int32 index) const{
 		SLASSERT(index < *_count, "out of range");
@@ -162,6 +170,41 @@ public:
 		SafeSprintf(_header.data + _header.dataOffset, size, "%s", string);
 		_header.argsCount++;
 		_header.dataOffset += size;
+		return *this;
+	}
+
+	IArgs& addStruct(const void* context, const int32 size){
+		if (_bFixed || _header.argsCount >= maxCount || _header.dataOffset + size + sizeof(int32) > maxSize){
+			SLASSERT(false, "can not contain more args");
+			return *this;
+		}
+		arg_info& info = _header.argsInfo[maxCount - 1 - _header.argsCount];
+		info.type = ARGS_TYPE_STRUCT;
+		info.offset = _header.dataOffset;
+
+		sl::SafeMemcpy(_header.data + _header.dataOffset, maxSize - _header.dataOffset, &size, sizeof(int32));
+		_header.dataOffset += sizeof(int32);
+		sl::SafeMemcpy(_header.data + _header.dataOffset, maxSize - _header.dataOffset, context, size);
+		_header.dataOffset += size;
+		_header.argsCount++;
+
+		return *this;
+	}
+
+	IArgs& operator <<(const OArgs& args){
+		for (int32 i = 0; i < args.getCount(); i++){
+			switch (args.getType(i)){
+			case ARGS_TYPE_INT8: *this << args.getInt8(i); break;
+			case ARGS_TYPE_INT16: *this << args.getInt16(i); break;
+			case ARGS_TYPE_INT32: *this << args.getInt32(i); break;
+			case ARGS_TYPE_INT64: *this << args.getInt64(i); break;
+			case ARGS_TYPE_FLOAT: *this << args.getFloat(i); break;
+			case ARGS_TYPE_STRING: *this << args.getString(i); break;
+			case ARGS_TYPE_BOOL: *this << args.getBool(i); break;
+			case ARGS_TYPE_STRUCT: int32 size = 0; (*this).addStruct(args.getStruct(i, size), size); break;
+			default: SLASSERT(false, "unknown type");  break;
+			}
+		}
 		return *this;
 	}
 

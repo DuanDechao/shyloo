@@ -3,6 +3,7 @@
 #include "ICacheDB.h"
 #include "Role.h"
 #include "IDCCenter.h"
+#include "slbinary_map.h"
 
 bool RoleMgr::initialize(sl::api::IKernel * pKernel){
 	_self = this;
@@ -82,6 +83,7 @@ bool RoleMgr::loadRole(const int64 actorId, IObject* object){
 		reader->readColumn("name");
 		reader->readColumn("occupation");
 		reader->readColumn("sex");
+		reader->readColumn("props");
 	}, [&object](sl::api::IKernel* pKernel, ICacheDBReadResult* result){
 		int32 count = result->count();
 		if (count != 1){
@@ -96,6 +98,33 @@ bool RoleMgr::loadRole(const int64 actorId, IObject* object){
 			object->setPropString(attr_def::name, name);
 			object->setPropInt8(attr_def::occupation, occupation);
 			object->setPropInt8(attr_def::sex, sex);
+
+			int32 size = 0;
+			const void* propsData = result->getBinary(0, 4, size);
+			if (propsData){
+				sl::OBMap args(propsData, size);
+				for (const IProp* prop : object->getObjProps()){
+					int32 setting = prop->getSetting(object);
+					if ((setting & prop_def::save) && (setting & prop_def::blob)){
+						switch (prop->getType(object)){
+						case DTYPE_INT8: object->setPropInt8(prop, args.getInt8(prop->getName())); break;
+						case DTYPE_INT16: object->setPropInt16(prop, args.getInt16(prop->getName())); break;
+						case DTYPE_INT32: object->setPropInt32(prop, args.getInt32(prop->getName())); break;
+						case DTYPE_INT64: object->setPropInt64(prop, args.getInt64(prop->getName())); break;
+						case DTYPE_FLOAT: object->setPropFloat(prop, args.getFloat(prop->getName())); break;
+						case DTYPE_STRING: object->setPropString(prop, args.getString(prop->getName())); break;
+						case DTYPE_BLOB: {
+								int32 size = 0;
+								const void* p = args.getBlob(prop->getName(), size);
+								if (p)
+									object->setPropBlob(prop, p, size);
+
+							} 
+							break;
+						}
+					}
+				}
+			}
 		}
 	}, 1, actorId);
 	return true;

@@ -10,6 +10,7 @@
 #include "ICacheDB.h"
 #include "OCTimer.h"
 #include "slxml_reader.h"
+#include "slbinary_map.h"
 
 class RemoveObjectTimer : public sl::api::ITimer{
 public:
@@ -145,6 +146,30 @@ bool PlayerMgr::savePlayer(sl::api::IKernel* pKernel, IObject* player){
 		context->writeString("name", player->getPropString(attr_def::name));
 		context->writeInt8("occupation", player->getPropInt8(attr_def::occupation));
 		context->writeInt8("sex", player->getPropInt8(attr_def::sex));
+
+		sl::IBMap<4096, 4096> props;
+		for (const IProp* prop : player->getObjProps()){
+			int32 setting = prop->getSetting(player);
+			if ((setting & prop_def::save) && (setting & prop_def::blob)){
+				switch (prop->getType(player)){
+				case DTYPE_INT8: props.writeInt8(prop->getName(), player->getPropInt8(prop)); break;
+				case DTYPE_INT16: props.writeInt16(prop->getName(), player->getPropInt16(prop)); break;
+				case DTYPE_INT32: props.writeInt32(prop->getName(), player->getPropInt32(prop)); break;
+				case DTYPE_INT64: props.writeInt64(prop->getName(), player->getPropInt64(prop)); break;
+				case DTYPE_FLOAT: props.writeFloat(prop->getName(), player->getPropFloat(prop)); break;
+				case DTYPE_STRING: props.writeString(prop->getName(), player->getPropString(prop)); break;
+				case DTYPE_BLOB:{
+						int32 size = 0;
+						const void* p = player->getPropBlob(prop, size);
+						if (size > 0)
+							props.writeBlob(prop->getName(), p, size);
+					}
+					break;
+				}
+			}
+		}
+		props.fix();
+		context->writeBlob("props", props.getContext(), props.getSize());
 	}, player->getPropInt64(attr_def::account));
 
 	return ret;

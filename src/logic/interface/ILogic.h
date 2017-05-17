@@ -26,7 +26,12 @@ class ILogic : public sl::api::IModule{
 public:
 	virtual ~ILogic() {}
 
-	virtual void rgsProtocolHandler(int32 messageId, const HandleFunctionType& f, const char* debug) = 0;
+	void rgsProtocolHandler(int32 messageId, const HandleFunctionType& f, const char* debug){
+		rgsProtocolHandler(messageId, NEW BProtocolHandler(f), debug);
+	}
+
+protected:
+	virtual void rgsProtocolHandler(int32 messageId, IProtocolHandler* handler, const char* debug) = 0;
 };
 
 #define RGS_PROTO_HANDLER(logic, messageId, cb) logic->rgsProtocolHandler(messageId, std::bind(&cb, this, std::placeholders::_1, std::placeholders::_2,  std::placeholders::_3), #cb)

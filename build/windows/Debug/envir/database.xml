@@ -13,6 +13,7 @@
 		<field name="name" type="string" size="32" notNull="true" />
 		<field name="occupation" type="int8" default="0" />
 		<field name="sex" type="int8" default="0" />
+		<field name="props" type="blob" notNull="true" />
 		<index type="primary" fields="id" />
 		<index type="normal" func="btree" fields="account" />
 		<partition type="hash" field="id" default="4" />

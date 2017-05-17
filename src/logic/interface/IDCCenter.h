@@ -90,12 +90,16 @@ public:
 
 	virtual const int64 getID() const = 0;
 
+	virtual const std::vector<const IProp*>& getObjProps(bool noParent = false) const = 0;
+
 	virtual bool setPropInt8(const IProp* prop, const int8 data, const bool sync = true) = 0;
 	virtual bool setPropInt16(const IProp* prop, const int16 data, const bool sync = true) = 0;
 	virtual bool setPropInt32(const IProp* prop, const int32 data, const bool sync = true) = 0;
 	virtual bool setPropInt64(const IProp* prop, const int64 data, const bool sync = true) = 0;
 	virtual bool setPropFloat(const IProp* prop, const float data, const bool sync = true) = 0;
 	virtual bool setPropString(const IProp* prop, const char* data, const bool sync = true) = 0;
+	virtual bool setPropStruct(const IProp* prop, const void* data, const int32 size, const bool sync = true) = 0;
+	virtual bool setPropBlob(const IProp* prop, const void* data, const int32 size, const bool sync = true) = 0;
 
 	virtual bool setTempInt8(const IProp* prop, const int8 data) = 0;
 	virtual bool setTempInt16(const IProp* prop, const int16 data) = 0;
@@ -103,6 +107,8 @@ public:
 	virtual bool setTempInt64(const IProp* prop, const int64 data) = 0;
 	virtual bool setTempFloat(const IProp* prop, const float data) = 0;
 	virtual bool setTempString(const IProp* prop, const char* data) = 0;
+	virtual bool setTempStruct(const IProp* prop, const void* data, const int32 size) = 0;
+	virtual bool setTempBlob(const IProp* prop, const void* data, const int32 size) = 0;
 
 	virtual int8 getPropInt8(const IProp* prop) const = 0;
 	virtual int16 getPropInt16(const IProp* prop) const = 0;
@@ -110,6 +116,8 @@ public:
 	virtual int64 getPropInt64(const IProp* prop) const = 0;
 	virtual float getPropFloat(const IProp* prop) const = 0;
 	virtual const char* getPropString(const IProp* prop) const = 0;
+	virtual const void* getPropStruct(const IProp* prop, int32& size) const = 0;
+	virtual const void* getPropBlob(const IProp* prop, int32& size) const = 0;
 
 	virtual int8 getTempInt8(const IProp* prop) const = 0;
 	virtual int16 getTempInt16(const IProp* prop) const = 0;
@@ -117,6 +125,8 @@ public:
 	virtual int64 getTempInt64(const IProp* prop) const = 0;
 	virtual float getTempFloat(const IProp* prop) const = 0;
 	virtual const char* getTempString(const IProp* prop) const = 0;
+	virtual const void* getTempStruct(const IProp* prop, int32& size) const = 0;
+	virtual const void* getTempBlob(const IProp* prop, int32& size) const = 0;
 
 	virtual ITableControl* findTable(const int32 name) const = 0;
 

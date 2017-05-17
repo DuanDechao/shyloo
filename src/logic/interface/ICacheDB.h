@@ -37,6 +37,8 @@ public:
 	virtual void writeInt64(const char* col, int64 val) = 0;
 	virtual void writeFloat(const char* col, float val) = 0;
 	virtual void writeString(const char* col, const char* val) = 0;
+	virtual void writeStruct(const char* col, const void* val, const int32 size) = 0;
+	virtual void writeBlob(const char* col, const void* val, const int32 size) = 0;
 };
 
 typedef std::function<void(sl::api::IKernel* pKernel, ICacheDBContext* context)> CacheDBWriteFuncType;

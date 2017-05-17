@@ -31,9 +31,10 @@ bool Logic::destory(sl::api::IKernel * pKernel){
 	return true;
 }
 
-void Logic::rgsProtocolHandler(int32 messageId, const HandleFunctionType& f, const char* debug){
-	Handler handler{ NEW BProtocolHandler(f), debug };
-	_protoHandlers[messageId].push_back(handler);
+void Logic::rgsProtocolHandler(int32 messageId, IProtocolHandler* handler, const char* debug){
+	Handler handlerUnit{ handler, debug };
+	SLASSERT(std::find(_protoHandlers[messageId].begin(), _protoHandlers[messageId].end(), handlerUnit) == _protoHandlers[messageId].end(), "protocol handler has regsiter");
+	_protoHandlers[messageId].push_back(handlerUnit);
 }
 
 void Logic::onGateBindPlayerOnLogic(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
@@ -62,24 +63,27 @@ void Logic::onGateUnBindPlayerOnLogic(sl::api::IKernel* pKernel, const int32 nod
 void Logic::onTransforMsgToLogic(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args){
 	const void* context = args.getContext();
 	const int32 size = args.getSize();
+	SLASSERT(size >= sizeof(int64)+sizeof(client::Header), "wtf");
+	
 	int64 actorId = *(int64*)context;
-
 	const char* dataBuf = (const char*)context + sizeof(int64);
-	int32 messageId = *(int32*)dataBuf;
-	int32 len = *((int32*)(dataBuf + sizeof(int32)));
+	client::Header* header = (client::Header*)dataBuf;
 
-	auto itor = _protoHandlers.find(messageId);
-	if (itor == _protoHandlers.end() || itor->second.empty())
+	auto itor = _protoHandlers.find(header->messageId);
+	if (itor == _protoHandlers.end() || itor->second.empty()){
+		ECHO_ERROR("unknown protocol id %d", header->messageId);
 		return;
-
+	}
+		
 	IObject* object = _objectMgr->findObject(actorId);
-	if (!object){
+	if (!object || object->getPropInt32(attr_def::gate) == game::NODE_INVALID_ID){
 		SLASSERT(false, "not find object[%lld]", actorId);
 		return;
 	}
 
 	for (auto handler : itor->second){
-		handler._handler->dealProtocol(pKernel, object, args.getContext(), args.getSize());
+		if (!handler._handler->dealProtocol(pKernel, object, dataBuf + sizeof(client::Header), size - sizeof(client::Header) - sizeof(int64)))
+			ECHO_ERROR("parse protocol %d failed", header->messageId);
 	}
 }
 
