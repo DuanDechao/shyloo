@@ -22,8 +22,7 @@ public:
 	virtual IObject* createById(const char* file, const int32 line, const char* name, const uint64 id);
 	virtual void recover(IObject* object);
 	virtual IObject* findObject(const uint64 id);
-	
-	virtual ITableControl* createStaticTable(const char* name);
+	virtual ITableControl* createStaticTable(const char* name, const char* model, const char* file, const int32 line);
 	virtual void recoverStaticTable(ITableControl* table);
 	
 	const IProp* setObjectProp(const char* propName, const int32 objTypeId, PropLayout* layout);

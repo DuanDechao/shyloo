@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<root start="0">
+	<prop name="id" type="int64" visible="false" share="false" save="false" blob="false" />
+	<prop name="sceneId" type="string" size="64" visible="false" share="false" save="false" blob="false" />
+	<prop name="x" type="float" visible="false" share="false" save="false" blob="false"/>
+	<prop name="y" type="float" visible="false" share="false" save="false" blob="false" />
+	<prop name="z" type="float" visible="false" share="false" save="false" blob="false" />
+	<prop name="gate" type="int32" visible="false" share="false" save="false" blob="false" />
+	
+	<temp name="IS_APPEAR" type="int8" />
+	
+</root>

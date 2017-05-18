@@ -328,14 +328,14 @@ namespace sl
 
 	
 
-	inline uint64 getTimeMilliSecond()
+	inline int64 getTimeMilliSecond()
 	{
-		return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+		return (int64)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	}
 
-	inline uint64 getTimeNanoSecond()
+	inline int64 getTimeNanoSecond()
 	{
-		return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+		return (int64)std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	}
 
 	inline const std::string getCurrentTimeStr(){

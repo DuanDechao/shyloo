@@ -21,8 +21,8 @@ bool PropDelaySender::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_eventEngine, EventEngine); 
 	FIND_MODULE(_packetSender, PacketSender);
 
-	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_DATA_LOAD_COMPLETED, PropDelaySender::onPlayerOnline);
-	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_GATE_RECONNECT, PropDelaySender::onPlayerReconnect);
+	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_LOGIC_DATA_LOAD_COMPLETED, PropDelaySender::onPlayerOnline);
+	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_LOGIC_PLAYER_RECONNECT, PropDelaySender::onPlayerReconnect);
 
 	return true;
 }

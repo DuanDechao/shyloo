@@ -61,12 +61,12 @@ public:
 	}
 
 	SLString& operator << (const char* str){
-		int iLen = getLength();
+		int iLen = length();
 		int iMaxLen = Size() - iLen;
 		iMaxLen = iMaxLen < 0 ? 0 : iMaxLen;
 		SafeSprintf(m_szBuf + iLen, iMaxLen, "%s", str);
 		m_szBuf[SIZE - 1] = 0;
-		return iRet;
+		return *this;
 	}
 
 	SLString& operator << (const std::string str){

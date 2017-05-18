@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<root parent="Object" start="100">
+	<prop name="scene" type="string" size="64" visible="true" share="true" save="true" blob="false"/>
+	<prop name="x" type="float" visible="true" share="true" save="true" blob="false"/>
+	<prop name="y" type="float" visible="true" share="true" save="true" blob="false" />
+	<prop name="z" type="float" visible="true" share="true" save="true" blob="false" />
+	
+	<temp name="IS_APPEAR" type="int8" />
+</root>

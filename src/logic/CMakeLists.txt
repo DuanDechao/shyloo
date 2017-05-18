@@ -20,6 +20,9 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IPlayerMgr.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IPacketSender.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IPropDelaySender.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/ISceneMgr.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/ISceneClientMgr.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IScene.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IClient.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/OCTimer.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/OCTimer.cpp"
@@ -64,4 +67,5 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/client)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/robot)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/packetsender)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/propdelaysender)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/scene)
 

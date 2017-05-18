@@ -11,5 +11,6 @@ enum game{
 	INVAILD_GATE_NODE_ID = -1,
 	MAX_PACKET_SIZE = 65536,
 	MAX_DEBUG_INFO_SIZE = 256,
+	MAX_SCENE_LEN = 64,
 };
 #endif

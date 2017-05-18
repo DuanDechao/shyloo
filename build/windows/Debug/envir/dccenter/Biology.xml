@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<root parent="SceneObject" start="200">
+	<prop name="hp" type="int32" visible="true" share="true" save="true" blob="true" />
+	<prop name="mp" type="int32" visible="true" share="true" save="true" blob="true" />
+</root>

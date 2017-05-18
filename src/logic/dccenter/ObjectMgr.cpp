@@ -254,14 +254,14 @@ IObject* ObjectMgr::findObject(const uint64 id){
 	return itor->second;
 }
 
-ITableControl* ObjectMgr::createStaticTable(const char* name){
+ITableControl* ObjectMgr::createStaticTable(const char* name, const char* model, const char* file, const int32 line){
 	const int32 tableId = sl::CalcStringUniqueId(name);
 	if (_allTables.find(tableId) != _allTables.end()){
 		SLASSERT(false, "table %s has been created", name);
 		return nullptr;
 	}
 
-	auto itor = _tablesInfo.find(tableId);
+	auto itor = _tablesInfo.find(sl::CalcStringUniqueId(model));
 	if (itor == _tablesInfo.end()){
 		SLASSERT(false, "has no table %s column info", name);
 		return nullptr;

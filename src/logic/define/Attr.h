@@ -26,18 +26,28 @@ struct ATTR_API attr_def{
 	static const IProp* aiInterval;
 	static const IProp* exp;
 	static const IProp* gate;
+	static const IProp* hp;
 	static const IProp* id;
 	static const IProp* logic;
+	static const IProp* mp;
 	static const IProp* name;
 	static const IProp* occupation;
 	static const IProp* recoverTimer;
+	static const IProp* scene;
+	static const IProp* sceneId;
 	static const IProp* sex;
+	static const IProp* startTime;
+	static const IProp* state;
 	static const IProp* status;
+	static const IProp* x;
+	static const IProp* y;
+	static const IProp* z;
 };
 
 struct ATTR_API OCTempProp{
 	static const IProp* AITIMER;
 	static const IProp* AI_REF;
+	static const IProp* IS_APPEAR;
 	static const IProp* PROP_UPDATE_TIMER;
 };
 
@@ -79,6 +89,53 @@ namespace OCTableMacro {
 		enum {
 			OCTM_START = 0,
 			PROP = OCTM_START,
+			OCTM_END,
+		};
+	}
+
+	namespace SCENEOBJECTS {
+		static int32 TABLE_NAME = 112589896;
+		enum {
+			OCTM_START = 0,
+			ID = OCTM_START,
+			OCTM_END,
+		};
+	}
+
+};
+
+namespace OCStaticTableMacro {
+	namespace STATICSCENEOBJECTS {
+		static const char* TABLE_NAME = "STATICSCENEOBJECTS";
+		enum {
+			OCTM_START = 0,
+			ID = OCTM_START,
+			SCENEID,
+			TYPE,
+			OCTM_END,
+		};
+	}
+
+	namespace SCENES {
+		static const char* TABLE_NAME = "SCENES";
+		enum {
+			OCTM_START = 0,
+			ID = OCTM_START,
+			NAME,
+			NODE,
+			STATE,
+			INDEX,
+			COUNT,
+			OCTM_END,
+		};
+	}
+
+	namespace SCENECOPY {
+		static const char* TABLE_NAME = "SCENECOPY";
+		enum {
+			OCTM_START = 0,
+			ID = OCTM_START,
+			OBJECT,
 			OCTM_END,
 		};
 	}

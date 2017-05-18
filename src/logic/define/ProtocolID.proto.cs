@@ -16,31 +16,34 @@ namespace ProtocolID
     public enum ClientMsgID
     {
             
-      [global::ProtoBuf.ProtoEnum(Name=@"CLIENT_MSG_LOGIN_REQ", Value=1000)]
-      CLIENT_MSG_LOGIN_REQ = 1000,
+      [global::ProtoBuf.ProtoEnum(Name=@"CLIENT_MSG_LOGIN_REQ", Value=1)]
+      CLIENT_MSG_LOGIN_REQ = 1,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"CLIENT_MSG_SELECT_ROLE_REQ", Value=1001)]
-      CLIENT_MSG_SELECT_ROLE_REQ = 1001,
+      [global::ProtoBuf.ProtoEnum(Name=@"CLIENT_MSG_SELECT_ROLE_REQ", Value=2)]
+      CLIENT_MSG_SELECT_ROLE_REQ = 2,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"CLIENT_MSG_CREATE_ROLE_REQ", Value=1002)]
-      CLIENT_MSG_CREATE_ROLE_REQ = 1002
+      [global::ProtoBuf.ProtoEnum(Name=@"CLIENT_MSG_CREATE_ROLE_REQ", Value=3)]
+      CLIENT_MSG_CREATE_ROLE_REQ = 3,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"CLIENT_MSG_ENTER_SCENE_REQ", Value=4)]
+      CLIENT_MSG_ENTER_SCENE_REQ = 4
     }
   
     [global::ProtoBuf.ProtoContract(Name=@"ServerMsgID")]
     public enum ServerMsgID
     {
             
-      [global::ProtoBuf.ProtoEnum(Name=@"SERVER_MSG_LOGIN_RSP", Value=100000)]
-      SERVER_MSG_LOGIN_RSP = 100000,
+      [global::ProtoBuf.ProtoEnum(Name=@"SERVER_MSG_LOGIN_RSP", Value=1)]
+      SERVER_MSG_LOGIN_RSP = 1,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"SERVER_MSG_SELECT_ROLE_RSP", Value=100001)]
-      SERVER_MSG_SELECT_ROLE_RSP = 100001,
+      [global::ProtoBuf.ProtoEnum(Name=@"SERVER_MSG_SELECT_ROLE_RSP", Value=2)]
+      SERVER_MSG_SELECT_ROLE_RSP = 2,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"SERVER_MSG_CREATE_ROLE_RSP", Value=100002)]
-      SERVER_MSG_CREATE_ROLE_RSP = 100002,
+      [global::ProtoBuf.ProtoEnum(Name=@"SERVER_MSG_CREATE_ROLE_RSP", Value=3)]
+      SERVER_MSG_CREATE_ROLE_RSP = 3,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"SERVER_MSG_ATTRIB_SYNC", Value=100003)]
-      SERVER_MSG_ATTRIB_SYNC = 100003
+      [global::ProtoBuf.ProtoEnum(Name=@"SERVER_MSG_ATTRIB_SYNC", Value=4)]
+      SERVER_MSG_ATTRIB_SYNC = 4
     }
   
 }

@@ -28,16 +28,26 @@ const IProp* attr_def::ai = nullptr;
 const IProp* attr_def::aiInterval = nullptr;
 const IProp* attr_def::exp = nullptr;
 const IProp* attr_def::gate = nullptr;
+const IProp* attr_def::hp = nullptr;
 const IProp* attr_def::id = nullptr;
 const IProp* attr_def::logic = nullptr;
+const IProp* attr_def::mp = nullptr;
 const IProp* attr_def::name = nullptr;
 const IProp* attr_def::occupation = nullptr;
 const IProp* attr_def::recoverTimer = nullptr;
+const IProp* attr_def::scene = nullptr;
+const IProp* attr_def::sceneId = nullptr;
 const IProp* attr_def::sex = nullptr;
+const IProp* attr_def::startTime = nullptr;
+const IProp* attr_def::state = nullptr;
 const IProp* attr_def::status = nullptr;
+const IProp* attr_def::x = nullptr;
+const IProp* attr_def::y = nullptr;
+const IProp* attr_def::z = nullptr;
 
 const IProp* OCTempProp::AITIMER = nullptr;
 const IProp* OCTempProp::AI_REF = nullptr;
+const IProp* OCTempProp::IS_APPEAR = nullptr;
 const IProp* OCTempProp::PROP_UPDATE_TIMER = nullptr;
 
 void getAttrProp(IObjectMgr* objectMgr){
@@ -47,16 +57,26 @@ void getAttrProp(IObjectMgr* objectMgr){
 	attr_def::aiInterval = objectMgr->getPropByName("aiInterval");
 	attr_def::exp = objectMgr->getPropByName("exp");
 	attr_def::gate = objectMgr->getPropByName("gate");
+	attr_def::hp = objectMgr->getPropByName("hp");
 	attr_def::id = objectMgr->getPropByName("id");
 	attr_def::logic = objectMgr->getPropByName("logic");
+	attr_def::mp = objectMgr->getPropByName("mp");
 	attr_def::name = objectMgr->getPropByName("name");
 	attr_def::occupation = objectMgr->getPropByName("occupation");
 	attr_def::recoverTimer = objectMgr->getPropByName("recoverTimer");
+	attr_def::scene = objectMgr->getPropByName("scene");
+	attr_def::sceneId = objectMgr->getPropByName("sceneId");
 	attr_def::sex = objectMgr->getPropByName("sex");
+	attr_def::startTime = objectMgr->getPropByName("startTime");
+	attr_def::state = objectMgr->getPropByName("state");
 	attr_def::status = objectMgr->getPropByName("status");
+	attr_def::x = objectMgr->getPropByName("x");
+	attr_def::y = objectMgr->getPropByName("y");
+	attr_def::z = objectMgr->getPropByName("z");
 
 	OCTempProp::AITIMER = objectMgr->getTempPropByName("AITIMER");
 	OCTempProp::AI_REF = objectMgr->getTempPropByName("AI_REF");
+	OCTempProp::IS_APPEAR = objectMgr->getTempPropByName("IS_APPEAR");
 	OCTempProp::PROP_UPDATE_TIMER = objectMgr->getTempPropByName("PROP_UPDATE_TIMER");
 }
 

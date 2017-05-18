@@ -9,7 +9,7 @@
 #include "slfile_utils.h"
 #include "sltools.h"
 using namespace std;
-void propEnumGen(const char* attrFileName, std::set<std::string>& propNames, std::set<std::string>& tempPropNames, std::unordered_map<std::string, std::vector<std::string>>& tablesInfo){
+void propEnumGen(const char* attrFileName, std::set<std::string>& propNames, std::set<std::string>& tempPropNames, std::unordered_map<std::string, std::vector<std::string>>& tablesInfo, std::unordered_map<std::string, std::vector<std::string>>& staticTablesInfo){
 	std::ofstream attrFile(attrFileName);
 	if (!attrFile){
 		SLASSERT(false, "can not open file %s", attrFileName);
@@ -72,6 +72,29 @@ void propEnumGen(const char* attrFileName, std::set<std::string>& propNames, std
 				continue;
 			attrFile << "	namespace " << tableItor->first << " {" << endl;
 			attrFile << "		static int32 TABLE_NAME = " << sl::CalcStringUniqueId(tableItor->first.c_str()) << ";" << endl;
+			attrFile << "		enum {" << endl;
+			attrFile << "			OCTM_START = 0," << endl;
+			for (int32 i = 0; i < tableItor->second.size(); i++){
+				if (i == 0)
+					attrFile << "			" << tableItor->second[i] << " = OCTM_START," << endl;
+				else
+					attrFile << "			" << tableItor->second[i] << "," << endl;
+			}
+			attrFile << "			OCTM_END," << endl;
+			attrFile << "		};" << endl;
+			attrFile << "	}" << endl << endl;
+		}
+	}
+	attrFile << "};" << endl << endl;
+
+	attrFile << "namespace OCStaticTableMacro {" << endl;
+	if (!staticTablesInfo.empty()){
+		auto tableItor = staticTablesInfo.begin();
+		for (; tableItor != staticTablesInfo.end(); ++tableItor){
+			if (tableItor->second.empty())
+				continue;
+			attrFile << "	namespace " << tableItor->first << " {" << endl;
+			attrFile << "		static const char* TABLE_NAME = \"" << tableItor->first.c_str() << "\";" << endl;
 			attrFile << "		enum {" << endl;
 			attrFile << "			OCTM_START = 0," << endl;
 			for (int32 i = 0; i < tableItor->second.size(); i++){
@@ -169,6 +192,7 @@ int main(){
 	std::set<std::string> propNames;
 	std::set<std::string> tempPropNames;
 	std::unordered_map<std::string, std::vector<std::string>> tablesInfo;
+	std::unordered_map<std::string, std::vector<std::string>> staticTablesInfo;
 	for (int32 i = 0; i < (int32)files.size(); i++){
 		sl::XmlReader propConf;
 		if (!propConf.loadXml(files[i].c_str())){
@@ -180,9 +204,7 @@ int main(){
 		for (int32 i = 0; i < props.count(); i++){
 			std::string name = props[i].getAttributeString("name");
 			if (propNames.find(name) != propNames.end()){
-				SLASSERT(false, "has duplicate prop name %s", name.c_str());
-				ECHO_ERROR("has duplicate prop name %s", name.c_str());
-				return -1;
+				continue;
 			}
 			propNames.insert(name);
 		}
@@ -192,9 +214,7 @@ int main(){
 			for (int32 i = 0; i < tempProps.count(); i++){
 				std::string name = tempProps[i].getAttributeString("name");
 				if (tempPropNames.find(name) != tempPropNames.end()){
-					SLASSERT(false, "has duplicate prop name %s", name.c_str());
-					ECHO_ERROR("has duplicate prop name %s", name.c_str());
-					return -1;
+					continue;
 				}
 				tempPropNames.insert(name);
 			}
@@ -217,9 +237,33 @@ int main(){
 		
 	}
 
+	char staticTableFile[256] = { 0 };
+	SafeSprintf(staticTableFile, sizeof(staticTableFile), "%s/envir/object.xml", sl::getAppPath());
+	sl::XmlReader staticTableConf;
+	if (!staticTableConf.loadXml(staticTableFile)){
+		SLASSERT(false, "can not load file %s", staticTableFile);
+		ECHO_ERROR("can not load file %s", staticTableFile);
+		return -1;
+	}
+
+	if (staticTableConf.root().subNodeExist("table")){
+		const sl::ISLXmlNode& tables = staticTableConf.root()["table"];
+		for (int32 i = 0; i < tables.count(); i++){
+			const char* tableName = tables[i].getAttributeString("name");
+			if (staticTablesInfo.find(tableName) != staticTablesInfo.end())
+				continue;
+
+			const sl::ISLXmlNode& columns = tables[i]["column"];
+			for (int32 j = 0; j < columns.count(); j++){
+				const char* columnName = columns[j].getAttributeString("name");
+				staticTablesInfo[tableName].push_back(columnName);
+			}
+		}
+	}
+
 	char attrFile[256] = { 0 };
 	SafeSprintf(attrFile, sizeof(attrFile), "%s/../../../src/logic/define/Attr.h", sl::getAppPath());
-	propEnumGen(attrFile, propNames, tempPropNames, tablesInfo);
+	propEnumGen(attrFile, propNames, tempPropNames, tablesInfo, staticTablesInfo);
 
 	char attrGetterFile[256] = { 0 };
 	SafeSprintf(attrGetterFile, sizeof(attrGetterFile), "%s/../../../src/logic/attrgetter/AttrGetter.cpp", sl::getAppPath());

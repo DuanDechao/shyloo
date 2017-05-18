@@ -67,7 +67,7 @@ bool PlayerMgr::active(int64 actorId, int32 nodeId, int64 accountId, const std::
 		f(_kernel, player, true);
 
 		logic_event::Biology info{ player };
-		_eventEngine->execEvent(logic_event::EVENT_GATE_RECONNECT, &info, sizeof(info));
+		_eventEngine->execEvent(logic_event::EVENT_LOGIC_PLAYER_RECONNECT, &info, sizeof(info));
 
 		SLASSERT(player->getPropInt64(attr_def::recoverTimer) != 0, "wtf");
 		RemoveObjectTimer* recoverTimer = (RemoveObjectTimer*)player->getPropInt64(attr_def::recoverTimer);
@@ -98,7 +98,7 @@ bool PlayerMgr::active(int64 actorId, int32 nodeId, int64 accountId, const std::
 
 void PlayerMgr::onProcessPlayerOnline(sl::api::IKernel* pKernel, IObject* object){
 	logic_event::Biology info{ object };
-	_eventEngine->execEvent(logic_event::EVENT_PLAYER_ONLINE, &info, sizeof(info));
+	_eventEngine->execEvent(logic_event::EVENT_LOGIC_PLAYER_ONLINE, &info, sizeof(info));
 
 	allDataLoadComplete(pKernel, object);
 }
@@ -108,7 +108,7 @@ void PlayerMgr::allDataLoadComplete(sl::api::IKernel* pKernel, IObject* object){
 	//TODO 向客户端首次同步属性
 
 	logic_event::Biology info{ object };
-	_eventEngine->execEvent(logic_event::EVENT_DATA_LOAD_COMPLETED, &info, sizeof(info));
+	_eventEngine->execEvent(logic_event::EVENT_LOGIC_DATA_LOAD_COMPLETED, &info, sizeof(info));
 
 	RGS_PROP_CHANGER(object, ANY_CALL, PlayerMgr::propSync);
 }
@@ -187,7 +187,7 @@ bool PlayerMgr::deActive(int64 actorId, int32 nodeId, bool isPlayerOpt){
 		object->setPropInt32(attr_def::gate, game::INVAILD_GATE_NODE_ID);
 
 		logic_event::Biology info{ object };
-		_eventEngine->execEvent(logic_event::EVENT_GATE_LOST, &info, sizeof(info));
+		_eventEngine->execEvent(logic_event::EVENT_LOGIC_PLAYER_LOST, &info, sizeof(info));
 
 		SLASSERT(object->getPropInt64(attr_def::recoverTimer) == 0, "wtf");
 		RemoveObjectTimer * recoverTimer = NEW RemoveObjectTimer(object);
@@ -209,7 +209,7 @@ void PlayerMgr::recoverObject(sl::api::IKernel* pKernel, const int64 id){
 		object->setPropInt64(attr_def::recoverTimer, 0);
 
 		logic_event::Biology info{ object };
-		_eventEngine->execEvent(logic_event::EVENT_PLAYER_DESTROY, &info, sizeof(info));
+		_eventEngine->execEvent(logic_event::EVENT_LOGIC_PLAYER_DESTROY, &info, sizeof(info));
 
 		_roleMgr->recoverPlayer(object);
 		_objectMgr->recover(object);

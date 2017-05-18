@@ -45,13 +45,14 @@ void InitDefaults();
 }  // namespace protobuf_ProtocolID_2eproto
 
 enum ClientMsgID {
-  CLIENT_MSG_LOGIN_REQ = 1000,
-  CLIENT_MSG_SELECT_ROLE_REQ = 1001,
-  CLIENT_MSG_CREATE_ROLE_REQ = 1002
+  CLIENT_MSG_LOGIN_REQ = 1,
+  CLIENT_MSG_SELECT_ROLE_REQ = 2,
+  CLIENT_MSG_CREATE_ROLE_REQ = 3,
+  CLIENT_MSG_ENTER_SCENE_REQ = 4
 };
 bool ClientMsgID_IsValid(int value);
 const ClientMsgID ClientMsgID_MIN = CLIENT_MSG_LOGIN_REQ;
-const ClientMsgID ClientMsgID_MAX = CLIENT_MSG_CREATE_ROLE_REQ;
+const ClientMsgID ClientMsgID_MAX = CLIENT_MSG_ENTER_SCENE_REQ;
 const int ClientMsgID_ARRAYSIZE = ClientMsgID_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* ClientMsgID_descriptor();
@@ -65,10 +66,10 @@ inline bool ClientMsgID_Parse(
     ClientMsgID_descriptor(), name, value);
 }
 enum ServerMsgID {
-  SERVER_MSG_LOGIN_RSP = 100000,
-  SERVER_MSG_SELECT_ROLE_RSP = 100001,
-  SERVER_MSG_CREATE_ROLE_RSP = 100002,
-  SERVER_MSG_ATTRIB_SYNC = 100003
+  SERVER_MSG_LOGIN_RSP = 1,
+  SERVER_MSG_SELECT_ROLE_RSP = 2,
+  SERVER_MSG_CREATE_ROLE_RSP = 3,
+  SERVER_MSG_ATTRIB_SYNC = 4
 };
 bool ServerMsgID_IsValid(int value);
 const ServerMsgID ServerMsgID_MIN = SERVER_MSG_LOGIN_RSP;

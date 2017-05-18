@@ -145,8 +145,10 @@ public:
 	virtual IObject* createById(const char* file, const int32 line, const char* name, const uint64 id) = 0;
 	virtual void recover(IObject* object) = 0;
 	virtual IObject* findObject(const uint64 id) = 0;
+	virtual ITableControl* createStaticTable(const char* name, const char* model, const char* file, const int32 line) = 0;
 };
 
 #define CREATE_OBJECT(mgr, ...) mgr->create(__FILE__, __LINE__, __VA_ARGS__)
 #define CREATE_OBJECT_BYID(mgr, ...) mgr->createById(__FILE__, __LINE__, __VA_ARGS__)
+#define CREATE_STATIC_TABLE(mgr, name, model) mgr->createStaticTable(name, model, __FILE__, __LINE__)
 #endif
