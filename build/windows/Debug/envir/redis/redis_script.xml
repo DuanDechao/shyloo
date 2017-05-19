@@ -92,7 +92,7 @@
 		local members = redis.call('smembers', ARGV[1])
 		for i, v in ipairs(members) do
 			local isDel = redis.call('hget', v, 'del')
-			if tmp ~= nil and isDel == '0' then
+			if isDel ~= nil and isDel == '0' then
 				local ret = redis.call('hmset', v, unpack(KEYS))
 				if ret then
 					effect = effect + 1

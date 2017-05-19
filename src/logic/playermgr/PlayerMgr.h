@@ -5,6 +5,7 @@
 #include "slsingleton.h"
 #include <unordered_map>
 #include <unordered_set>
+#include "slbinary_stream.h"
 
 class IHarbor;
 class IObjectMgr;
@@ -13,6 +14,8 @@ class IEventEngine;
 class IProp;
 class ICacheDB;
 class IObjectTimer;
+class ILogic;
+class IPropDelaySender;
 class PlayerMgr :public IPlayerMgr, public sl::SLHolder<PlayerMgr>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
@@ -33,6 +36,8 @@ public:
 	void onSavePlayerTime(sl::api::IKernel*, IObject*, int64);
 	void onSavePlayerTerminate(sl::api::IKernel*, IObject*, bool, int64){}
 
+	bool onClientTestReq(sl::api::IKernel* pKernel, IObject* object, const sl::OBStream& args);
+
 private:
 	static PlayerMgr* s_self;
 	sl::api::IKernel* _kernel;
@@ -42,6 +47,8 @@ private:
 	IRoleMgr* _roleMgr;
 	ICacheDB* _cacheDB;
 	IObjectTimer* _objectTimer;
+	ILogic*		  _logic;
+	IPropDelaySender* _propDelaySender;
 
 	int64	_recoverInterval;
 	int64	_savePlayerInterval;

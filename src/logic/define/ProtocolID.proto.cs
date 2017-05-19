@@ -26,7 +26,10 @@ namespace ProtocolID
       CLIENT_MSG_CREATE_ROLE_REQ = 3,
             
       [global::ProtoBuf.ProtoEnum(Name=@"CLIENT_MSG_ENTER_SCENE_REQ", Value=4)]
-      CLIENT_MSG_ENTER_SCENE_REQ = 4
+      CLIENT_MSG_ENTER_SCENE_REQ = 4,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"CLIENT_MSG_TEST", Value=5)]
+      CLIENT_MSG_TEST = 5
     }
   
     [global::ProtoBuf.ProtoContract(Name=@"ServerMsgID")]

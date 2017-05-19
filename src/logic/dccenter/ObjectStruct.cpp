@@ -13,8 +13,9 @@ ObjectPropInfo::ObjectPropInfo(int32 objTypeId, const char* objName, ObjectPropI
 			else{
 				ObjectMgr::getInstance()->setObjectTempProp(layout->_name.c_str(), _objTypeId, layout);
 			}
-			
 		}
+
+		_tables = parenter->_tables;
 		_size = parenter->_size;
 	}
 }
@@ -37,12 +38,12 @@ bool ObjectPropInfo::loadFrom(const sl::ISLXmlNode& root, PROP_DEFDINE_MAP& defi
 	if (!loadProps(root["prop"], defines, startIndex))
 		return false;
 
-	if (root.subNodeExist("temp")){
-		return loadTemps(root["temp"]);
+	if (root.subNodeExist("temp") && !loadTemps(root["temp"])){
+		return false;
 	}
 
-	if (root.subNodeExist("table")){
-		return loadTables(root["table"]);
+	if (root.subNodeExist("table") && !loadTables(root["table"])){
+		return false;
 	}
 	return true;
 }

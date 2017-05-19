@@ -25,7 +25,7 @@ void ObjectTimer::startTimer(IObject* object, const IProp* prop, int64 delay, in
 	}
 
 	OCTimer* newTimer = OCTimer::create(_kernel, object, prop, start, onTime, terminate);
-	object->setPropInt64(prop, (int64)newTimer);
+	object->setTempInt64(prop, (int64)newTimer);
 
 	_kernel->startTimer(newTimer, delay, count, interval);
 }

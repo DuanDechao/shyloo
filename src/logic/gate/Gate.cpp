@@ -159,7 +159,7 @@ void Gate::reset(sl::api::IKernel* pKernel, int64 id, int8 state){
 	}
 
 	if (oldState > GATE_STATE_NONE && state == GATE_STATE_NONE){
-		IArgs<1, 32> args;
+		IArgs<3, 128> args;
 		args << player.agentId << player.accountId;
 		args.fix();
 		_harbor->send(NodeType::ACCOUNT, 1, NodeProtocol::GATE_MSG_UNBIND_ACCOUNT_REQ, args.out());
@@ -297,16 +297,16 @@ void Gate::onLogicBindPlayerAck(sl::api::IKernel* pKernel, const int32 nodeType,
 			player.lastActorId = actorId;
 
 			//update DB
-
-
+			_cacheDB->writeByIndex("actor", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
+				context->writeInt64("lastActorId", actorId);
+			}, accountId);
 		}
 		else{
 			reset(pKernel, _actors[actorId], GATE_STATE_ROLELOADED);
-
-			IBStream<128> buf;
-			buf << errCode;
-			sendToClient(pKernel, player.agentId, ServerMsgID::SERVER_MSG_SELECT_ROLE_RSP, buf.out());
 		}
+		IBStream<128> buf;
+		buf << errCode;
+		sendToClient(pKernel, player.agentId, ServerMsgID::SERVER_MSG_SELECT_ROLE_RSP, buf.out());
 	}
 }
 

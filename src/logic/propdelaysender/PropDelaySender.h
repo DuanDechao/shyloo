@@ -17,7 +17,7 @@ public:
 	virtual void syncChangedProps(IObject* object);
 	virtual void removeChangedProp(IObject* object, const IProp* prop);
 
-	void onPlayerOnline(sl::api::IKernel* pKernel, const void* context, const int32 size);
+	void onPlayerDataLoaded(sl::api::IKernel* pKernel, const void* context, const int32 size);
 	void onPlayerReconnect(sl::api::IKernel* pKernel, const void* context, const int32 size);
 
 	void syncToSelf(sl::api::IKernel* pKernel, IObject* object, const char* name, const IProp* prop, const bool sync);

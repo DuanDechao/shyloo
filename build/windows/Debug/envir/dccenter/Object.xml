@@ -20,12 +20,4 @@
 		<column name="PARAM4" type="int64" key="false"/>
 		<column name="PARAM5" type="int64" key="false"/>
 	</table>
-	
-	<table name="PROP_SELF_TABLE">
-		<column name="PROP" type="int64" key="true"/>
-	</table>
-	
-	<table name="PROP_SHARED_TABLE">
-		<column name="PROP" type="int64" key="true"/>
-	</table>
 </root>

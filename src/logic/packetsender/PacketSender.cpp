@@ -24,7 +24,7 @@ void PacketSender::send(int32 gate, int64 id, int32 messageId, const void* conte
 	int32 len = sizeof(client::Transfor) + sizeof(client::Header) + size;
 	_harbor->prepareSend(NodeType::GATE, gate, NodeProtocol::LOGIC_MSG_TRANSFOR, len);
 
-	char* buf[sizeof(client::Transfor) + sizeof(client::Header)];
+	char buf[sizeof(client::Transfor) + sizeof(client::Header)];
 	client::Transfor& info = *(client::Transfor*)buf;
 	info.delay = delay;
 	info.actorId = id;

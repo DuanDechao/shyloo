@@ -12,14 +12,14 @@ public:
 typedef std::function<bool(sl::api::IKernel* pKernel, IObject* object, const sl::OBStream& args)> HandleFunctionType;
 class BProtocolHandler : public IProtocolHandler{
 public:
-	BProtocolHandler(const HandleFunctionType& func) : _func(func) {}
+	BProtocolHandler(const HandleFunctionType func) : _func(func) {}
 
 	virtual bool dealProtocol(sl::api::IKernel* pKernel, IObject* object, const void* context, const int32 size){
 		return _func(pKernel, object, sl::OBStream((const char*)context, size));
 	}
 
 private:
-	const HandleFunctionType& _func;
+	HandleFunctionType _func;
 };
 
 class ILogic : public sl::api::IModule{

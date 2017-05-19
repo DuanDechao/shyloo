@@ -13,6 +13,7 @@
 		<column name="occupation" type="int8" />
 		<column name="sex" type="int8" />
 		<column name="props" type="blob" />
+		<column name="lastActorId" type="int64" />
 		<index name="account" />
 	</table>
 </cache_db>

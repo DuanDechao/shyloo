@@ -14,4 +14,6 @@
 	<module name="PlayerMgr" />
 	<module name="RoleMgr" />
 	<module name="ObjectTimer" />
+	<module name="PacketSender" />
+	<module name="PropDelaySender" />
 </modules>

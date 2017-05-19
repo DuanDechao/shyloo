@@ -21,7 +21,7 @@ bool PropDelaySender::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_eventEngine, EventEngine); 
 	FIND_MODULE(_packetSender, PacketSender);
 
-	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_LOGIC_DATA_LOAD_COMPLETED, PropDelaySender::onPlayerOnline);
+	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_LOGIC_DATA_LOAD_COMPLETED, PropDelaySender::onPlayerDataLoaded);
 	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_LOGIC_PLAYER_RECONNECT, PropDelaySender::onPlayerReconnect);
 
 	return true;
@@ -46,7 +46,7 @@ void PropDelaySender::removeChangedProp(IObject* object, const IProp* prop){
 		DEL_TABLE_ROW(sharedProps, row);
 }
 
-void PropDelaySender::onPlayerOnline(sl::api::IKernel* pKernel, const void* context, const int32 size){
+void PropDelaySender::onPlayerDataLoaded(sl::api::IKernel* pKernel, const void* context, const int32 size){
 	SLASSERT(size == sizeof(logic_event::Biology), "wtf");
 	logic_event::Biology* info = (logic_event::Biology*)context;
 

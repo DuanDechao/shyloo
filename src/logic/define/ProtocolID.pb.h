@@ -48,11 +48,12 @@ enum ClientMsgID {
   CLIENT_MSG_LOGIN_REQ = 1,
   CLIENT_MSG_SELECT_ROLE_REQ = 2,
   CLIENT_MSG_CREATE_ROLE_REQ = 3,
-  CLIENT_MSG_ENTER_SCENE_REQ = 4
+  CLIENT_MSG_ENTER_SCENE_REQ = 4,
+  CLIENT_MSG_TEST = 5
 };
 bool ClientMsgID_IsValid(int value);
 const ClientMsgID ClientMsgID_MIN = CLIENT_MSG_LOGIN_REQ;
-const ClientMsgID ClientMsgID_MAX = CLIENT_MSG_ENTER_SCENE_REQ;
+const ClientMsgID ClientMsgID_MAX = CLIENT_MSG_TEST;
 const int ClientMsgID_ARRAYSIZE = ClientMsgID_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* ClientMsgID_descriptor();

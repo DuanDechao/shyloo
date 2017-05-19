@@ -81,17 +81,17 @@ void InitDefaults() {
 void AddDescriptorsImpl() {
   InitDefaults();
   static const char descriptor[] = {
-      "\n\020ProtocolID.proto*\207\001\n\013ClientMsgID\022\030\n\024CL"
+      "\n\020ProtocolID.proto*\234\001\n\013ClientMsgID\022\030\n\024CL"
       "IENT_MSG_LOGIN_REQ\020\001\022\036\n\032CLIENT_MSG_SELEC"
       "T_ROLE_REQ\020\002\022\036\n\032CLIENT_MSG_CREATE_ROLE_R"
-      "EQ\020\003\022\036\n\032CLIENT_MSG_ENTER_SCENE_REQ\020\004*\203\001\n"
-      "\013ServerMsgID\022\030\n\024SERVER_MSG_LOGIN_RSP\020\001\022\036"
-      "\n\032SERVER_MSG_SELECT_ROLE_RSP\020\002\022\036\n\032SERVER"
-      "_MSG_CREATE_ROLE_RSP\020\003\022\032\n\026SERVER_MSG_ATT"
-      "RIB_SYNC\020\004"
+      "EQ\020\003\022\036\n\032CLIENT_MSG_ENTER_SCENE_REQ\020\004\022\023\n\017"
+      "CLIENT_MSG_TEST\020\005*\203\001\n\013ServerMsgID\022\030\n\024SER"
+      "VER_MSG_LOGIN_RSP\020\001\022\036\n\032SERVER_MSG_SELECT"
+      "_ROLE_RSP\020\002\022\036\n\032SERVER_MSG_CREATE_ROLE_RS"
+      "P\020\003\022\032\n\026SERVER_MSG_ATTRIB_SYNC\020\004"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 290);
+      descriptor, 311);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "ProtocolID.proto", &protobuf_RegisterTypes);
   ::google::protobuf::internal::OnShutdown(&TableStruct::Shutdown);
@@ -120,6 +120,7 @@ bool ClientMsgID_IsValid(int value) {
     case 2:
     case 3:
     case 4:
+    case 5:
       return true;
     default:
       return false;

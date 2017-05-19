@@ -11,6 +11,9 @@
 #include "IObjectTimer.h"
 #include "slxml_reader.h"
 #include "slbinary_map.h"
+#include "ILogic.h"
+#include "ProtocolID.pb.h"
+#include "IPropDelaySender.h"
 
 class RemoveObjectTimer : public sl::api::ITimer{
 public:
@@ -50,6 +53,10 @@ bool PlayerMgr::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_roleMgr, RoleMgr);
 	FIND_MODULE(_cacheDB, CacheDB);
 	FIND_MODULE(_objectTimer, ObjectTimer);
+	FIND_MODULE(_logic, Logic);
+	FIND_MODULE(_propDelaySender, PropDelaySender);
+
+	RGS_PROTO_HANDLER(_logic, ClientMsgID::CLIENT_MSG_TEST, PlayerMgr::onClientTestReq);
 
 	return true;
 }
@@ -213,3 +220,8 @@ void PlayerMgr::recoverObject(sl::api::IKernel* pKernel, const int64 id){
 	}
 }
 
+bool PlayerMgr::onClientTestReq(sl::api::IKernel* pKernel, IObject* object, const sl::OBStream& args){
+	object->setPropString(attr_def::name, "ddc");
+	_propDelaySender->syncChangedProps(object);
+	return true;
+}

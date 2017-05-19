@@ -3,7 +3,7 @@
 #include "slbinary_stream.h"
 #include "ProtocolID.pb.h"
 #include "Protocol.pb.h"
-
+#include "IDCCenter.h"
 bool Robot::initialize(sl::api::IKernel * pKernel){
 	_kernel = pKernel;
 	_self = this;
@@ -17,6 +17,8 @@ bool Robot::launched(sl::api::IKernel * pKernel){
 	//_self->rgsSvrMessageHandler(AgentProtocol::CLIENT_MSG_LOGIN_REQ, &Robot::onClientLoginReq);
 	//_self->rgsSvrMessageHandler(AgentProtocol::CLIENT_MSG_SELECT_ROLE_REQ, &Robot::onClientSelectRoleReq);
 	_self->rgsSvrMessageHandler(ServerMsgID::SERVER_MSG_LOGIN_RSP, &Robot::onServerLoginAck);
+	_self->rgsSvrMessageHandler(ServerMsgID::SERVER_MSG_SELECT_ROLE_RSP, &Robot::onServerSelectRoleAck);
+	_self->rgsSvrMessageHandler(ServerMsgID::SERVER_MSG_ATTRIB_SYNC, &Robot::onServerAttribSync);
 	
 	_client->setListener(this);
 
@@ -130,4 +132,39 @@ void Robot::onServerLoginAck(sl::api::IKernel* pKernel, const int64 id, const OB
 		sendToSvr(pKernel, id, ClientMsgID::CLIENT_MSG_SELECT_ROLE_REQ, ask.out());
 	}
 
+}
+
+void Robot::onServerSelectRoleAck(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
+	int32 errCode = 0;
+	if (!args.read(errCode))
+		return;
+
+	if (errCode == 0)
+		test(pKernel, id);
+}
+
+void Robot::onServerAttribSync(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
+	ECHO_ERROR("start sync attrib...");
+	int64 actorId = 0; 
+	int32 propCount = 0; 
+	if (!args.read(actorId) || !args.read(propCount))
+		return;
+
+	for (int32 i = 0; i < propCount; i++){
+		int16 idAndType = 0;
+		args.read(idAndType);
+		int32 idx = ((idAndType >> 3) & 0x1fff);
+		int32 type = (int32)(idAndType & 0x07);
+		//if (type == DTYPE_STRING){
+			const char* str = nullptr;
+			args.readString(str);
+			ECHO_ERROR("name %s", str);
+		//}
+
+	}
+}
+
+void Robot::test(sl::api::IKernel* pKernel, const int64 id){
+	IBStream<64> ask;
+	sendToSvr(pKernel, id, ClientMsgID::CLIENT_MSG_TEST, ask.out());
 }
