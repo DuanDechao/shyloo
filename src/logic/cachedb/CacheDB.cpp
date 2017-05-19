@@ -43,6 +43,9 @@ bool CacheDB::initialize(sl::api::IKernel * pKernel){
 			else if (!strcmp(typeStr, "string")){
 				tableDesc.columns[name] = CDB_TYPE_STRING;
 			}
+			else if (!strcmp(typeStr, "blob")){
+				tableDesc.columns[name] = CDB_TYPE_BLOB;
+			}
 			else{
 				SLASSERT(false, "invalid type");
 				return false;

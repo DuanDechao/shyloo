@@ -114,6 +114,9 @@ const void* SLRedisCallResult::toBlob(int32& size) const {
 		return _reply->str;
 	}
 
+	if (_reply->type == REDIS_REPLY_NIL)
+		return nullptr;
+
 	SLASSERT(false, "invalid type");
 	return nullptr;
 }

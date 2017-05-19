@@ -13,8 +13,5 @@
 	<module name="EventEngine" />
 	<module name="PlayerMgr" />
 	<module name="RoleMgr" />
-	
-	
-	<!-- <module name="MysqlMgr" /> -->
-	<!-- <module name="DB" /> -->
+	<module name="ObjectTimer" />
 </modules>

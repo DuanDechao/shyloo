@@ -2,7 +2,7 @@
 #include "IScriptEngine.h"
 #include "AI.h"
 bool AICondition::check(sl::api::IKernel* pKernel, IObject* object){
-	IScriptCallor* callor = AI::GetScriptEngine()->prepareCall("ai.condition", "call");
+	IScriptCallor* callor = AI::getInstance()->GetScriptEngine()->prepareCall("ai.condition", "call");
 	callor->addString(_condition.c_str());
 	callor->addPointer(object);
 	bool ret = true;

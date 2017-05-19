@@ -3,22 +3,12 @@
 #include "slikernel.h"
 #include "slpool.h"
 #include "IDCCenter.h"
+#include "IObjectTimer.h"
 
 class IProp;
 class OCTimer: public sl::api::ITimer{
 public:
-	typedef std::function<void(sl::api::IKernel* pKernel, IObject* object, int64 tick)> START_FUNC_TYPE;
-	typedef std::function<void(sl::api::IKernel* pKernel, IObject* object, int64 tick)> ONTIME_FUNC_TYPE;
-	typedef std::function<void(sl::api::IKernel* pKernel, IObject* object, bool, int64 tick)> TERMINATE_FUNC_TYPE;
-	
-
-	static OCTimer* create(sl::api::IKernel* pKernel, IObject* object, const IProp* prop, const START_FUNC_TYPE& start, const ONTIME_FUNC_TYPE& onTime, const TERMINATE_FUNC_TYPE& terminate){
-		OCTimer* timer = (OCTimer* )object->getTempInt64(prop);
-		if (timer){
-			SLASSERT(false, "wtf");
-			pKernel->killTimer(timer);
-		}
-
+	static OCTimer* create(sl::api::IKernel* pKernel, IObject* object, const IProp* prop, const object_timer::START_FUNC_TYPE& start, const object_timer::ONTIME_FUNC_TYPE& onTime, const object_timer::TERMINATE_FUNC_TYPE& terminate){
 		return CREATE_FROM_POOL(s_ocTimerPool, object, prop, start, onTime, terminate);
 	}
 
@@ -50,9 +40,12 @@ public:
 
 		OCTimer* timer = (OCTimer*)_object->getTempInt64(_prop);
 		SLASSERT(timer == this, "wtf");
+		_object->setTempInt64(_prop, 0);
 
 		if (_terminate)
 			_terminate(pKernel, _object, false, timetick);
+
+		timer->release();
 	}
 
 	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick){}
@@ -60,7 +53,7 @@ public:
 
 private:
 	friend sl::SLPool<OCTimer>;
-	OCTimer(IObject* object, const IProp* prop, const START_FUNC_TYPE& start, const ONTIME_FUNC_TYPE& time, const TERMINATE_FUNC_TYPE& terminate)
+	OCTimer(IObject* object, const IProp* prop, const object_timer::START_FUNC_TYPE& start, const object_timer::ONTIME_FUNC_TYPE& time, const object_timer::TERMINATE_FUNC_TYPE& terminate)
 		:_object(object),
 		_prop(prop),
 		_start(start),
@@ -75,9 +68,9 @@ private:
 private:
 	IObject* _object;
 	const IProp* _prop;
-	const START_FUNC_TYPE _start;
-	const ONTIME_FUNC_TYPE _onTime;
-	const TERMINATE_FUNC_TYPE _terminate;
+	const object_timer::START_FUNC_TYPE _start;
+	const object_timer::ONTIME_FUNC_TYPE _onTime;
+	const object_timer::TERMINATE_FUNC_TYPE _terminate;
 
 	static sl::SLPool<OCTimer> s_ocTimerPool;
 };

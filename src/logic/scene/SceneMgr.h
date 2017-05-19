@@ -20,6 +20,7 @@ public:
 	void onLogicEnterScene(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 	void onLogicAppearScene(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 	void onLogicLeaveScene(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
+	void onLogicUpdatePosition(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 	void onSceneConfirmScene(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 
 private:

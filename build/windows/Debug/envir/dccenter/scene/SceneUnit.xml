@@ -6,7 +6,5 @@
 	<prop name="y" type="float" visible="false" share="false" save="false" blob="false" />
 	<prop name="z" type="float" visible="false" share="false" save="false" blob="false" />
 	<prop name="gate" type="int32" visible="false" share="false" save="false" blob="false" />
-	
-	<temp name="IS_APPEAR" type="int8" />
-	
+	<prop name="appear" type="int8" visible="false" share="false" save="false" blob="false" />
 </root>

@@ -114,7 +114,9 @@ bool ObjectMgr::loadObjectPropConfig(sl::api::IKernel * pKernel){
 	PROP_CONFIG_PATH_MAP::iterator itor = _propConfigsPath.begin();
 	PROP_CONFIG_PATH_MAP::iterator itorEnd = _propConfigsPath.end();
 	while (itor != itorEnd){
-		createTemplate(pKernel, itor->first.c_str());
+		if (_objPropInfo.find(itor->first.c_str()) == _objPropInfo.end())
+			createTemplate(pKernel, itor->first.c_str());
+
 		++itor;
 	}
 	return true;

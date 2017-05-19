@@ -26,6 +26,7 @@ const IProp* attr_def::account = nullptr;
 const IProp* attr_def::agent = nullptr;
 const IProp* attr_def::ai = nullptr;
 const IProp* attr_def::aiInterval = nullptr;
+const IProp* attr_def::appear = nullptr;
 const IProp* attr_def::exp = nullptr;
 const IProp* attr_def::gate = nullptr;
 const IProp* attr_def::hp = nullptr;
@@ -41,6 +42,7 @@ const IProp* attr_def::sex = nullptr;
 const IProp* attr_def::startTime = nullptr;
 const IProp* attr_def::state = nullptr;
 const IProp* attr_def::status = nullptr;
+const IProp* attr_def::type = nullptr;
 const IProp* attr_def::x = nullptr;
 const IProp* attr_def::y = nullptr;
 const IProp* attr_def::z = nullptr;
@@ -49,12 +51,15 @@ const IProp* OCTempProp::AITIMER = nullptr;
 const IProp* OCTempProp::AI_REF = nullptr;
 const IProp* OCTempProp::IS_APPEAR = nullptr;
 const IProp* OCTempProp::PROP_UPDATE_TIMER = nullptr;
+const IProp* OCTempProp::SYNCTOSCENE = nullptr;
+const IProp* OCTempProp::SYNCTOSCENE_TIMER = nullptr;
 
 void getAttrProp(IObjectMgr* objectMgr){
 	attr_def::account = objectMgr->getPropByName("account");
 	attr_def::agent = objectMgr->getPropByName("agent");
 	attr_def::ai = objectMgr->getPropByName("ai");
 	attr_def::aiInterval = objectMgr->getPropByName("aiInterval");
+	attr_def::appear = objectMgr->getPropByName("appear");
 	attr_def::exp = objectMgr->getPropByName("exp");
 	attr_def::gate = objectMgr->getPropByName("gate");
 	attr_def::hp = objectMgr->getPropByName("hp");
@@ -70,6 +75,7 @@ void getAttrProp(IObjectMgr* objectMgr){
 	attr_def::startTime = objectMgr->getPropByName("startTime");
 	attr_def::state = objectMgr->getPropByName("state");
 	attr_def::status = objectMgr->getPropByName("status");
+	attr_def::type = objectMgr->getPropByName("type");
 	attr_def::x = objectMgr->getPropByName("x");
 	attr_def::y = objectMgr->getPropByName("y");
 	attr_def::z = objectMgr->getPropByName("z");
@@ -78,5 +84,7 @@ void getAttrProp(IObjectMgr* objectMgr){
 	OCTempProp::AI_REF = objectMgr->getTempPropByName("AI_REF");
 	OCTempProp::IS_APPEAR = objectMgr->getTempPropByName("IS_APPEAR");
 	OCTempProp::PROP_UPDATE_TIMER = objectMgr->getTempPropByName("PROP_UPDATE_TIMER");
+	OCTempProp::SYNCTOSCENE = objectMgr->getTempPropByName("SYNCTOSCENE");
+	OCTempProp::SYNCTOSCENE_TIMER = objectMgr->getTempPropByName("SYNCTOSCENE_TIMER");
 }
 

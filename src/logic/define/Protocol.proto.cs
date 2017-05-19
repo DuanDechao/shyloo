@@ -44,6 +44,17 @@ namespace protocol
       DTYPE_BLOB = 8
     }
   
+    [global::ProtoBuf.ProtoContract(Name=@"ObjectType")]
+    public enum ObjectType
+    {
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"OBJECT_TYPE_UNKNOWN", Value=0)]
+      OBJECT_TYPE_UNKNOWN = 0,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"OBJECT_TYPE_PLAYER", Value=1)]
+      OBJECT_TYPE_PLAYER = 1
+    }
+  
     [global::ProtoBuf.ProtoContract(Name=@"ErrorCode")]
     public enum ErrorCode
     {

@@ -12,6 +12,7 @@ class IRoleMgr;
 class IEventEngine;
 class IProp;
 class ICacheDB;
+class IObjectTimer;
 class PlayerMgr :public IPlayerMgr, public sl::SLHolder<PlayerMgr>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
@@ -28,8 +29,9 @@ public:
 	void propSync(sl::api::IKernel* pKernel, IObject* object, const char* name, const IProp* prop, const bool sync);
 	bool savePlayer(sl::api::IKernel* pKernel, IObject* player);
 
-	static void onSavePlayerTime(sl::api::IKernel*, IObject*, int64);
-	static void onSavePlayerTerminate(sl::api::IKernel*, IObject*, bool, int64);
+	void onSavePlayerStart(sl::api::IKernel*, IObject*, int64){}
+	void onSavePlayerTime(sl::api::IKernel*, IObject*, int64);
+	void onSavePlayerTerminate(sl::api::IKernel*, IObject*, bool, int64){}
 
 private:
 	static PlayerMgr* s_self;
@@ -39,6 +41,7 @@ private:
 	IEventEngine* _eventEngine;
 	IRoleMgr* _roleMgr;
 	ICacheDB* _cacheDB;
+	IObjectTimer* _objectTimer;
 
 	int64	_recoverInterval;
 	int64	_savePlayerInterval;

@@ -3,7 +3,6 @@
 	<module name="Harbor" />
 	<module name="Cluster" />
 	<module name="Capacity" />
-	<module name="Distribution" />
 	<module name="DCCenter" />
 	<module name="IdMgr" />
 	<module name="Scene" />

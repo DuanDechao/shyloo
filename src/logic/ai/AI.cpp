@@ -4,10 +4,8 @@
 #include "AIMachine.h"
 #include "Attr.h"
 #include "IDCCenter.h"
-#include "OCTimer.h"
+#include "IObjectTimer.h"
 
-IScriptEngine* AI::s_scriptEngine = nullptr;
-AI::AI_CONFIG_MAP AI::s_ais;
 bool AI::initialize(sl::api::IKernel * pKernel){
 	_self = this;
 	_kernel = pKernel;
@@ -17,33 +15,34 @@ bool AI::initialize(sl::api::IKernel * pKernel){
 
 	bool ret = true;
 	sl::ListFileInDirection(path, ".xml", [&](const char * name, const char * path) {
-		if (s_ais.find(name) == s_ais.end()){
+		if (_ais.find(name) == _ais.end()){
 			SLASSERT(false, "ai config xml name repeated");
 			ret = false;
 			return;
 		}
 		AIConfig conf;
 		conf.machine = AILoader::load(pKernel, path, conf.interval);
-		s_ais[name] = conf;
+		_ais[name] = conf;
 	});
 
 	return ret;
 }
 
 bool AI::launched(sl::api::IKernel * pKernel){
-	FIND_MODULE(s_scriptEngine, ScriptEngine);
+	FIND_MODULE(_scriptEngine, ScriptEngine);
+	FIND_MODULE(_objectTimer, ObjectTimer);
 	return true;
 }
 
 bool AI::destory(sl::api::IKernel * pKernel){
-	if (!s_ais.empty()){
-		auto itor = s_ais.begin();
-		for (; itor != s_ais.end(); ++itor){
+	if (!_ais.empty()){
+		auto itor = _ais.begin();
+		for (; itor != _ais.end(); ++itor){
 			if (itor->second.machine)
 				DEL itor->second.machine;
 		}
 	}
-	s_ais.clear();
+	_ais.clear();
 
 	DEL this;
 	return true;
@@ -68,29 +67,22 @@ void AI::stopAI(IObject* object){
 void AI::startAI(sl::api::IKernel* pKernel, IObject* object){
 	SLASSERT(object, "wtf");
 	const char* ai = object->getPropString(attr_def::ai);
-	if (strcmp(ai, "") == 0 || s_ais.find(ai) == s_ais.end()){
+	if (strcmp(ai, "") == 0 || _ais.find(ai) == _ais.end()){
 		SLASSERT(false, "has no ai %s", ai);
 		return;
 	}
 
-	OCTimer* aiTimer = (OCTimer*)object->getTempInt64(OCTempProp::AITIMER);
-	if (aiTimer){
-		SLASSERT(false, "already has a ai timer");
-		return;
+	if (object->getPropInt64(OCTempProp::AITIMER) == 0){
+		START_OBJECT_TIMER(_objectTimer, object, OCTempProp::AITIMER, 0, TIMER_BEAT_FOREVER, object->getPropInt32(attr_def::aiInterval), AI::onAIStart, AI::onAITick, AI::onAIEnd);
 	}
-
-	OCTimer* timer = OCTimer::create(pKernel, object, OCTempProp::AITIMER, AI::onAIStart, AI::onAITick, AI::onAIEnd);
-	object->setTempInt64(OCTempProp::AITIMER, (int64)timer);
-	START_TIMER(timer, 0, TIMER_BEAT_FOREVER, object->getPropInt32(attr_def::aiInterval));
+	else{
+		SLASSERT(false, "already has a ai timer");
+	}
 	ECHO_TRACE("start ai %s for object %lld", ai, object->getID());
 }
 
 void AI::stopAI(sl::api::IKernel* pKernel, IObject* object){
-	OCTimer* timer = (OCTimer*)object->getTempInt64(OCTempProp::AITIMER);
-	SLASSERT(timer, "cannot find ai timer");
-	if (timer){
-		pKernel->killTimer(timer);
-	}
+	_objectTimer->stopTimer(object, OCTempProp::AITIMER);
 }
 
 void AI::onAIStart(sl::api::IKernel* pKernel, IObject* object, int64){
@@ -105,8 +97,8 @@ void AI::onAITick(sl::api::IKernel* pKernel, IObject* object, int64){
 		return;
 	}
 
-	auto aiItor = s_ais.find(ai);
-	if (aiItor == s_ais.end() || !aiItor->second.machine){
+	auto aiItor = _ais.find(ai);
+	if (aiItor == _ais.end() || !aiItor->second.machine){
 		SLASSERT(false, "ai %s is not exist", ai);
 		return;
 	}
@@ -115,10 +107,4 @@ void AI::onAITick(sl::api::IKernel* pKernel, IObject* object, int64){
 }
 
 void AI::onAIEnd(sl::api::IKernel* pKernel, IObject* object, bool, int64){
-	OCTimer* timer = (OCTimer*)object->getTempInt64(OCTempProp::AITIMER);
-	SLASSERT(timer, "cannot find ai timer");
-	if (timer){
-		timer->release();
-		object->setTempInt64(OCTempProp::AITIMER, 0);
-	}
 }

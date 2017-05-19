@@ -24,7 +24,7 @@ namespace protobuf_Protocol_2eproto {
 
 namespace {
 
-const ::google::protobuf::EnumDescriptor* file_level_enum_descriptors[2];
+const ::google::protobuf::EnumDescriptor* file_level_enum_descriptors[3];
 
 }  // namespace
 
@@ -87,16 +87,18 @@ void AddDescriptorsImpl() {
       "e\022\022\n\016DTYPE_INVAILED\020\000\022\016\n\nDTYPE_INT8\020\001\022\017\n"
       "\013DTYPE_INT16\020\002\022\017\n\013DTYPE_INT32\020\003\022\017\n\013DTYPE"
       "_INT64\020\004\022\020\n\014DTYPE_STRING\020\005\022\017\n\013DTYPE_FLOA"
-      "T\020\006\022\020\n\014DTYPE_STRUCT\020\007\022\016\n\nDTYPE_BLOB\020\010*\360\001"
-      "\n\tErrorCode\022\022\n\016ERROR_NO_ERROR\020\000\022\037\n\033ERROR"
-      "_ACCOUNT_AUTHEN_FAILED\020\001\022\036\n\032ERROR_GET_RO"
-      "LE_LIST_FAILED\020\002\022!\n\035ERROR_DISTRIBUTE_LOG"
-      "IC_FAILED\020\003\022\034\n\030ERROR_LOAD_PLAYER_FAILED\020"
-      "\004\022\027\n\023ERROR_TOO_MUCH_ROLE\020\005\022\034\n\030ERROR_CREA"
-      "TE_ROLE_FAILED\020\006\022\026\n\022ERROR_SYSTEM_ERROR\020\007"
+      "T\020\006\022\020\n\014DTYPE_STRUCT\020\007\022\016\n\nDTYPE_BLOB\020\010*=\n"
+      "\nObjectType\022\027\n\023OBJECT_TYPE_UNKNOWN\020\000\022\026\n\022"
+      "OBJECT_TYPE_PLAYER\020\001*\360\001\n\tErrorCode\022\022\n\016ER"
+      "ROR_NO_ERROR\020\000\022\037\n\033ERROR_ACCOUNT_AUTHEN_F"
+      "AILED\020\001\022\036\n\032ERROR_GET_ROLE_LIST_FAILED\020\002\022"
+      "!\n\035ERROR_DISTRIBUTE_LOGIC_FAILED\020\003\022\034\n\030ER"
+      "ROR_LOAD_PLAYER_FAILED\020\004\022\027\n\023ERROR_TOO_MU"
+      "CH_ROLE\020\005\022\034\n\030ERROR_CREATE_ROLE_FAILED\020\006\022"
+      "\026\n\022ERROR_SYSTEM_ERROR\020\007"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 440);
+      descriptor, 503);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "Protocol.proto", &protobuf_RegisterTypes);
   ::google::protobuf::internal::OnShutdown(&TableStruct::Shutdown);
@@ -136,9 +138,23 @@ bool AttribType_IsValid(int value) {
   }
 }
 
-const ::google::protobuf::EnumDescriptor* ErrorCode_descriptor() {
+const ::google::protobuf::EnumDescriptor* ObjectType_descriptor() {
   protobuf_Protocol_2eproto::protobuf_AssignDescriptorsOnce();
   return protobuf_Protocol_2eproto::file_level_enum_descriptors[1];
+}
+bool ObjectType_IsValid(int value) {
+  switch (value) {
+    case 0:
+    case 1:
+      return true;
+    default:
+      return false;
+  }
+}
+
+const ::google::protobuf::EnumDescriptor* ErrorCode_descriptor() {
+  protobuf_Protocol_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_Protocol_2eproto::file_level_enum_descriptors[2];
 }
 bool ErrorCode_IsValid(int value) {
   switch (value) {

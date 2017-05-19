@@ -24,6 +24,7 @@ struct ATTR_API attr_def{
 	static const IProp* agent;
 	static const IProp* ai;
 	static const IProp* aiInterval;
+	static const IProp* appear;
 	static const IProp* exp;
 	static const IProp* gate;
 	static const IProp* hp;
@@ -39,6 +40,7 @@ struct ATTR_API attr_def{
 	static const IProp* startTime;
 	static const IProp* state;
 	static const IProp* status;
+	static const IProp* type;
 	static const IProp* x;
 	static const IProp* y;
 	static const IProp* z;
@@ -49,6 +51,8 @@ struct ATTR_API OCTempProp{
 	static const IProp* AI_REF;
 	static const IProp* IS_APPEAR;
 	static const IProp* PROP_UPDATE_TIMER;
+	static const IProp* SYNCTOSCENE;
+	static const IProp* SYNCTOSCENE_TIMER;
 };
 
 namespace OCTableMacro {

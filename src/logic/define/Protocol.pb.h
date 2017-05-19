@@ -74,6 +74,25 @@ inline bool AttribType_Parse(
   return ::google::protobuf::internal::ParseNamedEnum<AttribType>(
     AttribType_descriptor(), name, value);
 }
+enum ObjectType {
+  OBJECT_TYPE_UNKNOWN = 0,
+  OBJECT_TYPE_PLAYER = 1
+};
+bool ObjectType_IsValid(int value);
+const ObjectType ObjectType_MIN = OBJECT_TYPE_UNKNOWN;
+const ObjectType ObjectType_MAX = OBJECT_TYPE_PLAYER;
+const int ObjectType_ARRAYSIZE = ObjectType_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* ObjectType_descriptor();
+inline const ::std::string& ObjectType_Name(ObjectType value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    ObjectType_descriptor(), value);
+}
+inline bool ObjectType_Parse(
+    const ::std::string& name, ObjectType* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<ObjectType>(
+    ObjectType_descriptor(), name, value);
+}
 enum ErrorCode {
   ERROR_NO_ERROR = 0,
   ERROR_ACCOUNT_AUTHEN_FAILED = 1,
@@ -123,6 +142,11 @@ template <> struct is_proto_enum< ::protocol::AttribType> : ::google::protobuf::
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::protocol::AttribType>() {
   return ::protocol::AttribType_descriptor();
+}
+template <> struct is_proto_enum< ::protocol::ObjectType> : ::google::protobuf::internal::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::protocol::ObjectType>() {
+  return ::protocol::ObjectType_descriptor();
 }
 template <> struct is_proto_enum< ::protocol::ErrorCode> : ::google::protobuf::internal::true_type {};
 template <>

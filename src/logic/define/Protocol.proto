@@ -11,6 +11,11 @@ enum AttribType{
 	DTYPE_BLOB = 8;
 };
 
+enum ObjectType{
+	OBJECT_TYPE_UNKNOWN = 0;
+	OBJECT_TYPE_PLAYER = 1;
+};
+
 enum ErrorCode{
 	ERROR_NO_ERROR = 0;
 	ERROR_ACCOUNT_AUTHEN_FAILED = 1;

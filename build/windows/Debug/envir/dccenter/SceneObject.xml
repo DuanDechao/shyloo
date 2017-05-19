@@ -6,4 +6,6 @@
 	<prop name="z" type="float" visible="true" share="true" save="true" blob="false" />
 	
 	<temp name="IS_APPEAR" type="int8" />
+	<temp name="SYNCTOSCENE" type="int8" />
+	<temp name="SYNCTOSCENE_TIMER" type="int64" />
 </root>

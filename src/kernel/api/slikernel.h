@@ -146,7 +146,7 @@ public:
 
 #define FIND_MODULE(m, name) {\
 	m = (I##name *)pKernel->findModule(#name); \
-	SLASSERT(m, "where is #name"); \
+	SLASSERT(m, "where is %s", #name); \
 }
 #define TIMER_BEAT_FOREVER	-1
 #endif

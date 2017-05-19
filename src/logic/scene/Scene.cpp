@@ -31,6 +31,7 @@ bool Scene::launched(sl::api::IKernel * pKernel){
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENEMGR_MSG_ENTER_SCENE, Scene::onSceneMgrEnterScene);
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENEMGR_MSG_APPEAR_SCENE, Scene::onSceneMgrAppearScene);
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENEMGR_MSG_LEAVE_SCENE, Scene::onSceneMgrAppearScene);
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENEMGR_MSG_SYNC_SCENE, Scene::onSceneMgrSyncScene);
 
 	return true;
 }
@@ -125,11 +126,11 @@ void Scene::onSceneMgrAppearScene(sl::api::IKernel* pKernel, int32 nodeType, int
 	}
 #endif
 
-	SLASSERT(object->getTempInt8(OCTempProp::IS_APPEAR) == 0, "wtf");
-	if (object->getTempInt8(OCTempProp::IS_APPEAR) == 1)
+	SLASSERT(object->getPropInt8(attr_def::appear) == 0, "wtf");
+	if (object->getPropInt8(attr_def::appear) == 1)
 		return;
 
-	object->setTempInt8(OCTempProp::IS_APPEAR, 1);
+	object->setPropInt8(attr_def::appear, 1);
 	object->setPropInt32(attr_def::gate, gate);
 
 	logic_event::AppearVision evt;
@@ -160,8 +161,8 @@ void Scene::onSceneMgrLeaveScene(sl::api::IKernel* pKernel, int32 nodeType, int3
 	if (!sceneObject)
 		return;
 
-	SLASSERT(sceneObject->getTempInt8(OCTempProp::IS_APPEAR) == 1, "wtf");
-	if (sceneObject->getTempInt8(OCTempProp::IS_APPEAR) == 1){
+	SLASSERT(sceneObject->getPropInt8(attr_def::appear) == 1, "wtf");
+	if (sceneObject->getPropInt8(attr_def::appear) == 1){
 	}
 
 	DEL_TABLE_ROW(sceneObjectsTab, findRow);
@@ -174,6 +175,43 @@ void Scene::onSceneMgrLeaveScene(sl::api::IKernel* pKernel, int32 nodeType, int3
 	_objectMgr->recover(sceneObject);
 
 	_capacityPublisher->decreaseLoad(1);
+}
+
+void Scene::onSceneMgrSyncScene(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args){
+	const char* sceneId = args.getString(0);
+	int64 id = args.getInt64(1);
+	float x = args.getFloat(2);
+	float y = args.getFloat(3);
+	float z = args.getFloat(4);
+
+	IObject* sceneObj = findScene(sceneId);
+	if (!sceneObj){
+		SLASSERT(false, "wtf");
+		return;
+	}
+
+	IObject* object = _objectMgr->findObject(id);
+	if (!object || strcmp(object->getPropString(attr_def::sceneId), sceneObj->getPropString(attr_def::id)) != 0){
+		SLASSERT(false, "wtf");
+		return;
+	}
+
+#ifdef _DEBUG
+	ITableControl* objects = sceneObj->findTable(OCTableMacro::SCENEOBJECTS::TABLE_NAME);
+	SLASSERT(objects, "wtf");
+	if (!objects->findRow(id)){
+		SLASSERT(false, "wtf");
+		return;
+	}
+#endif
+
+	float oldX = object->getPropFloat(attr_def::x);
+	float oldY = object->getPropFloat(attr_def::y);
+	float oldZ = object->getPropFloat(attr_def::z);
+
+	object->setPropFloat(attr_def::x, x);
+	object->setPropFloat(attr_def::y, y);
+	object->setPropFloat(attr_def::z, z);
 }
 
 IObject* Scene::findScene(const char* scene){

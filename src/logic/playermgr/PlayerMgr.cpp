@@ -8,7 +8,7 @@
 #include "NodeProtocol.h"
 #include "Attr.h"
 #include "ICacheDB.h"
-#include "OCTimer.h"
+#include "IObjectTimer.h"
 #include "slxml_reader.h"
 #include "slbinary_map.h"
 
@@ -49,6 +49,7 @@ bool PlayerMgr::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_eventEngine, EventEngine);
 	FIND_MODULE(_roleMgr, RoleMgr);
 	FIND_MODULE(_cacheDB, CacheDB);
+	FIND_MODULE(_objectTimer, ObjectTimer);
 
 	return true;
 }
@@ -121,9 +122,7 @@ void PlayerMgr::propSync(sl::api::IKernel* pKernel, IObject* object, const char*
 		}
 		else{
 			if (object->getTempInt64(OCTempProp::PROP_UPDATE_TIMER) == 0){
-				OCTimer* timer = OCTimer::create(pKernel, object, OCTempProp::PROP_UPDATE_TIMER, nullptr, PlayerMgr::onSavePlayerTime, PlayerMgr::onSavePlayerTerminate);
-				object->setTempInt64(OCTempProp::PROP_UPDATE_TIMER, (int64)timer);
-				START_TIMER(timer, 0, 1, _savePlayerInterval);
+				START_OBJECT_TIMER(_objectTimer, object, OCTempProp::PROP_UPDATE_TIMER, 0, 1, _savePlayerInterval, PlayerMgr::onSavePlayerStart, PlayerMgr::onSavePlayerTime, PlayerMgr::onSavePlayerTerminate);
 			}
 		}
 	}
@@ -131,13 +130,6 @@ void PlayerMgr::propSync(sl::api::IKernel* pKernel, IObject* object, const char*
 
 void PlayerMgr::onSavePlayerTime(sl::api::IKernel* pKernel, IObject* object, int64 tick){
 	s_self->savePlayer(pKernel, object);
-}
-
-void PlayerMgr::onSavePlayerTerminate(sl::api::IKernel* pKernel, IObject* object, bool, int64){
-	OCTimer* timer = (OCTimer*)object->getTempInt64(OCTempProp::PROP_UPDATE_TIMER);
-	if (timer)
-		timer->release();
-	object->setTempInt64(OCTempProp::PROP_UPDATE_TIMER, 0);
 }
 
 bool PlayerMgr::savePlayer(sl::api::IKernel* pKernel, IObject* player){

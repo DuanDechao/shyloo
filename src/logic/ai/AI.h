@@ -11,6 +11,7 @@ class IHarbor;
 class IObject;
 class IScriptEngine;
 class AIMachine;
+class IObjectTimer;
 #define MAX_AI_CONFIG_NAME_LEN 32
 class AI :public IAI, public sl::SLHolder<AI>{
 public:
@@ -26,11 +27,11 @@ public:
 	virtual void startAI(IObject* object);
 	virtual void stopAI(IObject* object);
 
-	static IScriptEngine* GetScriptEngine(){ return s_scriptEngine; }
+	IScriptEngine* GetScriptEngine(){ return _scriptEngine; }
 
-	static void onAIStart(sl::api::IKernel* pKernel, IObject* object, int64);
-	static void onAITick(sl::api::IKernel* pKernel, IObject* object, int64);
-	static void onAIEnd(sl::api::IKernel* pKernel, IObject* object, bool, int64);
+	void onAIStart(sl::api::IKernel* pKernel, IObject* object, int64);
+	void onAITick(sl::api::IKernel* pKernel, IObject* object, int64);
+	void onAIEnd(sl::api::IKernel* pKernel, IObject* object, bool, int64);
 
 private:
 	void startAI(sl::api::IKernel* pKernel, IObject* object);
@@ -41,9 +42,10 @@ private:
 
 	sl::api::IKernel*		_kernel;
 	AI*						_self;
-	static AI_CONFIG_MAP	s_ais;
+	IObjectTimer*			_objectTimer;
+	IScriptEngine*			_scriptEngine;
 
-	static IScriptEngine* s_scriptEngine;
+	AI_CONFIG_MAP	        _ais;
 };
 
 #endif

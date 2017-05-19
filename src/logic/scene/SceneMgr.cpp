@@ -24,7 +24,9 @@ bool SceneMgr::launched(sl::api::IKernel * pKernel){
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_NOTIFY_SCENEMGR_ENTER_SCENE, SceneMgr::onLogicEnterScene);
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_NOTIFY_SCENEMGR_APPEAR_SCENE, SceneMgr::onLogicAppearScene);
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_NOTIFY_SCENEMGR_LEAVE_SCENE, SceneMgr::onLogicLeaveScene);
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_SYNC_SCENE, SceneMgr::onLogicUpdatePosition);
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENE_MSG_SCENE_CONFIRMED, SceneMgr::onSceneConfirmScene);
+	
 
 	return true;
 }
@@ -163,4 +165,30 @@ void SceneMgr::removeObjectFromScene(sl::api::IKernel* pKernel, const char* scen
 	_harbor->send(NodeType::SCENE, nodeId, NodeProtocol::SCENEMGR_MSG_LEAVE_SCENE, args.out());
 
 	row->setDataInt32(OCStaticTableMacro::SCENES::COUNT, count - 1);
+}
+
+void SceneMgr::onLogicUpdatePosition(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
+	int64 id = args.getInt64(0);
+	float x = args.getFloat(1);
+	float y = args.getFloat(2);
+	float z = args.getFloat(3);
+
+	const IRow* row = _objects->findRow(id);
+	if (!row){
+		SLASSERT(false, "wtf");
+		return;
+	}
+
+	const char* sceneId = row->getDataString(OCStaticTableMacro::STATICSCENEOBJECTS::SCENEID);
+	const IRow* sceneRow = _scenes->findRow(sceneId);
+	if (!sceneRow){
+		SLASSERT(false, "wtf");
+		return;
+	}
+
+	int32 node = sceneRow->getDataInt32(OCStaticTableMacro::SCENES::NODE);
+	IArgs<7, 1024> inArgs;
+	inArgs << sceneId << id << x << y << z;
+	inArgs.fix();
+	_harbor->send(NodeType::SCENE, node, NodeProtocol::SCENEMGR_MSG_SYNC_SCENE, inArgs.out());
 }

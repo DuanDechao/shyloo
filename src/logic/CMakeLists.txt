@@ -23,9 +23,8 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/ISceneMgr.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/ISceneClientMgr.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IScene.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IObjectTimer.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IClient.h"
-	"${PROJECT_SOURCE_DIR}/src/logic/interface/OCTimer.h"
-	"${PROJECT_SOURCE_DIR}/src/logic/interface/OCTimer.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/DBType.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/SQLBase.h"
 )
@@ -68,4 +67,5 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/robot)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/packetsender)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/propdelaysender)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/scene)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/objecttimer)
 
