@@ -90,6 +90,7 @@ void SceneClientMgr::onPlayerFirstOnline(sl::api::IKernel* pKernel, const void* 
 	object->setPropFloat(attr_def::x, 32);
 	object->setPropFloat(attr_def::y, 3);
 	object->setPropFloat(attr_def::z, 23);
+	object->setPropFloat(attr_def::vision, 10);
 }
 
 void SceneClientMgr::onPlayerDataLoadCompleted(sl::api::IKernel* pKernel, const void* context, const int32 size){
@@ -142,6 +143,7 @@ void SceneClientMgr::notifySceneMgrEnterScene(sl::api::IKernel* pKernel, IObject
 	args << object->getPropFloat(attr_def::y);
 	args << object->getPropFloat(attr_def::z);
 	args << object->getPropInt32(attr_def::gate);
+	args << object->getPropFloat(attr_def::vision);
 	args.fix();
 
 	_harbor->send(NodeType::SCENEMGR, 1, NodeProtocol::LOGIC_MSG_NOTIFY_SCENEMGR_ENTER_SCENE, args.out());

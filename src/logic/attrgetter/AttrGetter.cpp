@@ -46,6 +46,7 @@ const IProp* attr_def::startTime = nullptr;
 const IProp* attr_def::state = nullptr;
 const IProp* attr_def::status = nullptr;
 const IProp* attr_def::type = nullptr;
+const IProp* attr_def::vision = nullptr;
 const IProp* attr_def::x = nullptr;
 const IProp* attr_def::y = nullptr;
 const IProp* attr_def::z = nullptr;
@@ -82,6 +83,7 @@ void getAttrProp(IObjectMgr* objectMgr){
 	attr_def::state = objectMgr->getPropByName("state");
 	attr_def::status = objectMgr->getPropByName("status");
 	attr_def::type = objectMgr->getPropByName("type");
+	attr_def::vision = objectMgr->getPropByName("vision");
 	attr_def::x = objectMgr->getPropByName("x");
 	attr_def::y = objectMgr->getPropByName("y");
 	attr_def::z = objectMgr->getPropByName("z");

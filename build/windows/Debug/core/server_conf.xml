@@ -9,6 +9,7 @@
 		<node type="1" name="gate" />
 		<node type="2" name="logic" />
 		<node type="3" name="scene" />
+		<node type="4" name="relation" />
 		<node type="5" name="account" />
 		<node type="6" name="scenemgr" />
 		<node type="8" name="db" />
@@ -20,6 +21,7 @@
 		<node name="gate" type="1" min="1" max="1" delay="1000" cmd=" --name=gate --harbor=$port$ --agent=$out_port$ --node_id=$id$" />
 		<node name="logic" type="2" min="1" max="1" delay="5000" cmd=" --name=logic --harbor=$port$ --node_id=$id$" />
 		<node name="scene" type="3" min="1" max="1" delay="5000" cmd=" --name=scene --harbor=$port$ --node_id=$id$" />
+		<node name="relation" type="4" min="1" max="1" delay="5000" cmd=" --name=relation --harbor=$port$ --node_id=$id$" />
 		<node name="account" type="5" min="1" max="1" delay="5000" cmd=" --name=account --harbor=$port$ --node_id=$id$" />
 		<node name="scenemgr" type="6" min="1" max="1" delay="5000" cmd=" --name=scenemgr --harbor=$port$ --node_id=$id$" />
 		<node name="db" type="8" min="1" max="1" delay="5000" cmd=" --name=db --harbor=$port$ --node_id=$id$" />

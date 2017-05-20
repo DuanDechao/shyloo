@@ -44,6 +44,7 @@ struct ATTR_API attr_def{
 	static const IProp* state;
 	static const IProp* status;
 	static const IProp* type;
+	static const IProp* vision;
 	static const IProp* x;
 	static const IProp* y;
 	static const IProp* z;
@@ -82,6 +83,15 @@ namespace OCTableMacro {
 		};
 	}
 
+	namespace AOI_WATCHERS {
+		static int32 TABLE_NAME = 1615486319;
+		enum {
+			OCTM_START = 0,
+			ID = OCTM_START,
+			OCTM_END,
+		};
+	}
+
 	namespace PROP_SELF_TABLE {
 		static int32 TABLE_NAME = 2026016795;
 		enum {
@@ -102,6 +112,15 @@ namespace OCTableMacro {
 
 	namespace SCENEOBJECTS {
 		static int32 TABLE_NAME = 112589896;
+		enum {
+			OCTM_START = 0,
+			ID = OCTM_START,
+			OCTM_END,
+		};
+	}
+
+	namespace AOI_INTERESTERS {
+		static int32 TABLE_NAME = 1168952880;
 		enum {
 			OCTM_START = 0,
 			ID = OCTM_START,

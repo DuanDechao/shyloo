@@ -74,6 +74,7 @@ void Scene::onSceneMgrEnterScene(sl::api::IKernel* pKernel, int32 nodeType, int3
 	float y = args.getFloat(3);
 	float z = args.getFloat(4);
 	int32 gate = args.getInt32(5);
+	float vision = args.getFloat(6);
 
 	IObject* sceneObj = findScene(scene);
 	SLASSERT(sceneObj, "%s is not exist", scene);
@@ -91,6 +92,7 @@ void Scene::onSceneMgrEnterScene(sl::api::IKernel* pKernel, int32 nodeType, int3
 	sceneUnit->setPropFloat(attr_def::y, y);
 	sceneUnit->setPropFloat(attr_def::z, z);
 	sceneUnit->setPropInt32(attr_def::gate, gate);
+	sceneUnit->setPropFloat(attr_def::vision, vision);
 
 	logic_event::EnterVision evt;
 	evt.object = sceneObj;
@@ -111,7 +113,7 @@ void Scene::onSceneMgrAppearScene(sl::api::IKernel* pKernel, int32 nodeType, int
 		return;
 
 	IObject* object = _objectMgr->findObject(id);
-	SLASSERT(object && strcmp(object->getPropString(attr_def::sceneId), sceneObj->getPropString(attr_def::id)) == 0, "witf");
+	SLASSERT(object && strcmp(object->getPropString(attr_def::sceneId), sceneObj->getPropString(attr_def::id)) == 0, "wtf");
 	if (!object)
 		return;
 

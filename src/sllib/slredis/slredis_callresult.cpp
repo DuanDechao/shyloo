@@ -156,7 +156,7 @@ const void* SLRedisCallResult::toBlob(int32& size) const {
 
 int32 SLRedisCallResult::Count() const {
 	if (_reply->type == REDIS_REPLY_ARRAY) {
-		return _reply->elements;
+		return (int32)_reply->elements;
 	}
 
 	SLASSERT(false, "invalid type");

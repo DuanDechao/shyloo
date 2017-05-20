@@ -13,6 +13,8 @@ SET(SCENE
 	"${PROJECT_SOURCE_DIR}/src/logic/scene/SceneMgr.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/scene/Scene.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/scene/Scene.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/scene/AOI.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/scene/AOI.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/scene/main.cpp"
 )
 

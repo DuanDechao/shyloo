@@ -24,6 +24,8 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/ISceneClientMgr.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IScene.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IObjectTimer.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IObjectLocator.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IAOI.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IClient.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/DBType.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/SQLBase.h"
@@ -37,7 +39,7 @@ SET(SL_LOGIC_DEFINE
 	"${PROJECT_SOURCE_DIR}/src/logic/define/DBDef.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/define/EventID.h"
 ) 
- 
+
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/harbor)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/agent)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/slave)
@@ -45,6 +47,7 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/starter)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/capacity)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/master)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/cluster)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/attrgetter)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/dccenter)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/idmgr)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/gate)
@@ -57,7 +60,6 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/distribution)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/account)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/rolemgr)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/logic)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/attrgetter)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/redis)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/cachedb)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/ai)
@@ -68,4 +70,6 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/packetsender)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/propdelaysender)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/scene)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/objecttimer)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/objectlocator)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/shadowmgr)
 

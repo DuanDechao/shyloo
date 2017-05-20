@@ -43,6 +43,7 @@ void SceneMgr::onLogicEnterScene(sl::api::IKernel* pKernel, const int32 nodeType
 	float y = args.getFloat(3);
 	float z = args.getFloat(4);
 	int32 gate = args.getInt32(5);
+	float vision = args.getFloat(6);
 
 	distributeScene(pKernel, scene);
 
@@ -56,7 +57,7 @@ void SceneMgr::onLogicEnterScene(sl::api::IKernel* pKernel, const int32 nodeType
 	const IRow* row = _objects->addRowKeyInt64(id);
 	row->setDataString(OCStaticTableMacro::STATICSCENEOBJECTS::SCENEID, scene);
 
-	addObjectToScene(pKernel, scene, id, x, y, z, gate);
+	addObjectToScene(pKernel, scene, id, x, y, z, gate, vision);
 }
 
 void SceneMgr::distributeScene(sl::api::IKernel* pKernel, const char* scene){
@@ -82,7 +83,7 @@ void SceneMgr::distributeScene(sl::api::IKernel* pKernel, const char* scene){
 	_harbor->send(NodeType::SCENE, nodeId, NodeProtocol::SCENEMGR_MSG_CREATE_SCENE, args.out());
 }
 
-void SceneMgr::addObjectToScene(sl::api::IKernel* pKernel, const char* scene, int64 id, float x, float y, float z, int32 gate){
+void SceneMgr::addObjectToScene(sl::api::IKernel* pKernel, const char* scene, int64 id, float x, float y, float z, int32 gate, float vision){
 	const IRow* row = _scenes->findRow(scene);
 	SLASSERT(row, "wtf");
 
@@ -91,7 +92,7 @@ void SceneMgr::addObjectToScene(sl::api::IKernel* pKernel, const char* scene, in
 	int32 count = row->getDataInt32(OCStaticTableMacro::SCENES::COUNT);
 
 	IArgs<15, 1024> args;
-	args << scene << id << x << y << z << gate;
+	args << scene << id << x << y << z << gate << vision;
 	args.fix();
 	_harbor->send(NodeType::SCENE, nodeId, NodeProtocol::SCENEMGR_MSG_ENTER_SCENE, args.out());
 
