@@ -16,4 +16,5 @@
 	<module name="ObjectTimer" />
 	<module name="PacketSender" />
 	<module name="PropDelaySender" />
+	<module name="Scene" />
 </modules>

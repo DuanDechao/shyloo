@@ -13,7 +13,12 @@
 		<column name="occupation" type="int8" />
 		<column name="sex" type="int8" />
 		<column name="props" type="blob" />
+		<column name="scene" type="string" />
+		<column name="x" type="float" />
+		<column name="y" type="float" />
+		<column name="z" type="float" />
 		<column name="lastActorId" type="int64" />
+		<column name="firstLogin" type="int8" />
 		<index name="account" />
 	</table>
 </cache_db>

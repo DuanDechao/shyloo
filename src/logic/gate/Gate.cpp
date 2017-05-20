@@ -482,7 +482,7 @@ void Gate::onClientCreateRoleReq(sl::api::IKernel* pKernel, const int64 id, cons
 			player.roles.push_back({ actorId, role });
 
 			sl::IBStream<128> rsp;
-			rsp << protocol::ErrorCode::ERROR_NO_ERROR;
+			rsp << protocol::ErrorCode::ERROR_NO_ERROR << actorId;
 			role->pack();
 			sendToClient(pKernel, id, ServerMsgID::SERVER_MSG_CREATE_ROLE_RSP, rsp.out());
 		}

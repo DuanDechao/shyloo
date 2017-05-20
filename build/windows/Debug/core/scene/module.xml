@@ -4,6 +4,8 @@
 	<module name="Cluster" />
 	<module name="Capacity" />
 	<module name="DCCenter" />
+	<module name="AttrGetter" />
 	<module name="IdMgr" />
 	<module name="Scene" />
+	<module name="EventEngine" />
 </modules>

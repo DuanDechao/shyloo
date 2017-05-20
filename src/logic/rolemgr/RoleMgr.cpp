@@ -66,6 +66,7 @@ IRole* RoleMgr::createRole(int64 accountId, int64 actorId, const sl::OBStream& b
 		context->writeString("name", name);
 		context->writeInt8("occupation", occupation);
 		context->writeInt8("sex", sex);
+		context->writeInt8("firstLogin", 1);
 	}, 1, actorId);
 
 	if (!ret)
@@ -84,20 +85,26 @@ bool RoleMgr::loadRole(const int64 actorId, IObject* object){
 		reader->readColumn("occupation");
 		reader->readColumn("sex");
 		reader->readColumn("props");
+		reader->readColumn("scene");
+		reader->readColumn("x");
+		reader->readColumn("y");
+		reader->readColumn("z");
+		reader->readColumn("firstLogin");
 	}, [&object](sl::api::IKernel* pKernel, ICacheDBReadResult* result){
 		int32 count = result->count();
 		if (count != 1){
 			SLASSERT(false, "invailed data size");
 		}
 		else{
-			int64 id = result->getInt64(0, 0);
-			const char* name = result->getString(0, 1);
-			int8 occupation = result->getInt8(0, 2);
-			int8 sex = result->getInt8(0, 3);
-			object->setPropInt64(attr_def::id, id);
-			object->setPropString(attr_def::name, name);
-			object->setPropInt8(attr_def::occupation, occupation);
-			object->setPropInt8(attr_def::sex, sex);
+			object->setPropInt64(attr_def::id, result->getInt64(0, 0));
+			object->setPropString(attr_def::name, result->getString(0, 1));
+			object->setPropInt8(attr_def::occupation, result->getInt8(0, 2));
+			object->setPropInt8(attr_def::sex, result->getInt8(0, 3));
+			object->setPropString(attr_def::scene, result->getString(0, 5));
+			object->setPropFloat(attr_def::x, result->getFloat(0, 6));
+			object->setPropFloat(attr_def::y, result->getFloat(0, 7));
+			object->setPropFloat(attr_def::z, result->getFloat(0, 8));
+			object->setPropInt8(attr_def::firstLogin, result->getInt8(0, 9));
 
 			int32 size = 0;
 			const void* propsData = result->getBinary(0, 4, size);

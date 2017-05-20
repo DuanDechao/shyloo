@@ -26,10 +26,13 @@ struct ATTR_API attr_def{
 	static const IProp* aiInterval;
 	static const IProp* appear;
 	static const IProp* exp;
+	static const IProp* firstLogin;
 	static const IProp* gate;
 	static const IProp* hp;
 	static const IProp* id;
 	static const IProp* logic;
+	static const IProp* maxHp;
+	static const IProp* maxMp;
 	static const IProp* mp;
 	static const IProp* name;
 	static const IProp* occupation;

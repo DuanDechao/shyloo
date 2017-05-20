@@ -19,6 +19,7 @@ bool Robot::launched(sl::api::IKernel * pKernel){
 	_self->rgsSvrMessageHandler(ServerMsgID::SERVER_MSG_LOGIN_RSP, &Robot::onServerLoginAck);
 	_self->rgsSvrMessageHandler(ServerMsgID::SERVER_MSG_SELECT_ROLE_RSP, &Robot::onServerSelectRoleAck);
 	_self->rgsSvrMessageHandler(ServerMsgID::SERVER_MSG_ATTRIB_SYNC, &Robot::onServerAttribSync);
+	_self->rgsSvrMessageHandler(ServerMsgID::SERVER_MSG_CREATE_ROLE_RSP, &Robot::onServerAttribSync);
 	
 	_client->setListener(this);
 
@@ -115,7 +116,7 @@ void Robot::onServerLoginAck(sl::api::IKernel* pKernel, const int64 id, const OB
 	}
 
 	if (roleCount < 3){
-		static char names[3][64] = { "world", "wonder", "sky" };
+		static char names[3][64] = { "sdf", "sdfs", "sdfss" };
 		IBStream<256> ask;
 		ask << names[roleCount] << (int8)1 << (int8)1;
 		sendToSvr(pKernel, id, ClientMsgID::CLIENT_MSG_CREATE_ROLE_REQ, ask.out());
@@ -132,6 +133,19 @@ void Robot::onServerLoginAck(sl::api::IKernel* pKernel, const int64 id, const OB
 		sendToSvr(pKernel, id, ClientMsgID::CLIENT_MSG_SELECT_ROLE_REQ, ask.out());
 	}
 
+}
+
+void Robot::onServerCreateRoleAck(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
+	int32 errCode = 0;
+	int64 actorId = 0;
+	if (!args.read(errCode) || !args.read(actorId))
+		return;
+
+	if (errCode == 0){
+		IBStream<64> ask;
+		ask << actorId;
+		sendToSvr(pKernel, id, ClientMsgID::CLIENT_MSG_SELECT_ROLE_REQ, ask.out());
+	}
 }
 
 void Robot::onServerSelectRoleAck(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){

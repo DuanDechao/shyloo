@@ -34,6 +34,7 @@ public:
 	virtual void rgsSvrMessageHandler(int32 messageId, svr_args_cb handler);
 
 	void onServerLoginAck(sl::api::IKernel* pKernel, const int64 id, const OBStream& args);
+	void onServerCreateRoleAck(sl::api::IKernel* pKernel, const int64 id, const OBStream& args);
 	void onServerSelectRoleAck(sl::api::IKernel* pKernel, const int64 id, const OBStream& args);
 	void onServerAttribSync(sl::api::IKernel* pKernel, const int64 id, const OBStream& args);
 

@@ -39,6 +39,7 @@ bool SceneClientMgr::launched(sl::api::IKernel * pKernel){
 
 	RGS_PROTO_HANDLER(_logic, ClientMsgID::CLIENT_MSG_ENTER_SCENE_REQ, SceneClientMgr::onClientEnterScene);
 
+	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_LOGIC_PLAYER_FIRST_ONLINE, SceneClientMgr::onPlayerFirstOnline);
 	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_LOGIC_DATA_LOAD_COMPLETED, SceneClientMgr::onPlayerDataLoadCompleted);
 	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_LOGIC_DATA_LOAD_COMPLETED, SceneClientMgr::onStartSyncTimer);
 	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_LOGIC_SCENE_OBJECT_APPEAR, SceneClientMgr::onObjectAppear);
@@ -77,6 +78,18 @@ void SceneClientMgr::notifySceneMgrAppearScene(sl::api::IKernel* pKernel, IObjec
 	args.fix();
 
 	_harbor->send(NodeType::SCENEMGR, 1, NodeProtocol::LOGIC_MSG_NOTIFY_SCENEMGR_APPEAR_SCENE, args.out());
+}
+
+void SceneClientMgr::onPlayerFirstOnline(sl::api::IKernel* pKernel, const void* context, const int32 size){
+	SLASSERT(size == sizeof(logic_event::Biology), "wtf");
+	IObject* object = ((logic_event::Biology*)context)->object;
+	SLASSERT(object, "wtf");
+	
+	//设置出生点
+	object->setPropString(attr_def::scene, "lxd");
+	object->setPropFloat(attr_def::x, 32);
+	object->setPropFloat(attr_def::y, 3);
+	object->setPropFloat(attr_def::z, 23);
 }
 
 void SceneClientMgr::onPlayerDataLoadCompleted(sl::api::IKernel* pKernel, const void* context, const int32 size){

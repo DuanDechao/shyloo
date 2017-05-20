@@ -106,6 +106,12 @@ bool PlayerMgr::active(int64 actorId, int32 nodeId, int64 accountId, const std::
 
 void PlayerMgr::onProcessPlayerOnline(sl::api::IKernel* pKernel, IObject* object){
 	logic_event::Biology info{ object };
+
+	if (object->getPropInt8(attr_def::firstLogin) == 1){
+		_eventEngine->execEvent(logic_event::EVENT_LOGIC_PLAYER_FIRST_ONLINE, &info, sizeof(info));
+		object->setPropInt8(attr_def::firstLogin, 0);
+	}
+
 	_eventEngine->execEvent(logic_event::EVENT_LOGIC_PLAYER_ONLINE, &info, sizeof(info));
 
 	allDataLoadComplete(pKernel, object);

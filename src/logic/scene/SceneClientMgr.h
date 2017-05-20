@@ -19,6 +19,7 @@ public:
 
 	bool onClientEnterScene(sl::api::IKernel* pKernel, IObject* object, const sl::OBStream& args);
 
+	void onPlayerFirstOnline(sl::api::IKernel* pKernel, const void* context, const int32 size);
 	void onPlayerDataLoadCompleted(sl::api::IKernel* pKernel, const void* context, const int32 size);
 	void onPlayerDestroy(sl::api::IKernel* pKernel, const void* context, const int32 size);
 	void onStartSyncTimer(sl::api::IKernel* pKernel, const void* context, const int32 size);
