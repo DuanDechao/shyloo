@@ -5,6 +5,7 @@
 	<prop name="save" />
 	<prop name="significant" />
 	<prop name="blob" />
+	<prop name="copy" />
 
 	
 	<table name="STATICSCENEOBJECTS">

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <root start="1">
-	<prop name="id" type="int64" visible="true" share="false" save="true" blob="true" />
-	<prop name="status" type="int64" visible="true" share="false" save="true" blob="true" />
-	<prop name="ai" type="string" size="64" visible="false" share="false" save="false" blob="false" />
-	<prop name="aiInterval" type="int32" visible="false" share="false" save="false" blob="false" />
-	<prop name="type" type="int8" visible="false" share="false" save="false" blob="false" />
+	<prop name="id" type="int64" visible="true" share="false" save="true" blob="true" copy="false" />
+	<prop name="status" type="int64" visible="true" share="false" save="true" blob="true" copy="false" />
+	<prop name="ai" type="string" size="64" visible="false" share="false" save="false" blob="false" copy="false"/>
+	<prop name="aiInterval" type="int32" visible="false" share="false" save="false" blob="false" copy="false"/>
+	<prop name="type" type="int8" visible="false" share="false" save="false" blob="false" copy="false"/>
 	
 	<temp name="AITIMER" type="int64" />
 	

@@ -55,6 +55,7 @@ const IProp* OCTempProp::AITIMER = nullptr;
 const IProp* OCTempProp::AI_REF = nullptr;
 const IProp* OCTempProp::IS_APPEAR = nullptr;
 const IProp* OCTempProp::PROP_UPDATE_TIMER = nullptr;
+const IProp* OCTempProp::RGS_SHADOW = nullptr;
 const IProp* OCTempProp::SYNCTOSCENE = nullptr;
 const IProp* OCTempProp::SYNCTOSCENE_TIMER = nullptr;
 
@@ -92,6 +93,7 @@ void getAttrProp(IObjectMgr* objectMgr){
 	OCTempProp::AI_REF = objectMgr->getTempPropByName("AI_REF");
 	OCTempProp::IS_APPEAR = objectMgr->getTempPropByName("IS_APPEAR");
 	OCTempProp::PROP_UPDATE_TIMER = objectMgr->getTempPropByName("PROP_UPDATE_TIMER");
+	OCTempProp::RGS_SHADOW = objectMgr->getTempPropByName("RGS_SHADOW");
 	OCTempProp::SYNCTOSCENE = objectMgr->getTempPropByName("SYNCTOSCENE");
 	OCTempProp::SYNCTOSCENE_TIMER = objectMgr->getTempPropByName("SYNCTOSCENE_TIMER");
 }

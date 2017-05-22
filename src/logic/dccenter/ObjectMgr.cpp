@@ -17,6 +17,10 @@ bool ObjectMgr::initialize(sl::api::IKernel * pKernel){
 		return false;
 	}
 
+	for (auto itor = _allProps.begin(); itor != _allProps.end(); ++itor){
+		_allPropsId[itor->second->getName()] = itor->second;
+	}
+
 	return true;
 }
 
@@ -65,7 +69,7 @@ bool ObjectMgr::destory(sl::api::IKernel * pKernel){
 }
 
 void ObjectMgr::onTime(sl::api::IKernel* pKernel, int64 timetick){
-	IObject* player = create("ddc", 1, "Player");
+	IObject* player = create("ddc", 1, "Player", false);
 	uint64 playerId = player->getID();
 	ECHO_ERROR("player id:%llu", player->getID());
 }
@@ -210,11 +214,21 @@ const IProp* ObjectMgr::getTempPropByName(const char* name) const{
 	return nullptr;
 }
 
-IObject* ObjectMgr::create(const char* file, const int32 line, const char* name){
-	return createById(file, line, name, _idMgr->allocID());
+const IProp* ObjectMgr::getPropByNameId(const int32 name) const{
+	auto itor = _allPropsId.find(name);
+	SLASSERT(itor != _allPropsId.end(), "wtf");
+	if (itor != _allPropsId.end()){
+		return itor->second;
+	}
+	return nullptr;
 }
 
-IObject* ObjectMgr::createById(const char* file, const int32 line, const char* name, const uint64 id){
+
+IObject* ObjectMgr::create(const char* file, const int32 line, const char* name, bool isShadow){
+	return createById(file, line, name, _idMgr->allocID(), isShadow);
+}
+
+IObject* ObjectMgr::createById(const char* file, const int32 line, const char* name, const uint64 id, bool isShadow){
 	auto itor = _allObjects.find(id);
 	if (itor != _allObjects.end()){
 		SLASSERT(false, "object[%lld] has exist!", id);
@@ -229,6 +243,8 @@ IObject* ObjectMgr::createById(const char* file, const int32 line, const char* n
 
 	MMObject* object = NEW MMObject(name, itor1->second);
 	object->setID(id);
+	object->setShadow(isShadow);
+
 	_allObjects.insert(make_pair(id, object));
 	return object;
 }

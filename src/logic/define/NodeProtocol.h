@@ -1,5 +1,7 @@
 #ifndef SL_NODE_PROTOCOL_H
 #define SL_NODE_PROTOCOL_H
+#include "GameDefine.h"
+
 enum NodeProtocol{
 	ASK_FOR_ALLOC_ID_AREA = 1,
 	GIVE_ID_AREA = 2,
@@ -32,7 +34,7 @@ enum NodeProtocol{
 	SCENE_MSG_ADD_WATCHER,
 	SCENE_MSG_REMOVE_INTERESTER,
 	SCENE_MSG_REMOVE_WATCHER,
-	SCENE_MSG_CREATE_SHADOW,
+	
 
 	LOGIC_MSG_BIND_PLAYER_ACK = 3000,
 	LOGIC_MSG_NOTIFY_ADD_PLAYER,
@@ -46,7 +48,9 @@ enum NodeProtocol{
 	LOGIC_MSG_SYNC_SCENE,
 	LOGIC_MSG_SYNC_OBJECT_LOCATION,
 	LOGIC_MSG_REMOVE_OBJECT_LOCATION,
+	LOGIC_MSG_CREATE_SHADOW,
 	LOGIC_MSG_SYNC_SHADOW,
+	LOGIC_MSG_DESTROY_SHADOW,
 
 
 	DB_MSG_UPDATE_DATABASE_FINISHED = 4000,
@@ -69,4 +73,25 @@ namespace client{
 		int32 count;
 	};
 }
+
+namespace shadow{
+	struct Attribute{
+		int32 name;
+		int32 type;
+		union{
+			int8 valueInt8;
+			int16 valueInt16;
+			int32 valueInt32;
+			int64 valueInt64;
+			char valueString[game::MAX_PROP_NAME_LEN];
+		} data;
+	};
+
+	struct CreateShadow{
+		int64 id;
+		char objectTypeName[game::MAX_OBJECT_TYPE_LEN];
+		int32 count;
+	};
+}
+
 #endif

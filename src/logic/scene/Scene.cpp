@@ -30,8 +30,10 @@ bool Scene::launched(sl::api::IKernel * pKernel){
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENEMGR_MSG_CREATE_SCENE, Scene::onSceneMgrCreateScene);
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENEMGR_MSG_ENTER_SCENE, Scene::onSceneMgrEnterScene);
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENEMGR_MSG_APPEAR_SCENE, Scene::onSceneMgrAppearScene);
-	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENEMGR_MSG_LEAVE_SCENE, Scene::onSceneMgrAppearScene);
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENEMGR_MSG_LEAVE_SCENE, Scene::onSceneMgrLeaveScene);
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENEMGR_MSG_SYNC_SCENE, Scene::onSceneMgrSyncScene);
+
+	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_SCENE_APPEAR_SCENE, Scene::onObjectAppearOnScene);
 
 	return true;
 }
@@ -74,7 +76,8 @@ void Scene::onSceneMgrEnterScene(sl::api::IKernel* pKernel, int32 nodeType, int3
 	float y = args.getFloat(3);
 	float z = args.getFloat(4);
 	int32 gate = args.getInt32(5);
-	float vision = args.getFloat(6);
+	int32 logic = args.getInt32(6);
+	float vision = args.getFloat(7);
 
 	IObject* sceneObj = findScene(scene);
 	SLASSERT(sceneObj, "%s is not exist", scene);
@@ -92,6 +95,7 @@ void Scene::onSceneMgrEnterScene(sl::api::IKernel* pKernel, int32 nodeType, int3
 	sceneUnit->setPropFloat(attr_def::y, y);
 	sceneUnit->setPropFloat(attr_def::z, z);
 	sceneUnit->setPropInt32(attr_def::gate, gate);
+	sceneUnit->setPropInt32(attr_def::logic, logic);
 	sceneUnit->setPropFloat(attr_def::vision, vision);
 
 	logic_event::EnterVision evt;
@@ -136,7 +140,7 @@ void Scene::onSceneMgrAppearScene(sl::api::IKernel* pKernel, int32 nodeType, int
 	object->setPropInt32(attr_def::gate, gate);
 
 	logic_event::AppearVision evt;
-	evt.object = object;
+	evt.object = sceneObj;
 	evt.id = id;
 	_eventEngine->execEvent(logic_event::EVENT_SCENE_APPEAR_SCENE, &evt, sizeof(evt));
 }
@@ -214,6 +218,26 @@ void Scene::onSceneMgrSyncScene(sl::api::IKernel* pKernel, int32 nodeType, int32
 	object->setPropFloat(attr_def::x, x);
 	object->setPropFloat(attr_def::y, y);
 	object->setPropFloat(attr_def::z, z);
+}
+
+void Scene::onObjectAppearOnScene(sl::api::IKernel* pKernel, const void* context, const int32 size){
+	SLASSERT(size == sizeof(logic_event::AppearVision), "wtf");
+	IObject* scene = ((logic_event::AppearVision*)context)->object;
+	int64 objectId = ((logic_event::AppearVision*)context)->id;
+	SLASSERT(scene && objectId > 0, "wtf");
+	IObject* object = _objectMgr->findObject(objectId);
+	SLASSERT(object, "wtf");
+	if (!object)
+		return;
+
+	ITableControl* sceneObjects = scene->findTable(OCTableMacro::SCENEOBJECTS::TABLE_NAME);
+	SLASSERT(sceneObjects, "wtf");
+	for (int32 i = 0; i < sceneObjects->rowCount(); i++){
+		const IRow* row = sceneObjects->getRow(i);
+		int64 id = row->getDataInt64(OCTableMacro::SCENEOBJECTS::ID);
+		IObject* sceneObject = _objectMgr->findObject(id);
+		SLASSERT(sceneObject, "wtf");
+	}
 }
 
 IObject* Scene::findScene(const char* scene){

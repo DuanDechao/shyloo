@@ -91,6 +91,8 @@ public:
 	virtual const int64 getID() const = 0;
 
 	virtual const std::vector<const IProp*>& getObjProps(bool noParent = false) const = 0;
+	virtual const char* getObjTypeString() const = 0;
+	virtual bool isShadow() const = 0;
 
 	virtual bool setPropInt8(const IProp* prop, const int8 data, const bool sync = true) = 0;
 	virtual bool setPropInt16(const IProp* prop, const int16 data, const bool sync = true) = 0;
@@ -141,8 +143,9 @@ public:
 
 	virtual const IProp* getPropByName(const char* name) const = 0;
 	virtual const IProp* getTempPropByName(const char* name) const = 0;
-	virtual IObject* create(const char* file, const int32 line, const char* name) = 0;
-	virtual IObject* createById(const char* file, const int32 line, const char* name, const uint64 id) = 0;
+	virtual const IProp* getPropByNameId(const int32 name) const = 0;
+	virtual IObject* create(const char* file, const int32 line, const char* name, bool isShadow = false) = 0;
+	virtual IObject* createById(const char* file, const int32 line, const char* name, const uint64 id, bool isShadow = false) = 0;
 	virtual void recover(IObject* object) = 0;
 	virtual IObject* findObject(const uint64 id) = 0;
 	virtual ITableControl* createStaticTable(const char* name, const char* model, const char* file, const int32 line) = 0;

@@ -7,7 +7,8 @@ MMObject::MMObject(const char* name, const ObjectPropInfo* pPropInfo)
 	:_name(name),
 	_poPropInfo(pPropInfo),
 	_objectId(0),
-	_objectFSM(nullptr)
+	_objectFSM(nullptr),
+	_isShadow(false)
 {
 	_memory = NEW OMemory(_poPropInfo->getMemSize());
 	_poPropInfo->queryTables([this](const int32 name, const TableColumn* pTableColumn){

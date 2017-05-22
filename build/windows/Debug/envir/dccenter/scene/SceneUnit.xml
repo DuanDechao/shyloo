@@ -8,4 +8,5 @@
 	<prop name="gate" type="int32" visible="false" share="false" save="false" blob="false" />
 	<prop name="appear" type="int8" visible="false" share="false" save="false" blob="false" />
 	<prop name="vision" type="float" visible="false" share="false" save="false" blob="false" />
+	<prop name="logic" type="int32" visible="false" share="false" save="false" blob="false" />
 </root>

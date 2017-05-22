@@ -16,6 +16,7 @@ namespace prop_def {
 		save = 4,
 		significant = 8,
 		blob = 16,
+		copy = 32,
 	};
 }
 
@@ -55,6 +56,7 @@ struct ATTR_API OCTempProp{
 	static const IProp* AI_REF;
 	static const IProp* IS_APPEAR;
 	static const IProp* PROP_UPDATE_TIMER;
+	static const IProp* RGS_SHADOW;
 	static const IProp* SYNCTOSCENE;
 	static const IProp* SYNCTOSCENE_TIMER;
 };
@@ -124,6 +126,16 @@ namespace OCTableMacro {
 		enum {
 			OCTM_START = 0,
 			ID = OCTM_START,
+			OCTM_END,
+		};
+	}
+
+	namespace SHADOW {
+		static int32 TABLE_NAME = -2071500652;
+		enum {
+			OCTM_START = 0,
+			LOGIC = OCTM_START,
+			COUNT,
 			OCTM_END,
 		};
 	}

@@ -21,6 +21,10 @@ public:
 
 	virtual const std::vector<const IProp*>& getObjProps(bool noParent) const;
 
+	virtual bool isShadow() const { return _isShadow; }
+
+	void setShadow(const bool shadow) { _isShadow = shadow; }
+
 	virtual bool setPropInt8(const IProp* prop, const int8 data, const bool sync){ return setData(prop, false, DTYPE_INT8, &data, sizeof(int8), sync); }
 	virtual bool setPropInt16(const IProp* prop, const int16 data, const bool sync){ return setData(prop, false, DTYPE_INT16, &data, sizeof(int16), sync); }
 	virtual bool setPropInt32(const IProp* prop, const int32 data, const bool sync){ return setData(prop, false, DTYPE_INT32, &data, sizeof(int32), sync); }
@@ -82,6 +86,7 @@ private:
 private:
 	const sl::SLString<MAX_OBJECT_NAME_LEN>		_name;
 	uint64										_objectId;
+	bool										_isShadow;
 	const ObjectPropInfo*						_poPropInfo;
 	std::unordered_map<int32, TableControl*>	_tables;
 	OMemory*									_memory;

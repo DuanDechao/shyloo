@@ -22,6 +22,8 @@ public:
 	void onSceneMgrLeaveScene(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
 	void onSceneMgrSyncScene(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
 
+	void onObjectAppearOnScene(sl::api::IKernel* pKernel, const void* context, const int32 size);
+
 private:
 	void confirmScene(sl::api::IKernel* pKernel, const char* scene);
 	IObject* findScene(const char* scene);

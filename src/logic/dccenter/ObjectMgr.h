@@ -17,9 +17,10 @@ public:
 
 	virtual const IProp* getPropByName(const char* name) const;
 	virtual const IProp* getTempPropByName(const char* name) const;
+	virtual const IProp* getPropByNameId(const int32 name) const;
 
-	virtual IObject* create(const char* file, const int32 line, const char* name);
-	virtual IObject* createById(const char* file, const int32 line, const char* name, const uint64 id);
+	virtual IObject* create(const char* file, const int32 line, const char* name, bool isShadow);
+	virtual IObject* createById(const char* file, const int32 line, const char* name, const uint64 id, bool isShadow);
 	virtual void recover(IObject* object);
 	virtual IObject* findObject(const uint64 id);
 	virtual ITableControl* createStaticTable(const char* name, const char* model, const char* file, const int32 line);
@@ -60,6 +61,7 @@ private:
 	PROP_CONFIG_PATH_MAP _propConfigsPath;
 	PROP_MAP _allProps;
 	PROP_MAP _allTempProps;
+	std::unordered_map<int32, ObjectProp*> _allPropsId;
 	OBJECT_MODEL_MAP _objPropInfo;
 	int32 _nextObjTypeId;
 	unordered_map<uint64, MMObject*> _allObjects;
