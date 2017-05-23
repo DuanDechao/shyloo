@@ -57,6 +57,7 @@ struct ATTR_API OCTempProp{
 	static const IProp* IS_APPEAR;
 	static const IProp* PROP_UPDATE_TIMER;
 	static const IProp* RGS_SHADOW;
+	static const IProp* SHADOW_SYNC_TIMER;
 	static const IProp* SYNCTOSCENE;
 	static const IProp* SYNCTOSCENE_TIMER;
 };
@@ -90,6 +91,8 @@ namespace OCTableMacro {
 		enum {
 			OCTM_START = 0,
 			ID = OCTM_START,
+			LOGIC,
+			GATE,
 			OCTM_END,
 		};
 	}
@@ -126,6 +129,16 @@ namespace OCTableMacro {
 		enum {
 			OCTM_START = 0,
 			ID = OCTM_START,
+			TYPE,
+			OCTM_END,
+		};
+	}
+
+	namespace SHADOW_SYNC_PROP {
+		static int32 TABLE_NAME = -1881068084;
+		enum {
+			OCTM_START = 0,
+			PROP = OCTM_START,
 			OCTM_END,
 		};
 	}

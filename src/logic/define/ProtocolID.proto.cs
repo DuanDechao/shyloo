@@ -46,7 +46,13 @@ namespace ProtocolID
       SERVER_MSG_CREATE_ROLE_RSP = 3,
             
       [global::ProtoBuf.ProtoEnum(Name=@"SERVER_MSG_ATTRIB_SYNC", Value=4)]
-      SERVER_MSG_ATTRIB_SYNC = 4
+      SERVER_MSG_ATTRIB_SYNC = 4,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SERVER_MSG_NEW_ROLE_NOTIFY", Value=5)]
+      SERVER_MSG_NEW_ROLE_NOTIFY = 5,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SERVER_MSG_REMOVE_ROLE_NOTIFY", Value=6)]
+      SERVER_MSG_REMOVE_ROLE_NOTIFY = 6
     }
   
 }

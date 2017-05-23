@@ -247,3 +247,25 @@ IObject* Scene::findScene(const char* scene){
 
 	return (IObject*)row->getDataInt64(OCStaticTableMacro::SCENECOPY::OBJECT);
 }
+
+void Scene::addObjectToScene(const char* sceneId, IObject* object){
+	SceneObjectNode* node = NEW SceneObjectNode();
+	node->object = object;
+
+	auto itor = _sceneObjectNodes.find(sceneId);
+	if (itor == _sceneObjectNodes.end()){
+		_sceneObjectNodes[sceneId] = node;
+		return;
+	}
+	
+
+
+	SceneObjectNode* curr = itor->second;
+	while (curr){
+		SLASSERT(curr->object, "wtf");
+		if (curr->object->getPropFloat(attr_def::x) > node->object->getPropFloat(attr_def::x) || !curr->xNext){
+			curr->xPrev = node;
+			node->xNext = curr;
+		}
+	}
+}

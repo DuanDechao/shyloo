@@ -35,5 +35,5 @@
 	</redis>
 	<loadbroad interval="1000" />
 	<save player="120000" />
-	<sync_rate scene="500" />
+	<sync_rate scene="500" shadow="500" />
 </core>

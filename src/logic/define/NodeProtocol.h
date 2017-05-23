@@ -77,19 +77,25 @@ namespace client{
 namespace shadow{
 	struct Attribute{
 		int32 name;
-		int32 type;
+		int8 type;
 		union{
 			int8 valueInt8;
 			int16 valueInt16;
 			int32 valueInt32;
 			int64 valueInt64;
-			char valueString[game::MAX_PROP_NAME_LEN];
+			float valueFloat;
+			char valueString[game::MAX_PROP_VALUE_LEN];
 		} data;
 	};
 
 	struct CreateShadow{
 		int64 id;
 		char objectTypeName[game::MAX_OBJECT_TYPE_LEN];
+		int32 count;
+	};
+
+	struct SyncShadow{
+		int64 id;
 		int32 count;
 	};
 }

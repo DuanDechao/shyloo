@@ -2,6 +2,8 @@
 #define __SL_FRAMEWORK_SCENE_H__
 #include "slsingleton.h"
 #include "IScene.h"
+#include <unordered_map>
+
 class IHarbor;
 class IObjectMgr;
 class ICapacitySubscriber;
@@ -11,6 +13,17 @@ class OArgs;
 class IObject;
 class IEventEngine;
 class Scene : public IScene, public sl::SLHolder<Scene>{
+	struct SceneObjectNode{
+		SceneObjectNode() :xPrev(nullptr), xNext(nullptr), yPrev(nullptr), yNext(nullptr), object(nullptr){}
+		~SceneObjectNode(){}
+
+		SceneObjectNode* xPrev;
+		SceneObjectNode* xNext;
+		SceneObjectNode* yPrev;
+		SceneObjectNode* yNext;
+		IObject* object;
+	};
+
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);
@@ -28,7 +41,10 @@ private:
 	void confirmScene(sl::api::IKernel* pKernel, const char* scene);
 	IObject* findScene(const char* scene);
 
+	void addObjectToScene(const char* sceneId, IObject* object);
+
 private:
+	typedef std::unordered_map<sl::SLString<MAX_SCENE_LEN>, SceneObjectNode*, sl::HashFunc<MAX_SCENE_LEN>, sl::EqualFunc<MAX_SCENE_LEN>> SCENE_OBJECTNODE_MAP;
 	sl::api::IKernel* _kernel;
 	Scene*		_self;
 	IHarbor*		_harbor;
@@ -38,5 +54,6 @@ private:
 	IEventEngine*		_eventEngine;
 
 	ITableControl*	_scenes;
+	SCENE_OBJECTNODE_MAP _sceneObjectNodes;
 };
 #endif

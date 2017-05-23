@@ -70,11 +70,13 @@ enum ServerMsgID {
   SERVER_MSG_LOGIN_RSP = 1,
   SERVER_MSG_SELECT_ROLE_RSP = 2,
   SERVER_MSG_CREATE_ROLE_RSP = 3,
-  SERVER_MSG_ATTRIB_SYNC = 4
+  SERVER_MSG_ATTRIB_SYNC = 4,
+  SERVER_MSG_NEW_ROLE_NOTIFY = 5,
+  SERVER_MSG_REMOVE_ROLE_NOTIFY = 6
 };
 bool ServerMsgID_IsValid(int value);
 const ServerMsgID ServerMsgID_MIN = SERVER_MSG_LOGIN_RSP;
-const ServerMsgID ServerMsgID_MAX = SERVER_MSG_ATTRIB_SYNC;
+const ServerMsgID ServerMsgID_MAX = SERVER_MSG_REMOVE_ROLE_NOTIFY;
 const int ServerMsgID_ARRAYSIZE = ServerMsgID_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* ServerMsgID_descriptor();

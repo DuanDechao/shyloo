@@ -20,6 +20,10 @@ namespace logic_event{
 		EVENT_LOGIC_SCENE_OBJECT_APPEAR,
 		EVENT_LOGIC_SCENE_OBJECT_DESTROY,
 		EVENT_LOGIC_SHADOW_CREATED,
+		EVENT_LOGIC_ENTER_VISION,
+		EVENT_LOGIC_LEAVE_VISION,
+		EVENT_LOGIC_SEE_SOMEONE,
+		EVENT_LOGIC_MISS_SOMEONE,
 
 		EVENT_SCENE_ENTER_SCENE = 1000,
 		EVENT_SCENE_APPEAR_SCENE,
@@ -49,6 +53,18 @@ namespace logic_event{
 	struct LeaveVision{
 		IObject* object;
 		int64 id;
+	};
+
+	struct VisionInfo{
+		IObject* object;
+		int64 watcherId;
+		int32 gate;
+	};
+
+	struct WatchInfo{
+		IObject* object;
+		int64 interester;
+		int32 type;
 	};
 }
 #endif
