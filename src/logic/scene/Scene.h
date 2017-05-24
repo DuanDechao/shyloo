@@ -3,6 +3,8 @@
 #include "slsingleton.h"
 #include "IScene.h"
 #include <unordered_map>
+#include "slstring.h"
+#include "GameDefine.h"
 
 class IHarbor;
 class IObjectMgr;
@@ -13,15 +15,27 @@ class OArgs;
 class IObject;
 class IEventEngine;
 class Scene : public IScene, public sl::SLHolder<Scene>{
-	struct SceneObjectNode{
-		SceneObjectNode() :xPrev(nullptr), xNext(nullptr), yPrev(nullptr), yNext(nullptr), object(nullptr){}
-		~SceneObjectNode(){}
+	enum Quadrant{
+		X = 1,
+		Y,
+		Z,
+	};
 
-		SceneObjectNode* xPrev;
-		SceneObjectNode* xNext;
-		SceneObjectNode* yPrev;
-		SceneObjectNode* yNext;
+	struct SceneEntity{
+		SceneEntity() :prev(nullptr), next(nullptr), object(nullptr), isHead(false){}
+		SceneEntity* prev;
+		SceneEntity* next;
 		IObject* object;
+		bool isHead;
+	};
+	
+	struct SceneNodesList{
+		SceneNodesList(){
+			xListHead.isHead = true;
+			yListHead.isHead = true;
+		}
+		SceneEntity xListHead;
+		SceneEntity yListHead;
 	};
 
 public:
@@ -38,13 +52,30 @@ public:
 	void onObjectAppearOnScene(sl::api::IKernel* pKernel, const void* context, const int32 size);
 
 private:
+	typedef std::function<void(sl::api::IKernel* pKernel, IObject* object)> VisionEvent;
 	void confirmScene(sl::api::IKernel* pKernel, const char* scene);
 	IObject* findScene(const char* scene);
 
-	void addObjectToScene(const char* sceneId, IObject* object);
+	void objectEnterVision(IObject* object, IObject* other);
+	void objectLeaveVision(IObject* object, IObject* other);
+	void objectMoveInVision(IObject* object, IObject* other);
+
+	void notifyLogicAddWatcher(IObject* object, IObject* watcher);
+	void notifyLogicRemoveWatcher(IObject* object, IObject* watcher);
+	void notifyLogicAddInterester(IObject* object, IObject* interester);
+	void notifyLogicRemoveInterester(IObject* object, IObject* interester);
+
+	void addObjectToScene(IObject* object, const VisionEvent& add);
+	void removeObjectOnScene(IObject* object, const VisionEvent& remove);
+	void moveObjectOnScene(IObject* object, const VisionEvent& add, const VisionEvent& remove, const VisionEvent& move);
+	void foreachVisionObject(IObject* object, int8 quadrant, const VisionEvent& func);
+	void insertSceneNode(SceneEntity* head, SceneEntity* node, const std::function<bool(const SceneEntity* innerNode)>& conditionFunc, bool forward = false);
+	void moveSceneNode(SceneEntity* head, SceneEntity* node, int8 quadrant, bool forward = false);
+	void removeSceneNode(SceneEntity* node);
+	bool isInVision(IObject* object, IObject* other);
 
 private:
-	typedef std::unordered_map<sl::SLString<MAX_SCENE_LEN>, SceneObjectNode*, sl::HashFunc<MAX_SCENE_LEN>, sl::EqualFunc<MAX_SCENE_LEN>> SCENE_OBJECTNODE_MAP;
+	typedef std::unordered_map<sl::SLString<game::MAX_SCENE_LEN>, SceneNodesList, sl::HashFunc<game::MAX_SCENE_LEN>, sl::EqualFunc<game::MAX_SCENE_LEN>> SCENE_OBJECTNODE_MAP;
 	sl::api::IKernel* _kernel;
 	Scene*		_self;
 	IHarbor*		_harbor;

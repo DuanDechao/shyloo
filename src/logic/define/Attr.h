@@ -37,6 +37,9 @@ struct ATTR_API attr_def{
 	static const IProp* mp;
 	static const IProp* name;
 	static const IProp* occupation;
+	static const IProp* oldX;
+	static const IProp* oldY;
+	static const IProp* oldZ;
 	static const IProp* recoverTimer;
 	static const IProp* scene;
 	static const IProp* sceneId;
@@ -57,6 +60,9 @@ struct ATTR_API OCTempProp{
 	static const IProp* IS_APPEAR;
 	static const IProp* PROP_UPDATE_TIMER;
 	static const IProp* RGS_SHADOW;
+	static const IProp* SCENE_X_NODE;
+	static const IProp* SCENE_Y_NODE;
+	static const IProp* SCENE_Z_NODE;
 	static const IProp* SHADOW_SYNC_TIMER;
 	static const IProp* SYNCTOSCENE;
 	static const IProp* SYNCTOSCENE_TIMER;
