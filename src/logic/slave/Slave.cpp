@@ -54,7 +54,7 @@ void Slave::openNewNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId,
 	ECHO_TRACE("open new Node [%d:%d]", newNodeType, newNodeId);
 	SLASSERT(_executes.find(newNodeType) != _executes.end(), "unknown nodetype %d", newNodeType);
 	if (_executes.find(newNodeType) != _executes.end()){
-		int64 node = (((int64)newNodeType) << 32) | nodeId;
+		int64 node = (((int64)newNodeType) << 32) | newNodeId;
 		auto iter = _cmds.find(node);
 		if (iter != _cmds.end())
 			startNode(pKernel, iter->second.cmd);

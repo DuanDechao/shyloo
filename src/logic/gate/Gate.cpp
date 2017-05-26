@@ -439,11 +439,13 @@ void Gate::onClientLoginReq(sl::api::IKernel* pKernel, const int64 id, const OBS
 	inArgs.fix();
 
 	_harbor->send(NodeType::ACCOUNT, 1, NodeProtocol::GATE_MSG_BIND_ACCOUNT_REQ, inArgs.out());
+
+	ECHO_TRACE("client[%s:%lld] login...", accountName, accountId);
 }
 
 void Gate::onClientSelectRoleReq(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
 	int64 actorId = 0;
-	if (!args.read(actorId))
+	if (!args.readInt64(actorId))
 		return;
 
 	SLASSERT(_players.find(id) != _players.end(), "not find agent");
@@ -462,6 +464,8 @@ void Gate::onClientSelectRoleReq(sl::api::IKernel* pKernel, const int64 id, cons
 		args << id << actorId;
 		args.fix();
 		_harbor->send(NodeType::SCENEMGR, 1, NodeProtocol::GATE_MSG_DISTRIBUTE_LOGIC_REQ, args.out());
+
+		ECHO_TRACE("client[%lld] select role[%lld] success", _players[id].accountId, actorId);
 	}
 }
 
@@ -476,13 +480,13 @@ void Gate::onClientCreateRoleReq(sl::api::IKernel* pKernel, const int64 id, cons
 			return;
 		}
 
-		int64 actorId = _IdMgr->allocID();
-		IRole* role = _roleMgr->createRole(player.accountId, actorId, args);
+		
+		IRole* role = _roleMgr->createRole(player.accountId, args);
 		if (role){
-			player.roles.push_back({ actorId, role });
+			player.roles.push_back({ role->getRoleId(), role });
 
 			sl::IBStream<128> rsp;
-			rsp << protocol::ErrorCode::ERROR_NO_ERROR << actorId;
+			rsp << protocol::ErrorCode::ERROR_NO_ERROR << role->getRoleId();
 			role->pack();
 			sendToClient(pKernel, id, ServerMsgID::SERVER_MSG_CREATE_ROLE_RSP, rsp.out());
 		}

@@ -25,6 +25,8 @@ bool SceneClientMgr::initialize(sl::api::IKernel * pKernel){
 	}
 	_syncToSceneInterval = svrConf.root()["sync_rate"][0].getAttributeInt64("scene");
 
+	_birthPos = { "lxd", 34.0, 32.2, 45.9 };
+
 	return true;
 }
 
@@ -87,10 +89,14 @@ void SceneClientMgr::onPlayerFirstOnline(sl::api::IKernel* pKernel, const void* 
 	
 	//设置出生点
 	object->setPropString(attr_def::scene, "lxd");
-	object->setPropFloat(attr_def::x, 32);
-	object->setPropFloat(attr_def::y, 3);
-	object->setPropFloat(attr_def::z, 23);
-	object->setPropFloat(attr_def::vision, 10);
+	object->setPropFloat(attr_def::x, _birthPos.x);
+	object->setPropFloat(attr_def::y, _birthPos.y);
+	object->setPropFloat(attr_def::z, _birthPos.z);
+	object->setPropFloat(attr_def::vision, 6);
+
+	_birthPos.x += 5;
+	_birthPos.y += 5;
+	_birthPos.z += 5;
 }
 
 void SceneClientMgr::onPlayerDataLoadCompleted(sl::api::IKernel* pKernel, const void* context, const int32 size){

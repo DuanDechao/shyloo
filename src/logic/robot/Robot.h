@@ -44,6 +44,8 @@ protected:
 private:
 	void sendToSvr(sl::api::IKernel* pKernel, const int64 id, const int32 msgId, const OBStream& buf);
 
+	void genRandomString(char* str, const int32 size);
+
 private:
 	sl::api::IKernel*	_kernel;
 	Robot*				_self;

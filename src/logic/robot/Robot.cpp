@@ -4,6 +4,7 @@
 #include "ProtocolID.pb.h"
 #include "Protocol.pb.h"
 #include "IDCCenter.h"
+#include <time.h>
 bool Robot::initialize(sl::api::IKernel * pKernel){
 	_kernel = pKernel;
 	_self = this;
@@ -19,7 +20,7 @@ bool Robot::launched(sl::api::IKernel * pKernel){
 	_self->rgsSvrMessageHandler(ServerMsgID::SERVER_MSG_LOGIN_RSP, &Robot::onServerLoginAck);
 	_self->rgsSvrMessageHandler(ServerMsgID::SERVER_MSG_SELECT_ROLE_RSP, &Robot::onServerSelectRoleAck);
 	_self->rgsSvrMessageHandler(ServerMsgID::SERVER_MSG_ATTRIB_SYNC, &Robot::onServerAttribSync);
-	_self->rgsSvrMessageHandler(ServerMsgID::SERVER_MSG_CREATE_ROLE_RSP, &Robot::onServerAttribSync);
+	_self->rgsSvrMessageHandler(ServerMsgID::SERVER_MSG_CREATE_ROLE_RSP, &Robot::onServerCreateRoleAck);
 	
 	_client->setListener(this);
 
@@ -35,7 +36,7 @@ bool Robot::launched(sl::api::IKernel * pKernel){
 	_svrIp = conf.root()["svr"][0].getAttributeString("ip");
 	_svrPort = conf.root()["svr"][0].getAttributeInt32("port");
 
-	START_TIMER(_self, 0, 1, 5000);
+	START_TIMER(_self, 0, _robotCount, 2000);
 	
 	return true;
 }
@@ -47,7 +48,9 @@ bool Robot::destory(sl::api::IKernel * pKernel){
 
 void Robot::onAgentOpen(sl::api::IKernel* pKernel, const int64 id){
 	SLASSERT(_robots.find(id) == _robots.end(), "duplicate agent id£º%d", id);
-	_robots[id] = { id, "ddc"};
+	static char accountName[3][64] = { "ddc", "wrd", "ds" };
+	int32 nodeId = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("node_id"));
+	_robots[id] = { id, accountName[nodeId -1] };
 
 	IBStream<64> args;
 	args << _robots[id].name.c_str();
@@ -87,9 +90,7 @@ void Robot::rgsSvrMessageHandler(int32 messageId, svr_args_cb handler){
 }
 
 void Robot::onTime(sl::api::IKernel* pKernel, int64 timetick){
-	for (int32 i = 0; i < _robotCount; i++){
-		_client->connect(_svrIp.c_str(), _svrPort);
-	}
+	_client->connect(_svrIp.c_str(), _svrPort);
 }
 
 void Robot::sendToSvr(sl::api::IKernel* pKernel, const int64 id, const int32 msgId, const OBStream& buf){
@@ -104,26 +105,27 @@ void Robot::sendToSvr(sl::api::IKernel* pKernel, const int64 id, const int32 msg
 
 void Robot::onServerLoginAck(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
 	int32 errCode = protocol::ErrorCode::ERROR_NO_ERROR;
-	if (!args.read(errCode) || errCode != protocol::ErrorCode::ERROR_NO_ERROR){
+	if (!args.readInt32(errCode) || errCode != protocol::ErrorCode::ERROR_NO_ERROR){
 		SLASSERT(false, "login ack failed");
 		return;
 	}
 
 	int32 roleCount = 0;
-	if (!args.read(roleCount)){
+	if (!args.readInt32(roleCount)){
 		SLASSERT(false, "wtf");
 		return;
 	}
 
-	if (roleCount < 3){
-		static char names[3][64] = { "sdf", "sdfs", "sdfss" };
+	if (roleCount <= 0){
+		static char roleName[3][64] = { "ddcddd", "wrdzzz", "dsrrr" };
+		int32 nodeId = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("node_id"));
 		IBStream<256> ask;
-		ask << names[roleCount] << (int8)1 << (int8)1;
+		ask << roleName[nodeId-1] << (int8)1 << (int8)1;
 		sendToSvr(pKernel, id, ClientMsgID::CLIENT_MSG_CREATE_ROLE_REQ, ask.out());
 	}
 	else{
 		int64 actorId = 0;
-		if (!args.read(actorId)){
+		if (!args.readInt64(actorId)){
 			SLASSERT(false, "wtf");
 			return;
 		}
@@ -138,7 +140,7 @@ void Robot::onServerLoginAck(sl::api::IKernel* pKernel, const int64 id, const OB
 void Robot::onServerCreateRoleAck(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
 	int32 errCode = 0;
 	int64 actorId = 0;
-	if (!args.read(errCode) || !args.read(actorId))
+	if (!args.readInt32(errCode) || !args.readInt64(actorId))
 		return;
 
 	if (errCode == 0){
@@ -150,7 +152,7 @@ void Robot::onServerCreateRoleAck(sl::api::IKernel* pKernel, const int64 id, con
 
 void Robot::onServerSelectRoleAck(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
 	int32 errCode = 0;
-	if (!args.read(errCode))
+	if (!args.readInt32(errCode))
 		return;
 
 	if (errCode == 0)
@@ -161,12 +163,12 @@ void Robot::onServerAttribSync(sl::api::IKernel* pKernel, const int64 id, const 
 	ECHO_ERROR("start sync attrib...");
 	int64 actorId = 0; 
 	int32 propCount = 0; 
-	if (!args.read(actorId) || !args.read(propCount))
+	if (!args.readInt64(actorId) || !args.readInt32(propCount))
 		return;
 
 	for (int32 i = 0; i < propCount; i++){
 		int16 idAndType = 0;
-		args.read(idAndType);
+		args.readInt16(idAndType);
 		int32 idx = ((idAndType >> 3) & 0x1fff);
 		int32 type = (int32)(idAndType & 0x07);
 		//if (type == DTYPE_STRING){
@@ -181,4 +183,27 @@ void Robot::onServerAttribSync(sl::api::IKernel* pKernel, const int64 id, const 
 void Robot::test(sl::api::IKernel* pKernel, const int64 id){
 	IBStream<64> ask;
 	sendToSvr(pKernel, id, ClientMsgID::CLIENT_MSG_TEST, ask.out());
+}
+
+void Robot::genRandomString(char* str, const int32 size){
+	int flag, i;
+	srand((unsigned)time(NULL));
+	for (i = 0; i < size - 1; i++){
+		flag = rand() % 3;
+		switch (flag){
+		case 0:
+			str[i] = 'A' + rand() % 26;
+			break;
+		case 1:
+			str[i] = 'a' + rand() % 26;
+			break;
+		case 2:
+			str[i] = '0' + rand() % 10;
+			break;
+		default:
+			str[i] = 'x';
+			break;
+		}
+	}
+	str[size - 1] = '\0';
 }

@@ -13,15 +13,12 @@ public:
 	{}
 	~OBStream(){}
 
-	template<typename T>
-	bool read(T& val) const {
-		const void* data = getData(sizeof(T));
-		if (data == nullptr)
-			return false;
-
-		val = *(T*)data;
-		return true;
-	}
+	inline bool readBoolean(bool& val) const { return read(val); }
+	inline bool readInt8(int8& val) const { return read(val); }
+	inline bool readInt16(int16& val) const { return read(val); }
+	inline bool readInt32(int32& val) const { return read(val); }
+	inline bool readInt64(int64& val) const { return read(val); }
+	inline bool readFloat(float& val) const { return read(val); }
 
 	bool readString(const char* & val) const {
 		int32 size;
@@ -42,6 +39,16 @@ public:
 	inline const int32 getSize() const { return _size; }
 
 private:
+	template<typename T>
+	bool read(T& val) const {
+		const void* data = getData(sizeof(T));
+		if (data == nullptr)
+			return false;
+
+		val = *(T*)data;
+		return true;
+	}
+
 	const void* getData(const int32 size) const{
 		SLASSERT(_offset + size < _size, "buffer size over flow");
 		if (_offset + size < _size){
@@ -51,6 +58,7 @@ private:
 		}
 		return nullptr;
 	}
+
 private:
 	const char* _buffer;
 	int32 _size;
@@ -63,6 +71,7 @@ public:
 	IBStream():_offset(0){}
 	~IBStream(){}
 
+	IBStream& operator <<(const bool& val) { return write(val); }
 	IBStream& operator <<(const int8& val) { return write(val); }
 	IBStream& operator <<(const int16& val) { return write(val); }
 	IBStream& operator <<(const int32& val) { return write(val); }
@@ -81,6 +90,18 @@ public:
 		return *this;
 	}
 
+	inline bool* reserveBoolean() { return (bool*)reserveData(sizeof(bool)); }
+	inline int8* reserveInt8() { return (int8*)reserveData(sizeof(int8)); }
+	inline int16* reserveInt16() { return (int16*)reserveData(sizeof(int16)); }
+	inline int32* reserveInt32() { return (int32*)reserveData(sizeof(int32)); }
+	inline int64* reserveInt64() { return (int64*)reserveData(sizeof(int64)); }
+	inline float* reserveFloat() { return (float*)reserveData(sizeof(float)); }
+
+	inline OBStream out(){
+		return OBStream(_buffer, _offset);
+	}
+
+private:
 	template<typename T>
 	IBStream& write(const T& val){
 		if (_offset + sizeof(T) <= maxSize){
@@ -90,8 +111,15 @@ public:
 		return *this;
 	}
 
-	inline OBStream out(){
-		return OBStream(_buffer, _offset);
+	void* reserveData(int32 size){
+		SLASSERT(_offset + size <= maxSize, "wtf");
+		if (_offset + size > maxSize)
+			return nullptr;
+
+		void* data = _buffer + _offset;
+		_offset += size;
+
+		return data;
 	}
 
 private:

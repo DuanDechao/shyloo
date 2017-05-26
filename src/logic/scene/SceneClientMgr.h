@@ -12,6 +12,14 @@ class IEventEngine;
 class IObjectTimer;
 class IProp;
 class SceneClientMgr : public ISceneClientMgr, public sl::SLHolder<SceneClientMgr>{
+
+	struct Position{
+		sl::SLString<game::MAX_SCENE_LEN> sceneId;
+		float x;
+		float y;
+		float z;
+	};
+
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);
@@ -50,5 +58,6 @@ private:
 	IObjectTimer*		_objectTimer;
 
 	int64				_syncToSceneInterval;
+	Position			_birthPos;
 };
 #endif

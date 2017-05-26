@@ -121,8 +121,7 @@ private:
 
 
 template<int32 maxCount, int32 maxSize>
-class IArgs
-{
+class IArgs{
 public:
 	IArgs() :_pContext(nullptr), _size(0),_bFixed(false){
 		_header.reserve = 0;
@@ -208,6 +207,13 @@ public:
 		return *this;
 	}
 
+	inline bool* reserveBoolean() { return (bool*)reserveData(ARGS_TYPE_BOOL, sizeof(bool)); }
+	inline int8* reserveInt8() { return (int8*)reserveData(ARGS_TYPE_INT8, sizeof(int8)); }
+	inline int16* reserveInt16() { return (int8*)reserveData(ARGS_TYPE_INT16, sizeof(int16)); }
+	inline int32* reserveInt32() { return (int32*)reserveData(ARGS_TYPE_INT32, sizeof(int32)); }
+	inline int64* reserveInt64() { return (int64*)reserveData(ARGS_TYPE_INT64, sizeof(int64)); }
+	inline float* reserveFloat() { return (float*)reserveData(ARGS_TYPE_FLOAT, sizeof(float)); }
+
 	inline OArgs out(){
 		if (!_bFixed){
 			SLASSERT(false, "must fixed");
@@ -248,6 +254,24 @@ private:
 		
 		return *this;
 	}
+
+	void* reserveData(int8 type, const int32 size){
+		if (_bFixed || _header.argsCount >= maxCount || _header.dataOffset + size > maxSize){
+			SLASSERT(false, "can not contain more args");
+			return *this;
+		}
+
+		arg_info& info = _header.argsInfo[maxCount - 1 - _header.argsCount];
+		info.type = type;
+		info.offset = _header.dataOffset;
+		void* data = _header.data + _header.dataOffset;
+
+		_header.argsCount++;
+		_header.dataOffset += size;
+
+		return data;
+	}
+
 private:
 	args_header<maxCount, maxSize> _header;
 	bool _bFixed;
