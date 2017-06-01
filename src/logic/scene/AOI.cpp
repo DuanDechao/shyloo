@@ -20,23 +20,20 @@ bool AOI::initialize(sl::api::IKernel * pKernel){
 
 bool AOI::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
-	if (_harbor->getNodeType() == NodeType::LOGIC){
-		FIND_MODULE(_objectMgr, ObjectMgr);
-		FIND_MODULE(_shadowMgr, ShadowMgr);
-		FIND_MODULE(_packetSender, PacketSender);
-		FIND_MODULE(_eventEngine, EventEngine);
+	if (_harbor->getNodeType() != NodeType::LOGIC)
+		return true;
 
-		RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENE_MSG_ADD_INTERESTER, AOI::onSceneAddInterester);
-		RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENE_MSG_ADD_WATCHER, AOI::onSceneAddWatcher);
-		RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENE_MSG_REMOVE_INTERESTER, AOI::onSceneRemoveInterester);
-		RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENE_MSG_REMOVE_WATCHER, AOI::onSceneRemoveWatcher);
+	FIND_MODULE(_objectMgr, ObjectMgr);
+	FIND_MODULE(_shadowMgr, ShadowMgr);
+	FIND_MODULE(_packetSender, PacketSender);
+	FIND_MODULE(_eventEngine, EventEngine);
 
-		RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_LOGIC_ENTER_VISION, AOI::onObjectEnterVision);
-	}
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENE_MSG_ADD_INTERESTER, AOI::onSceneAddInterester);
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENE_MSG_ADD_WATCHER, AOI::onSceneAddWatcher);
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENE_MSG_REMOVE_INTERESTER, AOI::onSceneRemoveInterester);
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENE_MSG_REMOVE_WATCHER, AOI::onSceneRemoveWatcher);
 
-	if (_harbor->getNodeType() == NodeType::SCENE){
-
-	}
+	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_LOGIC_ENTER_VISION, AOI::onObjectEnterVision);
 
 	return true;
 }

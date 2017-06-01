@@ -4,4 +4,5 @@
 	<module name="Cluster" />
 	<module name="Capacity" />
 	<module name="ObjectLocator" />
+	<module name="Command" />
 </modules>
