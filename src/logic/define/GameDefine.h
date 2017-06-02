@@ -14,5 +14,6 @@ enum game{
 	MAX_SCENE_LEN = 64,
 	MAX_PROP_VALUE_LEN = 64,
 	MAX_OBJECT_TYPE_LEN = 64,
+	MAX_IP_LEN = 128,
 };
 #endif

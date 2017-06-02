@@ -101,11 +101,12 @@ enum ErrorCode {
   ERROR_LOAD_PLAYER_FAILED = 4,
   ERROR_TOO_MUCH_ROLE = 5,
   ERROR_CREATE_ROLE_FAILED = 6,
-  ERROR_SYSTEM_ERROR = 7
+  ERROR_SYSTEM_ERROR = 7,
+  ERROR_LOGIN_CHECK_TICKET_FAILED = 8
 };
 bool ErrorCode_IsValid(int value);
 const ErrorCode ErrorCode_MIN = ERROR_NO_ERROR;
-const ErrorCode ErrorCode_MAX = ERROR_SYSTEM_ERROR;
+const ErrorCode ErrorCode_MAX = ERROR_LOGIN_CHECK_TICKET_FAILED;
 const int ErrorCode_ARRAYSIZE = ErrorCode_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* ErrorCode_descriptor();

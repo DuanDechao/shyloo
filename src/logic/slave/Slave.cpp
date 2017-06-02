@@ -8,9 +8,11 @@
 
 #define EXECUTE_CMD_PORT			"$port$"
 #define EXECUTE_CMD_OUT_PORT		"$out_port$"
+#define EXECUTE_CMD_BALANCE_PORT	"$balance_port$"
 #define EXECUTE_CMD_ID				"$id$"
 #define EXECUTE_CMD_PORT_SIZE		6
 #define EXECUTE_CMD_OUT_PORT_SIZE	10
+#define EXECUTE_CMD_BALANCE_PORT_SIZE	14
 #define EXECUTE_CMD_ID_SIZE			4
 
 bool Slave::initialize(sl::api::IKernel * pKernel){
@@ -26,6 +28,7 @@ bool Slave::initialize(sl::api::IKernel * pKernel){
 	const sl::xml::ISLXmlNode& outPort = server_conf.root()["starter"][0]["out_port"][0];
 	_startOutPort = outPort.getAttributeInt32("start");
 	_endOutPort = outPort.getAttributeInt32("end");
+	_balancePort = server_conf.root()["starter"][0]["define"][0].getAttributeInt32("balance_port");
 	const sl::xml::ISLXmlNode& nodes = server_conf.root()["starter"][0]["node"];
 	for (int32 i = 0; i < nodes.count(); i++){
 		int32 type = nodes[i].getAttributeInt32("type");
@@ -89,6 +92,13 @@ void Slave::startNewNode(sl::api::IKernel* pKernel, const char* name, const char
 		pos = tmp.find(EXECUTE_CMD_OUT_PORT);
 	}
 
+	pos = tmp.find(EXECUTE_CMD_BALANCE_PORT);
+	if (pos != std::string::npos){
+		char balancePort[64];
+		SafeSprintf(balancePort, sizeof(balancePort), "%d", _balancePort);
+		tmp.replace(pos, EXECUTE_CMD_BALANCE_PORT_SIZE, balancePort);
+	}
+
 	pos = tmp.find(EXECUTE_CMD_ID);
 	if (pos != std::string::npos){
 		char idStr[64];
@@ -98,7 +108,7 @@ void Slave::startNewNode(sl::api::IKernel* pKernel, const char* name, const char
 
 	int64 node = (((int64)nodeType) << 32) | nodeId;
 	SafeSprintf(_cmds[node].cmd, sizeof(_cmds[node].cmd), "%s", tmp.c_str());
-	
+
 	startNode(pKernel, _cmds[node].cmd);
 }
 

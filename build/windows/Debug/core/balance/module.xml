@@ -3,8 +3,6 @@
 	<module name="Harbor" />
 	<module name="Cluster" />
 	<module name="Capacity" />
-	<module name="ObjectLocator" />
-	<module name="Command" />
-	<module name="Relation" />
-	<module name="PacketSender" />
+	<module name="Agent" />
+	<module name="Balance" />
 </modules>

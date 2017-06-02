@@ -12,6 +12,8 @@ class Robot : public sl::api::IModule, public IClientListener, public sl::api::I
 	struct RobotInfo{
 		int64 clientId;
 		string name;
+		int64 ticket;
+		bool canLogin;
 	};
 
 	typedef void(Robot::*svr_args_cb)(sl::api::IKernel* pKernel, const int64 id, const OBStream& args);
@@ -37,6 +39,7 @@ public:
 	void onServerCreateRoleAck(sl::api::IKernel* pKernel, const int64 id, const OBStream& args);
 	void onServerSelectRoleAck(sl::api::IKernel* pKernel, const int64 id, const OBStream& args);
 	void onServerAttribSync(sl::api::IKernel* pKernel, const int64 id, const OBStream& args);
+	void onServerGiveGateAddressAck(sl::api::IKernel* pKernel, const int64 id, const OBStream& args);
 
 protected:
 	void test(sl::api::IKernel* pKernel, const int64 id);
@@ -56,6 +59,6 @@ private:
 	int32				_svrPort;
 	
 	std::unordered_map<int32, svr_args_cb> _svrProtos;
-	std::unordered_map<int64, RobotInfo> _robots;
+	RobotInfo _robot;
 };
 #endif

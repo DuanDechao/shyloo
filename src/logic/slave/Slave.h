@@ -32,6 +32,7 @@ private:
 	int32	_endPort;
 	int32	_startOutPort;
 	int32   _endOutPort;
+	int32   _balancePort;
 	std::unordered_map<int64, CMD_INFO> _cmds;
 	std::unordered_map<int32, EXECUTE_INFO> _executes;
 };

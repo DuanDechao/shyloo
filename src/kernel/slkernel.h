@@ -24,6 +24,7 @@ public:
 	//net interface
 	virtual bool startTcpServer(api::ITcpServer * server, const char* ip, const int32 port, int32 sendSize, int32 recvSize);
 	virtual bool startTcpClient(api::ITcpSession * client, const char* ip, const int32 port, int32 sendSize, int32 recvSize);
+	virtual const char* getInternetIp();
 
 	//timer interface
 	virtual bool startTimer(api::ITimer* timer, int64 delay, int32 count, int64 interval);

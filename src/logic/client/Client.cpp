@@ -83,6 +83,17 @@ void Client::connect(const char* ip, const int32 port){
 	}
 }
 
+void Client::close(int64 id){
+	auto itor = _clientSessions.find(id);
+	if (itor == _clientSessions.end()){
+		SLASSERT(false, "where is agent %lld", id);
+		return;
+	}
+
+	itor->second->close();
+	_clientSessions.erase(itor);
+}
+
 void Client::send(const int64 id, const void* pBuf, const int32 size){
 	auto itor = _clientSessions.find(id);
 	if (itor == _clientSessions.end()){

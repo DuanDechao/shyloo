@@ -15,7 +15,14 @@ class IIdMgr;
 class IRoleMgr;
 class IRole;
 class ICacheDB;
-class Gate :public IGate, public IAgentListener, public INodeListener, public SLHolder<Gate>{
+
+class IGateMessageHandler{
+public:
+	virtual ~IGateMessageHandler(){}
+	virtual void DealNodeMessage(sl::api::IKernel*, const int64, const char* pContext, const int32 size) = 0;
+};
+
+class Gate :public IGate, public IAgentListener, public INodeListener, public sl::api::ITimer, public SLHolder<Gate>{
 	enum {
 		GATE_STATE_NONE = 0,
 		GATE_STATE_AUTHENING,
@@ -41,9 +48,6 @@ class Gate :public IGate, public IAgentListener, public INodeListener, public SL
 		std::list<Role> roles;
 	};
 
-	typedef void(Gate::*agent_cb)(sl::api::IKernel* pKernel, const int64 id, const char* pContext, const int32 size);
-	typedef void(Gate::*agent_args_cb)(sl::api::IKernel* pKernel, const int64 id, const OBStream& args);
-
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);
@@ -53,18 +57,21 @@ public:
 	virtual int32 onAgentRecv(sl::api::IKernel* pKernel, const int64 id, const void* context, const int32 size);
 	virtual void onAgentClose(sl::api::IKernel* pKernel, const int64 id);
 
-	virtual void onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* ip, const int32 port){}
+	virtual void onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* ip, const int32 port);
 	virtual void onClose(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId);
+
+	virtual void rgsGateMessageHandler(int32 messageId, const GATE_CB& handler, const char* debug);
+	virtual void rgsGateArgsMessageHandler(int32 messageId, const GATE_ARGS_CB& handler, const char* debug);
 
 	void onSceneMgrDistributeLogic(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 	void onAccountBindAccountAck(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 	void onAccountKickFromAccount(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 	void onLogicBindPlayerAck(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
+	void onBalanceSyncLoginTicket(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 	void onLogicTransforToAgent(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OBStream& args);
 	void onLogicBrocastToAgents(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OBStream& args);
 	void onLogicBrocastToAllAgents(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OBStream& args);
 
-	void rgsAgentMessageHandler(int32 messageId, agent_args_cb handler);
 	void transMsgToLogic(sl::api::IKernel* pKernel, const int64 id, const void* pContext, const int32 size);
 
 	void onClientLoginReq(sl::api::IKernel* pKernel, const int64 id, const OBStream& args);
@@ -77,9 +84,16 @@ public:
 	void broadcast(const void* context, const int32 size);
 	void send(int64 actorId, const void* context, const int32 size);
 
+	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){}
+	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick);
+	virtual void onTerminate(sl::api::IKernel* pKernel, int64 timetick){}
+	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick){}
+	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick){}
+
 private:
 	void reset(sl::api::IKernel* pKernel, int64 id, int8 state);
 	void sendToClient(sl::api::IKernel* pKernel, const int64 id, const int32 msgId, const OBStream& buf);
+	void sendLoginAck(sl::api::IKernel* pKernel, Player& player, int32 errCode);
 
 	inline Player* findPlayerByActorId(const int64 actorId){
 		auto itor = _actors.find(actorId);
@@ -121,6 +135,9 @@ private:
 	std::unordered_map<int64, Player> _players;
 	std::unordered_map<int64, int64> _actors;
 	std::unordered_map<int32, std::unordered_set<int64>> _logicPlayers;
-	std::unordered_map<int32, agent_args_cb> _gateProtos;
+	std::unordered_map<int32, IGateMessageHandler*> _gateProtos;
+	std::unordered_map<int64, int64> _agentTickets;
+	bool _isQueneOn;
 };
+
 #endif

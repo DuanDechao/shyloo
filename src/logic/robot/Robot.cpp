@@ -8,6 +8,7 @@
 bool Robot::initialize(sl::api::IKernel * pKernel){
 	_kernel = pKernel;
 	_self = this;
+	_robot = {0, "", 0, false};
 
 	return true;
 }
@@ -21,6 +22,7 @@ bool Robot::launched(sl::api::IKernel * pKernel){
 	_self->rgsSvrMessageHandler(ServerMsgID::SERVER_MSG_SELECT_ROLE_RSP, &Robot::onServerSelectRoleAck);
 	_self->rgsSvrMessageHandler(ServerMsgID::SERVER_MSG_ATTRIB_SYNC, &Robot::onServerAttribSync);
 	_self->rgsSvrMessageHandler(ServerMsgID::SERVER_MSG_CREATE_ROLE_RSP, &Robot::onServerCreateRoleAck);
+	_self->rgsSvrMessageHandler(ServerMsgID::SERVER_MSG_GIVE_GATE_ADDRESS_RSP, &Robot::onServerGiveGateAddressAck);
 	
 	_client->setListener(this);
 
@@ -47,19 +49,19 @@ bool Robot::destory(sl::api::IKernel * pKernel){
 }
 
 void Robot::onAgentOpen(sl::api::IKernel* pKernel, const int64 id){
-	SLASSERT(_robots.find(id) == _robots.end(), "duplicate agent id£º%d", id);
-	static char accountName[3][64] = { "ddc", "wrd", "ds" };
-	int32 nodeId = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("node_id"));
-	_robots[id] = { id, accountName[nodeId -1] };
+	if (!_robot.canLogin)
+		return;
 
-	IBStream<64> args;
-	args << _robots[id].name.c_str();
+	IBStream<128> args;
+	args << _robot.name.c_str() << _robot.ticket;
 	sendToSvr(pKernel, id, ClientMsgID::CLIENT_MSG_LOGIN_REQ, args.out());
 }
 
 void Robot::onAgentClose(sl::api::IKernel* pKernel, const int64 id){
-	SLASSERT(_robots.find(id) != _robots.end(), "where is agent %d", id);
-	_robots.erase(id);
+	_robot.canLogin = false;
+	_robot.clientId = 0;
+	_robot.name = "";
+	_robot.ticket = 0;
 }
 
 int32 Robot::onAgentRecv(sl::api::IKernel* pKernel, const int64 id, const void* context, const int32 size){
@@ -178,6 +180,24 @@ void Robot::onServerAttribSync(sl::api::IKernel* pKernel, const int64 id, const 
 		//}
 
 	}
+}
+
+void Robot::onServerGiveGateAddressAck(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
+	const char* gateIp = nullptr;
+	int32 gatePort = 0;
+	int64 ticket = 0;
+	if (!args.readString(gateIp) || !args.readInt32(gatePort) || !args.readInt64(ticket)){
+		SLASSERT(false, "wtf");
+		return;
+	}
+
+	_client->close(id);
+
+	static char accountName[3][64] = { "ddc", "wrd", "ds" };
+	int32 nodeId = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("node_id"));
+	_robot = { id, accountName[nodeId - 1], ticket , true};
+
+	_client->connect(gateIp, gatePort);
 }
 
 void Robot::test(sl::api::IKernel* pKernel, const int64 id){

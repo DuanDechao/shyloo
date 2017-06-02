@@ -24,6 +24,7 @@ public:
 
 	virtual void setListener(IClientListener* pListener);
 	virtual void connect(const char* ip, const int32 port);
+	virtual void close(int64 id);
 	virtual int32 recvSize(){ return _clientRecvSize; }
 	virtual int32 sendSize(){ return _clientSendSize; }
 
