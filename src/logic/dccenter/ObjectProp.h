@@ -25,13 +25,13 @@ public:
 	virtual const int32 getIndex(IObject* object) const;
 
 	inline void setLayout(const int32 objTypeId, PropLayout* layout){
-		SLASSERT(objTypeId > 0 && objTypeId <= _size, "out of range");
+		//SLASSERT(objTypeId > 0 && objTypeId <= _size, "out of range");
 		if (objTypeId > 0 && objTypeId <= _size)
 			_layouts[objTypeId - 1] = layout;
 	}
 
 	inline const PropLayout* getLayout(const int32 objTypeId){
-		SLASSERT(objTypeId > 0 && objTypeId <= _size, "out of range");
+		//SLASSERT(objTypeId > 0 && objTypeId <= _size, "out of range");
 		if (objTypeId > 0 && objTypeId <= _size)
 			return _layouts[objTypeId - 1];
 		return nullptr;

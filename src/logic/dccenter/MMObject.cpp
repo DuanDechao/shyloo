@@ -39,9 +39,9 @@ const std::vector<const IProp*>& MMObject::getObjProps(bool noParent) const{
 
 bool MMObject::setData(const IProp* prop, const bool temp, const int8 type, const void* data, const int32 size, const bool sync){
 	const PropLayout* layout = ((ObjectProp*)prop)->getLayout(_poPropInfo->getObjTypeId());
-	SLASSERT(layout, "wtf");
+	//SLASSERT(layout, "wtf");
 	if (layout != nullptr){
-		SLASSERT(layout->_type == type && layout->_size >= size && layout->_isTemp == temp, "wtf");
+		//SLASSERT(layout->_type == type && layout->_size >= size && layout->_isTemp == temp, "wtf");
 		if (layout->_type == type && layout->_size >= size){
 			_memory->setData(layout, data, size);
 			if (!layout->_isTemp)
@@ -54,9 +54,9 @@ bool MMObject::setData(const IProp* prop, const bool temp, const int8 type, cons
 
 const void* MMObject::getData(const IProp* prop, const bool temp, const int8 type, int32& size)const{
 	const PropLayout* layout = ((ObjectProp*)prop)->getLayout(_poPropInfo->getObjTypeId());
-	SLASSERT(layout, "wtf");
+	//SLASSERT(layout, "wtf");
 	if (layout != nullptr){
-		SLASSERT(layout->_type == type && layout->_size >= size && layout->_isTemp == temp, "wtf");
+		//SLASSERT(layout->_type == type && layout->_size >= size && layout->_isTemp == temp, "wtf");
 		if (layout->_type == type && layout->_size >= size){
 			size = layout->_size;
 			return _memory->getData(layout);

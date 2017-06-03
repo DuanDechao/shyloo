@@ -38,11 +38,15 @@ extern "C"
 #define FREE free
 
 #ifdef SL_OS_WINDOWS
+#ifdef _DEBUG
 #define	SLASSERT(p, format, ...) { \
 	char debug[4096] = {0}; \
 	SafeSprintf(debug, sizeof(debug), format, ##__VA_ARGS__); \
 	((p) ? (void)0 : (void)__AssertionFail(__FILE__, __LINE__, __FUNCTION__, debug)); \
 }
+#else
+#define	SLASSERT(p, format, ...)
+#endif
 
 #define CSLEEP(t) Sleep(t)
 
