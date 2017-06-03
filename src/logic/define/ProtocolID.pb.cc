@@ -85,15 +85,17 @@ void AddDescriptorsImpl() {
       "IENT_MSG_LOGIN_REQ\020\001\022\036\n\032CLIENT_MSG_SELEC"
       "T_ROLE_REQ\020\002\022\036\n\032CLIENT_MSG_CREATE_ROLE_R"
       "EQ\020\003\022\036\n\032CLIENT_MSG_ENTER_SCENE_REQ\020\004\022\023\n\017"
-      "CLIENT_MSG_TEST\020\005*\306\001\n\013ServerMsgID\022\030\n\024SER"
+      "CLIENT_MSG_TEST\020\005*\223\002\n\013ServerMsgID\022\030\n\024SER"
       "VER_MSG_LOGIN_RSP\020\001\022\036\n\032SERVER_MSG_SELECT"
       "_ROLE_RSP\020\002\022\036\n\032SERVER_MSG_CREATE_ROLE_RS"
       "P\020\003\022\032\n\026SERVER_MSG_ATTRIB_SYNC\020\004\022\036\n\032SERVE"
       "R_MSG_NEW_ROLE_NOTIFY\020\005\022!\n\035SERVER_MSG_RE"
-      "MOVE_ROLE_NOTIFY\020\006"
+      "MOVE_ROLE_NOTIFY\020\006\022$\n SERVER_MSG_GIVE_GA"
+      "TE_ADDRESS_RSP\020\007\022%\n!SERVER_MSG_NOTIFY_TI"
+      "CKET_INFO_RSP\020\010"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 378);
+      descriptor, 455);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "ProtocolID.proto", &protobuf_RegisterTypes);
   ::google::protobuf::internal::OnShutdown(&TableStruct::Shutdown);
@@ -141,6 +143,8 @@ bool ServerMsgID_IsValid(int value) {
     case 4:
     case 5:
     case 6:
+    case 7:
+    case 8:
       return true;
     default:
       return false;

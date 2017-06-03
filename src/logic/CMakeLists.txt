@@ -26,6 +26,8 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IObjectTimer.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IObjectLocator.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IAOI.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IOCCommand.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IRelation.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IClient.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/DBType.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/SQLBase.h"
@@ -72,4 +74,7 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/scene)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/objecttimer)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/objectlocator)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/shadowmgr)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/command)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/relation)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/balance)
 

@@ -34,7 +34,7 @@ bool Scene::launched(sl::api::IKernel * pKernel){
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENEMGR_MSG_LEAVE_SCENE, Scene::onSceneMgrLeaveScene);
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENEMGR_MSG_SYNC_SCENE, Scene::onSceneMgrSyncScene);
 
-	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_SCENE_APPEAR_SCENE, Scene::onObjectAppearOnScene);
+	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_SCENE_ENTER_SCENE, Scene::onPlayerEnterScene);
 
 	return true;
 }
@@ -243,24 +243,8 @@ void Scene::onSceneMgrSyncScene(sl::api::IKernel* pKernel, int32 nodeType, int32
 	});
 }
 
-void Scene::onObjectAppearOnScene(sl::api::IKernel* pKernel, const void* context, const int32 size){
-	SLASSERT(size == sizeof(logic_event::AppearVision), "wtf");
-	IObject* scene = ((logic_event::AppearVision*)context)->object;
-	int64 objectId = ((logic_event::AppearVision*)context)->id;
-	SLASSERT(scene && objectId > 0, "wtf");
-	IObject* object = _objectMgr->findObject(objectId);
-	SLASSERT(object, "wtf");
-	if (!object)
-		return;
-
-	ITableControl* sceneObjects = scene->findTable(OCTableMacro::SCENEOBJECTS::TABLE_NAME);
-	SLASSERT(sceneObjects, "wtf");
-	for (int32 i = 0; i < sceneObjects->rowCount(); i++){
-		const IRow* row = sceneObjects->getRow(i);
-		int64 id = row->getDataInt64(OCTableMacro::SCENEOBJECTS::ID);
-		IObject* sceneObject = _objectMgr->findObject(id);
-		SLASSERT(sceneObject, "wtf");
-	}
+void Scene::onPlayerEnterScene(sl::api::IKernel* pKernel, const void* context, const int32 size){
+	printSceneNodePos();
 }
 
 IObject* Scene::findScene(const char* scene){
@@ -336,29 +320,28 @@ void Scene::addObjectToScene(IObject* object, const VisionEvent& add){
 	if (_sceneObjectNodes[sceneId].xListHead.next == nullptr){
 		_sceneObjectNodes[sceneId].xListHead.next = nodeX;
 		nodeX->prev = &_sceneObjectNodes[sceneId].xListHead;
-		return;
+	}
+	else{
+		SceneEntity* head = _sceneObjectNodes[sceneId].xListHead.next;
+		insertSceneNode(head, nodeX, [&](const SceneEntity* innerNode){
+			if (innerNode->object->getPropFloat(attr_def::x) > nodeX->object->getPropFloat(attr_def::x))
+				return true;
+			return false;
+		});
 	}
 
 	if (_sceneObjectNodes[sceneId].yListHead.next == nullptr){
-		
 		_sceneObjectNodes[sceneId].yListHead.next = nodeY;
 		nodeY->prev = &_sceneObjectNodes[sceneId].yListHead;
-		return;
 	}
-
-	SceneEntity* head = _sceneObjectNodes[sceneId].xListHead.next;
-	insertSceneNode(head, nodeX, [&](const SceneEntity* innerNode){
-		if (innerNode->object->getPropFloat(attr_def::x) > nodeX->object->getPropFloat(attr_def::x))
-			return true;
-		return false;
-	});
-
-	head = _sceneObjectNodes[sceneId].yListHead.next;
-	insertSceneNode(head, nodeY, [&](const SceneEntity* innerNode){
-		if (innerNode->object->getPropFloat(attr_def::y) > nodeY->object->getPropFloat(attr_def::y))
-			return true;
-		return false;
-	});
+	else{
+		SceneEntity* head = _sceneObjectNodes[sceneId].yListHead.next;
+		insertSceneNode(head, nodeY, [&](const SceneEntity* innerNode){
+			if (innerNode->object->getPropFloat(attr_def::y) > nodeY->object->getPropFloat(attr_def::y))
+				return true;
+			return false;
+		});
+	}
 
 	foreachVisionObject(object, Quadrant::X, add);
 }
@@ -435,7 +418,7 @@ void Scene::foreachVisionObject(IObject* object, int8 quadrant, const std::funct
 	while (currPrev && !currPrev->isHead){
 		if (!isInVision(object, currPrev->object))
 			break;
-			
+		ECHO_ERROR("prev foreach[%lld]-[%lld]", object->getID(), currPrev->object->getID());
 		func(_kernel, currPrev->object);
 		currPrev = currPrev->prev;
 	}
@@ -444,7 +427,7 @@ void Scene::foreachVisionObject(IObject* object, int8 quadrant, const std::funct
 	while (currNext){
 		if (!isInVision(object, currNext->object))
 			break;
-
+		ECHO_ERROR("next foreach[%lld]-[%lld]", object->getID(), currNext->object->getID());
 		func(_kernel, currNext->object);
 		currNext = currNext->next;
 	}
@@ -537,4 +520,24 @@ bool Scene::isInVision(IObject* object, IObject* other){
 		return true;
 	}
 	return false;
+}
+
+void Scene::printSceneNodePos(){
+	auto itor = _sceneObjectNodes.find("lxd");
+	if (itor == _sceneObjectNodes.end())
+		return;
+	static int32 i = 0;
+	i++;
+	SceneEntity* curr = itor->second.xListHead.next;
+	while (curr){
+		ECHO_ERROR("x[%d]:object[%lld:%d] pos[%f, %f, %f]", i, curr->object->getID(), curr->object->getPropInt32(attr_def::logic), curr->object->getPropFloat(attr_def::x), curr->object->getPropFloat(attr_def::y), curr->object->getPropFloat(attr_def::z));
+		curr = curr->next;
+	}
+
+	curr = itor->second.yListHead.next;
+	while (curr){
+		ECHO_ERROR("y[%d]:object[%lld:%d] pos[%f, %f, %f]", i,curr->object->getID(), curr->object->getPropInt32(attr_def::logic), curr->object->getPropFloat(attr_def::x), curr->object->getPropFloat(attr_def::y), curr->object->getPropFloat(attr_def::z));
+		curr = curr->next;
+	}
+
 }

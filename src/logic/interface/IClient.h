@@ -20,5 +20,6 @@ public:
 	virtual void connect(const char* ip, const int32 port) = 0;
 	virtual int32 recvSize() = 0;
 	virtual int32 sendSize() = 0;
+	virtual void close(int64 id) = 0;
 };
 #endif

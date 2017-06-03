@@ -17,6 +17,10 @@ public:
 	virtual int32 choose(int32 nodeType);
 
 private:
+	int32 chooseStrategy1(int32 nodeType);
+	int32 chooseStrategy2(int32 nodeType);
+
+private:
 	IHarbor* _harbor;
 	std::unordered_map<int32, std::unordered_map<int32, LoadData>> _allNodeLoad;
 };

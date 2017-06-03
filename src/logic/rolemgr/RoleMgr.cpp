@@ -4,6 +4,7 @@
 #include "Role.h"
 #include "IDCCenter.h"
 #include "slbinary_map.h"
+#include "IIdmgr.h"
 
 bool RoleMgr::initialize(sl::api::IKernel * pKernel){
 	_self = this;
@@ -14,6 +15,8 @@ bool RoleMgr::initialize(sl::api::IKernel * pKernel){
 bool RoleMgr::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
 	FIND_MODULE(_cacheDB, CacheDB);
+	FIND_MODULE(_idMgr, IdMgr);
+
 	return true;
 }
 bool RoleMgr::destory(sl::api::IKernel * pKernel){
@@ -52,15 +55,15 @@ bool RoleMgr::getRoleList(int64 account, const std::function <void(sl::api::IKer
 	return true;
 }
 
-IRole* RoleMgr::createRole(int64 accountId, int64 actorId, const sl::OBStream& buf){
+IRole* RoleMgr::createRole(int64 accountId, const sl::OBStream& buf){
 	const char* name = nullptr;
 	int8 occupation = 0;
 	int8 sex = 0;
-	if (!buf.readString(name) || !buf.read(occupation) || !buf.read(sex)){
+	if (!buf.readString(name) || !buf.readInt8(occupation) || !buf.readInt8(sex)){
 		SLASSERT(false, "wtf");
 		return nullptr;
 	}
-
+	int64 actorId = _idMgr->allocID();
 	bool ret = _cacheDB->write("actor", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
 		context->writeInt64("account", accountId);
 		context->writeString("name", name);
@@ -71,6 +74,8 @@ IRole* RoleMgr::createRole(int64 accountId, int64 actorId, const sl::OBStream& b
 
 	if (!ret)
 		return nullptr;
+
+	ECHO_TRACE("client[%lld] create role[%s:%lld] success", accountId, name, actorId);
 	
 	Role* newRole = NEW Role(accountId, actorId, name, occupation, sex);
 	_roleMap.insert(make_pair(actorId, newRole));

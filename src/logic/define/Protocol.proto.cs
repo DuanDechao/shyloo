@@ -81,7 +81,10 @@ namespace protocol
       ERROR_CREATE_ROLE_FAILED = 6,
             
       [global::ProtoBuf.ProtoEnum(Name=@"ERROR_SYSTEM_ERROR", Value=7)]
-      ERROR_SYSTEM_ERROR = 7
+      ERROR_SYSTEM_ERROR = 7,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"ERROR_LOGIN_CHECK_TICKET_FAILED", Value=8)]
+      ERROR_LOGIN_CHECK_TICKET_FAILED = 8
     }
   
 }

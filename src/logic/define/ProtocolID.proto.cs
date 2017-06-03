@@ -52,7 +52,13 @@ namespace ProtocolID
       SERVER_MSG_NEW_ROLE_NOTIFY = 5,
             
       [global::ProtoBuf.ProtoEnum(Name=@"SERVER_MSG_REMOVE_ROLE_NOTIFY", Value=6)]
-      SERVER_MSG_REMOVE_ROLE_NOTIFY = 6
+      SERVER_MSG_REMOVE_ROLE_NOTIFY = 6,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SERVER_MSG_GIVE_GATE_ADDRESS_RSP", Value=7)]
+      SERVER_MSG_GIVE_GATE_ADDRESS_RSP = 7,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SERVER_MSG_NOTIFY_TICKET_INFO_RSP", Value=8)]
+      SERVER_MSG_NOTIFY_TICKET_INFO_RSP = 8
     }
   
 }

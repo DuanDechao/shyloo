@@ -24,6 +24,8 @@ public:
 	void onSceneRemoveInterester(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
 	void onSceneRemoveWatcher(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
 
+	void onObjectEnterVision(sl::api::IKernel* pKernel, const void* context, const int32 size);
+
 private:
 	void addWatcher(sl::api::IKernel* pKernel, IObject* object, int64 watcherId, int32 logic, int32 gate);
 	void removeWatcher(sl::api::IKernel* pKernel, IObject* object, int64 watcherId);
@@ -33,6 +35,8 @@ private:
 
 	void notifyWatcherObjectAppear(sl::api::IKernel* pKernel, int32 gate, int64 watcherId, IObject* object);
 	void notifyWatcherObjectDisappear(sl::api::IKernel* pKernel, int32 gate, int64 watcherId, IObject* object);
+
+	void printAOI(IObject* object);
 
 private:
 	sl::api::IKernel* _kernel;

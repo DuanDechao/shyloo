@@ -7,6 +7,7 @@
 #include "IPlayerMgr.h"
 #include "ProtocolID.pb.h"
 #include "Protocol.pb.h"
+#include "ICapacity.h"
 
 bool Logic::initialize(sl::api::IKernel * pKernel){
 	_self = this;
@@ -18,6 +19,7 @@ bool Logic::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_objectMgr, ObjectMgr);
 	FIND_MODULE(_playerMgr, PlayerMgr);
 	FIND_MODULE(_eventEngine, EventEngine);
+	FIND_MODULE(_capacityPublisher, CapacityPublisher);
 
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::GATE_MSG_BIND_PLAYER_REQ, Logic::onGateBindPlayerOnLogic);
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::GATE_MSG_UNBIND_PLAYER_REQ, Logic::onGateUnBindPlayerOnLogic);
@@ -48,6 +50,8 @@ void Logic::onGateBindPlayerOnLogic(sl::api::IKernel* pKernel, const int32 nodeT
 		sendGateBindAck(pKernel, nodeId, accountId, actorId, protocol::ErrorCode::ERROR_NO_ERROR);
 		sendSceneMgrBindNotify(pKernel, accountId, actorId, protocol::ErrorCode::ERROR_NO_ERROR);
 		_gateActors[nodeId].insert(actorId);
+		_capacityPublisher->increaseLoad(1);
+		ECHO_TRACE("player[%lld:%lld] bind logic success", accountId, actorId);
 	}
 	else{
 		sendGateBindAck(pKernel, nodeId, accountId, actorId, protocol::ErrorCode::ERROR_LOAD_PLAYER_FAILED);
@@ -58,6 +62,7 @@ void Logic::onGateUnBindPlayerOnLogic(sl::api::IKernel* pKernel, const int32 nod
 	int64 actorId = args.getInt64(0);
 	_playerMgr->deActive(actorId, nodeId, false);
 	_gateActors[nodeId].erase(actorId);
+	_capacityPublisher->decreaseLoad(1);
 }
 
 void Logic::onTransforMsgToLogic(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args){

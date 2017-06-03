@@ -49,7 +49,7 @@ public:
 	void onSceneMgrLeaveScene(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
 	void onSceneMgrSyncScene(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
 
-	void onObjectAppearOnScene(sl::api::IKernel* pKernel, const void* context, const int32 size);
+	void onPlayerEnterScene(sl::api::IKernel* pKernel, const void* context, const int32 size);
 
 private:
 	typedef std::function<void(sl::api::IKernel* pKernel, IObject* object)> VisionEvent;
@@ -73,6 +73,8 @@ private:
 	void moveSceneNode(SceneEntity* head, SceneEntity* node, int8 quadrant, bool forward = false);
 	void removeSceneNode(SceneEntity* node);
 	bool isInVision(IObject* object, IObject* other);
+
+	void printSceneNodePos();
 
 private:
 	typedef std::unordered_map<sl::SLString<game::MAX_SCENE_LEN>, SceneNodesList, sl::HashFunc<game::MAX_SCENE_LEN>, sl::EqualFunc<game::MAX_SCENE_LEN>> SCENE_OBJECTNODE_MAP;

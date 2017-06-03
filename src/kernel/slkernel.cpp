@@ -103,6 +103,10 @@ bool Kernel::startTcpClient(api::ITcpSession * client, const char* ip, const int
 	return NetEngine::getInstance()->addTcpClient(client, ip, port, sendSize, recvSize);
 }
 
+const char* Kernel::getInternetIp(){
+	return NetEngine::getInstance()->getInternetIp();
+}
+
 api::IModule* Kernel::findModule(const char * name){
 	return LogicEngine::getInstance()->findModule(name);
 }

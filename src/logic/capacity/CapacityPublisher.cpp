@@ -65,7 +65,7 @@ void CapacityPublisher::onTime(sl::api::IKernel* pKernel, int64 timetick){
 	_lastLoad = _currLoad;
 
 	IArgs<1, 64> args;
-	args << (float)(_currLoad / _maxLoad);
+	args << (float)_currLoad / _maxLoad;
 	args.fix();
 	_harbor->broadcast(NodeProtocol::NODE_CAPACITY_LOAD_REPORT, args.out());
 }

@@ -116,6 +116,7 @@ public:
 	//net interface
 	virtual bool startTcpServer(api::ITcpServer * server, const char* ip, const int32 port, int32 sendSize, int32 recvSize) = 0;
 	virtual bool startTcpClient(api::ITcpSession * client, const char* ip, const int32 port, int32 sendSize, int32 recvSize) = 0;
+	virtual const char* getInternetIp() = 0;
 
 	//timer interface
 	virtual bool startTimer(api::ITimer* timer, int64 delay, int32 count, int64 interval) = 0;

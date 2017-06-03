@@ -56,7 +56,7 @@ void ShadowMgr::createShadow(IObject* object, const int32 logic){
 	else
 		row = shadows->addRowKeyInt32(logic);
 
-	if (_harbor->getNodeId() == logic && count == 0)
+	if (logic != _harbor->getNodeId() && count == 0)
 		sendCreateShadow(_kernel, object, logic);
 
 	row->setDataInt32(OCTableMacro::SHADOW::COUNT, count + 1);
@@ -186,9 +186,13 @@ void ShadowMgr::onSyncTime(sl::api::IKernel* pKernel, IObject* object, int64){
 	ITableControl* shadowSyncProps = object->findTable(OCTableMacro::SHADOW_SYNC_PROP::TABLE_NAME);
 	SLASSERT(shadowSyncProps, "wtf");
 
+	int32 syncPropsCount = shadowSyncProps->rowCount();
+	if (syncPropsCount <= 0)
+		return;
+
 	shadow::SyncShadow info;
 	info.id = object->getID();
-	info.count = shadowSyncProps->rowCount();
+	info.count = syncPropsCount;
 
 	brocastShadowPropSync(pKernel, object, [&](sl::api::IKernel* pKernel, const int32 logic){
 		_harbor->prepareSend(NodeType::LOGIC, logic, NodeProtocol::LOGIC_MSG_SYNC_SHADOW, sizeof(shadow::SyncShadow) + info.count * sizeof(shadow::Attribute));
@@ -216,6 +220,8 @@ void ShadowMgr::onSyncTime(sl::api::IKernel* pKernel, IObject* object, int64){
 			_harbor->send(NodeType::LOGIC, logic, &attr, sizeof(attr));
 		});
 	}
+
+	shadowSyncProps->clearRows();
 }
 
 void ShadowMgr::onSyncTerminate(sl::api::IKernel* pKernel, IObject* object, bool, int64){

@@ -20,21 +20,20 @@ bool AOI::initialize(sl::api::IKernel * pKernel){
 
 bool AOI::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
-	if (_harbor->getNodeType() == NodeType::LOGIC){
-		FIND_MODULE(_objectMgr, ObjectMgr);
-		FIND_MODULE(_shadowMgr, ShadowMgr);
-		FIND_MODULE(_packetSender, PacketSender);
-		FIND_MODULE(_eventEngine, EventEngine);
+	if (_harbor->getNodeType() != NodeType::LOGIC)
+		return true;
 
-		RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENE_MSG_ADD_INTERESTER, AOI::onSceneAddInterester);
-		RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENE_MSG_ADD_WATCHER, AOI::onSceneAddWatcher);
-		RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENE_MSG_REMOVE_INTERESTER, AOI::onSceneRemoveInterester);
-		RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENE_MSG_REMOVE_WATCHER, AOI::onSceneRemoveWatcher);
-	}
+	FIND_MODULE(_objectMgr, ObjectMgr);
+	FIND_MODULE(_shadowMgr, ShadowMgr);
+	FIND_MODULE(_packetSender, PacketSender);
+	FIND_MODULE(_eventEngine, EventEngine);
 
-	if (_harbor->getNodeType() == NodeType::SCENE){
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENE_MSG_ADD_INTERESTER, AOI::onSceneAddInterester);
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENE_MSG_ADD_WATCHER, AOI::onSceneAddWatcher);
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENE_MSG_REMOVE_INTERESTER, AOI::onSceneRemoveInterester);
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENE_MSG_REMOVE_WATCHER, AOI::onSceneRemoveWatcher);
 
-	}
+	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_LOGIC_ENTER_VISION, AOI::onObjectEnterVision);
 
 	return true;
 }
@@ -182,7 +181,7 @@ void AOI::addInterester(sl::api::IKernel* pKernel, IObject* object, int64 intere
 		return;
 
 	const IRow* row = interesters->addRowKeyInt64(interester);
-	row->setDataInt32(OCTableMacro::AOI_INTERESTERS::TYPE, type);
+	row->setDataInt8(OCTableMacro::AOI_INTERESTERS::TYPE, type);
 
 	logic_event::WatchInfo info;
 	info.object = object;
@@ -211,16 +210,15 @@ void AOI::removeInterester(sl::api::IKernel* pKernel, IObject* object, int64 int
 
 void AOI::notifyWatcherObjectAppear(sl::api::IKernel* pKernel, int32 gate, int64 watcherId, IObject* object){
 	sl::IBStream<game::MAX_PACKET_SIZE> args;
-	args << object->getID() << object->getPropInt32(attr_def::type);
+	args << object->getID() << object->getPropInt8(attr_def::type);
 
-	int32 count = 0;
-	for (auto prop : object->getObjProps()){
-		if (prop->getSetting(object) & prop_def::share)
-			count++;
-	}
-	args << count;
+	int32& count = *args.reserveInt32();
+	count = 0;
 
 	for (auto prop : object->getObjProps()){
+		if (!(prop->getSetting(object) & prop_def::share))
+			continue;
+
 		int16 idxAndType = prop->getIndex(object);
 		switch (prop->getType(object)){
 		case DTYPE_INT8: idxAndType |= ((int16)protocol::AttribType::DTYPE_INT8) << 13; args << idxAndType << object->getPropInt8(prop); break;
@@ -231,6 +229,8 @@ void AOI::notifyWatcherObjectAppear(sl::api::IKernel* pKernel, int32 gate, int64
 		case DTYPE_FLOAT: idxAndType |= ((int16)protocol::AttribType::DTYPE_FLOAT) << 13; args << idxAndType << object->getPropFloat(prop); break;
 		default: SLASSERT(false, "invaild type %d", prop->getType(object)); break;
 		}
+
+		count++;
 	}
 
 	_packetSender->send(gate, watcherId, ServerMsgID::SERVER_MSG_NEW_ROLE_NOTIFY, args.out());
@@ -241,4 +241,20 @@ void AOI::notifyWatcherObjectDisappear(sl::api::IKernel* pKernel, int32 gate, in
 	args << object->getID();
 
 	_packetSender->send(gate, watcherId, ServerMsgID::SERVER_MSG_REMOVE_ROLE_NOTIFY, args.out());
+}
+
+void AOI::onObjectEnterVision(sl::api::IKernel* pKernel, const void* context, const int32 size){
+	logic_event::VisionInfo * info = (logic_event::VisionInfo*)context;
+	printAOI(info->object);
+}
+
+void AOI::printAOI(IObject* object){
+	static int32 time = 0;
+	time++;
+	ITableControl* watchers = object->findTable(OCTableMacro::AOI_WATCHERS::TABLE_NAME);
+	SLASSERT(watchers, "wtf");
+	for (int32 i = 0; i < watchers->rowCount(); i++){
+		const IRow* row = watchers->getRow(i);
+		ECHO_ERROR("[%d]object[%lld] AOI [%lld]", time, object->getID(), row->getDataInt64(OCTableMacro::AOI_WATCHERS::ID));
+	}
 }

@@ -15,6 +15,8 @@ public:
 
 	virtual void pack() {}
 
+	virtual int64 getRoleId() { return _actorId; }
+
 private:
 	int64 _accountId;
 	int64 _actorId;

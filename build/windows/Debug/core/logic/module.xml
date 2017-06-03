@@ -19,4 +19,5 @@
 	<module name="Scene" />
 	<module name="ObjectLocator" />
 	<module name="ShadowMgr" />
+	<module name="Command" />
 </modules>

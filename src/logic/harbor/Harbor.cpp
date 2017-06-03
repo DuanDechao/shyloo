@@ -106,7 +106,7 @@ void Harbor::onNodeMessage(sl::api::IKernel* pKernel, int32 nodeType, int32 node
 	int32 messageId = *(int32*)pszBuf;
 	auto itor = _allCBPool.find(messageId);
 	if (itor == _allCBPool.end()){
-		SLASSERT(false, "have no messageId %d", messageId);
+		//SLASSERT(false, "have no messageId %d", messageId);
 		return;
 	}
 	for (auto& handler : _allCBPool[messageId]){
