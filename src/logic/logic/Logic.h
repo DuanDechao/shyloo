@@ -15,6 +15,8 @@ class IObjectMgr;
 class IEventEngine;
 class IObject;
 class IPlayerMgr;
+class ICapacityPublisher;
+
 class Logic :public ILogic, public INodeListener, public sl::SLHolder<Logic>{
 	struct Handler{
 		IProtocolHandler* _handler;
@@ -49,6 +51,7 @@ private:
 	IObjectMgr* _objectMgr;
 	IPlayerMgr* _playerMgr;
 	IEventEngine* _eventEngine;
+	ICapacityPublisher*	_capacityPublisher;
 
 	std::unordered_map<int32, std::unordered_set<int64>> _gateActors;
 	std::unordered_map<int32, std::vector<Handler>> _protoHandlers;

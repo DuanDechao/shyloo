@@ -38,7 +38,9 @@ bool Robot::launched(sl::api::IKernel * pKernel){
 	_svrIp = conf.root()["svr"][0].getAttributeString("ip");
 	_svrPort = conf.root()["svr"][0].getAttributeInt32("port");
 
-	START_TIMER(_self, 0, _robotCount, 2000);
+	int32 nodeId = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("node_id"));
+
+	START_TIMER(_self, 0, _robotCount, nodeId * 2000);
 	
 	return true;
 }

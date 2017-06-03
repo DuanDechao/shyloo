@@ -91,7 +91,6 @@ void Client::close(int64 id){
 	}
 
 	itor->second->close();
-	_clientSessions.erase(itor);
 }
 
 void Client::send(const int64 id, const void* pBuf, const int32 size){

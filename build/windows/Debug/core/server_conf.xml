@@ -20,7 +20,7 @@
 		<port node="1" start="7241" end="7299" />
 		<out_port node="1" start="7200" end="7210" />
 		<define balance_port="7100" />
-		<node name="gate" type="1" min="1" max="1" delay="1000" cmd=" --name=gate --harbor=$port$ --agent=$out_port$ --node_id=$id$" />
+		<node name="gate" type="1" min="2" max="2" delay="1000" cmd=" --name=gate --harbor=$port$ --agent=$out_port$ --node_id=$id$" />
 		<node name="logic" type="2" min="2" max="2" delay="5000" cmd=" --name=logic --harbor=$port$ --node_id=$id$" />
 		<node name="scene" type="3" min="1" max="1" delay="5000" cmd=" --name=scene --harbor=$port$ --node_id=$id$" />
 		<node name="relation" type="4" min="1" max="1" delay="5000" cmd=" --name=relation --harbor=$port$ --node_id=$id$" />
@@ -38,6 +38,6 @@
 	</redis>
 	<loadbroad interval="1000" />
 	<save player="120000" />
-	<sync_rate scene="500" shadow="500" />
+	<sync_rate scene="500" shadow="2000" />
 	<balance max_tickets="2000" max_clients="5000" />
 </core>
