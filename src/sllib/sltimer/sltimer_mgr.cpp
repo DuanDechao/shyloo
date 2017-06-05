@@ -1,20 +1,14 @@
 #define SL_DLL_EXPORT
 #include "sltimer_mgr.h"
-namespace sl
-{
-SL_SINGLETON_INIT(timer::TimersT);
-
-namespace timer
-{
-extern "C" SL_DLL_API ISLTimerMgr* SLAPI getSLTimerModule()
-{
-	TimersT* g_timersPtr = TimersT::getSingletonPtr();
-	if(g_timersPtr == NULL)
-		g_timersPtr = new TimersT();
-	return TimersT::getSingletonPtr();
+#include "sltime.h"
+namespace sl{
+namespace timer{
+extern "C" SL_DLL_API ISLTimerMgr* SLAPI getSLTimerModule(){
+	SLTimerMgr* g_timersPtr = SLTimerMgr::getInstance();
+	return g_timersPtr;
 }
 
-TimersT::TimersT()
+SLTimerMgr::SLTimerMgr()
 	:m_TimeQueue(),
 	m_lastProcessTime(0),
 	m_pProcessingNode(NULL),
@@ -23,33 +17,30 @@ TimersT::TimersT()
 
 
 
-TimersT::~TimersT()
+SLTimerMgr::~SLTimerMgr()
 {
 	this->clear();
 }
 
 
-SLTimerHandler TimersT::startTimer(ISLTimer* pTimer, int64 delay, int32 count, int64 interval)
-{
-	if(nullptr == pTimer)
-		return false;
+SLTimerHandler SLTimerMgr::startTimer(ISLTimer* pTimer, int64 delay, int32 count, int64 interval){
+	if (interval != 0 && interval < JIFFIES_INTERVAL)
+		interval = JIFFIES_INTERVAL;
 
-	CSLTimerBase* pMgrTimerObj = CREATE_POOL_OBJECT(CSLTimerBase, this, pTimer, delay, count, interval);
-	if(nullptr == pMgrTimerObj)
-		return false;
-	
-	if(!pMgrTimerObj->good())
-		return false;
+	if (delay > 0 && delay < JIFFIES_INTERVAL)
+		delay = JIFFIES_INTERVAL;
 
-	m_TimeQueue.push(pMgrTimerObj);
+	CSLTimerBase* pMgrTimerObj = CSLTimerBase::create(pTimer, (jiffies_t)(getJiffies() + delay / JIFFIES_INTERVAL), count, (jiffies_t)(interval / JIFFIES_INTERVAL));
+	SLASSERT(pMgrTimerObj && pMgrTimerObj->good(), "create timerbase failed");
 	
 	pMgrTimerObj->onInit();
 
+	schedule(pMgrTimerObj);
+	
 	return pMgrTimerObj;
 }
 
-bool TimersT::killTimer(SLTimerHandler pTimer)
-{
+bool SLTimerMgr::killTimer(SLTimerHandler pTimer){
 	if(INVALID_TIMER_HANDER == pTimer)
 		return false;
 
@@ -61,7 +52,7 @@ bool TimersT::killTimer(SLTimerHandler pTimer)
 	return true;
 }
 
-void TimersT::pauseTimer(SLTimerHandler pTimer)
+void SLTimerMgr::pauseTimer(SLTimerHandler pTimer)
 {
 	if(INVALID_TIMER_HANDER == pTimer)
 		return;
@@ -74,8 +65,7 @@ void TimersT::pauseTimer(SLTimerHandler pTimer)
 	pTimerBase->onPause();
 }
 
-void TimersT::resumeTimer(SLTimerHandler pTimer)
-{
+void SLTimerMgr::resumeTimer(SLTimerHandler pTimer){
 	if(INVALID_TIMER_HANDER == pTimer)
 		return;
 
@@ -88,150 +78,80 @@ void TimersT::resumeTimer(SLTimerHandler pTimer)
 	m_TimeQueue.push(pTimerBase);
 	pTimerBase->onResume();
 }
-void TimersT::onCancel()
-{
-	++m_iNumCanceled;
 
-	if(m_iNumCanceled * 2 > int(m_TimeQueue.size()))
-	{
-		this->purgeCanelledTimes();
-	}
-}
-
-void TimersT::clear(bool shouldCallCancel)
-{
-	int iMaxLoopCount = (int)m_TimeQueue.size();
-	while(!m_TimeQueue.empty())
-	{
-		CSLTimerBase* pTimer = m_TimeQueue.unsafePopBack();
-		if(nullptr == pTimer)
-			continue;
-		if(!pTimer->isDestoryed() && shouldCallCancel)
-		{
-			--m_iNumCanceled;
-			pTimer->release();
-			if(--iMaxLoopCount == 0)
-			{
-				shouldCallCancel = false;
-			}
-		}
-		else if(pTimer->isDestoryed())
-		{
-			--m_iNumCanceled;
-		}
-		delete pTimer;
-	}
-	m_iNumCanceled = 0;
-	m_TimeQueue.clear();
-}
-
-template <class TIME>
-class IsNotCancelled
-{
-public:
-	bool operator()(const TIME* pTime)
-	{
-		return !pTime->isDestoryed();
-	}
-};
-
-void TimersT::purgeCanelledTimes()
-{
-	TimerPriorityQueue::Container& stTimeContainer = m_TimeQueue.getContainer();
-	TimerPriorityQueue::Container::iterator PartIter =
-		std::partition(stTimeContainer.begin(), stTimeContainer.end(), IsNotCancelled<CSLTimerBase>());
-
-	TimerPriorityQueue::Container::iterator iter = PartIter;
-	for (; iter != stTimeContainer.end(); ++iter)
-	{
-		if(NULL == *iter)
-			continue;
-		RELEASE_POOL_OBJECT(CSLTimerBase, *iter);
-	}
-
-	int32 iNumPurged = (int32)(stTimeContainer.end() - PartIter);
-	m_iNumCanceled -= iNumPurged;
-
-	stTimeContainer.erase(PartIter, stTimeContainer.end());
-	m_TimeQueue.makeHeap();
-}
-
-int64 TimersT::process(int64 overTime)
-{
+int64 SLTimerMgr::process(int64 overTime){
+	static int64 last = sl::getTimeMilliSecond();
 	int64 tick = sl::getTimeMilliSecond();
-	int numFired = 0;
-	while(!(m_TimeQueue.empty()) && 
-		(m_TimeQueue.top()->getExpireTime() <= timestamp() || m_TimeQueue.top()->isDestoryed()))
-	{
-		if (sl::getTimeMilliSecond() - (uint64)tick > (uint64)overTime)
+
+	int32 count = (int32)(tick - last) / 10;
+	for (int32 i = 0; i < count; i++){
+		update();
+	}
+	last += count * 10;
+
+	while (true){
+		if (sl::getTimeMilliSecond() - tick > overTime)
 			break;
 
-		CSLTimerBase* pTimer = m_pProcessingNode = m_TimeQueue.top();
-		m_TimeQueue.pop();
+		CSLTimerBase* pTimer = (CSLTimerBase*)m_runTimerList.popFront();
+		if (!pTimer)
+			break;
 
-		if(pTimer->isDestoryed())
-		{
-			--m_iNumCanceled;
-			RELEASE_POOL_OBJECT(CSLTimerBase, pTimer);
-			continue;
+		CSLTimerBase::TimerState state = pTimer->pollTimer();
+		switch (state){
+		case sl::timer::CSLTimerBase::TIME_RECREATE: reCreateTimer(pTimer); break;
+		case sl::timer::CSLTimerBase::TIME_REMOVE: endTimer(pTimer); break;
+		case sl::timer::CSLTimerBase::TIME_PAUSED: break;
+		case sl::timer::CSLTimerBase::TIME_DESTORY: pTimer->release(); break;
 		}
-
-		if(pTimer->isPaused())
-		{
-			continue;
-		}
-
-		++numFired;
-		pTimer->setTimerState(pTimer->pollTimer());
-
-		if(pTimer->needRecreated())
-		{
-			pTimer->setExpireTime(timestamp() + pTimer->getIntervalTime());
-			m_TimeQueue.push(pTimer);
-		}
-
-		if(pTimer->isDestoryed())
-		{
-			--m_iNumCanceled;
-			pTimer->release();
-			RELEASE_POOL_OBJECT(CSLTimerBase, pTimer);
-		}
-		
-		
 	}
-	m_pProcessingNode = NULL;
-	m_lastProcessTime = timestamp();
-	return numFired;
+
+	return sl::getTimeMilliSecond() - tick;
 }
 
-
-bool TimersT::legal(CSLTimerBase* pTimer) const
-{
-	if(NULL == pTimer)
-	{
-		return false;
+void SLTimerMgr::update(){
+	m_timerTick++;
+	if (m_timerTick == 2){
+		onJiffiesUpdate();
+		m_timerTick = 0;
 	}
-	if(pTimer == m_pProcessingNode)
-	{
-		return true;
-	}
-	for (size_t i = 0; i < m_TimeQueue.size(); i++)
-	{
-		if(pTimer == m_TimeQueue[i])
-		{
-			return true;
-		}
-	}
-	return false;
 }
 
-TimeStamp TimersT::nextExp(TimeStamp now) const
-{
-	if(m_TimeQueue.empty() || now > m_TimeQueue.top()->getExpireTime())
-	{
-		return 0;
+void SLTimerMgr::onJiffiesUpdate(){
+	if (m_gear1)
+		m_gear1->
+}
+
+void SLTimerMgr::schedule(CSLTimerBase* timerBase){
+	SLList* list = findTimerList(timerBase);
+	SLASSERT(list, "wtf");
+	if (list)
+		list->pushBack(timerBase);
+}
+
+SLList* SLTimerMgr::findTimerList(CSLTimerBase* timerBase){
+	jiffies_t expireJiffies = timerBase->getExpireTime();
+	if (expireJiffies <= m_currTimeJiffies)
+		return &m_runTimerList;
+
+	jiffies_t restJiffies = expireJiffies - m_currTimeJiffies;
+	SLList* findList = nullptr;
+	if (restJiffies < TQ_GEAR2_SIZE){
+		findList = m_gear1->_slots + (TQ_GEAR2_MASK & expireJiffies);
 	}
-	return m_TimeQueue.top()->getExpireTime() - now;
+	else if (restJiffies < (1 << (TQ_GEAR2_BITS + TQ_GEAR1_BITS))){
+		findList = m_gear2->_slots + (TQ_GEAR1_MASK & (expireJiffies >> TQ_GEAR2_BITS));
+	}
+	else if (restJiffies < (1 << (TQ_GEAR2_BITS + 2 * TQ_GEAR1_BITS))){
+		findList = m_gear3->_slots + (TQ_GEAR1_MASK & (expireJiffies >> (TQ_GEAR2_BITS + TQ_GEAR1_BITS)));
+	}
+	else if (restJiffies < (1 << (TQ_GEAR2_BITS + 3 * TQ_GEAR1_SIZE))){
+		findList = m_gear4->_slots + (TQ_GEAR1_MASK & (expireJiffies >> (TQ_GEAR2_BITS + 2 * TQ_GEAR1_BITS)));
+	}
+	else if (restJiffies < (1 << (TQ_GEAR2_BITS + 4 * TQ_GEAR1_SIZE))){
+		findList = m_gear5->_slots + (TQ_GEAR1_MASK & (expireJiffies >> (TQ_GEAR2_BITS + 3 * TQ_GEAR1_BITS)));
+	}
+	return findList;
 }
 
 }

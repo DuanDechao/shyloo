@@ -6,8 +6,7 @@ namespace sl
 namespace timer
 {
 
-class ISLTimer
-{
+class ISLTimer{
 public:
 	virtual void SLAPI onInit(int64 timetick) = 0;
 	virtual void SLAPI onStart(int64 timetick) = 0;
@@ -20,8 +19,7 @@ public:
 typedef void* SLTimerHandler;
 #define INVALID_TIMER_HANDER nullptr
 
-class ISLTimerMgr
-{
+class ISLTimerMgr{
 public:
 	virtual SLTimerHandler SLAPI startTimer(ISLTimer* pTimer, int64 delay, int32 count, int64 interval) = 0;
 	virtual bool SLAPI killTimer(SLTimerHandler pTimer) = 0;

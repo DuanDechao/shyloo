@@ -2,43 +2,37 @@
 #define SL_SLTIMER_BASE_H
 #include "slmulti_sys.h"
 #include "sltimer.h"
-#include "slobjectpool.h"
+#include "slpool.h"
 #include "sltime_stamp.h"
-namespace sl
-{
-namespace timer
-{
-class TimersBase;
-class CSLTimerBase
-{
-private:
-	CSLTimerBase(const CSLTimerBase&);
-	CSLTimerBase& operator=(const CSLTimerBase&);
+#include "sllist.h"
+
+namespace sl{
+namespace timer{
+typedef uint64 jiffies_t;
+class CSLTimerBase: public sl::ISLListNode{
 public:
-	enum TimerState
-	{
-		TIME_RECREATE,
+	enum TimerState{
+		TIME_RECREATE = 1,
 		TIME_PAUSED,
+		TIME_REMOVE,
 		TIME_DESTORY
 	};
-	CSLTimerBase(){}
-	virtual ~CSLTimerBase();
-	CSLTimerBase(TimersBase* owner, ISLTimer* pTimer, int64 delay, int32 count, int64 interval);
 
-	//void initialize(TimersBase* owner, ISLTimer* pTimer, int64 delay, int32 count, int64 interval);
+	CSLTimerBase(ISLTimer* pTimer, jiffies_t delay, int32 count, jiffies_t interval);
+	virtual ~CSLTimerBase();
 
 	TimerState getTimerState() const {return m_stat;}
 	void setTimerState(TimerState stat) {m_stat = stat;}
 
 	TimerState pollTimer();
 
-	void setExpireTime(TimeStamp expireStamp){m_expireStamp = expireStamp;}
-	TimeStamp getExpireTime() const {return m_expireStamp;}
+	void setExpireTime(jiffies_t expire){ m_expire = expire; }
+	TimeStamp getExpireTime() const { return m_expire; }
 
-	void setPauseTime(TimeStamp pauseStamp){m_pauseStamp = pauseStamp;}
-	TimeStamp getPauseTime() const {return m_pauseStamp;}
+	void setPauseTime(jiffies_t pause){ m_pause = m_pause; }
+	TimeStamp getPauseTime() const { return m_pause; }
 
-	TimeStamp getIntervalTime() const {return m_intervalStamp;}
+	TimeStamp getIntervalTime() const { return m_interval; }
 
 	void onInit();
 	void onStart();
@@ -53,21 +47,27 @@ public:
 	bool isPaused() const {return m_stat == TIME_PAUSED;}
 	bool needRecreated() const {return m_stat == TIME_RECREATE;}
 
-	void release();
+	static CSLTimerBase* create(ISLTimer* pTimer, int64 delay, int32 count, int64 interval){
+		return CREATE_FROM_POOL(s_pool, pTimer, delay, count, interval);
+	}
 
-protected:
+	inline void release() { s_pool.recover(this); }
+
+private:
+	CSLTimerBase(const CSLTimerBase&);
+	CSLTimerBase& operator=(const CSLTimerBase&);
+
+private:
 	TimerState		m_stat;
-	TimeStamp		m_pauseStamp;
+	jiffies_t		m_pause;
 	ISLTimer*		m_pTimerObj;
-	TimeStamp		m_expireStamp;
+	jiffies_t		m_expire;
 	bool			m_bDelay;
-	//bool			m_bCanceled;
 	int32			m_iCount;
-	TimeStamp		m_intervalStamp;
-	TimersBase*		m_Owner;
+	jiffies_t		m_interval;
+	static sl::SLPool<CSLTimerBase> s_pool;
 };
 
-CREATE_OBJECT_POOL(CSLTimerBase);
 }
 }
 #endif
