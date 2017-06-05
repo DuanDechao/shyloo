@@ -4,39 +4,33 @@ namespace sl
 {
 namespace timer
 {
-CSLTimerBase::CSLTimerBase(TimersBase* owner, ISLTimer* pTimer, int64 delay, int32 count, int64 interval)
-	:m_Owner(owner),
-	 m_stat(TIME_RECREATE),
-	 m_pauseStamp(0),
-	 m_pTimerObj(pTimer),
-	 m_expireStamp(0),
-	 m_bDelay(true),
-	 m_iCount(count),
-	 m_intervalStamp(TimeStamp::fromMilliSeconds(interval))
-{
-	setExpireTime(timestamp() + TimeStamp::fromMilliSeconds(delay));
-}
+sl::SLPool<CSLTimerBase> CSLTimerBase::s_pool;
+CSLTimerBase::CSLTimerBase(ISLTimer* pTimer, jiffies_t delay, int32 count, jiffies_t interval)
+	:m_stat(TIME_RECREATE),
+	m_pause(0),
+	m_pTimerObj(pTimer),
+	m_bDelay(true),
+	m_iCount(count),
+	m_interval(interval),
+	m_expire(delay)
+{}
 
-CSLTimerBase::~CSLTimerBase()
-{
+CSLTimerBase::~CSLTimerBase(){
 	m_stat = TIME_DESTORY;
-	m_pauseStamp = 0;
+	m_pause = 0;
 	m_pTimerObj = nullptr;
-	m_expireStamp = 0;
+	m_expire = 0;
 	m_bDelay = true;
 	m_iCount = 0;
-	m_intervalStamp = 0;
+	m_interval = 0;
 }
 
-CSLTimerBase::TimerState CSLTimerBase::pollTimer()
-{
+CSLTimerBase::TimerState CSLTimerBase::pollTimer(){
 	if(!good())
 		return TimerState::TIME_DESTORY;
 
-	if(m_bDelay)
-	{
+	if(m_bDelay){
 		onStart();
-
 		return TimerState::TIME_RECREATE;
 	}
 	else{
@@ -53,50 +47,36 @@ CSLTimerBase::TimerState CSLTimerBase::pollTimer()
 	}
 }
 
-void CSLTimerBase::onInit()
-{
+void CSLTimerBase::onInit(){
 	uint64 nowTime = timestamp() / stampsPerSecond();
 	m_pTimerObj->onInit((int64)nowTime);
 }
 
-void CSLTimerBase::onStart()
-{
+void CSLTimerBase::onStart(){
 	uint64 nowTime = timestamp() / stampsPerSecond();
 	m_pTimerObj->onStart((int64)nowTime);
 	m_bDelay = false;
 }
 
-void CSLTimerBase::onTimer()
-{
+void CSLTimerBase::onTimer(){
 	uint64 nowTime = timestamp() / stampsPerSecond();
 	m_pTimerObj->onTime(nowTime);
 }
 
-void CSLTimerBase::onPause()
-{
+void CSLTimerBase::onPause(){
 	uint64 nowTime = timestamp() / stampsPerSecond();
 	m_pTimerObj->onPause(nowTime);
 }
 
-void CSLTimerBase::onResume()
-{
+void CSLTimerBase::onResume(){
 	uint64 nowTime = timestamp() / stampsPerSecond();
 	m_pTimerObj->onResume(nowTime);
 }
 
-void CSLTimerBase::onEnd()
-{
+void CSLTimerBase::onEnd(){
 	uint64 nowTime = timestamp() / stampsPerSecond();
 	m_pTimerObj->onTerminate(nowTime);
 }
-
-void CSLTimerBase::release() 
-{
-	m_Owner->onCancel();
-	m_stat = TIME_DESTORY;
-	onEnd();
-}
-
 
 }
 }

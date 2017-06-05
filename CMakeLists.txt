@@ -63,6 +63,7 @@ SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/slcycle_queue.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slpool.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slbinary_map.h"
+	"${PROJECT_SOURCE_DIR}/src/public/sllist.h"
 )
 
 IF(WIN32)
