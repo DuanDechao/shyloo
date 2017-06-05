@@ -8,6 +8,7 @@ namespace core
 {
 
 char g_localIpPrefix[MAX_LOCAL_IP_PREFIX_NUM][MAX_IP_LEN] = {
+	"0.",
 	"10.",
 	"172.16.",
 	"172.17.",
@@ -25,7 +26,7 @@ char g_localIpPrefix[MAX_LOCAL_IP_PREFIX_NUM][MAX_IP_LEN] = {
 	"172.29.",
 	"172.30.",
 	"172.31.",
-	"192.168.",
+	//"192.168.",
 };
 
 NetEngine::~NetEngine(){

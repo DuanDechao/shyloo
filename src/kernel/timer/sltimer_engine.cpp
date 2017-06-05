@@ -4,11 +4,12 @@ namespace sl
 namespace core
 {
 
-bool TimerEngine::initialize()
-{
+bool TimerEngine::initialize(){
 	m_pTimerMgr = timer::getSLTimerModule();
-	if(nullptr == m_pTimerMgr)
+	if (nullptr == m_pTimerMgr){
+		SLASSERT(false, "wtf");
 		return false;
+	}
 	return true;	
 }
 
@@ -82,12 +83,8 @@ bool TimerEngine::resumeTimer(api::ITimer* pTimer)
 	return true;
 }
 
-int64 TimerEngine::loop(int64 overTime)
-{
-	int64 beginTime = getTimeMilliSecond();
-	m_pTimerMgr->process(overTime);
-	int64 endTime = getTimeMilliSecond();
-	return endTime - beginTime;
+int64 TimerEngine::loop(int64 overTime){
+	return m_pTimerMgr->process(overTime);
 }
 
 }

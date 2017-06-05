@@ -13,9 +13,9 @@ class CSLTimerBase: public sl::ISLListNode{
 public:
 	enum TimerState{
 		TIME_RECREATE = 1,
-		TIME_PAUSED,
 		TIME_REMOVE,
-		TIME_DESTORY
+		TIME_DESTORY,
+		TIME_PAUSED
 	};
 
 	CSLTimerBase(ISLTimer* pTimer, jiffies_t delay, int32 count, jiffies_t interval);
@@ -28,6 +28,7 @@ public:
 
 	void setExpireTime(jiffies_t expire){ m_expire = expire; }
 	TimeStamp getExpireTime() const { return m_expire; }
+	void adjustExpireTime(jiffies_t nowJiffies);
 
 	void setPauseTime(jiffies_t pause){ m_pause = m_pause; }
 	TimeStamp getPauseTime() const { return m_pause; }
@@ -51,7 +52,7 @@ public:
 		return CREATE_FROM_POOL(s_pool, pTimer, delay, count, interval);
 	}
 
-	inline void release() { s_pool.recover(this); }
+	inline void release() {s_pool.recover(this); }
 
 private:
 	CSLTimerBase(const CSLTimerBase&);

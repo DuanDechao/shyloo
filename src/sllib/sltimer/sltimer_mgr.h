@@ -8,40 +8,8 @@
 namespace sl{
 namespace timer{
 #define JIFFIES_INTERVAL 20
-class TimerGear{
-public:
-	TimerGear(int32 maxSlotNum, TimerGear* nextGear) 
-		:_nowSlot(0),
-		 _maxSlotNum(maxSlotNum),
-		 _nextGear(nextGear),
-		 _slots(nullptr)
-	{
-		_slots = NEW SLList[maxSlotNum];
-	}
-
-	~TimerGear(){
-		_nowSlot = 0;
-		_maxSlotNum = 0;
-		if (_slots){
-			DEL[] _slots;
-			_slots = nullptr;
-		}
-	}
-
-	void checkHighGear();
-
-public:
-	SLList* _slots;
-	TimerGear* _nextGear;
-	int32	_nowSlot;
-	int32	_maxSlotNum;
-
-private:
-	TimerGear(const TimerGear&);
-	TimerGear& operator = (const TimerGear&);
-};
-
-class SLTimerMgr : public ISLTimerMgr, public SLHolder<SLTimerMgr>{
+class SLTimerGear;
+class SLTimerMgr : public ISLTimerMgr, public CSingleton<SLTimerMgr>{
 	enum {
 		TQ_GEAR1_BITS = 6,
 		TQ_GEAR2_BITS = 8,
@@ -62,31 +30,26 @@ public:
 	SLTimerMgr();
 	virtual ~SLTimerMgr();
 
-	bool legal(CSLTimerBase *pTimer) const;
-
-	TimeStamp nextExp(TimeStamp now) const;
-	void clear(bool shouldCallCancel = true);
-
 	inline jiffies_t getJiffies() { return m_currTimeJiffies; }
+	void schedule(CSLTimerBase* timerBase);
+	void moveToRunList(CSLTimerBase* timerBase) { m_runTimerList.pushBack(timerBase); }
 
 private:
 	void update();
 	void onJiffiesUpdate();
 	void reCreateTimer(CSLTimerBase* pTimer);
 	void endTimer(CSLTimerBase* pTimer);
-	void schedule(CSLTimerBase* timerBase);
 	SLList* findTimerList(CSLTimerBase* timerBase);
 
 private:
-	CSLTimerBase*			m_pProcessingNode;
 	jiffies_t				m_currTimeJiffies;
 	int32					m_timerTick;
 	SLList					m_runTimerList;
-	TimerGear*				m_gear1;
-	TimerGear*				m_gear2;
-	TimerGear*				m_gear3;
-	TimerGear*				m_gear4;
-	TimerGear*				m_gear5;
+	SLTimerGear*			m_gear1;
+	SLTimerGear*			m_gear2;
+	SLTimerGear*			m_gear3;
+	SLTimerGear*			m_gear4;
+	SLTimerGear*			m_gear5;
 
 private:
 	SLTimerMgr(const SLTimerMgr&);
