@@ -4,8 +4,9 @@
 #include "sllogic_engine.h"
 #include "slconfig_engine.h"
 #include "slasync_engine.h"
-
+#include "sllog_engine.h"
 #include <time.h>
+
 namespace sl
 {
 namespace core
@@ -61,7 +62,7 @@ void Kernel::loop() {
 		int64 netTick = NetEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sNetlooptick);
 		int64 asyncTick = AsyncEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sAsynclooptick);
 		int64 timerTick = TimerEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sTimerlooptick);
-		
+		LogEngine::getInstance()->loop(0);
 
 		int64 useTick = sl::getTimeMilliSecond() - startTick;
 		if (useTick > ConfigEngine::getInstance()->getCoreConfig()->sLoopduration ||
@@ -133,6 +134,14 @@ void Kernel::startAsync(const int64 threadId, api::IAsyncHandler* handler, const
 
 void Kernel::stopAsync(api::IAsyncHandler* handler){
 	AsyncEngine::getInstance()->stop(handler);
+}
+
+void Kernel::syncLog(int32 filter, const char* log, const char* file, const int32 line){
+	LogEngine::getInstance()->logSync(filter, log, file, line);
+}
+
+void Kernel::asyncLog(int32 filter, const char* log, const char* file, const int32 line){
+	LogEngine::getInstance()->logAsync(filter, log, file, line);
 }
 
 

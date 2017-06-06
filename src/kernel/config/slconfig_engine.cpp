@@ -58,6 +58,13 @@ bool ConfigEngine::loadCoreConfig(){
 	}
 	m_configFile = moduleConfPath;
 
+	char logPath[MAX_PATH] = { 0 };
+	SafeSprintf(logPath, sizeof(logPath), "%s/%s", sl::getAppPath(), server_conf.root()["log"][0].getAttributeString("path"));
+	m_stCoreConfig.logPath = logPath;
+	m_stCoreConfig.logPath += "/";
+	m_stCoreConfig.logFile = string(name) + "_" + Kernel::getInstance()->getCmdArg("node_id");
+	m_stCoreConfig.logToConsole = server_conf.root()["log"][0].getAttributeBoolean("toConsole");
+
 	m_stCoreConfig.sNetlooptick = conf.root()["net"][0].getAttributeInt32("tick");
 	m_stCoreConfig.sTimerlooptick = conf.root()["timer"][0].getAttributeInt32("tick");
 	m_stCoreConfig.sLoopduration = conf.root()["loop"][0].getAttributeInt32("tick");

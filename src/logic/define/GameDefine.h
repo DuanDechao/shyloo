@@ -16,4 +16,13 @@ enum game{
 	MAX_OBJECT_TYPE_LEN = 64,
 	MAX_IP_LEN = 128,
 };
+
+enum logFilter{
+	EFatal = 0x1,
+	EError = 0x2,
+	EWarning = 0x4,
+	EInfo = 0x8,
+	EDebug = 0x10,
+	ETrace = 0x20,
+};
 #endif

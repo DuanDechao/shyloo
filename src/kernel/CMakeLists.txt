@@ -12,6 +12,7 @@ INCLUDE_DIRECTORIES(
 	"${PROJECT_SOURCE_DIR}/src/kernel/config"
 	"${PROJECT_SOURCE_DIR}/src/kernel/db"
 	"${PROJECT_SOURCE_DIR}/src/kernel/async"
+	"${PROJECT_SOURCE_DIR}/src/kernel/log"
 )
 ENDIF(WIN32)
 
@@ -21,6 +22,7 @@ SET(SL_KERNEL_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/kernel/interface/slitimer_engine.h"
 	"${PROJECT_SOURCE_DIR}/src/kernel/interface/slilogic_engine.h"
 	"${PROJECT_SOURCE_DIR}/src/kernel/interface/sliconfig_engine.h"
+	"${PROJECT_SOURCE_DIR}/src/kernel/interface/slilog_engine.h"
 	"${PROJECT_SOURCE_DIR}/src/kernel/interface/sliapplication.h"
 )
 
@@ -46,6 +48,11 @@ SET(SL_KERNEL_LOGIC
 SET(SL_KERNEL_CONFIG
 	"${PROJECT_SOURCE_DIR}/src/kernel/config/slconfig_engine.h"
 	"${PROJECT_SOURCE_DIR}/src/kernel/config/slconfig_engine.cpp"
+)
+
+SET(SL_KERNEL_LOG
+	"${PROJECT_SOURCE_DIR}/src/kernel/log/sllog_engine.h"
+	"${PROJECT_SOURCE_DIR}/src/kernel/log/sllog_engine.cpp"
 )
 
 # SET(SL_KERNEL_DB
@@ -79,6 +86,7 @@ SOURCE_GROUP(src\\logic FILES ${SL_KERNEL_LOGIC})
 SOURCE_GROUP(src\\config FILES ${SL_KERNEL_CONFIG})
 #SOURCE_GROUP(src\\db FILES ${SL_KERNEL_DB})
 SOURCE_GROUP(src\\async FILES ${SL_KERNEL_ASYNC})
+SOURCE_GROUP(src\\log FILES ${SL_KERNEL_LOG})
 SOURCE_GROUP(\\ FILES ${SL_KERNEL})
 
 IF(WIN32)
@@ -91,6 +99,7 @@ ADD_EXECUTABLE(shyloo
 	${SL_KERNEL_LOGIC}
 	${SL_KERNEL_CONFIG}
 	${SL_KERNEL_ASYNC}
+	${SL_KERNEL_LOG}
 	${SL_KERNEL}
 )
 ENDIF(WIN32)

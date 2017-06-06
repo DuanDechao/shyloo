@@ -23,6 +23,11 @@ struct sCoreConfig{
 
 	// async thread num
 	int32 sAsyncThreadNum;
+
+	//log
+	std::string logPath;
+	std::string logFile;
+	bool logToConsole;
 };
 
 struct sModuleConfig{

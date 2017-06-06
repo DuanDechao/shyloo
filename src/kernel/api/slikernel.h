@@ -136,6 +136,10 @@ public:
 	virtual void startAsync(const int64 threadId, IAsyncHandler* handler, const char* debug) = 0;
 	virtual void stopAsync(IAsyncHandler* handler) = 0;
 
+	//log interface
+	virtual void syncLog(int32 filter, const char* log, const char* file, const int32 line) = 0;
+	virtual void asyncLog(int32 filter, const char* log, const char* file, const int32 line) = 0;
+
 };
 }
 }

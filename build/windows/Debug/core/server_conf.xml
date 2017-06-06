@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <core>
+	<log path="./log" toConsole="true" />
 	<envir path="./envir" />
 	<agent send="1024" recv="1024" />
 	<client send="1024" recv="1024"/>

@@ -5,10 +5,8 @@
 #include "slcycle_queue.h"
 #include <thread>
 
-namespace sl
-{
-namespace core
-{
+namespace sl{
+namespace core{
 
 class AsyncBase;
 class AsyncThread{

@@ -4,7 +4,7 @@ namespace sl{
 class SLList;
 class ISLListNode{
 public:
-	ISLListNode() :_prev(nullptr), _next(nullptr), _list(nullptr){}
+	ISLListNode() :_prev(nullptr), _next(nullptr), _list(nullptr), _ignoreOwner(false){}
 	virtual ~ISLListNode(){}
 	inline void setPrev(ISLListNode* node) { _prev = node; }
 	inline ISLListNode* getPrev() const { return _prev; }
@@ -12,16 +12,24 @@ public:
 	inline ISLListNode* getNext() const { return _next; }
 	inline void setList(SLList* list) { _list = list; }
 	inline SLList* getList() const { return _list;}
+
+	inline void setIgnoreOwner(bool ignore) { _ignoreOwner = ignore; }
+	inline bool ignoreOwner() const { return _ignoreOwner; }
+
 private:
 	ISLListNode* _prev;
 	ISLListNode* _next;
 	SLList* _list;
+	bool _ignoreOwner;
 };
 
 class SLList{
 public:
 	SLList() :_head(nullptr), _tail(nullptr){}
 	~SLList(){}
+
+	inline ISLListNode* getHead() const { return _head; }
+	inline ISLListNode* getTail() const { return _tail; }
 
 	void pushBack(ISLListNode* node){
 		SLASSERT(node && node->getList() == nullptr, "wtf");
@@ -52,7 +60,11 @@ public:
 	}
 
 	void remove(ISLListNode* node){
-		SLASSERT(node && node->getList() == this, "wtf");
+		SLASSERT(node, "wtf");
+		if (!node->ignoreOwner() && node->getList() != this){
+			SLASSERT(false, "wtf");
+			return;
+		}
 
 		if (node->getNext()){
 			node->getNext()->setPrev(node->getPrev());
@@ -77,6 +89,20 @@ public:
 	void swap(SLList& list){
 		std::swap(_head, list._head);
 		std::swap(_tail, list._tail);
+	}
+
+	void merge(SLList& list){
+		if (list.isEmpty())
+			return;
+
+		if (isEmpty()){
+			_head = list._head;
+			_tail = list._tail;
+		}
+		else{
+			_tail->setNext(list.getHead());
+			_tail = list.getTail();
+		}
 	}
 
 	inline bool isEmpty() { return _head == nullptr; }

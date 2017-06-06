@@ -17,6 +17,7 @@
 
 #include <chrono>
 #include <string>
+#include <time.h>
 #define CTIME_SECONDS_PRE_DAY		86400			///< 每天最大的秒数
 
 namespace sl
@@ -310,13 +311,11 @@ namespace sl
 			return tms.IsSameDay(times -ieff);
 		}
 
-		char* Format(char* pszBuffer, int iMaxLen, const char* pszFormat) const
-		{
+		char* Format(char* pszBuffer, int iMaxLen, const char* pszFormat) const{
 			time_t time = m_time;
 			struct tm ptmTemp;
 			localtime_s(&ptmTemp, &time);
-			if(!strftime(pszBuffer, iMaxLen, pszFormat, &ptmTemp))
-			{
+			if(!strftime(pszBuffer, iMaxLen, pszFormat, &ptmTemp)){
 				pszBuffer[0] = '\0';
 			}
 			return pszBuffer;
@@ -328,28 +327,28 @@ namespace sl
 
 	
 
-	inline int64 getTimeMilliSecond()
-	{
+	inline int64 getTimeMilliSecond(){
 		return (int64)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	}
 
-	inline int64 getTimeNanoSecond()
-	{
+	inline int64 getTimeNanoSecond(){
 		return (int64)std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	}
 
-	inline const std::string getCurrentTimeStr(){
-		CTime time((time_t)(getTimeMilliSecond()/1000));
-		char buff[128] ={0};
-		time.Format(buff, 127, "%d-%b-%Y %H:%M:%S");
-		return buff;
+	inline const std::string getCurrentTimeStr(const char* format = "%4d-%02d-%02d %02d:%02d:%02d"){
+		time_t tmp = time(nullptr);
+		tm* t = localtime(&tmp);
+		char info[128];
+		SafeSprintf(info, sizeof(info), format, t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
+		return info;
 	}
 
-	inline const std::string getTimeStr(const int64 tick){
-		CTime time((time_t)(tick / 1000));
-		char buff[128] = { 0 };
-		time.Format(buff, 127, "%d-%b-%Y %H:%M:%S");
-		return buff;
+	inline const std::string getTimeStr(const int64 tick, const char* format = "%4d-%02d-%02d %02d:%02d:%02d"){
+		time_t tmp = (time_t)(tick / 1000);
+		tm* t = localtime(&tmp);
+		char info[128];
+		SafeSprintf(info, sizeof(info), format, t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
+		return info;
 	}
 
 }

@@ -10,8 +10,7 @@ namespace sl
 {
 namespace core
 {
-class Kernel: public api::IKernel,public IApplication
-{
+class Kernel: public api::IKernel,public IApplication{
 public:
 	static IKernel* getInstance();
 
@@ -42,6 +41,10 @@ public:
 	//async interface
 	virtual void startAsync(const int64 threadId, api::IAsyncHandler* handler, const char* debug);
 	virtual void stopAsync(api::IAsyncHandler* handler);
+
+	//log interface
+	virtual void syncLog(int32 filter, const char* log, const char* file, const int32 line);
+	virtual void asyncLog(int32 filter, const char* log, const char* file, const int32 line);
 
 	void loop();
 
