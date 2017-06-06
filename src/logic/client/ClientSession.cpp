@@ -12,7 +12,7 @@ int32 ClientSession::onRecv(sl::api::IKernel* pKernel, const char* pContext, int
 }
 
 void ClientSession::onConnected(sl::api::IKernel* pKernel){
-	ECHO_ERROR("client session connected");
+	TRACE_LOG("client session connected");
 	m_id = m_client->onOpen(this);
 }
 
@@ -22,7 +22,7 @@ void ClientSession::onDisconnect(sl::api::IKernel* pKernel){
 
 void ClientSession::onTime(sl::api::IKernel* pKernel, int64 timetick){
 	SLASSERT(m_bConnect, "wtf");
-	ECHO_TRACE("reconnect [%s:%d] ...!", m_ip.c_str(), m_port);
+	TRACE_LOG("reconnect [%s:%d] ...!", m_ip.c_str(), m_port);
 	if (pKernel->startTcpClient(this, m_ip.c_str(), m_port, m_client->sendSize(), m_client->recvSize())){
 		pKernel->killTimer(this);
 	}

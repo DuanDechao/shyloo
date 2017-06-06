@@ -13,11 +13,12 @@ namespace core{
 #define TIME_OUT_FOR_CUT_FILE 2 * 60 * 60 * 1000
 bool LogEngine::initialize(){
 	_terminate = false;
+
 	string syncFileName = ConfigEngine::getInstance()->getCoreConfig()->logFile + "_" + sl::getCurrentTimeStr("%4d_%02d_%02d_%02d_%02d_%02d_sync.log");
 	_syncLogFile.Init(sl::ENamed, ConfigEngine::getInstance()->getCoreConfig()->logPath.c_str(), syncFileName.c_str());
-	const char* format = "time|pid|newline|fileline||type|debugout";
-	_syncLogFile.SetFormatByStr(format);
-
+	_syncLogFile.SetFormatByStr(ConfigEngine::getInstance()->getCoreConfig()->logFormat.c_str());
+	
+	_asyncLogFile.SetFormatByStr(ConfigEngine::getInstance()->getCoreConfig()->logFormat.c_str());
 	_lastAsyncWriteTick = 0;
 
 	return true;
@@ -37,6 +38,10 @@ bool LogEngine::destory(){
 }
 
 void LogEngine::logSync(int32 filter, const char* log, const char* file, const int32 line){
+#ifndef _DEBUG
+	if (filter == sl::ELogFilter::EDebug)
+		return;
+#endif
 	_syncLogFile.SetFilter(filter);
 	_syncLogFile.m_pFile = file;
 	_syncLogFile.m_uiLine = line;
@@ -44,6 +49,11 @@ void LogEngine::logSync(int32 filter, const char* log, const char* file, const i
 }
 
 void LogEngine::logAsync(int32 filter, const char* log, const char* file, const int32 line){
+#ifndef _DEBUG
+	if (filter == sl::ELogFilter::EDebug)
+		return;
+#endif
+
 	LogNode* node = NEW LogNode;
 	node->setIgnoreOwner(true);
 	node->setTick(sl::getTimeMilliSecond());
@@ -60,6 +70,8 @@ int64 LogEngine::loop(int64 overTime){
 
 	std::unique_lock<sl::spin_mutex> lock(_mutex);
 	_readyQueue.merge(_waitQueue);
+	_waitQueue.clear();
+
 	return 0;
 }
 
@@ -76,6 +88,7 @@ void LogEngine::threadRun(){
 			if (_runningQueue.isEmpty() && !_readyQueue.isEmpty()){
 				std::unique_lock<sl::spin_mutex> lock(_mutex);
 				_runningQueue.merge(_readyQueue);
+				_readyQueue.clear();
 			}
 
 			if (_runningQueue.isEmpty())
@@ -83,9 +96,10 @@ void LogEngine::threadRun(){
 
 			LogNode* currNode = (LogNode*)_runningQueue.popFront();
 			if (currNode){
-				_syncLogFile.SetFilter(currNode->getFilter());
-				_syncLogFile.m_pFile = currNode->getFile();
-				_syncLogFile.m_uiLine = currNode->getLine();
+				_asyncLogFile.SetFilter(currNode->getFilter());
+				_asyncLogFile.m_pFile = currNode->getFile();
+				_asyncLogFile.m_uiLine = currNode->getLine();
+				_asyncLogFile.ResetLogTick(currNode->getTick());
 				_asyncLogFile.Log(currNode->getLog());
 			}
 

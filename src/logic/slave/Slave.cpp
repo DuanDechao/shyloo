@@ -54,7 +54,7 @@ bool Slave::destory(sl::api::IKernel * pKernel){
 void Slave::openNewNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args){
 	int32 newNodeType = args.getInt32(0);
 	int32 newNodeId = args.getInt32(1);
-	ECHO_TRACE("open new Node [%d:%d]", newNodeType, newNodeId);
+	TRACE_LOG("open new Node [%d:%d]", newNodeType, newNodeId);
 	SLASSERT(_executes.find(newNodeType) != _executes.end(), "unknown nodetype %d", newNodeType);
 	if (_executes.find(newNodeType) != _executes.end()){
 		int64 node = (((int64)newNodeType) << 32) | newNodeId;

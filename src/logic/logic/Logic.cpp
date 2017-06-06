@@ -75,7 +75,7 @@ void Logic::onTransforMsgToLogic(sl::api::IKernel* pKernel, const int32 nodeType
 
 	auto itor = _protoHandlers.find(header->messageId);
 	if (itor == _protoHandlers.end() || itor->second.empty()){
-		ECHO_ERROR("unknown protocol id %d", header->messageId);
+		ERROR_LOG("unknown protocol id %d", header->messageId);
 		return;
 	}
 		
@@ -87,7 +87,7 @@ void Logic::onTransforMsgToLogic(sl::api::IKernel* pKernel, const int32 nodeType
 
 	for (auto handler : itor->second){
 		if (!handler._handler->dealProtocol(pKernel, object, dataBuf + sizeof(client::Header), size - sizeof(client::Header) - sizeof(int64)))
-			ECHO_ERROR("parse protocol %d failed", header->messageId);
+			ERROR_LOG("parse protocol %d failed", header->messageId);
 	}
 }
 

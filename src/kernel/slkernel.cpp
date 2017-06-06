@@ -29,7 +29,8 @@ bool Kernel::ready(){
 		TimerEngine::getInstance() &&
 		NetEngine::getInstance() &&
 		AsyncEngine::getInstance() &&
-		LogicEngine::getInstance();
+		LogicEngine::getInstance() &&
+		LogEngine::getInstance();
 		
 }
 
@@ -40,7 +41,8 @@ bool Kernel::initialize(int32 argc, char ** argv){
 		TimerEngine::getInstance()->initialize() &&
 		NetEngine::getInstance()->initialize() &&
 		AsyncEngine::getInstance()->initialize() &&
-		LogicEngine::getInstance()->initialize();
+		LogicEngine::getInstance()->initialize() &&
+		LogEngine::getInstance()->initialize();
 		
 }
 
@@ -50,6 +52,7 @@ bool Kernel::destory(){
 	NetEngine::getInstance()->destory();
 	AsyncEngine::getInstance()->destory();
 	LogicEngine::getInstance()->destory();
+	LogEngine::getInstance()->destory();
 	DEL this;
 	return true;
 }

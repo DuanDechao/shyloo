@@ -60,4 +60,17 @@ private:
 };
 }
 }
+
+#define KERNEL_LOG(format, ...) { \
+	char log[8192]; \
+	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
+	Kernel::getInstance()->asyncLog(0x20, log, __FILE__, __LINE__); \
+}
+
+#define KERNEL_ERROR(format, ...) { \
+	char log[8192]; \
+	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
+	Kernel::getInstance()->asyncLog(0x2, log, __FILE__, __LINE__); \
+}
+
 #endif

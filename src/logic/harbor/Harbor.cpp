@@ -90,7 +90,7 @@ void Harbor::onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId,
 	for (auto& listener : _listenerPool){
 		listener->onOpen(pKernel, nodeType, nodeId, ip, nodePort);
 	}
-	ECHO_TRACE("node[%s:%d] from[%s:%d] opened", _nodeNames[nodeType].c_str(), _nodeId, ip, nodePort);
+	TRACE_LOG("node[%s:%d] from[%s:%d] opened", _nodeNames[nodeType].c_str(), _nodeId, ip, nodePort);
 }
 
 void Harbor::onNodeClose(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId){
@@ -125,10 +125,10 @@ void Harbor::connect(const char* ip, const int32 port){
 	pSession->setConnect(ip, port);
 	if (!_pKernel->startTcpClient(pSession, ip, port, _sendSize, _recvSize)){
 		START_TIMER(pSession, 0, TIMER_BEAT_FOREVER, RECONNECT_INTERVAL);
-		ECHO_ERROR("connect [%s:%d] failed!", ip, port);
+		ERROR_LOG("connect [%s:%d] failed!", ip, port);
 	}
 	else{
-		ECHO_TRACE("connect [%s:%d] success!", ip, port);
+		TRACE_LOG("connect [%s:%d] success!", ip, port);
 	}
 }
 
@@ -145,10 +145,10 @@ void Harbor::startListening(sl::api::IKernel* pKernel){
 		return;
 
 	if (pKernel->startTcpServer(_pServer, "0.0.0.0", _port, _sendSize, _recvSize)){
-		ECHO_TRACE("start server[%s:%d] success", "0.0.0.0", _port);
+		TRACE_LOG("start server[%s:%d] success", "0.0.0.0", _port);
 	}
 	else{
-		ECHO_ERROR("start server[%s:%d] failed", "0.0.0.0", _port);
+		TRACE_LOG("start server[%s:%d] failed", "0.0.0.0", _port);
 	}
 }
 

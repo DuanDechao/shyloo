@@ -27,7 +27,7 @@ struct sCoreConfig{
 	//log
 	std::string logPath;
 	std::string logFile;
-	bool logToConsole;
+	std::string logFormat;
 };
 
 struct sModuleConfig{

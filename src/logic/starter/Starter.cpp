@@ -103,5 +103,5 @@ void Starter::startNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId)
 	args << nodeType << nodeId;
 	args.fix();
 	_harbor->send(NodeType::SLAVE, 1, NodeProtocol::MASTER_MSG_START_NODE, args.out());
-	ECHO_TRACE("start new Node %d %d", nodeType, nodeId);
+	TRACE_LOG("start new Node %d %d", nodeType, nodeId);
 }

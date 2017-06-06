@@ -415,7 +415,7 @@ void Gate::onLogicTransforToAgent(sl::api::IKernel* pKernel, const int32 nodeTyp
 		}
 	}
 	else{
-		ECHO_ERROR("send packet to client, but player[actorid:%lld] is invaild ", info->actorId);
+		ERROR_LOG("send packet to client, but player[actorid:%lld] is invaild ", info->actorId);
 	}
 }
 

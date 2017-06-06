@@ -104,7 +104,7 @@ void Robot::sendToSvr(sl::api::IKernel* pKernel, const int64 id, const int32 msg
 
 	_client->send(id, header, sizeof(header));
 	_client->send(id, buf.getContext(), buf.getSize());
-	ECHO_ERROR("send msg[%d] to svr", msgId);
+	ECHO_TRACE("send msg[%d] to svr", msgId);
 }
 
 void Robot::onServerLoginAck(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
@@ -164,7 +164,7 @@ void Robot::onServerSelectRoleAck(sl::api::IKernel* pKernel, const int64 id, con
 }
 
 void Robot::onServerAttribSync(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
-	ECHO_ERROR("start sync attrib...");
+	ECHO_TRACE("start sync attrib...");
 	int64 actorId = 0; 
 	int32 propCount = 0; 
 	if (!args.readInt64(actorId) || !args.readInt32(propCount))
@@ -178,7 +178,7 @@ void Robot::onServerAttribSync(sl::api::IKernel* pKernel, const int64 id, const 
 		//if (type == DTYPE_STRING){
 			const char* str = nullptr;
 			args.readString(str);
-			ECHO_ERROR("name %s", str);
+			ECHO_TRACE("name %s", str);
 		//}
 
 	}

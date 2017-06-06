@@ -63,7 +63,7 @@ bool ConfigEngine::loadCoreConfig(){
 	m_stCoreConfig.logPath = logPath;
 	m_stCoreConfig.logPath += "/";
 	m_stCoreConfig.logFile = string(name) + "_" + Kernel::getInstance()->getCmdArg("node_id");
-	m_stCoreConfig.logToConsole = server_conf.root()["log"][0].getAttributeBoolean("toConsole");
+	m_stCoreConfig.logFormat = server_conf.root()["log"][0].getAttributeString("format");
 
 	m_stCoreConfig.sNetlooptick = conf.root()["net"][0].getAttributeInt32("tick");
 	m_stCoreConfig.sTimerlooptick = conf.root()["timer"][0].getAttributeInt32("tick");

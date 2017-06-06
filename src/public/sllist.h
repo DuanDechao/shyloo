@@ -107,6 +107,8 @@ public:
 
 	inline bool isEmpty() { return _head == nullptr; }
 
+	inline void clear() { _head = nullptr; _tail = nullptr; }
+
 private:
 	SLList(const SLList&);
 	SLList& operator = (const SLList&);

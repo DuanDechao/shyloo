@@ -153,4 +153,41 @@ public:
 	SLASSERT(m, "where is %s", #name); \
 }
 #define TIMER_BEAT_FOREVER	-1
+
+#define INFO_LOG(format, ...) { \
+	char log[8192]; \
+	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
+	pKernel->asyncLog(0x8, log, __FILE__, __LINE__); \
+}
+
+#define DEBUG_LOG(format, ...) { \
+	char log[8192]; \
+	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
+	pKernel->asyncLog(0x10, log, __FILE__, __LINE__); \
+}
+
+#define WARNING_LOG(format, ...) { \
+	char log[8192]; \
+	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
+	pKernel->asyncLog(0x4, log, __FILE__, __LINE__); \
+}
+
+#define ERROR_LOG(format, ...) { \
+	char log[8192]; \
+	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
+	pKernel->asyncLog(0x2, log, __FILE__, __LINE__); \
+}
+
+#define TRACE_LOG(format, ...) { \
+	char log[8192]; \
+	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
+	pKernel->asyncLog(0x20, log, __FILE__, __LINE__); \
+}
+
+#define IMPORTANT_LOG(format, ...) { \
+	char log[8192]; \
+	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
+	pKernel->syncLog(0x10, log, __FILE__, __LINE__); \
+}
+
 #endif

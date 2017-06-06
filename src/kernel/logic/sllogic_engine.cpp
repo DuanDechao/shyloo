@@ -4,8 +4,7 @@
 #include "slkernel.h"
 #include "slconfig_engine.h"
 #include "sltools.h"
-#include "sllog.h"
-#include "sllog_engine.h"
+
 namespace sl
 {
 namespace core
@@ -70,11 +69,10 @@ bool LogicEngine::initialize()
 		std::vector<api::IModule *>::iterator vitor = m_vecModule.begin();
 		std::vector<api::IModule *>::iterator viend = m_vecModule.end();
 		while(vitor != viend){
-			ECHO_TRACE("initializing name %s.", (*vitor)->getName());
-			LogEngine::getInstance()->logAsync(sl::ELogFilter::EDebug, "initializing name", __FILE__, __LINE__);
+			KERNEL_LOG("initializing name %s.", (*vitor)->getName());
 			bool res = (*vitor)->initialize(core::Kernel::getInstance());
 			if(!res){
-				ECHO_ERROR("initialize name %s failed.", (*vitor)->getName());
+				KERNEL_ERROR("initialize name %s failed.", (*vitor)->getName());
 				return false;
 			}
 			++vitor;
@@ -83,9 +81,9 @@ bool LogicEngine::initialize()
 		vitor = m_vecModule.begin();
 		while(vitor != viend){
 			bool res = (*vitor)->launched(Kernel::getInstance());
-			ECHO_TRACE("launching name %s.", (*vitor)->getName());
+			KERNEL_LOG("launching name %s.", (*vitor)->getName());
 			if(!res){
-				ECHO_ERROR("launch name %s failed.", (*vitor)->getName());
+				KERNEL_ERROR("launch name %s failed.", (*vitor)->getName());
 				return false;
 			}
 			++vitor;

@@ -89,7 +89,7 @@ void Balance::onGateRegister(sl::api::IKernel* pKernel, const int32 nodeType, co
 	SLASSERT(_gates.find(nodeId) == _gates.end(), "wtf");
 	const char* ip = args.getString(0);
 	const int32 port = args.getInt32(1);
-	ECHO_TRACE("new gate node[%d] register", nodeId);
+	TRACE_LOG("new gate node[%d] register", nodeId);
 
 	GateInfo& gate = _gates[nodeId];
 	gate.nodeId = nodeId;

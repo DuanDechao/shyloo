@@ -82,7 +82,7 @@ void NodeSession::prepareSendNodeMessage(const int32 messageId, const int32 size
 
 void NodeSession::onTime(sl::api::IKernel* pKernel, int64 timetick){
 	SLASSERT(m_bConnect && !m_bReady, "wtf");
-	ECHO_TRACE("reconnect [%s:%d] ...!", m_ip.c_str(), m_port);
+	TRACE_LOG("reconnect [%s:%d] ...!", m_ip.c_str(), m_port);
 	if (pKernel->startTcpClient(this, m_ip.c_str(), m_port, m_pHarbor->getSendSize(), m_pHarbor->getRecvSize())){
 		pKernel->killTimer(this);
 	}

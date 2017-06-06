@@ -101,6 +101,8 @@ private:
 	ELogType		m_eLogType;
 	unsigned int	m_uiFilter;
 	unsigned int	m_uiFormat;
+	int64			m_logTick;
+	bool            m_tickReset;
 		
 	int				m_iMaxLogSize;
 	int				m_iMaxLogNum;
@@ -126,6 +128,8 @@ public:
 		m_szLine[0] = 0;
 		m_uiLine = 0;
 		m_pFile = 0;
+		m_logTick = 0;
+		m_tickReset = false;
 	}
 
 	virtual ~CLogT() {}
@@ -194,20 +198,16 @@ public:
 	int LogInfo(const char* format, ...) {DO_LOG(EInfo, format);}
 	int LogDebug(const char* format, ...) {DO_LOG(EDebug, format);}
 	int LogTrace(const char* format, ...) {DO_LOG(ETrace, format);}
-	int LogTraceBinary(const char* buf, int len)
-	{
-		if(!(ETrace & m_uiFilter))
-		{
+	int LogTraceBinary(const char* buf, int len){
+		if(!(ETrace & m_uiFilter)){
 			return 0;
 		}
 		int iRet = LogBinary(ETrace, buf, len);
 		return iRet;
 	}
 
-	int LogWarnBinary(const char* buf, int len)
-	{
-		if(!(ETrace & m_uiFilter))
-		{
+	int LogWarnBinary(const char* buf, int len){
+		if(!(ETrace & m_uiFilter)){
 			return 0;
 		}
 		int iRet = LogBinary(EWarning, buf, len);
@@ -215,10 +215,8 @@ public:
 	}
 
 	/// Log二进制
-	int LogBinary(ELogFilter filter, const char* buf, int len)
-	{
-		if(!buf || !len || (!(m_uiFilter & filter)) )
-		{
+	int LogBinary(ELogFilter filter, const char* buf, int len){
+		if(!buf || !len || (!(m_uiFilter & filter)) ){
 			return 0;
 		}
 
@@ -230,12 +228,9 @@ public:
 		RemoveFormat(EType);
 		RemoveFormat(EFileLine);
 
-		for (int i = 0; i < len; i++)
-		{
-			if(!(i % 16))
-			{
-				if(i != 0)
-				{
+		for (int i = 0; i < len; i++){
+			if(!(i % 16)){
+				if(i != 0){
 					Log(filter, "\n");
 				}
 				Log(filter, "%04d>    ", i /16 + 1);
@@ -249,8 +244,14 @@ public:
 		return 0;
 	}
 
+	inline void ResetLogTick(int64 tick) { m_logTick = tick; m_tickReset = true; }
 	//真正执行Log的函数
 	int VLog(ELogFilter filter, const char* szFormat, va_list ap){
+#ifndef _DEBUG
+		if (filter == EDebug)
+			return 0;
+#endif
+		
 		if( !(m_uiFilter & filter) || !szFormat){
 			return 0;
 		}
@@ -294,9 +295,10 @@ public:
 		m_szLine[0] = 0;
 
 		if(m_uiFormat & ETime){
-			iRet = SafeSprintf(pLine, iSize, "[%s]", sl::getCurrentTimeStr().c_str());
+			iRet = SafeSprintf(pLine, iSize, "[%s]", m_tickReset ? sl::getTimeStr(m_logTick).c_str() : sl::getCurrentTimeStr().c_str());
 			pLine += iRet;
 			iSize -= iRet;
+			m_tickReset = false;
 		}
 
 		if(m_uiFormat & EProcessId){
