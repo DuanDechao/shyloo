@@ -7,7 +7,7 @@ int32 LuaReader::count() const{
 bool LuaReader::getBoolean(const int32 index) const {
 	SLASSERT(index >= 0 && index < lua_gettop(_state), "out of range");
 	SLASSERT(lua_isboolean(_state, index + 1), "wtf");
-	return lua_toboolean(_state, index + 1);
+	return (bool)lua_toboolean(_state, index + 1);
 }
 
 int8 LuaReader::getInt8(const int32 index) const{

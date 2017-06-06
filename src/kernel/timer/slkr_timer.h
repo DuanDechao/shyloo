@@ -8,13 +8,12 @@ namespace sl
 {
 namespace core
 {
-class CKrTimer: public timer::ISLTimer, public api::ITimerBase
-{
+class CKrTimer: public timer::ISLTimer, public api::ITimerBase{
 public:
 	virtual void SLAPI onInit(int64 timetick);
 	virtual void SLAPI onStart(int64 timetick);
 	virtual void SLAPI onTime(int64 timetick);
-	virtual void SLAPI onTerminate(int64 timetick);
+	virtual void SLAPI onTerminate(bool beForced, int64 timetick);
 	virtual void SLAPI onPause(int64 timetick);
 	virtual void SLAPI onResume(int64 timetick);
 

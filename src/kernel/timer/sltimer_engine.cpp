@@ -13,19 +13,16 @@ bool TimerEngine::initialize(){
 	return true;	
 }
 
-bool TimerEngine::ready()
-{
+bool TimerEngine::ready(){
 	return true;
 }
 
-bool TimerEngine::destory()
-{
+bool TimerEngine::destory(){
 	DEL this;
 	return true;
 }
 
-timer::SLTimerHandler TimerEngine::getTimerHander(api::ITimer* pTimer)
-{
+timer::SLTimerHandler TimerEngine::getTimerHander(api::ITimer* pTimer){
 	if(nullptr == pTimer)
 		return nullptr;
 
@@ -36,8 +33,7 @@ timer::SLTimerHandler TimerEngine::getTimerHander(api::ITimer* pTimer)
 	return pTimerBase->getTimerHandler();
 }
 
-bool TimerEngine::startTimer(api::ITimer* pTimer, int64 delay, int32 count, int64 interval)
-{
+bool TimerEngine::startTimer(api::ITimer* pTimer, int64 delay, int32 count, int64 interval){
 	CKrTimer* pKrTimer = CREATE_POOL_OBJECT(CKrTimer);
 	if(nullptr == pKrTimer)
 		return false;
@@ -54,8 +50,7 @@ bool TimerEngine::startTimer(api::ITimer* pTimer, int64 delay, int32 count, int6
 	return true;
 }
 
-bool TimerEngine::killTimer(api::ITimer* pTimer)
-{
+bool TimerEngine::killTimer(api::ITimer* pTimer){
 	timer::SLTimerHandler timerHandler  = getTimerHander(pTimer);
 	if(INVALID_TIMER_HANDER == timerHandler)
 		return false;
@@ -63,8 +58,7 @@ bool TimerEngine::killTimer(api::ITimer* pTimer)
 	return m_pTimerMgr->killTimer(timerHandler);
 }
 
-bool TimerEngine::pauseTimer(api::ITimer* pTimer)
-{
+bool TimerEngine::pauseTimer(api::ITimer* pTimer){
 	timer::SLTimerHandler timerHandler  = getTimerHander(pTimer);
 	if(INVALID_TIMER_HANDER == timerHandler)
 		return false;

@@ -76,7 +76,7 @@ void Client::connect(const char* ip, const int32 port){
 	pSession->setConnect(ip, port);
 	if (!pKernel->startTcpClient(pSession, ip, port, _clientSendSize, _clientRecvSize)){
 		START_TIMER(pSession, 0, TIMER_BEAT_FOREVER, RECONNECT_INTERVAL);
-		ECHO_TRACE("connect [%s:%d] failed!", ip, port);
+		ECHO_ERROR("connect [%s:%d] failed!", ip, port);
 	}
 	else{
 		ECHO_TRACE("connect [%s:%d] success!", ip, port);

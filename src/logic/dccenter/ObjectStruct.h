@@ -14,7 +14,7 @@ struct PropLayout : public MemLayout{
 	sl::SLString<MAX_PROP_NAME_LEN> _name;
 };
 
-typedef std::unordered_map<sl::SLString<MAX_PROP_NAME_LEN>, int32, sl::HashFunc<MAX_PROP_NAME_LEN>, sl::EqualFunc<MAX_PROP_NAME_LEN>> PROP_DEFDINE_MAP;
+typedef std::unordered_map<sl::SLString<MAX_PROP_NAME_LEN>, int32> PROP_DEFDINE_MAP;
 
 class ObjectPropInfo{
 	struct TableInfo{

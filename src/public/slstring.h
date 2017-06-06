@@ -90,6 +90,14 @@ public:
 		SafeMemset(m_szBuf, sizeof(m_szBuf), 0, SIZE);
 	}
 
+	operator size_t() const{
+		size_t __h = 0;
+		int32 count = (int32)strlen(m_szBuf);
+		for (size_t i = 0; i < count; i++)
+			__h = 5 * __h + (size_t)m_szBuf[i];
+		return size_t(__h);
+	}
+
 	bool operator == (const char* str) const{
 		return strcmp(m_szBuf, str) == 0;
 	}
@@ -180,24 +188,35 @@ private:
 
 };// class SLString
 
-template<int SIZE>
-struct HashFunc
-{
-	size_t operator()(const SLString<SIZE> &str) const{
-		unsigned long __h = 0;
-		for (size_t i = 0; i < (size_t)str.length(); i++)
-			__h = 5 * __h + str[i];
-		return size_t(__h);
-	}
-};
 
-template<int SIZE>
-struct EqualFunc
-{
-	bool operator()(const SLString<SIZE> &lstr, const SLString<SIZE> &rstr) const{
-		return lstr == rstr;
-	}
-};
+
+//template<int SIZE>
+//struct HashFunc
+//{
+//	size_t operator()(const SLString<SIZE> &str) const{
+//		unsigned long __h = 0;
+//		for (size_t i = 0; i < (size_t)str.length(); i++)
+//			__h = 5 * __h + str[i];
+//		return size_t(__h);
+//	}
+//};
+//
+//template<int SIZE>
+//struct EqualFunc
+//{
+//	bool operator()(const SLString<SIZE> &lstr, const SLString<SIZE> &rstr) const{
+//		return lstr == rstr;
+//	}
+//};
 
 } //namespace sl
+
+namespace std{
+	template<int16 size>
+	struct hash<sl::SLString<size>>{
+		inline size_t operator()(const sl::SLString<size>& key) const{
+			return (size_t)key;
+		}
+	};
+}
 #endif

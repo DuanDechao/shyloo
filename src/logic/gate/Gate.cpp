@@ -58,7 +58,7 @@ public:
 		}
 
 	}
-	virtual void onTerminate(sl::api::IKernel* pKernel, int64 timetick){ DEL this; }
+	virtual void onTerminate(sl::api::IKernel* pKernel, bool beForced, int64 timetick){ DEL this; }
 	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick){}
 

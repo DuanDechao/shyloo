@@ -7,11 +7,11 @@ public:
 	ISLListNode() :_prev(nullptr), _next(nullptr), _list(nullptr){}
 	virtual ~ISLListNode(){}
 	inline void setPrev(ISLListNode* node) { _prev = node; }
-	inline ISLListNode* getPrev() { return _prev; }
+	inline ISLListNode* getPrev() const { return _prev; }
 	inline void setNext(ISLListNode* node) { _next = node; }
-	inline ISLListNode* getNext() { return _next; }
+	inline ISLListNode* getNext() const { return _next; }
 	inline void setList(SLList* list) { _list = list; }
-	inline SLList* getList() { return _list;}
+	inline SLList* getList() const { return _list;}
 private:
 	ISLListNode* _prev;
 	ISLListNode* _next;

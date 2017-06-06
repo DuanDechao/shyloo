@@ -11,7 +11,7 @@ public:
 	virtual void SLAPI onInit(int64 timetick) = 0;
 	virtual void SLAPI onStart(int64 timetick) = 0;
 	virtual void SLAPI onTime(int64 timetick) = 0;
-	virtual void SLAPI onTerminate(int64 timetick) = 0;
+	virtual void SLAPI onTerminate(bool beForced, int64 timetick) = 0;
 	virtual void SLAPI onPause(int64 timetick) = 0;
 	virtual void SLAPI onResume(int64 timetick) = 0;
 };

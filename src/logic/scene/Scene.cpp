@@ -244,7 +244,7 @@ void Scene::onSceneMgrSyncScene(sl::api::IKernel* pKernel, int32 nodeType, int32
 }
 
 void Scene::onPlayerEnterScene(sl::api::IKernel* pKernel, const void* context, const int32 size){
-	printSceneNodePos();
+	//printSceneNodePos();
 }
 
 IObject* Scene::findScene(const char* scene){
@@ -418,7 +418,7 @@ void Scene::foreachVisionObject(IObject* object, int8 quadrant, const std::funct
 	while (currPrev && !currPrev->isHead){
 		if (!isInVision(object, currPrev->object))
 			break;
-		ECHO_ERROR("prev foreach[%lld]-[%lld]", object->getID(), currPrev->object->getID());
+		//ECHO_ERROR("prev foreach[%lld]-[%lld]", object->getID(), currPrev->object->getID());
 		func(_kernel, currPrev->object);
 		currPrev = currPrev->prev;
 	}
@@ -427,7 +427,7 @@ void Scene::foreachVisionObject(IObject* object, int8 quadrant, const std::funct
 	while (currNext){
 		if (!isInVision(object, currNext->object))
 			break;
-		ECHO_ERROR("next foreach[%lld]-[%lld]", object->getID(), currNext->object->getID());
+		//ECHO_ERROR("next foreach[%lld]-[%lld]", object->getID(), currNext->object->getID());
 		func(_kernel, currNext->object);
 		currNext = currNext->next;
 	}
@@ -530,13 +530,13 @@ void Scene::printSceneNodePos(){
 	i++;
 	SceneEntity* curr = itor->second.xListHead.next;
 	while (curr){
-		ECHO_ERROR("x[%d]:object[%lld:%d] pos[%f, %f, %f]", i, curr->object->getID(), curr->object->getPropInt32(attr_def::logic), curr->object->getPropFloat(attr_def::x), curr->object->getPropFloat(attr_def::y), curr->object->getPropFloat(attr_def::z));
+		//ECHO_ERROR("x[%d]:object[%lld:%d] pos[%f, %f, %f]", i, curr->object->getID(), curr->object->getPropInt32(attr_def::logic), curr->object->getPropFloat(attr_def::x), curr->object->getPropFloat(attr_def::y), curr->object->getPropFloat(attr_def::z));
 		curr = curr->next;
 	}
 
 	curr = itor->second.yListHead.next;
 	while (curr){
-		ECHO_ERROR("y[%d]:object[%lld:%d] pos[%f, %f, %f]", i,curr->object->getID(), curr->object->getPropInt32(attr_def::logic), curr->object->getPropFloat(attr_def::x), curr->object->getPropFloat(attr_def::y), curr->object->getPropFloat(attr_def::z));
+		//ECHO_ERROR("y[%d]:object[%lld:%d] pos[%f, %f, %f]", i,curr->object->getID(), curr->object->getPropInt32(attr_def::logic), curr->object->getPropFloat(attr_def::x), curr->object->getPropFloat(attr_def::y), curr->object->getPropFloat(attr_def::z));
 		curr = curr->next;
 	}
 

@@ -125,7 +125,7 @@ void Harbor::connect(const char* ip, const int32 port){
 	pSession->setConnect(ip, port);
 	if (!_pKernel->startTcpClient(pSession, ip, port, _sendSize, _recvSize)){
 		START_TIMER(pSession, 0, TIMER_BEAT_FOREVER, RECONNECT_INTERVAL);
-		ECHO_TRACE("connect [%s:%d] failed!", ip, port);
+		ECHO_ERROR("connect [%s:%d] failed!", ip, port);
 	}
 	else{
 		ECHO_TRACE("connect [%s:%d] success!", ip, port);
@@ -148,7 +148,7 @@ void Harbor::startListening(sl::api::IKernel* pKernel){
 		ECHO_TRACE("start server[%s:%d] success", "0.0.0.0", _port);
 	}
 	else{
-		ECHO_TRACE("start server[%s:%d] failed", "0.0.0.0", _port);
+		ECHO_ERROR("start server[%s:%d] failed", "0.0.0.0", _port);
 	}
 }
 

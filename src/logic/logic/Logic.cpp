@@ -25,7 +25,6 @@ bool Logic::launched(sl::api::IKernel * pKernel){
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::GATE_MSG_UNBIND_PLAYER_REQ, Logic::onGateUnBindPlayerOnLogic);
 	RGS_NODE_HANDLER(_harbor, NodeProtocol::GATE_MSG_TRANSMIT_MSG_TO_LOGIC, Logic::onTransforMsgToLogic);
 
-
 	return true;
 }
 bool Logic::destory(sl::api::IKernel * pKernel){

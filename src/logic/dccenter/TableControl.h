@@ -14,7 +14,7 @@ class IRow;
 class TableControl : public ITableControl{
 	typedef std::vector<TableRow *> TABLE_ROWS;
 	typedef std::unordered_map<int64, int32> KEY_INT_MAP;
-	typedef std::unordered_map<sl::SLString<MAX_STRING_KEY_LEN>, int32, sl::HashFunc<MAX_STRING_KEY_LEN>, sl::EqualFunc<MAX_STRING_KEY_LEN>> KEY_STRING_MAP;
+	typedef std::unordered_map<sl::SLString<MAX_STRING_KEY_LEN>, int32> KEY_STRING_MAP;
 
 public:
 	TableControl(const int32 name, const TableColumn* pTableColumn, IObject* pHost = nullptr);

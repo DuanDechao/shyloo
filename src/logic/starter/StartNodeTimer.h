@@ -16,7 +16,7 @@ public:
 	virtual void onInit(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick);
 	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick);
-	virtual void onTerminate(sl::api::IKernel* pKernel, int64 timetick);
+	virtual void onTerminate(sl::api::IKernel* pKernel, bool beForced, int64 timetick);
 	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick) {}
 

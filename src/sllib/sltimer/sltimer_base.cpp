@@ -14,7 +14,8 @@ CSLTimerBase::CSLTimerBase(ISLTimer* pTimer, jiffies_t delay, int32 count, jiffi
 	m_bDelay(true),
 	m_iCount(count),
 	m_interval(interval),
-	m_expire(delay)
+	m_expire(delay),
+	m_recursion(0)
 {}
 
 CSLTimerBase::~CSLTimerBase(){
@@ -28,9 +29,9 @@ CSLTimerBase::~CSLTimerBase(){
 }
 
 void CSLTimerBase::adjustExpireTime(jiffies_t nowJiffies){
-	jiffies_t live = m_expire - nowJiffies;
-	if (live < 0 && m_interval > 0 && abs((int)live) > m_interval){
-		m_expire += abs((int)live) / m_interval;
+	int64 live = m_expire - nowJiffies;
+	if (live < 0 && m_interval > 0 && (uint64)abs(live) > m_interval){
+		m_expire += (uint64)abs(live) / m_interval;
 	}
 }
 
@@ -64,28 +65,42 @@ CSLTimerBase::TimerState CSLTimerBase::pollTimer(){
 }
 
 void CSLTimerBase::onInit(){
+	m_recursion++;
 	m_pTimerObj->onInit((int64)sl::getTimeMilliSecond());
+	m_recursion--;
 }
 
 void CSLTimerBase::onStart(){
+	m_recursion++;
 	m_pTimerObj->onStart((int64)sl::getTimeMilliSecond());
+	m_recursion--;
 	m_bDelay = false;
 }
 
 void CSLTimerBase::onTimer(){
+	m_recursion++;
 	m_pTimerObj->onTime((int64)sl::getTimeMilliSecond());
+	m_recursion--;
 }
 
 void CSLTimerBase::onPause(){
+	m_recursion++;
 	m_pTimerObj->onPause((int64)sl::getTimeMilliSecond());
+	m_recursion--;
 }
 
 void CSLTimerBase::onResume(){
+	m_recursion++;
 	m_pTimerObj->onResume((int64)sl::getTimeMilliSecond());
+	m_recursion--;
 }
 
-void CSLTimerBase::onEnd(){
-	m_pTimerObj->onTerminate((int64)sl::getTimeMilliSecond());
+void CSLTimerBase::onEnd(bool beForced){
+	setTimerState(TimerState::TIME_DESTORY);
+	m_pTimerObj->onTerminate(beForced, (int64)sl::getTimeMilliSecond());
+
+	if (m_recursion <= 0)
+		release();
 }
 
 }

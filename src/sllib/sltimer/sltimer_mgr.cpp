@@ -17,7 +17,12 @@ extern "C" SL_DLL_API ISLTimerMgr* SLAPI getSLTimerModule(){
 
 SLTimerMgr::SLTimerMgr()
 	:m_currTimeJiffies(0),
-	 m_timerTick(0)
+	 m_timerTick(0),
+	 m_gear1(nullptr),
+	 m_gear2(nullptr),
+	 m_gear3(nullptr),
+	 m_gear4(nullptr),
+	 m_gear5(nullptr)
 {
 	m_gear5 = NEW SLTimerGear(TQ_GEAR1_SIZE, nullptr);
 	m_gear4 = NEW SLTimerGear(TQ_GEAR1_SIZE, m_gear5);
@@ -77,14 +82,12 @@ bool SLTimerMgr::killTimer(SLTimerHandler pTimer){
 		return false;
 	}
 
-	pTimerBase->onEnd();
-	pTimerBase->setTimerState(CSLTimerBase::TimerState::TIME_DESTORY);
-
 	SLList* list = pTimerBase->getList();
 	if (list){
 		list->remove(pTimerBase);
-		pTimerBase->release();
 	}
+
+	pTimerBase->onEnd(true);
 
 	return true;
 }
@@ -185,9 +188,7 @@ void SLTimerMgr::reCreateTimer(CSLTimerBase* pTimer){
 
 void SLTimerMgr::endTimer(CSLTimerBase* pTimer){
 	SLASSERT(pTimer->good(), "wtf");
-	pTimer->onEnd();
-	pTimer->setTimerState(CSLTimerBase::TimerState::TIME_DESTORY);
-	pTimer->release();
+	pTimer->onEnd(false);
 }
 
 void SLTimerMgr::schedule(CSLTimerBase* timerBase){
@@ -204,21 +205,19 @@ SLList* SLTimerMgr::findTimerList(CSLTimerBase* timerBase){
 
 	jiffies_t restJiffies = expireJiffies - m_currTimeJiffies;
 	SLList* findList = nullptr;
-	if (restJiffies < TQ_GEAR2_SIZE){
+	if (restJiffies < TQ_GEAR2_SIZE)
 		findList = m_gear1->_slots + (TQ_GEAR2_MASK & expireJiffies);
-	}
-	else if (restJiffies < (1 << (TQ_GEAR2_BITS + TQ_GEAR1_BITS))){
+	else if (restJiffies < (1 << (TQ_GEAR2_BITS + TQ_GEAR1_BITS)))
 		findList = m_gear2->_slots + (TQ_GEAR1_MASK & (expireJiffies >> TQ_GEAR2_BITS));
-	}
-	else if (restJiffies < (1 << (TQ_GEAR2_BITS + 2 * TQ_GEAR1_BITS))){
+	else if (restJiffies < (1 << (TQ_GEAR2_BITS + 2 * TQ_GEAR1_BITS)))
 		findList = m_gear3->_slots + (TQ_GEAR1_MASK & (expireJiffies >> (TQ_GEAR2_BITS + TQ_GEAR1_BITS)));
-	}
-	else if (restJiffies < (1 << (TQ_GEAR2_BITS + 3 * TQ_GEAR1_SIZE))){
+	else if (restJiffies < (1 << (TQ_GEAR2_BITS + 3 * TQ_GEAR1_BITS)))
 		findList = m_gear4->_slots + (TQ_GEAR1_MASK & (expireJiffies >> (TQ_GEAR2_BITS + 2 * TQ_GEAR1_BITS)));
-	}
-	else if (restJiffies < (1 << (TQ_GEAR2_BITS + 4 * TQ_GEAR1_SIZE))){
+	else if ((long long)restJiffies < 0)
+		findList = m_gear1->_slots + (TQ_GEAR2_MASK & expireJiffies);
+	else 
 		findList = m_gear5->_slots + (TQ_GEAR1_MASK & (expireJiffies >> (TQ_GEAR2_BITS + 3 * TQ_GEAR1_BITS)));
-	}
+
 	return findList;
 }
 

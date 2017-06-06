@@ -40,7 +40,7 @@ public:
 	void onTimer();
 	void onPause();
 	void onResume();
-	void onEnd();
+	void onEnd(bool beForced);
 
 	bool good(){return m_pTimerObj != nullptr;}
 
@@ -66,6 +66,7 @@ private:
 	bool			m_bDelay;
 	int32			m_iCount;
 	jiffies_t		m_interval;
+	int32			m_recursion;
 	static sl::SLPool<CSLTimerBase> s_pool;
 };
 

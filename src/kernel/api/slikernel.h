@@ -70,14 +70,13 @@ public:
 	virtual void onInit(IKernel* pKernel, int64 timetick){}
 	virtual void onStart(IKernel* pKernel, int64 timetick) = 0;
 	virtual void onTime(IKernel* pKernel, int64 timetick) = 0;
-	virtual void onTerminate(IKernel* pKernel, int64 timetick) = 0;
+	virtual void onTerminate(IKernel* pKernel, bool beForced, int64 timetick) = 0;
 	virtual void onPause(IKernel* pKernel, int64 timetick) = 0;
 	virtual void onResume(IKernel* pKernel, int64 timetick) = 0;
 
 	virtual ITimerBase* getITimerBase() const {return m_pITimerBase;}
 
-	virtual void setITimerBase(ITimerBase* pITimerBase)
-	{
+	virtual void setITimerBase(ITimerBase* pITimerBase){
 		m_pITimerBase = pITimerBase;
 	}
 private:

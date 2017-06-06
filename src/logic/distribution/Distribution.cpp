@@ -42,7 +42,7 @@ void Distribution::onGateDistributeLogic(sl::api::IKernel* pKernel, const int32 
 		}
 		else{
 			logic = _capacity->choose(NodeType::LOGIC);
-			ECHO_ERROR("choose logic %d", logic);
+			//ECHO_ERROR("choose logic %d", logic);
 		}
 
 		if (logic > 0)

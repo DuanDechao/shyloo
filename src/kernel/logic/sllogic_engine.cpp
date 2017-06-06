@@ -83,7 +83,7 @@ bool LogicEngine::initialize()
 			bool res = (*vitor)->launched(Kernel::getInstance());
 			ECHO_TRACE("launching name %s.", (*vitor)->getName());
 			if(!res){
-				ECHO_TRACE("launch name %s failed.", (*vitor)->getName());
+				ECHO_ERROR("launch name %s failed.", (*vitor)->getName());
 				return false;
 			}
 			++vitor;

@@ -16,6 +16,6 @@ void StartNodeTimer::onTime(sl::api::IKernel* pKernel, int64 timetick){
 	Starter::getInstance()->onNodeTimer(pKernel, m_type, timetick);
 }
 
-void StartNodeTimer::onTerminate(sl::api::IKernel* pKernel, int64 timetick){
+void StartNodeTimer::onTerminate(sl::api::IKernel* pKernel, bool beForced, int64 timetick){
 	Starter::getInstance()->onNodeTimerEnd(pKernel, m_type, timetick);
 }

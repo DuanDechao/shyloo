@@ -77,7 +77,7 @@ private:
 	void printSceneNodePos();
 
 private:
-	typedef std::unordered_map<sl::SLString<game::MAX_SCENE_LEN>, SceneNodesList, sl::HashFunc<game::MAX_SCENE_LEN>, sl::EqualFunc<game::MAX_SCENE_LEN>> SCENE_OBJECTNODE_MAP;
+	typedef std::unordered_map<sl::SLString<game::MAX_SCENE_LEN>, SceneNodesList> SCENE_OBJECTNODE_MAP;
 	sl::api::IKernel* _kernel;
 	Scene*		_self;
 	IHarbor*		_harbor;

@@ -38,7 +38,7 @@ private:
 	void stopAI(sl::api::IKernel* pKernel, IObject* object);
 
 private:
-	typedef std::unordered_map<sl::SLString<MAX_AI_CONFIG_NAME_LEN>, AIConfig, sl::HashFunc<MAX_AI_CONFIG_NAME_LEN>, sl::EqualFunc<MAX_AI_CONFIG_NAME_LEN>> AI_CONFIG_MAP;
+	typedef std::unordered_map<sl::SLString<MAX_AI_CONFIG_NAME_LEN>, AIConfig> AI_CONFIG_MAP;
 
 	sl::api::IKernel*		_kernel;
 	AI*						_self;

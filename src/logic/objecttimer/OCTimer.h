@@ -32,7 +32,7 @@ public:
 			_onTime(pKernel, _object, timetick);
 	}
 
-	virtual void onTerminate(sl::api::IKernel* pKernel, int64 timetick){
+	virtual void onTerminate(sl::api::IKernel* pKernel, bool beForced, int64 timetick){
 		ITableControl* checkTimers = _object->findTable(OCTableMacro::CHECK_TIMER::TABLE_NAME);
 		SLASSERT(checkTimers, "wtf");
 		const IRow* timerRow = checkTimers->findRow((int64)this);

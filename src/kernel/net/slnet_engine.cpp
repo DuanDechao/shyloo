@@ -26,7 +26,7 @@ char g_localIpPrefix[MAX_LOCAL_IP_PREFIX_NUM][MAX_IP_LEN] = {
 	"172.29.",
 	"172.30.",
 	"172.31.",
-	//"192.168.",
+	"192.168.",
 };
 
 NetEngine::~NetEngine(){
