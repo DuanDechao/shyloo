@@ -45,12 +45,11 @@ void DataLand::onTime(sl::api::IKernel* pKernel, int64 timetick){
 		if (timetick - data.tick < LAND_DATA_DELAY_TIME || writeCount > LAND_DATA_PRE_MAX_NUM)
 			break;
 
-		_landDatas.pop_front();
-
 		landDataToDB(data);
 		writeCount++;
-
 		ECHO_TRACE("land data[%s %s %d]...", data.table.c_str(), data.key.c_str(), data.opt);
+
+		_landDatas.pop_front();
 	}
 }
 

@@ -121,7 +121,7 @@ void Robot::onServerLoginAck(sl::api::IKernel* pKernel, const int64 id, const OB
 	}
 
 	if (roleCount <= 0){
-		static char roleName[3][64] = { "rzrzrcbvbb", "awawawds", "dcccccccccccccccc" };
+		static char roleName[3][64] = { "jr", "lr", "nr" };
 		int32 nodeId = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("node_id"));
 		IBStream<256> ask;
 		ask << roleName[nodeId-1] << (int8)1 << (int8)1;
@@ -195,11 +195,11 @@ void Robot::onServerGiveGateAddressAck(sl::api::IKernel* pKernel, const int64 id
 
 	_client->close(id);
 
-	static char accountName[3][64] = { "yyyyyyy", "bbbbb", "nnnnn" };
+	static char accountName[3][64] = { "yr", "zr", "tr" };
 	int32 nodeId = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("node_id"));
 	_robot = { id, accountName[nodeId - 1], ticket , true};
 
-	_client->connect(gateIp, gatePort);
+	_client->connect("127.0.0.1", gatePort);
 }
 
 void Robot::test(sl::api::IKernel* pKernel, const int64 id){

@@ -5,6 +5,36 @@
 #include "slstring.h"
 #include "GameDefine.h"
 #include "slimodule.h"
+#include "sllist.h"
+
+//#define TYPE_INTEGER  1
+//#define TYPE_STRING   2
+//union KeyValue{
+//	int64 valueInt;
+//	char valueStr[64];
+//};
+//class DataLand : public sl::ISLListNode{
+//	DataLand(const char* table, const char* key, int64 val, int8 opt):_tableName(table),_keyName(key),_opt(opt){
+//		_key.valueInt = val;
+//		_keyType = TYPE_INTEGER;
+//		string idStr = string(table) + key;
+//		_id = ((uint64)sl::CalcStringUniqueId(idStr.c_str()) << 32) | ()val;
+//	}
+//	DataLand(const char* table, const char* key, const char* val, int8 opt){
+//		SafeSprintf(_key.valueStr, sizeof(_key.valueStr), "%s", val);
+//		_keyType = TYPE_STRING;
+//		string idStr = string(table) + key;
+//		_id = ((uint64)sl::CalcStringUniqueId(idStr.c_str()) << 32) | val;
+//	}
+//private:
+//	sl::SLString<64> _tableName;
+//	sl::SLString<64> _keyName;
+//	uint64 _id;
+//	int8 _opt;
+//	int8 _keyType;
+//	KeyValue _key;
+//};
+
 class OArgs;
 class IDB;
 class DataLand : public sl::api::IModule, public sl::api::ITimer, public sl::SLHolder<DataLand>{
