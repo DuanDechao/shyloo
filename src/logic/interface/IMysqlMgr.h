@@ -15,6 +15,7 @@ public:
 	virtual ISQLBuilder* insert(const SetExpr* val) = 0;
 	virtual ISQLBuilder* get(const int32 limit) = 0;
 	virtual ISQLBuilder* update(const SetExpr* val) = 0;
+	virtual ISQLBuilder* save(const SetExpr* val) = 0;
 	virtual ISQLBuilder* del() = 0;
 
 	virtual int32 optType() const = 0;
@@ -109,6 +110,20 @@ public:
 	}
 	SQLCommand& updateInner(const SetExpr* val){
 		_sqlBuilder->update(val);
+		return *this;
+	}
+
+	template<typename... Args>
+	SQLCommand& save(const SetExpr* val, Args... args){
+		return saveInner(val, args...);
+	}
+	template<typename... Args>
+	SQLCommand& saveInner(const SetExpr* val, Args... args){
+		_sqlBuilder->save(val);
+		return saveInner(val, args...);
+	}
+	SQLCommand& saveInner(const SetExpr* val){
+		_sqlBuilder->save(val);
 		return *this;
 	}
 

@@ -53,21 +53,11 @@ ISQLBuilder* SQLBuilder::select(const char* field){
 }
 
 ISQLBuilder* SQLBuilder::where(const Expr& expr){
-	if (_optType != DB_OPT_NONE){
-		SLASSERT(false, "invaild sql opt");
-		return this;
-	}
-
 	_whereExpr = std::move(_whereExpr && expr);
 	return this;
 }
 
 ISQLBuilder* SQLBuilder::orWhere(const Expr& expr){
-	if (_optType != DB_OPT_NONE){
-		SLASSERT(false, "invaild sql opt");
-		return this;
-	}
-
 	_whereExpr = std::move(_whereExpr || expr);
 	return this;
 }
@@ -101,6 +91,17 @@ ISQLBuilder* SQLBuilder::update(const SetExpr* val){
 	}
 
 	_optType = DB_OPT_UPDATE;
+	_valuesExpr.append(val);
+	return this;
+}
+
+ISQLBuilder* SQLBuilder::save(const SetExpr* val){
+	if (_optType != DB_OPT_NONE && _optType != DB_OPT_SAVE){
+		SLASSERT(false, "invaild sql opt");
+		return this;
+	}
+
+	_optType = DB_OPT_SAVE;
 	_valuesExpr.append(val);
 	return this;
 }
@@ -193,6 +194,43 @@ bool SQLBuilder::submit(){
 					_finalExpr += expr->field();
 					escapeString(_finalExpr, expr);
 				}
+			}
+
+			break;
+		}
+		case DB_OPT_SAVE:{
+			if (_optType != DB_OPT_SAVE || _valuesExpr.exprs().empty()){
+				SLASSERT(false, "sql command is not update or have no value");
+				return false;
+			}
+
+			_finalExpr += "INSERT INTO " + _table + "(";
+			int32 i = 0;
+			for (auto& val : _valuesExpr.exprs()){
+				if (i != 0)
+					_finalExpr += ",";
+				_finalExpr += val->field();
+				i++;
+			}
+
+			_finalExpr += ") VALUES (";
+			i = 0;
+			for (auto& val : _valuesExpr.exprs()){
+				if (i != 0)
+					_finalExpr += ",";
+				escapeString(_finalExpr, val);
+				i++;
+			}
+
+			_finalExpr += ")ON DUPLICATE KEY UPDATE ";
+			i = 0;
+			for (auto& val : _valuesExpr.exprs()){
+				if (i != 0)
+					_finalExpr += ",";
+				_finalExpr += val->field();
+				_finalExpr += "=";
+				escapeString(_finalExpr, val);
+				i++;
 			}
 
 			break;

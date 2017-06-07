@@ -3,6 +3,8 @@
 #include "slargs.h"
 #include "CacheDBStruct.h"
 #include "IRedis.h"
+#include "DataLand.h"
+#include "SQLBase.h"
 
 bool CacheDB::initialize(sl::api::IKernel * pKernel){
 	_kernel = pKernel;
@@ -82,7 +84,7 @@ bool CacheDB::initialize(sl::api::IKernel * pKernel){
 }
 bool CacheDB::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_redis, Redis);
-	test();
+	//test();
 	return true;
 }
 bool CacheDB::destory(sl::api::IKernel * pKernel){
@@ -191,72 +193,85 @@ bool CacheDB::readByIndex(const char* table, const CacheDBColumnFuncType& cf, co
 }
 
 bool CacheDB::write(const char* table, const CacheDBWriteFuncType& f, int32 count, ...){
-	if (count > 0 && _tables.find(table) != _tables.end()){
-		CacheTable& desc = _tables[table];
-		IArgs<MAX_KEYS, MAX_ARGS> args;
-
-		CacheDBContext context(desc, args);
-		f(_kernel, &context);
-
-		va_list ap;
-		va_start(ap, count);
-		int8 type = desc.columns[desc.key];
-		char temp[128];
-		SafeSprintf(temp, 128, "%s|", table);
-		args << temp << desc.key.c_str() << count;
-		for (int32 i = 0; i < count; i++){
-			switch (type){
-			case CDB_TYPE_INT8: args << (int8)va_arg(ap, int8); break;
-			case CDB_TYPE_INT16: args << (int16)va_arg(ap, int16); break;
-			case CDB_TYPE_INT32: args << (int32)va_arg(ap, int32); break;
-			case CDB_TYPE_INT64: args << (int64)va_arg(ap, int64); break;
-			case CDB_TYPE_STRING: args << (const char*)va_arg(ap, const char*); break;
-			default: SLASSERT(false, "wtf");
-			}
-		}
-		va_end(ap);
-
-		if (context.isChangedIndex()){
-			char tmp[128];
-			SafeSprintf(tmp, sizeof(tmp), "%s|i+", table);
-			args << tmp << desc.index.name.c_str();
-		}
-
-		args.fix();
-		return _redis->call(0, "db_set", context.count() * 2, args.out());
+	if (count <= 0 || _tables.find(table) == _tables.end()){
+		SLASSERT(false, "not find table %s", table);
+		return false;
 	}
-	else{
-		SLASSERT(false, "wtf");
+
+	CacheTable& desc = _tables[table];
+	IArgs<MAX_KEYS, MAX_ARGS> args;
+	IArgs<MAX_KEYS, MAX_ARGS> landData;
+
+	CacheDBContext context(desc, args);
+	f(_kernel, &context);
+
+	va_list ap;
+	va_start(ap, count);
+	int8 type = desc.columns[desc.key];
+	char temp[128];
+	SafeSprintf(temp, 128, "%s|", table);
+	args << temp << desc.key.c_str() << count;
+	for (int32 i = 0; i < count; i++){
+		switch (type){
+		case CDB_TYPE_INT8: { int8 val = (int8)va_arg(ap, int8); args << val; landData << val; break; }
+		case CDB_TYPE_INT16: { int16 val = (int16)va_arg(ap, int16); args << val; landData << val; break; }
+		case CDB_TYPE_INT32: { int32 val = (int32)va_arg(ap, int32); args << val; landData << val; break; }
+		case CDB_TYPE_INT64: { int64 val = (int64)va_arg(ap, int64); args << val; landData << val; break; }
+		case CDB_TYPE_STRING: { const char* val = (const char*)va_arg(ap, const char*); args << val; landData << val; break; }
+		default: SLASSERT(false, "wtf");
+		}
 	}
-	return false;
+	va_end(ap);
+
+	if (context.isChangedIndex()){
+		char tmp[128];
+		SafeSprintf(tmp, sizeof(tmp), "%s|i+", table);
+		args << tmp << desc.index.name.c_str();
+	}
+
+	args.fix();
+	const OArgs& out = args.out();
+	bool ret = _redis->call(0, "db_set", context.count() * 2, out);
+
+	if (ret){
+		landData.append(out, context.count() * 2);
+		landData.fix();
+		DataLand::getInstance()->askLand(table, count, landData.out(), desc.key.c_str(), DB_OPT::DB_OPT_SAVE);
+	}
+	return ret;
 }
 
 bool CacheDB::writeByIndex(const char* table, const CacheDBWriteFuncType& f, const int64 index){
 	if (_tables.find(table) == _tables.end()){
-		SLASSERT(false, "wtf");
+		SLASSERT(false, "not find table %s", table);
 		return false;
 	}
 	
 	CacheTable& desc = _tables[table];
-	if (desc.index.type < CDB_TYPE_CANT_BE_KEY && desc.index.type != CDB_TYPE_STRING && desc.index.type != CDB_TYPE_NONE){
-		IArgs<MAX_KEYS, MAX_ARGS> args;
-
-		CacheDBContext context(desc, args);
-		f(_kernel, &context);
-
-		char temp[128];
-		SafeSprintf(temp, 128, "%s|i+%lld", table, index);
-		args << temp;
-
-		args.fix();
-
-		return _redis->call(0, "db_set_index", context.count() * 2, args.out());
+	if (desc.index.type >= CDB_TYPE_CANT_BE_KEY || desc.index.type == CDB_TYPE_STRING || desc.index.type == CDB_TYPE_NONE){
+		SLASSERT(false, "invaild Key type");
+		return false;
 	}
-	else{
-		SLASSERT(false, "wtf");
+
+	IArgs<MAX_KEYS, MAX_ARGS> args;
+	CacheDBContext context(desc, args);
+	f(_kernel, &context);
+
+	char temp[128];
+	SafeSprintf(temp, 128, "%s|i+%lld", table, index);
+	args << temp;
+	args.fix();
+	const OArgs& out = args.out();
+	bool ret = _redis->call(0, "db_set_index", context.count() * 2, out);
+
+	if (ret){
+		IArgs<MAX_KEYS, MAX_ARGS> landData;
+		landData << index;
+		landData.append(out, context.count() * 2);
+		landData.fix();
+		DataLand::getInstance()->askLand(table, 1, landData.out(), desc.index.name.c_str(), DB_OPT::DB_OPT_UPDATE);
 	}
-	
-	return false;
+	return ret;
 }
 
 bool CacheDB::writeByIndex(const char* table, const CacheDBWriteFuncType& f, const char* index){
@@ -280,69 +295,117 @@ bool CacheDB::writeByIndex(const char* table, const CacheDBWriteFuncType& f, con
 	SafeSprintf(tmp, sizeof(tmp), "%s|i+%s", table, index);
 	args << tmp;
 	args.fix();
+	const OArgs& out = args.out();
+	bool ret = _redis->call(0, "db_set_index", context.count() * 2, out);
+	
+	if (ret){
+		IArgs<MAX_KEYS, MAX_ARGS> landData;
+		landData << index;
+		landData.append(out, context.count() * 2);
+		landData.fix();
+		DataLand::getInstance()->askLand(table, 1, landData.out(), desc.index.name.c_str(), DB_OPT::DB_OPT_UPDATE);
+	}
 
-	return _redis->call(0, "db_set_index", context.count() * 2, args.out());
+	return ret;
 }
 
 bool CacheDB::del(const char* table, int32 count, ...){
-	if (count > 0 && _tables.find(table) != _tables.end()){
-		CacheTable& desc = _tables[table];
-		IArgs<MAX_KEYS, MAX_ARGS> args;
-		args << (desc.del ? 1 : 0);
+	if (count <= 0 || _tables.find(table) == _tables.end()){
+		SLASSERT(false, "not find table %s", table);
+		return false;
+	}
 
-		char keyName[128];
-		SafeSprintf(keyName, 128, "%s|", table);
-		args << keyName << count;
+	CacheTable& desc = _tables[table];
+	IArgs<MAX_KEYS, MAX_ARGS> args;
+	args << (desc.del ? 1 : 0);
 
-		va_list ap;
-		va_start(ap, count);
-		int8 type = desc.columns[desc.key];
-		for (int32 i = 0; i < count; i++){
-			switch (type){
-			case CDB_TYPE_INT8: args << (int8)va_arg(ap, int8); break;
-			case CDB_TYPE_INT16: args << (int16)va_arg(ap, int16); break;
-			case CDB_TYPE_INT32: args << (int32)va_arg(ap, int32); break;
-			case CDB_TYPE_INT64: args << (int64)va_arg(ap, int64); break;
-			case CDB_TYPE_STRING: args << (const char*)va_arg(ap, const char*); break;
-			default: SLASSERT(false, "wtf");
-			}
+	char keyName[128];
+	SafeSprintf(keyName, 128, "%s|", table);
+	args << keyName << count;
+
+	IArgs<MAX_KEYS, MAX_ARGS> landData;
+
+	va_list ap;
+	va_start(ap, count);
+	int8 type = desc.columns[desc.key];
+	for (int32 i = 0; i < count; i++){
+		switch (type){
+		case CDB_TYPE_INT8: { int8 val = (int8)va_arg(ap, int8); args << val; landData << val; break; }
+		case CDB_TYPE_INT16: { int16 val = (int16)va_arg(ap, int16); args << val; landData << val; break; }
+		case CDB_TYPE_INT32: { int32 val = (int32)va_arg(ap, int32); args << val; landData << val; break; }
+		case CDB_TYPE_INT64: { int64 val = (int64)va_arg(ap, int64); args << val; landData << val; break; }
+		case CDB_TYPE_STRING: { const char* val = (const char*)va_arg(ap, const char*); args << val; landData << val; break; }
+		default: SLASSERT(false, "wtf");
 		}
-		va_end(ap);
+	}
+	va_end(ap);
 
-		args.fix();
-		return _redis->call(0, "db_del", 1, args.out());
+	args.fix();
+	bool ret = _redis->call(0, "db_del", 1, args.out());
+
+	if (ret){
+		landData.fix();
+		DataLand::getInstance()->askLand(table, count, landData.out(), desc.key.c_str(), DB_OPT::DB_OPT_DELETE);
 	}
-	else{
-		SLASSERT(false, "wtf");
-	}
-	return false;
+	return ret;
 }
 
 bool CacheDB::delByIndex(const char* table, const int64 index){
-	if (_tables.find(table) != _tables.end()){
-		CacheTable& desc = _tables[table];
-		if (desc.index.type < CDB_TYPE_CANT_BE_KEY && desc.index.type != CDB_TYPE_STRING && desc.index.type != CDB_TYPE_NONE){
-			char indesStr[128];
-			SafeSprintf(indesStr, sizeof(indesStr), "%s|i+%lld", table, index);
-			
-			IArgs<MAX_KEYS, MAX_ARGS> args;
-			args << indesStr << (desc.del ? 1 : 0);
-			args.fix();
+	if (_tables.find(table) == _tables.end()){
+		SLASSERT(false, "not find table %s", table);
+		return false;
+	}
 
-			return _redis->call(0, "db_del_index", 0, args.out());
-		}
-		else{
-			SLASSERT(false, "wtf");
-		}
+	CacheTable& desc = _tables[table];
+	if (desc.index.type >= CDB_TYPE_CANT_BE_KEY || desc.index.type == CDB_TYPE_STRING || desc.index.type == CDB_TYPE_NONE){
+		SLASSERT(false, "invaild key type");
+		return false;
 	}
-	else{
-		SLASSERT(false, "wtf");
+
+	char indesStr[128];
+	SafeSprintf(indesStr, sizeof(indesStr), "%s|i+%lld", table, index);
+
+	IArgs<MAX_KEYS, MAX_ARGS> args;
+	args << indesStr << (desc.del ? 1 : 0);
+	args.fix();
+
+	bool ret = _redis->call(0, "db_del_index", 0, args.out());
+	if (ret){
+		IArgs<1, 64> landData;
+		landData << index;
+		landData.fix();
+		DataLand::getInstance()->askLand(table, 1, landData.out(), desc.index.name.c_str(), DB_OPT::DB_OPT_DELETE);
 	}
-	return false;
+	return ret;
 }
 
 bool CacheDB::delByIndex(const char* table, const char* index){
-	return true;
+	if (_tables.find(table) == _tables.end()){
+		SLASSERT(false, "not find table %s", table);
+		return false;
+	}
+
+	CacheTable& desc = _tables[table];
+	if (desc.index.type != CDB_TYPE_STRING){
+		SLASSERT(false, "wtf");
+		return false;
+	}
+
+	char indesStr[128];
+	SafeSprintf(indesStr, sizeof(indesStr), "%s|i+%s", table, index);
+
+	IArgs<MAX_KEYS, MAX_ARGS> args;
+	args << indesStr << (desc.del ? 1 : 0);
+	args.fix();
+
+	bool ret = _redis->call(0, "db_del_index", 0, args.out());
+	if (ret){
+		IArgs<1, 128> landData;
+		landData << index;
+		landData.fix();
+		DataLand::getInstance()->askLand(table, 1, landData.out(), desc.index.name.c_str(), DB_OPT::DB_OPT_DELETE);
+	}
+	return ret;
 }
 
 void CacheDB::test(){

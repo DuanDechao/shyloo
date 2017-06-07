@@ -59,4 +59,5 @@ public:
 	virtual bool delByIndex(const char* table, const int64 index) = 0;
 	virtual bool delByIndex(const char* table, const char* index) = 0;
 };
+
 #endif

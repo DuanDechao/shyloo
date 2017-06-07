@@ -35,7 +35,7 @@ private:
 	int64 _tick;
 	sl::SLString<MAX_PATH> _file;
 	int32 _line;
-	sl::SLString<1024> _log;
+	sl::SLString<10240> _log;
 };
 
 

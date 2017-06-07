@@ -122,6 +122,8 @@ void Redis::append(CommandBuf& buf, const OArgs& args){
 		case ARGS_TYPE_INT64: append(buf, args.getInt64(i)); break;
 		case ARGS_TYPE_FLOAT: append(buf, args.getFloat(i)); break;
 		case ARGS_TYPE_STRING: append(buf, args.getString(i)); break;
+		case ARGS_TYPE_STRUCT: { int32 size = 0; const void* val = args.getStruct(i, size); append(buf, val, size); break; }
+		default: SLASSERT(false, "wrtf"); break;
 		}
 	}
 }
@@ -171,7 +173,7 @@ void Redis::append(CommandBuf& buf, const char* val){
 	buf._size += (int32)strlen(buf._data + buf._size);
 }
 
-void Redis::append(CommandBuf& buf, const char* val, const int32 size){
+void Redis::append(CommandBuf& buf, const void* val, const int32 size){
 	SafeSprintf(buf._data + buf._size, sizeof(buf._data) - buf._size, "$%d\r\n", size);
 	buf._size += (int32)strlen(buf._data + buf._size);
 

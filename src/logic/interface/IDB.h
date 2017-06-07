@@ -53,9 +53,22 @@ public:
 	virtual void AddColumn(const char* key, const void* value, const int32 size) = 0;
 };
 
+class IDBSaveParamAdder{
+public:
+	virtual ~IDBSaveParamAdder(){}
+
+	virtual void AddColumn(const char* key, const int8 value) = 0;
+	virtual void AddColumn(const char* key, const int16 value) = 0;
+	virtual void AddColumn(const char* key, const int32 value) = 0;
+	virtual void AddColumn(const char* key, const int64 value) = 0;
+	virtual void AddColumn(const char* key, const char* value) = 0;
+	virtual void AddColumn(const char* key, const void* value, const int32 size) = 0;
+};
+
 typedef std::function<void(sl::api::IKernel* pKernel, IDBQueryParamAdder* adder, IDBCallCondition* condition)> DBQueryCommandFunc;
 typedef std::function<void(sl::api::IKernel* pKernel, IDBInsertParamAdder* adder)> DBInsertCommandFunc;
 typedef std::function<void(sl::api::IKernel* pKernel, IDBUpdateParamAdder* adder, IDBCallCondition* condition)> DBUpdateCommandFunc;
+typedef std::function<void(sl::api::IKernel* pKernel, IDBSaveParamAdder* adder)> DBSaveCommandFunc;
 typedef std::function<void(sl::api::IKernel* pKernel, IDBCallCondition* condition)> DBDeleteCommandFunc;
 
 class IDBCallSource{
@@ -86,6 +99,7 @@ public:
 	virtual void query(const char* tableName, const DBQueryCommandFunc& f, const DBCallBack& cb) = 0;
 	virtual void insert(const char* tableName, const DBInsertCommandFunc& f, const DBCallBack& cb) = 0;
 	virtual void update(const char* tableName, const DBUpdateCommandFunc& f, const DBCallBack& cb) = 0;
+	virtual void save(const char* tableName, const DBSaveCommandFunc& f, const DBCallBack& cb) = 0;
 	virtual void del(const char* tableName, const DBDeleteCommandFunc& f, const DBCallBack& cb) = 0;
 };
 

@@ -36,7 +36,7 @@ private:
 	void append(CommandBuf& buf, int64 val);
 	void append(CommandBuf& buf, float val);
 	void append(CommandBuf& buf, const char* val);
-	void append(CommandBuf& buf, const char* val, const int32 size);
+	void append(CommandBuf& buf, const void* val, const int32 size);
 
 private:
 	sl::api::IKernel*						_kernel;

@@ -9,6 +9,8 @@
 	<module name="IdMgr" />
 	<module name="Redis" />
 	<module name="CacheDB" />
+	<module name="MysqlMgr" />
+	<module name="DB" />
 	<module name="ScriptEngine" />
 	<module name="EventEngine" />
 	<module name="PlayerMgr" />

@@ -200,7 +200,24 @@ public:
 			case ARGS_TYPE_FLOAT: *this << args.getFloat(i); break;
 			case ARGS_TYPE_STRING: *this << args.getString(i); break;
 			case ARGS_TYPE_BOOL: *this << args.getBool(i); break;
-			case ARGS_TYPE_STRUCT: int32 size = 0; (*this).addStruct(args.getStruct(i, size), size); break;
+			case ARGS_TYPE_STRUCT: {int32 size = 0; (*this).addStruct(args.getStruct(i, size), size); break; }
+			default: SLASSERT(false, "unknown type");  break;
+			}
+		}
+		return *this;
+	}
+
+	IArgs& append(const OArgs& args, int32 count){
+		for (int32 i = 0; i < count; i++){
+			switch (args.getType(i)){
+			case ARGS_TYPE_INT8: *this << args.getInt8(i); break;
+			case ARGS_TYPE_INT16: *this << args.getInt16(i); break;
+			case ARGS_TYPE_INT32: *this << args.getInt32(i); break;
+			case ARGS_TYPE_INT64: *this << args.getInt64(i); break;
+			case ARGS_TYPE_FLOAT: *this << args.getFloat(i); break;
+			case ARGS_TYPE_STRING: *this << args.getString(i); break;
+			case ARGS_TYPE_BOOL: *this << args.getBool(i); break;
+			case ARGS_TYPE_STRUCT: {int32 size = 0; (*this).addStruct(args.getStruct(i, size), size); break; }
 			default: SLASSERT(false, "unknown type");  break;
 			}
 		}

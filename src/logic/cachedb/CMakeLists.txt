@@ -11,6 +11,8 @@ SET(CACHEDB
 	"${PROJECT_SOURCE_DIR}/src/logic/cachedb/CacheDBStruct.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/cachedb/CacheDB.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/cachedb/CacheDB.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/cachedb/DataLand.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/cachedb/DataLand.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/cachedb/main.cpp"
 )
 

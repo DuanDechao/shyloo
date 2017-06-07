@@ -14,6 +14,7 @@ public:
 	ISQLBuilder* insert(const SetExpr* val);
 	ISQLBuilder* get(const int32 limit);
 	ISQLBuilder* update(const SetExpr* val);
+	ISQLBuilder* save(const SetExpr* val);
 	ISQLBuilder* del();
 
 	inline int32 optType() const { return _optType; }

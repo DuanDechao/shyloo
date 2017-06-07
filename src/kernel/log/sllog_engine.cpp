@@ -10,7 +10,7 @@
 namespace sl{
 namespace core{
 #define MAX_READ_COUNT 50
-#define TIME_OUT_FOR_CUT_FILE 2 * 60 * 60 * 1000
+#define TIME_OUT_FOR_CUT_FILE 2 * HOUR
 bool LogEngine::initialize(){
 	_terminate = false;
 

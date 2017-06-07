@@ -70,6 +70,7 @@ IRole* RoleMgr::createRole(int64 accountId, const sl::OBStream& buf){
 		context->writeInt8("occupation", occupation);
 		context->writeInt8("sex", sex);
 		context->writeInt8("firstLogin", 1);
+		context->writeBlob("props", nullptr, 0);
 	}, 1, actorId);
 
 	if (!ret)

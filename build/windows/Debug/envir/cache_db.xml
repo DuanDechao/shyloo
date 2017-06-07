@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <cache_db>
 	<table name="account" del="true">
-		<column name="username" type="string"  />
+		<column name="username" type="string" />
 		<column name="accountId" type="int64" key="true" />
 		<index name="username" />
 	</table>

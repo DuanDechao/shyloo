@@ -435,7 +435,7 @@ bool DBCreator::updateDBTableField(const char* tableName, const char* field, Fie
 		return true;
 
 	ostringstream updateStr;
-	updateStr << "ALTER TABLE `" << tableName << "CHANGE `" << field << "` ";
+	updateStr << "ALTER TABLE `" << tableName << "` CHANGE `" << field << "` ";
 	appendFieldProp(updateStr, confInfo, false);
 
 	DBCall* callor = NEW DBCall(tableName, 0);

@@ -104,6 +104,21 @@ private:
 	SQLCommand& _sqlCommand;
 };
 
+class DBSaveParamAdder : public IDBSaveParamAdder{
+public:
+	DBSaveParamAdder(SQLCommand& sqlCommand) :_sqlCommand(sqlCommand){}
+
+	virtual void AddColumn(const char* key, const int8 value) { _sqlCommand.save(Field(key) = value); }
+	virtual void AddColumn(const char* key, const int16 value) { _sqlCommand.save(Field(key) = value); }
+	virtual void AddColumn(const char* key, const int32 value) { _sqlCommand.save(Field(key) = value); }
+	virtual void AddColumn(const char* key, const int64 value) { _sqlCommand.save(Field(key) = value); }
+	virtual void AddColumn(const char* key, const char* value) { _sqlCommand.save(Field(key) = value); }
+	virtual void AddColumn(const char* key, const void* value, const int32 size) { _sqlCommand.save(Field(key).addStruct(value, size)); }
+
+private:
+	SQLCommand& _sqlCommand;
+};
+
 
 void DBCall::query(const char* tableName, const DBQueryCommandFunc& f, const DBCallBack& cb){
 	_cb = cb;
@@ -144,6 +159,19 @@ void DBCall::update(const char* tableName, const DBUpdateCommandFunc& f, const D
 			DBUpdateParamAdder adder(sqlCommand);
 			DBCallCondition condition(sqlCommand);
 			f(pKernel, &adder, &condition);
+		}
+	});
+}
+
+void DBCall::save(const char* tableName, const DBSaveCommandFunc& f, const DBCallBack& cb){
+	_cb = cb;
+
+	_db->getMysqlMgr()->execSql(_threadId, this, [tableName, &f](sl::api::IKernel* pKernel, SQLCommand& sqlCommand){
+		sqlCommand.table(tableName);
+
+		if (f){
+			DBSaveParamAdder adder(sqlCommand);
+			f(pKernel, &adder);
 		}
 	});
 }

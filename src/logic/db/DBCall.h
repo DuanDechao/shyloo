@@ -18,6 +18,7 @@ public:
 	virtual void insert(const char* tableName, const DBInsertCommandFunc& f, const DBCallBack& cb);
 	virtual void update(const char* tableName, const DBUpdateCommandFunc& f, const DBCallBack& cb);
 	virtual void del(const char* tableName, const DBDeleteCommandFunc& f, const DBCallBack& cb);
+	virtual void save(const char* tableName, const DBSaveCommandFunc& f, const DBCallBack& cb);
 
 
 	virtual bool onSuccess(sl::api::IKernel* pKernel, const int32 optType, const int32 affectedRow, const MysqlResult& result);
