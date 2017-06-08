@@ -3,6 +3,7 @@
 	<table name="account" del="true">
 		<column name="username" type="string" />
 		<column name="accountId" type="int64" key="true" />
+		<column name="lastActorId" type="int64" />
 		<index name="username" />
 	</table>
 	
@@ -17,7 +18,6 @@
 		<column name="x" type="float" />
 		<column name="y" type="float" />
 		<column name="z" type="float" />
-		<column name="lastActorId" type="int64" />
 		<column name="firstLogin" type="int8" />
 		<index name="account" />
 	</table>

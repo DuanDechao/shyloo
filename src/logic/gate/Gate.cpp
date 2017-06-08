@@ -377,9 +377,9 @@ void Gate::onLogicBindPlayerAck(sl::api::IKernel* pKernel, const int32 nodeType,
 			player.lastActorId = actorId;
 
 			//update DB
-			_cacheDB->writeByIndex("actor", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
+			_cacheDB->write("account", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
 				context->writeInt64("lastActorId", actorId);
-			}, accountId);
+			}, 1, accountId);
 		}
 		else{
 			reset(pKernel, _actors[actorId], GATE_STATE_ROLELOADED);

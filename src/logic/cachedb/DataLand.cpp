@@ -92,6 +92,8 @@ void DataLand::onTime(sl::api::IKernel* pKernel, int64 timetick){
 		if (timetick - data->getTick() < LAND_DATA_DELAY_TIME || writeCount > LAND_DATA_PRE_MAX_NUM)
 			break;
 		
+		ECHO_TRACE("land data[%s %s %d]...", data->getTableName(), data->getKeyName(), data->getOpt());
+
 		if (data->getKeyType() == TYPE_INTEGER)
 			landDataToDB(data, data->getKeyIntVal());
 		else if (data->getKeyType() == TYPE_STRING)
@@ -108,7 +110,7 @@ void DataLand::onTime(sl::api::IKernel* pKernel, int64 timetick){
 
 		_landDatas.popFront();
 
-		ECHO_TRACE("land data[%s %s %d]...", data->getTableName(), data->getKeyName(), data->getOpt());
+		
 
 		DEL data;
 	}

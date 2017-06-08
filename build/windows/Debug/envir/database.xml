@@ -3,6 +3,7 @@
 	<table name="account">
 		<field name="username" type="string" size="32" notNull="true"/>
 		<field name="accountId" type="int64" key="true" notNull="true"/>
+		<field name="lastActorId" type="int64" notNull="true" default="0" />
 		<index type="primary" fields="accountId" />
 		<index type="unique" func="hash" fields="username" />
 	</table>
@@ -18,7 +19,6 @@
 		<field name="x" type="float" notNull="true" default="0" />
 		<field name="y" type="float" notNull="true" default="0" />
 		<field name="z" type="float" notNull="true" default="0" />
-		<field name="lastActorId" type="int64" notNull="true" default="0" />
 		<field name="firstLogin" type="int8" notNull="true" default="1" />
 		<index type="primary" fields="id" />
 		<index type="normal" func="btree" fields="account" />
