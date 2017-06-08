@@ -50,6 +50,7 @@ public:
 	virtual void AddColumn(const char* key, const int32 value) = 0;	
 	virtual void AddColumn(const char* key, const int64 value) = 0;
 	virtual void AddColumn(const char* key, const char* value) = 0;
+	virtual void AddColumn(const char* key, const float value) = 0;
 	virtual void AddColumn(const char* key, const void* value, const int32 size) = 0;
 };
 
@@ -62,6 +63,7 @@ public:
 	virtual void AddColumn(const char* key, const int32 value) = 0;
 	virtual void AddColumn(const char* key, const int64 value) = 0;
 	virtual void AddColumn(const char* key, const char* value) = 0;
+	virtual void AddColumn(const char* key, const float value) = 0;
 	virtual void AddColumn(const char* key, const void* value, const int32 size) = 0;
 };
 

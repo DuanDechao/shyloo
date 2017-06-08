@@ -59,6 +59,10 @@ public:
 		return node;
 	}
 
+	ISLListNode* front(){
+		return _head;
+	}
+
 	void remove(ISLListNode* node){
 		SLASSERT(node, "wtf");
 		if (!node->ignoreOwner() && node->getList() != this){

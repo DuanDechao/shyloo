@@ -97,6 +97,7 @@ public:
 	virtual void AddColumn(const char* key, const int16 value) { _sqlCommand.update(Field(key) = value); }
 	virtual void AddColumn(const char* key, const int32 value) { _sqlCommand.update(Field(key) = value); }
 	virtual void AddColumn(const char* key, const int64 value) { _sqlCommand.update(Field(key) = value); }
+	virtual void AddColumn(const char* key, const float value) { _sqlCommand.update(Field(key) = value); }
 	virtual void AddColumn(const char* key, const char* value) { _sqlCommand.update(Field(key) = value); }
 	virtual void AddColumn(const char* key, const void* value, const int32 size) { _sqlCommand.update(Field(key).addStruct(value, size)); }
 
@@ -113,6 +114,7 @@ public:
 	virtual void AddColumn(const char* key, const int32 value) { _sqlCommand.save(Field(key) = value); }
 	virtual void AddColumn(const char* key, const int64 value) { _sqlCommand.save(Field(key) = value); }
 	virtual void AddColumn(const char* key, const char* value) { _sqlCommand.save(Field(key) = value); }
+	virtual void AddColumn(const char* key, const float value) { _sqlCommand.save(Field(key) = value); }
 	virtual void AddColumn(const char* key, const void* value, const int32 size) { _sqlCommand.save(Field(key).addStruct(value, size)); }
 
 private:

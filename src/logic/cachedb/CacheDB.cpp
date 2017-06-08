@@ -53,6 +53,8 @@ bool CacheDB::initialize(sl::api::IKernel * pKernel){
 				return false;
 			}
 
+			tableDesc.columnsVec.push_back(name);
+
 			if (columns[j].hasAttribute("key") && columns[j].getAttributeBoolean("key")){
 				if (tableDesc.key == "")
 					tableDesc.key = name;
@@ -91,6 +93,46 @@ bool CacheDB::destory(sl::api::IKernel * pKernel){
 	DEL this;
 	return true;
 }
+
+int8 CacheDB::getColumnType(const char* table, const char* column){
+	auto tableItor = _tables.find(table);
+	if (tableItor == _tables.end())
+		return CDB_TYPE_NONE;
+	
+	CacheTable& desc = tableItor->second;
+	auto descItor = desc.columns.find(column);
+	if (descItor == desc.columns.end())
+		return CDB_TYPE_NONE;
+
+	return descItor->second;
+}
+
+int32 CacheDB::getColumnIdx(const char* table, const char* column){
+	auto tableItor = _tables.find(table);
+	if (tableItor == _tables.end())
+		return -1;
+
+	CacheTable& desc = tableItor->second;
+	int32 size = (int32)desc.columnsVec.size();
+	for (int32 i = 0; i < size; i++){
+		if (desc.columnsVec[i] == column)
+			return i;
+	}
+	return -1;
+}
+
+const char* CacheDB::getColumnByIdx(const char* table, const int32 idx){
+	auto tableItor = _tables.find(table);
+	if (tableItor == _tables.end())
+		return nullptr;
+
+	CacheTable& desc = tableItor->second;
+	if (idx >= (int32)desc.columnsVec.size())
+		return nullptr;
+
+	return desc.columnsVec[idx].c_str();
+}
+
 
 bool CacheDB::read(const char* table, const CacheDBColumnFuncType& cf, const CacheDBReadFuncType& f, int32 count, ...){
 	if (count > 0 && _tables.find(table) != _tables.end()){
@@ -234,7 +276,9 @@ bool CacheDB::write(const char* table, const CacheDBWriteFuncType& f, int32 coun
 	bool ret = _redis->call(0, "db_set", context.count() * 2, out);
 
 	if (ret){
-		landData.append(out, context.count() * 2);
+		for (int32 i = 0; i < context.count() * 2; i += 2){
+			landData << out.getString(i);
+		}
 		landData.fix();
 		DataLand::getInstance()->askLand(table, count, landData.out(), desc.key.c_str(), DB_OPT::DB_OPT_SAVE);
 	}
@@ -267,7 +311,9 @@ bool CacheDB::writeByIndex(const char* table, const CacheDBWriteFuncType& f, con
 	if (ret){
 		IArgs<MAX_KEYS, MAX_ARGS> landData;
 		landData << index;
-		landData.append(out, context.count() * 2);
+		for (int32 i = 0; i < context.count() * 2; i += 2){
+			landData << out.getString(i);
+		}
 		landData.fix();
 		DataLand::getInstance()->askLand(table, 1, landData.out(), desc.index.name.c_str(), DB_OPT::DB_OPT_UPDATE);
 	}
@@ -301,7 +347,9 @@ bool CacheDB::writeByIndex(const char* table, const CacheDBWriteFuncType& f, con
 	if (ret){
 		IArgs<MAX_KEYS, MAX_ARGS> landData;
 		landData << index;
-		landData.append(out, context.count() * 2);
+		for (int32 i = 0; i < context.count() * 2; i += 2){
+			landData << out.getString(i);
+		}
 		landData.fix();
 		DataLand::getInstance()->askLand(table, 1, landData.out(), desc.index.name.c_str(), DB_OPT::DB_OPT_UPDATE);
 	}

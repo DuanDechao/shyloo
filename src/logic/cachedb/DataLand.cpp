@@ -3,6 +3,7 @@
 #include "sltime.h"
 #include "IDB.h"
 #include "SQLBase.h"
+#include "CacheDB.h"
 
 #define LAND_DATA_DELAY_TIME (1 * MINUTE)
 #define LAND_DATA_PRE_MAX_NUM 1000
@@ -14,6 +15,7 @@ bool DataLand::initialize(sl::api::IKernel * pKernel){
 
 bool DataLand::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_db, DB);
+	FIND_MODULE(_cacheDB, CacheDB);
 	START_TIMER(_self, 0, TIMER_BEAT_FOREVER, 30 * SECOND);
 	return true;
 }
@@ -24,126 +26,241 @@ bool DataLand::destory(sl::api::IKernel * pKernel){
 }
 
 void DataLand::askLand(const char* table, const int32 keyCount, const OArgs& data, const char* key, int8 opt){
-	LandData landData;
-	landData.opt = opt;
-	landData.table = table;
-	landData.keyCount = keyCount;
-	landData.key = key;
-	sl::SafeMemcpy(landData.data, sizeof(landData.data), data.getContext(), data.getSize());
-	landData.tick = sl::getTimeMilliSecond();
-	_landDatas.push_back(landData);
+	int32 totalCount = data.getCount();
+	SLASSERT(totalCount >= keyCount, "wtf");
+
+	std::set<int32> updateCols;
+	for (int32 colIdx = keyCount; colIdx < totalCount; colIdx++){
+		updateCols.insert(CacheDB::getInstance()->getColumnIdx(table, data.getString(colIdx)));
+	}
+
+	for (int32 keyIdx = 0; keyIdx < keyCount; keyIdx++){
+		int64 keyIntVal = 0;
+		const char* keyStrVal = nullptr;
+		switch (data.getType(keyIdx)){
+		case ARGS_TYPE_INT8: keyIntVal = data.getInt8(keyIdx); break;
+		case ARGS_TYPE_INT16: keyIntVal = data.getInt16(keyIdx); break;
+		case ARGS_TYPE_INT32: keyIntVal = data.getInt32(keyIdx); break;
+		case ARGS_TYPE_INT64: keyIntVal = data.getInt64(keyIdx); break;
+		case ARGS_TYPE_STRING: keyStrVal = data.getString(keyIdx); break;
+		default: SLASSERT(false, "wtf"); break;
+		}
+
+		if (keyStrVal)
+			appendLandDataList(table, key, keyStrVal, opt, updateCols);
+		else
+			appendLandDataList(table, key, keyIntVal, opt, updateCols);
+		
+	}
+}
+
+template<typename TYPE>
+void DataLand::appendLandDataList(const char* table, const char* key, TYPE keyVal, int8 opt, std::set<int32>& cols){
+	int32 id = LandData::calcId(table, key, keyVal);
+	auto itor = _datasMap.find(id);
+	
+	sl::ISLListNode* dataNode = nullptr;
+	if (itor == _datasMap.end() || ((LandData*)itor->second)->getOpt() > opt){
+		dataNode = NEW LandData(table, key, keyVal, opt, sl::getTimeMilliSecond());
+		((LandData*)dataNode)->setUpdateCols(cols);
+		_datasMap[((LandData*)dataNode)->getId()] = dataNode;
+	}
+	else{
+		dataNode = itor->second;
+		SLASSERT(((LandData*)dataNode)->checkIdInfo(table, key, keyVal), "wtf");
+		
+		_landDatas.remove(dataNode);
+
+		std::set<int32>& updateCols = ((LandData*)dataNode)->getUpdateCols();
+		std::set<int32> newCols;
+		std::set_union(updateCols.begin(), updateCols.end(), cols.begin(), cols.end(), inserter(newCols, newCols.begin()));
+		((LandData*)dataNode)->setUpdateCols(newCols);
+		((LandData*)dataNode)->setTick(sl::getTimeMilliSecond());
+	}
+
+	_landDatas.pushBack(dataNode);
 	ECHO_TRACE("ask land data[%s %s %d]", table, key, opt);
 }
 
 void DataLand::onTime(sl::api::IKernel* pKernel, int64 timetick){
-	if (_landDatas.empty())
+	if (_landDatas.isEmpty())
 		return;
 
 	int32 writeCount = 0;
-	while (!_landDatas.empty()){
-		LandData& data = _landDatas.front();
-		if (timetick - data.tick < LAND_DATA_DELAY_TIME || writeCount > LAND_DATA_PRE_MAX_NUM)
+	while (!_landDatas.isEmpty()){
+		LandData* data = (LandData*)_landDatas.front();
+		if (timetick - data->getTick() < LAND_DATA_DELAY_TIME || writeCount > LAND_DATA_PRE_MAX_NUM)
 			break;
-
-		landDataToDB(data);
-		writeCount++;
-		ECHO_TRACE("land data[%s %s %d]...", data.table.c_str(), data.key.c_str(), data.opt);
-
-		_landDatas.pop_front();
-	}
-}
-
-void DataLand::landDataToDB(LandData& data){
-	const OArgs args(data.data, sizeof(data.data));
-	int32 totalCount = args.getCount();
-	SLASSERT(totalCount >= data.keyCount, "wtf");
-
-	for (int32 keyIdx = 0; keyIdx < data.keyCount; keyIdx++){
-		IDBCall* callor = CREATE_DB_CALL(_db, data.tick, 0);
-		switch (data.opt){
-		case DB_OPT::DB_OPT_UPDATE:{
-			callor->update(data.table.c_str(), [&](sl::api::IKernel* pKernel, IDBUpdateParamAdder* adder, IDBCallCondition* condition){
-				for (int32 dataIdx = data.keyCount; dataIdx < totalCount; dataIdx += 2){
-					switch (args.getType(dataIdx + 1)){
-					case ARGS_TYPE_INT8: adder->AddColumn(args.getString(dataIdx), args.getInt8(dataIdx + 1)); break;
-					case ARGS_TYPE_INT16: adder->AddColumn(args.getString(dataIdx), args.getInt16(dataIdx + 1)); break;
-					case ARGS_TYPE_INT32: adder->AddColumn(args.getString(dataIdx), args.getInt32(dataIdx + 1)); break;
-					case ARGS_TYPE_INT64: adder->AddColumn(args.getString(dataIdx), args.getInt64(dataIdx + 1)); break;
-					case ARGS_TYPE_STRING: adder->AddColumn(args.getString(dataIdx), args.getString(dataIdx + 1)); break;
-					case ARGS_TYPE_STRUCT:{
-							int32 size = 0;
-							const void* val = args.getStruct(dataIdx + 1, size);
-							adder->AddColumn(args.getString(dataIdx), val, size);
-							break;
-						}
-					default: SLASSERT(false, "wtf"); break;
-					}
-				}
-
-				switch (args.getType(keyIdx)){
-				case ARGS_TYPE_INT8: condition->AddCondition(data.key.c_str(), IDBCallCondition::DBOP_EQ, args.getInt8(keyIdx)); break;
-				case ARGS_TYPE_INT16: condition->AddCondition(data.key.c_str(), IDBCallCondition::DBOP_EQ, args.getInt16(keyIdx)); break;
-				case ARGS_TYPE_INT32: condition->AddCondition(data.key.c_str(), IDBCallCondition::DBOP_EQ, args.getInt32(keyIdx)); break;
-				case ARGS_TYPE_INT64: condition->AddCondition(data.key.c_str(), IDBCallCondition::DBOP_EQ, args.getInt64(keyIdx)); break;
-				case ARGS_TYPE_STRING: condition->AddCondition(data.key.c_str(), IDBCallCondition::DBOP_EQ, args.getString(keyIdx)); break;
-				default: SLASSERT(false, "wtf"); break;
-				}
-			}, nullptr);
-
-			break;
-		}
-
-		case DB_OPT::DB_OPT_SAVE:{
-			callor->save(data.table.c_str(), [&](sl::api::IKernel* pKernel, IDBSaveParamAdder* adder){
-				for (int32 dataIdx = data.keyCount; dataIdx < totalCount; dataIdx += 2){
-					switch (args.getType(dataIdx + 1)){
-					case ARGS_TYPE_INT8: adder->AddColumn(args.getString(dataIdx), args.getInt8(dataIdx + 1)); break;
-					case ARGS_TYPE_INT16: adder->AddColumn(args.getString(dataIdx), args.getInt16(dataIdx + 1)); break;
-					case ARGS_TYPE_INT32: adder->AddColumn(args.getString(dataIdx), args.getInt32(dataIdx + 1)); break;
-					case ARGS_TYPE_INT64: adder->AddColumn(args.getString(dataIdx), args.getInt64(dataIdx + 1)); break;
-					case ARGS_TYPE_STRING: adder->AddColumn(args.getString(dataIdx), args.getString(dataIdx + 1)); break;
-					case ARGS_TYPE_STRUCT:{
-							int32 size = 0;
-							const void* val = args.getStruct(dataIdx + 1, size);
-							adder->AddColumn(args.getString(dataIdx), val, size);
-							break;
-						}
-					default: SLASSERT(false, "wtf"); break;
-					}
-				}
-
-				switch (args.getType(keyIdx)){
-				case ARGS_TYPE_INT8: adder->AddColumn(data.key.c_str(), args.getInt8(keyIdx)); break;
-				case ARGS_TYPE_INT16: adder->AddColumn(data.key.c_str(), args.getInt16(keyIdx)); break;
-				case ARGS_TYPE_INT32: adder->AddColumn(data.key.c_str(), args.getInt32(keyIdx)); break;
-				case ARGS_TYPE_INT64: adder->AddColumn(data.key.c_str(), args.getInt64(keyIdx)); break;
-				case ARGS_TYPE_STRING: adder->AddColumn(data.key.c_str(), args.getString(keyIdx)); break;
-				default: SLASSERT(false, "wtf"); break;
-				}
-			}, nullptr);
-
-			break;
-		}
-
-		case DB_OPT::DB_OPT_DELETE:{
-			callor->del(data.table.c_str(), [&](sl::api::IKernel* pKernel, IDBCallCondition* condition){
-				switch (args.getType(keyIdx)){
-				case ARGS_TYPE_INT8: condition->AddCondition(data.key.c_str(), IDBCallCondition::DBOP_EQ, args.getInt8(keyIdx)); break;
-				case ARGS_TYPE_INT16: condition->AddCondition(data.key.c_str(), IDBCallCondition::DBOP_EQ, args.getInt16(keyIdx)); break;
-				case ARGS_TYPE_INT32: condition->AddCondition(data.key.c_str(), IDBCallCondition::DBOP_EQ, args.getInt32(keyIdx)); break;
-				case ARGS_TYPE_INT64: condition->AddCondition(data.key.c_str(), IDBCallCondition::DBOP_EQ, args.getInt64(keyIdx)); break;
-				case ARGS_TYPE_STRING: condition->AddCondition(data.key.c_str(), IDBCallCondition::DBOP_EQ, args.getString(keyIdx)); break;
-				default: SLASSERT(false, "wtf"); break;
-				}
-			}, nullptr);
 		
-			break;
+		if (data->getKeyType() == TYPE_INTEGER)
+			landDataToDB(data, data->getKeyIntVal());
+		else if (data->getKeyType() == TYPE_STRING)
+			landDataToDB(data, data->getKeyStrVal());
+		else{
+			SLASSERT(false, "unknown Type");
 		}
+		
+		writeCount++;
 
-		default: SLASSERT(false, "unkown opt type !"); break;
-		}
+		auto itor = _datasMap.find(data->getId());
+		if (itor != _datasMap.end() && itor->second == data)
+			_datasMap.erase(itor);
+
+		_landDatas.popFront();
+
+		ECHO_TRACE("land data[%s %s %d]...", data->getTableName(), data->getKeyName(), data->getOpt());
+
+		DEL data;
 	}
 }
 
+template<typename TYPE>
+void DataLand::landDataToDB(LandData* data, TYPE keyVal){
+	SLASSERT(data->getKeyType() == TYPE_INTEGER || data->getKeyType() == TYPE_STRING, "wtf");
+	switch (data->getOpt()){
+	case DB_OPT::DB_OPT_UPDATE:{
+		std::set<int32>& updateCols = data->getUpdateCols();
+		_cacheDB->readByIndex(data->getTableName(), [&](sl::api::IKernel* pKernel, ICacheDBReader* reader){
+			auto& addFunc = [&reader,&data](int32 col){
+				reader->readColumn(CacheDB::getInstance()->getColumnByIdx(data->getTableName(), col));
+			};
+			std::for_each(updateCols.begin(), updateCols.end(), addFunc);
+									   
+		}, [&](sl::api::IKernel* pKernel, ICacheDBReadResult* result){
+			if (result->count() > 0){
+				updateToDB(data, updateCols, result);
+			}
+		}, keyVal);
+		break;
+	}
+
+	case DB_OPT::DB_OPT_SAVE:{
+		std::set<int32>& updateCols = data->getUpdateCols();
+		_cacheDB->read(data->getTableName(), [&](sl::api::IKernel* pKernel, ICacheDBReader* reader){
+			auto& addFunc = [&reader, &data](int32 col){
+				reader->readColumn(CacheDB::getInstance()->getColumnByIdx(data->getTableName(), col));
+			};
+			std::for_each(updateCols.begin(), updateCols.end(), addFunc);
+
+		}, [&](sl::api::IKernel* pKernel, ICacheDBReadResult* result){
+			if (result->count() > 0){
+				saveToDB(data, updateCols, result);
+			}
+		}, 1, keyVal);
+		break;
+								
+	}
+
+	case DB_OPT::DB_OPT_DELETE:{
+		delToDB(data);
+		break;
+	}
+
+	default: SLASSERT(false, "unkown opt type !"); break;
+	}
+}
+
+void DataLand::updateToDB(LandData* data, std::set<int32>& cols, ICacheDBReadResult* result){
+	IDBCall* callor = CREATE_DB_CALL(_db, data->getTick(), 0);
+	callor->update(data->getTableName(), [&](sl::api::IKernel* pKernel, IDBUpdateParamAdder* adder, IDBCallCondition* condition){
+		int32 idx = 0;
+		auto& readFunc = [&idx, &result, &data, &adder](int32 col){
+			const char* colStr = CacheDB::getInstance()->getColumnByIdx(data->getTableName(), col);
+			int8 colType = CacheDB::getInstance()->getColumnType(data->getTableName(), colStr);
+			switch (colType){
+			case CacheDB::CDB_TYPE_INT8: adder->AddColumn(colStr, result->getInt8(0, idx)); break;
+			case CacheDB::CDB_TYPE_INT16: adder->AddColumn(colStr, result->getInt16(0, idx)); break;
+			case CacheDB::CDB_TYPE_INT32: adder->AddColumn(colStr, result->getInt32(0, idx)); break;
+			case CacheDB::CDB_TYPE_INT64: adder->AddColumn(colStr, result->getInt64(0, idx)); break;
+			case CacheDB::CDB_TYPE_STRING: adder->AddColumn(colStr, result->getString(0, idx)); break;
+			case CacheDB::CDB_TYPE_FLOAT: adder->AddColumn(colStr, result->getFloat(0, idx)); break;
+			case CacheDB::CDB_TYPE_STRUCT: { int32 size = 0; const void* val = result->getBinary(0, idx, size); adder->AddColumn(colStr, val, size); break; }
+			case CacheDB::CDB_TYPE_BLOB: { int32 size = 0; const void* val = result->getBinary(0, idx, size); adder->AddColumn(colStr, val, size); break; }
+			default: SLASSERT(false, "wtf"); break;
+			};
+			++idx;
+		};
+
+		std::for_each(cols.begin(), cols.end(), readFunc);
+
+		if (data->getKeyType() == TYPE_INTEGER)
+			condition->AddCondition(data->getKeyName(), IDBCallCondition::DBOP_EQ, data->getKeyIntVal());
+		else if (data->getKeyType() == TYPE_STRING)
+			condition->AddCondition(data->getKeyName(), IDBCallCondition::DBOP_EQ, data->getKeyStrVal());
+		else {
+			SLASSERT(false, "wtf");
+		}
+	}, nullptr);
+
+	if (data->getKeyType() == TYPE_INTEGER){
+		ECHO_TRACE("land data update[%s %s %lld] success", data->getTableName(), data->getKeyName(), data->getKeyIntVal());
+	}
+	
+	if (data->getKeyType() == TYPE_STRING){
+		ECHO_TRACE("land data update[%s %s %s] success", data->getTableName(), data->getKeyName(), data->getKeyStrVal());
+	}
+}
+
+void DataLand::saveToDB(LandData* data, std::set<int32>& cols, ICacheDBReadResult* result){
+	IDBCall* callor = CREATE_DB_CALL(_db, data->getTick(), 0);
+	callor->save(data->getTableName(), [&](sl::api::IKernel* pKernel, IDBSaveParamAdder* adder){
+		int32 idx = 0;
+		auto& readFunc = [&idx, &result, &data, &adder](int32 col){
+			const char* colStr = CacheDB::getInstance()->getColumnByIdx(data->getTableName(), col);
+			int8 colType = CacheDB::getInstance()->getColumnType(data->getTableName(), colStr);
+			switch (colType){
+			case CacheDB::CDB_TYPE_INT8: adder->AddColumn(colStr, result->getInt8(0, idx)); break;
+			case CacheDB::CDB_TYPE_INT16: adder->AddColumn(colStr, result->getInt16(0, idx)); break;
+			case CacheDB::CDB_TYPE_INT32: adder->AddColumn(colStr, result->getInt32(0, idx)); break;
+			case CacheDB::CDB_TYPE_INT64: adder->AddColumn(colStr, result->getInt64(0, idx)); break;
+			case CacheDB::CDB_TYPE_STRING: adder->AddColumn(colStr, result->getString(0, idx)); break;
+			case CacheDB::CDB_TYPE_FLOAT: adder->AddColumn(colStr, result->getFloat(0, idx)); break;
+			case CacheDB::CDB_TYPE_STRUCT: { int32 size = 0; const void* val = result->getBinary(0, idx, size); adder->AddColumn(colStr, val, size); break; }
+			case CacheDB::CDB_TYPE_BLOB: { int32 size = 0; const void* val = result->getBinary(0, idx, size); adder->AddColumn(colStr, val, size); break; }
+			default: SLASSERT(false, "wtf"); break;
+			};
+			++idx;
+		};
+
+		std::for_each(cols.begin(), cols.end(), readFunc);
+
+		if (data->getKeyType() == TYPE_INTEGER)
+			adder->AddColumn(data->getKeyName(), data->getKeyIntVal());
+		else if (data->getKeyType() == TYPE_STRING)
+			adder->AddColumn(data->getKeyName(), data->getKeyStrVal());
+		else {
+			SLASSERT(false, "wtf");
+		}
+	}, nullptr);
+
+	if (data->getKeyType() == TYPE_INTEGER){
+		ECHO_TRACE("land data save[%s %s %lld] success", data->getTableName(), data->getKeyName(), data->getKeyIntVal());
+	}
+
+	if (data->getKeyType() == TYPE_STRING){
+		ECHO_TRACE("land data save[%s %s %s] success", data->getTableName(), data->getKeyName(), data->getKeyStrVal());
+	}
+}
+
+void DataLand::delToDB(LandData* data){
+	IDBCall* callor = CREATE_DB_CALL(_db, data->getTick(), 0);
+	callor->del(data->getTableName(), [&](sl::api::IKernel* pKernel, IDBCallCondition* condition){
+		if (data->getKeyType() == TYPE_INTEGER)
+			condition->AddCondition(data->getKeyName(), IDBCallCondition::DBOP_EQ, data->getKeyIntVal());
+		else if (data->getKeyType() == TYPE_STRING)
+			condition->AddCondition(data->getKeyName(), IDBCallCondition::DBOP_EQ, data->getKeyStrVal());
+		else {
+			SLASSERT(false, "wtf");
+		}
+	}, nullptr);
+
+	if (data->getKeyType() == TYPE_INTEGER){
+		ECHO_TRACE("land data delete[%s %s %lld] success", data->getTableName(), data->getKeyName(), data->getKeyIntVal());
+	}
+
+	if (data->getKeyType() == TYPE_STRING){
+		ECHO_TRACE("land data delete[%s %s %s] success", data->getTableName(), data->getKeyName(), data->getKeyStrVal());
+	}
+}
 
 

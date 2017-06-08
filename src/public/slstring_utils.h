@@ -122,10 +122,10 @@ public:
 		return atoi(pStr);
 	}
 
-	static const char* Int32AsString(int32 val){
+	static string Int32AsString(int32 val){
 		char str[128] ={0};
 		SafeSprintf(str, 127, "%d", val);
-		return string(str).c_str();
+		return str;
 	}
 
 	static float StringAsFloat(const char* pstr){
@@ -133,10 +133,10 @@ public:
 		return (float)atof(pstr);
 	}
 
-	static const char* FloatAsString(float val){
+	static string FloatAsString(float val){
 		char str[128] ={0};
 		SafeSprintf(str, 127, "%f", val);
-		return string(str).c_str();
+		return str;
 	}
 
 	static int64 StringAsInt64(const char* pstr){
@@ -144,10 +144,10 @@ public:
 		return atoll(pstr);
 	}
 
-	static const char* Int64AsString(int64 val){
+	static string Int64AsString(int64 val){
 		char str[128] ={0};
 		SafeSprintf(str, 127, "%lld", val);
-		return string(str).c_str();
+		return str;
 	}
 
 	static int16 StringAsInt16(const char* pStr){
@@ -155,10 +155,10 @@ public:
 		return (int16)StringAsInt32(pStr);
 	}
 
-	static const char* Int16AsString(int16 val){
+	static string Int16AsString(int16 val){
 		char str[128] = { 0 };
 		SafeSprintf(str, 127, "%d", val);
-		return string(str).c_str();
+		return str;
 	}
 
 	static int8 StringAsInt8(const char* pStr){
@@ -166,10 +166,10 @@ public:
 		return (int8)StringAsInt32(pStr);
 	}
 
-	static const char* Int8AsString(int16 val){
+	static string Int8AsString(int16 val){
 		char str[128] = { 0 };
 		SafeSprintf(str, 127, "%d", val);
-		return string(str).c_str();
+		return str;
 	}
 
 	static bool StringAsBoolean(const char* pStr){

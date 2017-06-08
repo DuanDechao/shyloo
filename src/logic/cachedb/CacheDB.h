@@ -6,6 +6,7 @@
 
 class IRedis;
 class CacheDB : public ICacheDB, public sl::SLHolder<CacheDB>{
+public:
 	enum{
 		CDB_TYPE_NONE = 0,
 		CDB_TYPE_INT8,
@@ -20,7 +21,6 @@ class CacheDB : public ICacheDB, public sl::SLHolder<CacheDB>{
 		CDB_TYPE_BLOB
 	};
 
-public:
 	struct CacheTableKey{
 		int8 type;
 		std::string name;
@@ -28,6 +28,7 @@ public:
 	struct CacheTable{
 		std::string name;
 		std::unordered_map<std::string, int8> columns;
+		std::vector<std::string> columnsVec;
 		std::string key;
 		CacheTableKey index;
 		bool del;
@@ -48,6 +49,10 @@ public:
 	virtual bool del(const char* table, int32 count, ...);
 	virtual bool delByIndex(const char* table, const int64 index);
 	virtual bool delByIndex(const char* table, const char* index);
+
+	int8 getColumnType(const char* table, const char* column);
+	int32 getColumnIdx(const char* table, const char* column);
+	const char* getColumnByIdx(const char* table, const int32 idx);
 
 	void test();
 
