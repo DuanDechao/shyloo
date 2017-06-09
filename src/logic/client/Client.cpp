@@ -45,7 +45,7 @@ int64 Client::onOpen(ClientSession* pSession){
 	_clientSessions[ret] = pSession;
 	
 	if (_listener)
-		_listener->onAgentOpen(_kernel, ret);
+		_listener->onServerConnected(_kernel, ret);
 
 	return ret;
 }
@@ -55,7 +55,7 @@ int32 Client::onRecv(int64 id, const char* pContext, const int32 size){
 	if (_listener == nullptr)
 		return 0;
 
-	return _listener->onAgentRecv(_kernel, id, pContext, size);
+	return _listener->onServerMsg(_kernel, id, pContext, size);
 }
 
 void Client::onClose(int64 id){
@@ -63,7 +63,7 @@ void Client::onClose(int64 id){
 	_clientSessions.erase(id);
 	
 	if (_listener)
-		_listener->onAgentClose(_kernel, id);
+		_listener->onServerDisConnected(_kernel, id);
 }
 
 void Client::setListener(IClientListener* pListener){

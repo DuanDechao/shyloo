@@ -50,7 +50,7 @@ bool Robot::destory(sl::api::IKernel * pKernel){
 	return true;
 }
 
-void Robot::onAgentOpen(sl::api::IKernel* pKernel, const int64 id){
+void Robot::onServerConnected(sl::api::IKernel* pKernel, const int64 id){
 	if (!_robot.canLogin)
 		return;
 
@@ -59,14 +59,14 @@ void Robot::onAgentOpen(sl::api::IKernel* pKernel, const int64 id){
 	sendToSvr(pKernel, id, ClientMsgID::CLIENT_MSG_LOGIN_REQ, args.out());
 }
 
-void Robot::onAgentClose(sl::api::IKernel* pKernel, const int64 id){
+void Robot::onServerDisConnected(sl::api::IKernel* pKernel, const int64 id){
 	_robot.canLogin = false;
 	_robot.clientId = 0;
 	_robot.name = "";
 	_robot.ticket = 0;
 }
 
-int32 Robot::onAgentRecv(sl::api::IKernel* pKernel, const int64 id, const void* context, const int32 size){
+int32 Robot::onServerMsg(sl::api::IKernel* pKernel, const int64 id, const void* context, const int32 size){
 	if (size < sizeof(int32)* 2){
 		return 0;
 	}

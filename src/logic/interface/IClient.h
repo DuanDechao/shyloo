@@ -6,9 +6,9 @@ class IClientListener{
 public:
 	virtual ~IClientListener(){}
 
-	virtual void onAgentOpen(sl::api::IKernel* pKernel, const int64 id) = 0;
-	virtual void onAgentClose(sl::api::IKernel* pKernel, const int64 id) = 0;
-	virtual int32 onAgentRecv(sl::api::IKernel* pKernel, const int64 id, const void* context, const int32 size) = 0;
+	virtual void onServerConnected(sl::api::IKernel* pKernel, const int64 id) = 0;
+	virtual void onServerDisConnected(sl::api::IKernel* pKernel, const int64 id) = 0;
+	virtual int32 onServerMsg(sl::api::IKernel* pKernel, const int64 id, const void* context, const int32 size) = 0;
 };
 
 class IClient : public sl::api::IModule{

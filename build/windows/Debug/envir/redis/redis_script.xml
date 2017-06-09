@@ -134,4 +134,8 @@
 		end
 		return 1
 	</script>
+	<script name="db_rank_insert">
+		redis.call('hset', KEYS[1], KEYS[3], ARGV[1])
+		return redis.call('zadd', KEYS[2], ARGV[2], KEYS[3])
+	</script>
 </config>

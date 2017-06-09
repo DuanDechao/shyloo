@@ -21,6 +21,9 @@ bool DataLand::launched(sl::api::IKernel * pKernel){
 }
 
 bool DataLand::destory(sl::api::IKernel * pKernel){
+
+	//TODO 销毁或关服时待落地数据处理
+
 	DEL this;
 	return true;
 }
@@ -109,8 +112,6 @@ void DataLand::onTime(sl::api::IKernel* pKernel, int64 timetick){
 			_datasMap.erase(itor);
 
 		_landDatas.popFront();
-
-		
 
 		DEL data;
 	}

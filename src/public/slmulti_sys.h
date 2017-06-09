@@ -66,6 +66,9 @@ extern "C"
 
 #define NEW new
 #define DEL delete
+#define MALLOC malloc
+#define FREE free
+
 #define TRACEMEM
 
 #define SLASSERT(p, format, ...)

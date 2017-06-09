@@ -24,6 +24,8 @@ public:
 	virtual bool exec(const int64 id, const char* command, const OArgs& args, const std::function<bool(sl::api::IKernel *, const sl::db::ISLRedisResult *)>& f = nullptr);
 	virtual bool call(const int64 id, const char* proc, const int32 keyCount, const OArgs& args, const std::function<bool(sl::api::IKernel *, const sl::db::ISLRedisResult *)>& f = nullptr);
 
+	virtual bool rankInsert(const char* map, const char* sort, const int64 id, const int64 score, const void* context, const int32 size);
+
 	void test();
 
 private:

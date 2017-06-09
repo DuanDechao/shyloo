@@ -23,9 +23,9 @@ public:
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
 
-	virtual void onAgentOpen(sl::api::IKernel* pKernel, const int64 id);
-	virtual int32 onAgentRecv(sl::api::IKernel* pKernel, const int64 id, const void* context, const int32 size);
-	virtual void onAgentClose(sl::api::IKernel* pKernel, const int64 id);
+	virtual void onServerConnected(sl::api::IKernel* pKernel, const int64 id);
+	virtual int32 onServerMsg(sl::api::IKernel* pKernel, const int64 id, const void* context, const int32 size);
+	virtual void onServerDisConnected(sl::api::IKernel* pKernel, const int64 id);
 
 	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick);

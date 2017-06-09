@@ -95,6 +95,15 @@ bool Redis::call(const int64 id, const char* proc, const int32 keyCount, const O
 	return ret;
 }
 
+bool Redis::rankInsert(const char* map, const char* sort, const int64 id, const int64 score, const void* context, const int32 size){
+	IArgs<5, 1024> args;
+	args << map << sort << id;
+	args.addStruct(context, size);
+	args << score;
+	args.fix();
+	return call(0, "db_rank_insert", 3, args.out());
+}
+
 bool Redis::loadScript(sl::api::IKernel* pKernel, const int64 id, const char* proc){
 	Context& ctx = _redisContexts[(uint64)id % (uint64)_redisContexts.size()];
 	auto itor = _scripts.find(proc);
