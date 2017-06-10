@@ -4,4 +4,6 @@
 	<module name="Slave" />
 	<module name="Cluster" />
 	<module name="Capacity" />
+	<module name="Monitor" />
+	<module name="EventEngine" />
 </modules>

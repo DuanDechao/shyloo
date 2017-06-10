@@ -29,6 +29,7 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IOCCommand.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IRelation.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IClient.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IMonitor.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/DBType.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/SQLBase.h"
 )
@@ -40,6 +41,7 @@ SET(SL_LOGIC_DEFINE
 	"${PROJECT_SOURCE_DIR}/src/logic/define/Attr.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/define/DBDef.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/define/EventID.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/define/MonitorProtocol.h"
 ) 
 
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/harbor)

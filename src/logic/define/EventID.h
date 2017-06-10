@@ -4,7 +4,12 @@
 class IObject;
 namespace logic_event{
 	enum{
-		EVENT_LOGIC_PLAYER_RECONNECT = 1,
+		EVENT_PRE_SHUTDOWN = 1,
+		EVENT_SHUTDOWN_NOTIFY,
+		EVENT_SHUTDOWN_CLOSE,
+		EVENT_SHUTDOWN_COMPLETE,
+
+		EVENT_LOGIC_PLAYER_RECONNECT = 1000,
 		EVENT_LOGIC_PLAYER_ONLINE,
 		EVENT_LOGIC_PLAYER_FIRST_ONLINE,
 		EVENT_LOGIC_PLAYER_LOST,
@@ -25,11 +30,11 @@ namespace logic_event{
 		EVENT_LOGIC_SEE_SOMEONE,
 		EVENT_LOGIC_MISS_SOMEONE,
 
-		EVENT_SCENE_ENTER_SCENE = 1000,
+		EVENT_SCENE_ENTER_SCENE = 2000,
 		EVENT_SCENE_APPEAR_SCENE,
 		EVENT_SCENE_LEAVE_SCENE,
 
-		EVENT_DB_UPDATE_FINISHED = 2000,
+		EVENT_DB_UPDATE_FINISHED = 3000,
 	};
 	
 	struct Biology{
@@ -66,5 +71,11 @@ namespace logic_event{
 		int64 interester;
 		int32 type;
 	};
+
+	struct ShutDownStepInfo{
+		int8 step;
+	};
+
+	struct PreShutDown{};
 }
 #endif

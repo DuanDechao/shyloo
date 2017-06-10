@@ -46,6 +46,7 @@ public:
 	virtual void syncLog(int32 filter, const char* log, const char* file, const int32 line);
 	virtual void asyncLog(int32 filter, const char* log, const char* file, const int32 line);
 
+	virtual void shutdown();
 	void loop();
 
 public:

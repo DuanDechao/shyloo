@@ -147,6 +147,10 @@ void Kernel::asyncLog(int32 filter, const char* log, const char* file, const int
 	LogEngine::getInstance()->logAsync(filter, log, file, line);
 }
 
+void Kernel::shutdown(){
+	m_bShutDown = true;
+}
+
 
 void Kernel::parse(int argc, char** argv){
 	for (int32 i = 1; i < argc; i++){

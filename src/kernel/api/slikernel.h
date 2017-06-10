@@ -140,6 +140,8 @@ public:
 	virtual void syncLog(int32 filter, const char* log, const char* file, const int32 line) = 0;
 	virtual void asyncLog(int32 filter, const char* log, const char* file, const int32 line) = 0;
 
+	virtual void shutdown() = 0;
+
 };
 }
 }

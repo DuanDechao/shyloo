@@ -25,4 +25,8 @@ enum logFilter{
 	EDebug = 0x10,
 	ETrace = 0x20,
 };
+
+enum shutdownStep{
+	SHUTDOWN_LOGIC_NOTIFY = 0,
+};
 #endif

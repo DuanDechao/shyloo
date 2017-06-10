@@ -4,6 +4,7 @@
 #ifdef SL_OS_WINDOWS
 #include <shlwapi.h>
 #endif // SL_OS_WINDOWS
+#include <random>
 
 namespace sl
 {
@@ -31,6 +32,14 @@ inline int32 CalcStringUniqueId(const char * str) {
 		hash = hash * seed + (*str++);
 	}
 	return hash;
+}
+
+inline int32 getRandom(int32 side1, int32 side2){
+	static std::random_device dev;
+	static std::default_random_engine eng(dev());
+	if (side1 > side2)
+		std::swap(side1, side2);
+	return std::uniform_int_distribution<int32>(side1, side2)(eng);
 }
 
 }

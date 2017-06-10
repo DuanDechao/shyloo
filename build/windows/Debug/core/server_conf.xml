@@ -4,6 +4,7 @@
 	<envir path="./envir" />
 	<agent send="1024" recv="1024" />
 	<client send="1024" recv="1024"/>
+	<monitor send="1024" recv="1024"/>
 	<harbor send="1048576" recv="1048576">
 		<node type="-3" name="slave" hidden="true"/>
 		<node type="-2" name="master" />
@@ -31,6 +32,36 @@
 		<node name="balance" type="9" min="1" max="1" delay="15000" cmd=" --name=balance --harbor=$port$ --agent=$balance_port$ --node_id=$id$" />
 		<node name="robot" type="10" min="3" max="3" delay="20000" cmd=" --name=robot --harbor=$port$ --node_id=$id$" />
 	</starter>
+	<shutdown>
+		<step close="false" desc="notify random one logic">
+			<node type="2" select="random" />
+		</step>
+		<step close="true" desc="close all gates">
+			<node type="1" select="all" />
+		</step>
+		<step close="true" desc="close scene relation account scenemgr balance robot">
+			<node type="3" select="all" />
+			<node type="4" select="all" />
+			<node type="5" select="all" />
+			<node type="6" select="all" />
+			<node type="9" select="all" />
+		</step>
+		<step close="false" desc="notify all logics">
+			<node type="2" select="all" />
+		</step>
+		<step close="true" desc="close all logics">
+			<node type="2" select="all" />
+		</step>
+		<step close="false" desc="notify all db">
+			<node type="8" select="all" />
+		</step>
+		<step close="true" desc="close all db">
+			<node type="8" select="all" />
+		</step>
+		<step close="true" desc="close all slave">
+			<node type="-3" select="all" />
+		</step>
+	</shutdown>
 	<master ip="127.0.0.1" port="7700" />
 	<id multiProc="true" server="-2" area="1" poolSize="1000" />
 	<db host="127.0.0.1" port="3306" user="root" pwd="" db="shyloo" charset="utf8" />
