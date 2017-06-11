@@ -38,6 +38,8 @@ public:
 	void onGateUnBindPlayerOnLogic(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 	void onTransforMsgToLogic(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args);
 
+	void onShutdownNotify(sl::api::IKernel* pKernel, const void* context, const int32 size);
+
 protected:
 	virtual void rgsProtocolHandler(int32 messageId, IProtocolHandler* handler, const char* debug);
 

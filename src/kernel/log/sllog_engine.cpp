@@ -21,11 +21,12 @@ bool LogEngine::initialize(){
 	_asyncLogFile.SetFormatByStr(ConfigEngine::getInstance()->getCoreConfig()->logFormat.c_str());
 	_lastAsyncWriteTick = 0;
 
+	_thread = std::thread(&LogEngine::threadRun, this);
+
 	return true;
 }
 
 bool LogEngine::ready(){
-	_thread = std::thread(&LogEngine::threadRun, this);
 	return true;
 }
 
@@ -76,7 +77,7 @@ int64 LogEngine::loop(int64 overTime){
 }
 
 void LogEngine::threadRun(){
-	while (true){
+	while (!_terminate){
 		if (_lastAsyncWriteTick == 0 || sl::getTimeMilliSecond() - _lastAsyncWriteTick >= TIME_OUT_FOR_CUT_FILE){
 			string syncFileName = ConfigEngine::getInstance()->getCoreConfig()->logFile + "_" + sl::getCurrentTimeStr("%4d_%02d_%02d_%02d_%02d_%02d_async.log");
 			_asyncLogFile.Init(sl::ENamed, ConfigEngine::getInstance()->getCoreConfig()->logPath.c_str(), syncFileName.c_str());

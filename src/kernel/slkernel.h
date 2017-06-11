@@ -47,6 +47,7 @@ public:
 	virtual void asyncLog(int32 filter, const char* log, const char* file, const int32 line);
 
 	virtual void shutdown();
+	virtual bool isShutdown() { return m_bShutDown; }
 	void loop();
 
 public:

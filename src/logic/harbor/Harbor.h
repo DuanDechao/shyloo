@@ -61,6 +61,8 @@ public:
 	virtual void rgsNodeMessageHandler(int32 messageId, const NodeCB& handler);
 	virtual void startListening(sl::api::IKernel* pKernel);
 
+	virtual const char* getNodeName(int32 nodeType){ return _nodeNames[nodeType].c_str(); }
+
 private:
 	sl::api::IKernel*	_pKernel;
 	NodeSessionServer*	_pServer;

@@ -11,6 +11,7 @@ sl::api::ITcpSession* ClientSessionPool::mallocTcpSession(sl::api::IKernel* pKer
 bool Client::initialize(sl::api::IKernel * pKernel){
 	_kernel = pKernel;
 	_clientNextId = 0;
+	_listener = nullptr;
 	return true;
 }
 

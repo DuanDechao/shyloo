@@ -14,6 +14,8 @@ bool MonitorClient::launched(sl::api::IKernel * pKernel){
 	const char* svrIp = pKernel->getCmdArg("server_ip");
 	const int32 svrPort = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("server_port"));
 
+	_client->setListener(this);
+
 	_client->connect(svrIp, svrPort);
 
 	RSG_MONITOR_FUNC(this, MONITOR_FUNC_SVR_SHUTDOWN, MonitorClient::shutDownServer);
@@ -39,7 +41,7 @@ void MonitorClient::rgsSvrMessageHandler(int32 messageId, const MONITOR_CB& hand
 void MonitorClient::onServerConnected(sl::api::IKernel* pKernel, const int64 id){
 	_clientId = id;
 	int32 funcId = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("func"));
-	_monitorFunc[funcId](pKernel);
+	shutDownServer(pKernel);
 }
 
 void MonitorClient::onServerDisConnected(sl::api::IKernel* pKernel, const int64 id){

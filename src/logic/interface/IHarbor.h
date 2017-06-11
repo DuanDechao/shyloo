@@ -32,6 +32,7 @@ public:
 	virtual void connect(const char* ip, const int32 port) = 0;
 	virtual int32 getNodeType() const = 0;
 	virtual int32 getNodeId() const = 0;
+	virtual const char* getNodeName(int32 nodeType) = 0;
 };
 
 #define RGS_NODE_HANDLER(harbor, messageId, handler) harbor->rgsNodeMessageHandler(messageId, std::bind(&handler, this, std::placeholders::_1, std::placeholders::_2,  std::placeholders::_3, std::placeholders::_4))

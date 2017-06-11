@@ -1,4 +1,6 @@
 #include "Monitor.h"
+#include "IHarbor.h"
+#include "NodeDefine.h"
 
 class MonitorCBMessageHandler : public IMonitorMessageHandler{
 public:
@@ -31,6 +33,12 @@ bool Monitor::initialize(sl::api::IKernel * pKernel){
 }
 
 bool Monitor::launched(sl::api::IKernel * pKernel){
+	FIND_MODULE(_harbor, Harbor);
+	if (_harbor->getNodeType() == NodeType::MASTER){
+		FIND_MODULE(_agent, Agent);
+		_agent->setListener(this);
+	}
+	
 	return true;
 }
 

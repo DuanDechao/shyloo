@@ -72,7 +72,7 @@ namespace logic_event{
 		int32 type;
 	};
 
-	struct ShutDownStepInfo{
+	struct ShutDown{
 		int8 step;
 	};
 

@@ -8,6 +8,7 @@
 #include "ProtocolID.pb.h"
 #include "Protocol.pb.h"
 #include "ICapacity.h"
+#include "GameDefine.h"
 
 bool Logic::initialize(sl::api::IKernel * pKernel){
 	_self = this;
@@ -24,6 +25,8 @@ bool Logic::launched(sl::api::IKernel * pKernel){
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::GATE_MSG_BIND_PLAYER_REQ, Logic::onGateBindPlayerOnLogic);
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::GATE_MSG_UNBIND_PLAYER_REQ, Logic::onGateUnBindPlayerOnLogic);
 	RGS_NODE_HANDLER(_harbor, NodeProtocol::GATE_MSG_TRANSMIT_MSG_TO_LOGIC, Logic::onTransforMsgToLogic);
+
+	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_SHUTDOWN_NOTIFY, Logic::onShutdownNotify);
 
 	return true;
 }
@@ -113,4 +116,10 @@ void Logic::sendSceneMgrBindNotify(sl::api::IKernel* pKernel, int64 accountId, i
 	notify << actorId;
 	notify.fix();
 	_harbor->send(NodeType::SCENEMGR, 1, NodeProtocol::LOGIC_MSG_NOTIFY_ADD_PLAYER, notify.out());
+}
+
+void Logic::onShutdownNotify(sl::api::IKernel* pKernel, const void* context, const int32 size){
+	SLASSERT(size == sizeof(logic_event::ShutDown), "wtf");
+	logic_event::ShutDown* evt = (logic_event::ShutDown*)context;
+	_eventEngine->execEvent(logic_event::EVENT_SHUTDOWN_COMPLETE, evt, size);
 }

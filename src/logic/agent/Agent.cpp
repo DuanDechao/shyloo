@@ -32,8 +32,13 @@ bool Agent::launched(sl::api::IKernel * pKernel){
 
 	if (!pKernel->startTcpServer(_agentServer, "0.0.0.0", agentPort, agentSendSize, agentRecvSize)){
 		SLASSERT(false, "wtf");
+		TRACE_LOG("start agent server[%s:%d] success", "0.0.0.0", agentPort);
 		return false;
 	}
+	else{
+		TRACE_LOG("start agent server[%s:%d] success", "0.0.0.0", agentPort);
+	}
+	
 	return true;
 }
 

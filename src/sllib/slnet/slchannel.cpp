@@ -172,14 +172,14 @@ void Channel::setEndPoint(const EndPoint* pEndPoint)
 	m_lastReceivedTime = getTimeMilliSecond();
 }
 
-void Channel::destroy()
+void Channel::destroy(bool notify)
 {
 	if(isDestroyed())
 	{
 		return;
 	}
 
-	if (nullptr != m_pSession)
+	if (nullptr != m_pSession && notify)
 	{
 		m_pSession->onTerminate();
 	}

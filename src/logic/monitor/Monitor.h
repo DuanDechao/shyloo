@@ -13,6 +13,7 @@ public:
 };
 
 class IAgent;
+class IHarbor;
 class Monitor : public IMonitor, public IAgentListener, public sl::SLHolder<Monitor>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
@@ -29,5 +30,6 @@ public:
 private:
 	std::unordered_map<int32, IMonitorMessageHandler*> _monitorProtos;
 	IAgent*		_agent;
+	IHarbor*	_harbor;
 };
 #endif

@@ -13,25 +13,28 @@
 bool ShutDown::initialize(sl::api::IKernel * pKernel){
 	_currStep = -1;
 	_shutdowning = false;
+	
+	if (!loadShutdownConfig(pKernel)){
+		SLASSERT(false, "wtf");
+		return false;
+	}
+
 	return true;
 }
 
 bool ShutDown::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
+	FIND_MODULE(_eventEngine, EventEngine);
 	if (_harbor->getNodeType() == NodeType::MASTER){
 		FIND_MODULE(_monitor, Monitor);
 
 		_harbor->addNodeListener(this);
 
 		RGS_MONITOR_ARGS_HANDLER(_monitor, MonitorProtocol::CLIENT_SHUTDOWN_SERVER_REQ, ShutDown::shutdownServerReq);
-
 		RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::CLUSTER_MSG_SHUTDOWN_ACK, ShutDown::onClusterShutdownAck);
 	}
 	else{
-		FIND_MODULE(_eventEngine, EventEngine);
-
 		RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::MASTER_MSG_ASK_SHUTDOWN, ShutDown::onMasterAskShutdown);
-		
 		RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_SHUTDOWN_COMPLETE, ShutDown::onClusterShutdownComplete);
 	}
 
@@ -62,6 +65,8 @@ bool ShutDown::loadShutdownConfig(sl::api::IKernel* pKernel){
 		}
 		_allSteps.push_back(info);
 	}
+
+	return true;
 }
 
 void ShutDown::onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* ip, const int32 port){
@@ -72,9 +77,10 @@ void ShutDown::onClose(sl::api::IKernel* pKernel, const int32 nodeType, const in
 	_allNodes[nodeType].erase(nodeId);
 
 	if (_shutdowning){
-		SLASSERT(_currStep < (int32)_allSteps.size(), "wtf");
-		if (_allSteps[_currStep].optType = OptType::CLOSE){
+		SLASSERT(_currStep < (int32)_allSteps.size() && _currStep >= 0, "wtf");
+		if (_allSteps[_currStep].optType == OptType::CLOSE){
 			_currOptNodes[nodeType].erase(nodeId);
+			ECHO_TRACE("node[%s %d] has shutdown", _harbor->getNodeName(nodeType), nodeId);
 			checkNextStep(pKernel);
 		}
 	}
@@ -100,7 +106,7 @@ void ShutDown::startNewStep(sl::api::IKernel* pKernel){
 
 		for (auto node : _allSteps[_currStep].nodes){
 			if (node.selectType == SelectType::RANDOM){
-				int32 idx = sl::getRandom(0, _allNodes[node.nodeType].size() - 1);
+				int32 idx = sl::getRandom(0, (int32)_allNodes[node.nodeType].size() - 1);
 				for (auto nodeId : _allNodes[node.nodeType]){
 					if (idx == 0){
 						_currOptNodes[node.nodeType].insert(nodeId);
@@ -143,23 +149,24 @@ void ShutDown::sendNewStep(sl::api::IKernel* pKernel){
 	auto nodeItor = _currOptNodes.begin();
 	for (; nodeItor != _currOptNodes.end(); ++nodeItor){
 		for (auto nodeId : nodeItor->second){
+			ECHO_ERROR("asking [%s %d] shutdowning", _harbor->getNodeName(nodeItor->first), nodeId);
 			_harbor->send(nodeItor->first, nodeId, NodeProtocol::MASTER_MSG_ASK_SHUTDOWN, args.out());
-		}
+		} 
 	}
 }
-
 
 void ShutDown::onMasterAskShutdown(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
 	int8 _currShutdownStep = args.getInt8(0);
 	int8 _optType = args.getInt8(1);
 
-	logic_event::ShutDownStepInfo info{ _optType };
+	logic_event::ShutDown info{ _optType };
 	if (_optType == OptType::NOTIFY){
 		_eventEngine->execEvent(logic_event::EVENT_SHUTDOWN_NOTIFY, &info, sizeof(info));
 	}
 	else if (_optType == OptType::CLOSE){
 		_eventEngine->execEvent(logic_event::EVENT_SHUTDOWN_CLOSE, &info, sizeof(info));
 		pKernel->shutdown();
+		ECHO_ERROR("shutdowning......");
 	}
 	else{
 		SLASSERT(false, "unknown opt Type");
@@ -171,7 +178,7 @@ void ShutDown::onClusterShutdownAck(sl::api::IKernel* pKernel, const int32 nodeT
 	if (_shutdowning){
 		SLASSERT(stepIdx == _currStep, "wtf");
 		if (stepIdx == _currStep){
-			if (_allSteps[_currStep].optType = OptType::NOTIFY){
+			if (_allSteps[_currStep].optType == OptType::NOTIFY){
 				_currOptNodes[nodeType].erase(nodeId);
 				checkNextStep(pKernel);
 			}
@@ -180,8 +187,8 @@ void ShutDown::onClusterShutdownAck(sl::api::IKernel* pKernel, const int32 nodeT
 }
 
 void ShutDown::onClusterShutdownComplete(sl::api::IKernel* pKernel, const void* context, const int32 size){
-	SLASSERT(size == sizeof(logic_event::ShutDownStepInfo), "wtf");
-	logic_event::ShutDownStepInfo* info = (logic_event::ShutDownStepInfo*)context;
+	SLASSERT(size == sizeof(logic_event::ShutDown), "wtf");
+	logic_event::ShutDown* info = (logic_event::ShutDown*)context;
 	
 	IArgs<1, 32> args;
 	args << info->step;

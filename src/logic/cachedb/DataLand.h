@@ -97,6 +97,7 @@ class OArgs;
 class IDB;
 class ICacheDB;
 class ICacheDBReadResult;
+class IEventEngine;
 class DataLand : public sl::api::IModule, public sl::api::ITimer, public sl::SLHolder<DataLand>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
@@ -111,6 +112,8 @@ public:
 	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick) {}
 	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick) {}
 
+	void onShutdownNotify(sl::api::IKernel* pKernel, const void* context, const int32 size);
+
 private:
 	template<typename TYPE> 
 	void appendLandDataList(const char* table, const char* key, TYPE keyVal, int8 opt, std::set<int32>& cols);
@@ -122,11 +125,14 @@ private:
 	void saveToDB(LandData* data, std::set<int32>& cols, ICacheDBReadResult* result);
 	void delToDB(LandData* data);
 
+	void landAllData(sl::api::IKernel* pKernel);
+
 private:
 	sl::api::IKernel*		_kernel;
 	DataLand*				_self;
 	IDB*					_db;
 	ICacheDB*				_cacheDB;
+	IEventEngine*			_eventEngine;
 
 	sl::SLList				_landDatas;
 	std::unordered_map<int32, sl::ISLListNode*> _datasMap;

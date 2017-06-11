@@ -4,6 +4,9 @@
 #include "IDB.h"
 #include "SQLBase.h"
 #include "CacheDB.h"
+#include "IEventEngine.h"
+#include "EventID.h"
+#include "GameDefine.h"
 
 #define LAND_DATA_DELAY_TIME (1 * MINUTE)
 #define LAND_DATA_PRE_MAX_NUM 1000
@@ -16,14 +19,15 @@ bool DataLand::initialize(sl::api::IKernel * pKernel){
 bool DataLand::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_db, DB);
 	FIND_MODULE(_cacheDB, CacheDB);
+	FIND_MODULE(_eventEngine, EventEngine);
+
+	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_SHUTDOWN_NOTIFY, DataLand::onShutdownNotify);
+
 	START_TIMER(_self, 0, TIMER_BEAT_FOREVER, 30 * SECOND);
 	return true;
 }
 
 bool DataLand::destory(sl::api::IKernel * pKernel){
-
-	//TODO 销毁或关服时待落地数据处理
-
 	DEL this;
 	return true;
 }
@@ -264,6 +268,39 @@ void DataLand::delToDB(LandData* data){
 	if (data->getKeyType() == TYPE_STRING){
 		ECHO_TRACE("land data delete[%s %s %s] success", data->getTableName(), data->getKeyName(), data->getKeyStrVal());
 	}
+}
+
+void DataLand::onShutdownNotify(sl::api::IKernel* pKernel, const void* context, const int32 size){
+	SLASSERT(size == sizeof(logic_event::ShutDown), "wtf");
+	logic_event::ShutDown* evt = (logic_event::ShutDown*)context;
+	if (evt->step == ShutdownStep::SHUTDOWN_DB_NOTIFY){
+		landAllData(pKernel);
+		_eventEngine->execEvent(logic_event::EVENT_SHUTDOWN_COMPLETE, evt, size);
+	}
+}
+
+void DataLand::landAllData(sl::api::IKernel* pKernel){
+	while (!_landDatas.isEmpty()){
+		LandData* data = (LandData*)_landDatas.popFront();
+
+		ECHO_TRACE("land data[%s %s %d]...", data->getTableName(), data->getKeyName(), data->getOpt());
+
+		if (data->getKeyType() == TYPE_INTEGER)
+			landDataToDB(data, data->getKeyIntVal());
+		else if (data->getKeyType() == TYPE_STRING)
+			landDataToDB(data, data->getKeyStrVal());
+		else{
+			SLASSERT(false, "unknown Type");
+		}
+
+		auto itor = _datasMap.find(data->getId());
+		if (itor != _datasMap.end() && itor->second == data)
+			_datasMap.erase(itor);
+
+		DEL data;
+	}
+
+	SLASSERT(_datasMap.empty() && _landDatas.isEmpty(), "wtf");
 }
 
 

@@ -65,7 +65,7 @@ public:
 
 	virtual void SLAPI onEstablish(void) = 0;
 
-	virtual void SLAPI onTerminate(void) = 0;
+	virtual void SLAPI onTerminate() = 0;
 
 	virtual void SLAPI release(void) = 0;
 

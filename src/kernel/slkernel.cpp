@@ -47,12 +47,13 @@ bool Kernel::initialize(int32 argc, char ** argv){
 }
 
 bool Kernel::destory(){
-	ConfigEngine::getInstance()->destory();
-	TimerEngine::getInstance()->destory();
-	NetEngine::getInstance()->destory();
-	AsyncEngine::getInstance()->destory();
-	LogicEngine::getInstance()->destory();
 	LogEngine::getInstance()->destory();
+	AsyncEngine::getInstance()->destory();
+	NetEngine::getInstance()->destory();
+	TimerEngine::getInstance()->destory();
+	ConfigEngine::getInstance()->destory();
+	LogicEngine::getInstance()->destory();
+
 	DEL this;
 	return true;
 }

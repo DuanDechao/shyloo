@@ -8,4 +8,5 @@
 	<module name="EventEngine" />
 	<module name="Starter" />
 	<module name="IdMgr" />
+	<module name="Agent" />
 </modules>

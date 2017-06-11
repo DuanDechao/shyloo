@@ -94,7 +94,7 @@ public:
 	inline void setPacketSender(PacketSender* pPacketSender);
 	inline PacketReceiver* getPacketReceiver() const;
 	void processPackets();
-	void destroy();
+	void destroy(bool notify = true);
 
 	void addReceiveWindow(Packet* pPacket);
 	void onPacketReceived(int bytes);
