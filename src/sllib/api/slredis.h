@@ -32,7 +32,7 @@ public:
 	virtual bool SLAPI isActive() = 0;
 	virtual const char* SLAPI getIp() = 0;
 	virtual int32 SLAPI getPort() = 0;
-	virtual bool SLAPI exec(char* command, const std::function<bool(ISLRedisResult* result)>& f) = 0;
+	virtual bool SLAPI exec(char* command, const int32 size, const std::function<bool(ISLRedisResult* result)>& f) = 0;
 };
 
 class ISLRedisMgr{

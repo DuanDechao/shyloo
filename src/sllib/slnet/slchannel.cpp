@@ -336,16 +336,14 @@ void Channel::send(Bundle* pBundle /* = NULL */)
 
 	if(!sending())
 	{
-		if(m_pPacketSender == NULL)
-		{
+		if(m_pPacketSender == NULL){
 			m_pPacketSender = CREATE_POOL_OBJECT(TCPPacketSender, m_pEndPoint, m_pNetworkInterface);
 		}
 
 		m_pPacketSender->processSend(this);
 
 		//如果不能立即發送到系統緩衝區，那麼交給poller處理
-		if(m_bundles.size() > 0 && !isCondemn() && !isDestroyed())
-		{
+		if(m_bundles.size() > 0 && !isCondemn() && !isDestroyed()){
 			m_flags |= FLAG_SENDING;
 			m_pNetworkInterface->getDispatcher().registerWriteFileDescriptor((int32)(*m_pEndPoint), m_pPacketSender);
 		}

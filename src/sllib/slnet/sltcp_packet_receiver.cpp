@@ -34,7 +34,6 @@ bool TCPPacketReceiver::processRecv(bool expectingPacket)
 
 		if(rstate == PacketReceiver::RECV_STATE_INTERRUPT)
 		{
-			
 			onGetError(pChannel);
 			return false;
 		}

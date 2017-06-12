@@ -159,7 +159,7 @@ void ShutDown::onMasterAskShutdown(sl::api::IKernel* pKernel, const int32 nodeTy
 	int8 _currShutdownStep = args.getInt8(0);
 	int8 _optType = args.getInt8(1);
 
-	logic_event::ShutDown info{ _optType };
+	logic_event::ShutDown info{ _currShutdownStep };
 	if (_optType == OptType::NOTIFY){
 		_eventEngine->execEvent(logic_event::EVENT_SHUTDOWN_NOTIFY, &info, sizeof(info));
 	}

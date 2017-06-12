@@ -40,20 +40,15 @@ int ListenerReceiver::handleInputNotification(int fd)
 		if(pNewEndPoint == NULL){
 			break;
 		}
-		else
-		{
-			pNewEndPoint->setnonblocking(true);
-			pNewEndPoint->setnodelay(true);
+		else{
 			Channel* pChannel = CREATE_POOL_OBJECT(Channel, m_networkInterface, pNewEndPoint, m_pPacketParser);
-			if (!pChannel)
-			{
+			if (!pChannel){
 				pChannel->destroy();
 				RELEASE_POOL_OBJECT(Channel, pChannel);
 				return 0;
 			}
 
-			if(!m_networkInterface->registerChannel(pChannel))
-			{
+			if(!m_networkInterface->registerChannel(pChannel)){
 				pChannel->destroy();
 				RELEASE_POOL_OBJECT(Channel, pChannel);
 			}
@@ -66,8 +61,7 @@ int ListenerReceiver::handleInputNotification(int fd)
 			}
 
 			ISLSession* poSession = m_pSessionFactory->createSession(pChannel);
-			if(NULL == poSession)
-			{
+			if(NULL == poSession){
 				ECHO_ERROR("create session failed");
 				pChannel->destroy();
 				RELEASE_POOL_OBJECT(Channel, pChannel);

@@ -300,12 +300,13 @@ inline int32 EndPoint::connect(uint16 networkport, uint32 networkAddr /* = INADD
 	sin.sin_port  = networkport;
 	sin.sin_addr.s_addr = networkAddr;
 
-	int32 ret = ::connect(m_socket, (sockaddr*)&sin, sizeof(sin));
-	if(autosetflags)
-	{
+	if (autosetflags){
 		setnonblocking(true);
 		setnodelay(true);
 	}
+
+	int32 ret = ::connect(m_socket, (sockaddr*)&sin, sizeof(sin));
+	
 	return ret;
 }
 

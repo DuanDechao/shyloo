@@ -47,12 +47,12 @@ bool Kernel::initialize(int32 argc, char ** argv){
 }
 
 bool Kernel::destory(){
-	LogEngine::getInstance()->destory();
-	AsyncEngine::getInstance()->destory();
-	NetEngine::getInstance()->destory();
-	TimerEngine::getInstance()->destory();
 	ConfigEngine::getInstance()->destory();
+	TimerEngine::getInstance()->destory();
+	NetEngine::getInstance()->destory();
+	AsyncEngine::getInstance()->destory();
 	LogicEngine::getInstance()->destory();
+	LogEngine::getInstance()->destory();
 
 	DEL this;
 	return true;
@@ -73,7 +73,7 @@ void Kernel::loop() {
 			netTick > ConfigEngine::getInstance()->getCoreConfig()->sNetlooptick ||
 			timerTick > ConfigEngine::getInstance()->getCoreConfig()->sTimerlooptick ||
 			asyncTick > ConfigEngine::getInstance()->getCoreConfig()->sAsynclooptick){
-			//ECHO_ERROR("Loop use %d(%d, %d)", useTick, netTick, timerTick);
+			ECHO_ERROR("Loop use %d(%d, %d, %d)", useTick, netTick, asyncTick, timerTick);
 		}
 		else{
 			Sleep(1);
@@ -116,8 +116,8 @@ api::IModule* Kernel::findModule(const char * name){
 	return LogicEngine::getInstance()->findModule(name);
 }
 
-bool Kernel::startTimer(api::ITimer* timer, int64 delay, int32 count, int64 interval){
-	return TimerEngine::getInstance()->startTimer(timer, delay, count, interval);
+bool Kernel::startTimer(api::ITimer* timer, int64 delay, int32 count, int64 interval, const char* file, const int32 line){
+	return TimerEngine::getInstance()->startTimer(timer, delay, count, interval, file, line);
 }
 
 bool Kernel::killTimer(api::ITimer* timer){

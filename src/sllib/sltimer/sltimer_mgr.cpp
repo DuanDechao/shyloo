@@ -53,7 +53,7 @@ SLTimerMgr::~SLTimerMgr(){
 }
 
 
-SLTimerHandler SLTimerMgr::startTimer(ISLTimer* pTimer, int64 delay, int32 count, int64 interval){
+SLTimerHandler SLTimerMgr::startTimer(ISLTimer* pTimer, int64 delay, int32 count, int64 interval, const char* debug){
 	if (interval != 0 && interval < JIFFIES_INTERVAL)
 		interval = JIFFIES_INTERVAL;
 
@@ -62,6 +62,8 @@ SLTimerHandler SLTimerMgr::startTimer(ISLTimer* pTimer, int64 delay, int32 count
 
 	CSLTimerBase* pMgrTimerObj = CSLTimerBase::create(pTimer, (jiffies_t)(getJiffies() + delay / JIFFIES_INTERVAL), count, (jiffies_t)(interval / JIFFIES_INTERVAL));
 	SLASSERT(pMgrTimerObj && pMgrTimerObj->good(), "create timerbase failed");
+
+	pMgrTimerObj->setDebug(debug);
 	
 	pMgrTimerObj->onInit();
 

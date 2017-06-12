@@ -5,6 +5,7 @@
 #include "IHarbor.h"
 #include "slsingleton.h"
 #include <unordered_map>
+
 class StartNodeTimer;
 class Starter : public sl::api::IModule, public INodeListener, public sl::SLHolder<Starter>{
 public:
@@ -39,6 +40,7 @@ public:
 
 private:
 	void startNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId);
+	
 
 private:
 	Starter*				_self;

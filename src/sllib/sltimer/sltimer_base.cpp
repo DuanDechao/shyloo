@@ -48,7 +48,7 @@ CSLTimerBase::TimerState CSLTimerBase::pollTimer(){
 		return TimerState::TIME_RECREATE;
 	}
 	else{
-		if(m_iCount != 0)
+		if (m_iCount != 0)
 			onTimer();
 
 		if (m_stat == TimerState::TIME_DESTORY)

@@ -146,8 +146,8 @@ void PlayerMgr::onSavePlayerTime(sl::api::IKernel* pKernel, IObject* object, int
 }
 
 bool PlayerMgr::savePlayer(sl::api::IKernel* pKernel, IObject* player){
-	bool ret = _cacheDB->writeByIndex("actor", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
-		context->writeInt64("id", player->getID());
+	bool ret = _cacheDB->write("actor", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
+		//context->writeInt64("id", player->getID());
 		context->writeString("name", player->getPropString(attr_def::name));
 		context->writeInt8("occupation", player->getPropInt8(attr_def::occupation));
 		context->writeInt8("sex", player->getPropInt8(attr_def::sex));
@@ -175,7 +175,7 @@ bool PlayerMgr::savePlayer(sl::api::IKernel* pKernel, IObject* player){
 		}
 		props.fix();
 		context->writeBlob("props", props.getContext(), props.getSize());
-	}, player->getPropInt64(attr_def::account));
+	}, 1, player->getID());
 
 	return ret;
 }
@@ -227,7 +227,7 @@ void PlayerMgr::recoverObject(sl::api::IKernel* pKernel, const int64 id){
 }
 
 bool PlayerMgr::onClientTestReq(sl::api::IKernel* pKernel, IObject* object, const sl::OBStream& args){
-	object->setPropString(attr_def::name, "ddc");
+	//object->setPropString(attr_def::name, "ddc");
 	_propDelaySender->syncChangedProps(object);
 	return true;
 }

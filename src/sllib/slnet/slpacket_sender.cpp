@@ -46,16 +46,19 @@ int PacketSender::handleOutputNotification(int fd)
 		int error = -1, slen = sizeof(int);
 		getsockopt((int32)*m_pEndPoint, SOL_SOCKET, SO_ERROR, (char*)&error, (socklen_t *)&slen);
 		if (error == 0){
+			if (activeChannel->bundles().empty()){
+				m_pNetworkInterface->getDispatcher().deregisterWriteFileDescriptor((int32)*m_pEndPoint);
+			}
 			ISLSession* poSession = activeChannel->getSession();
 			poSession->onEstablish();
 			activeChannel->setConnected();
-			m_pNetworkInterface->getDispatcher().deregisterWriteFileDescriptor((int32)*m_pEndPoint);
+			
 		}
 		else{
+			SLASSERT(false, "wtf");
 			activeChannel->destroy();
 			return -2;
 		}
-		
 		return 0;
 	}
 

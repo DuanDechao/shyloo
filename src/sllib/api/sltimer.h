@@ -21,7 +21,7 @@ typedef void* SLTimerHandler;
 
 class ISLTimerMgr{
 public:
-	virtual SLTimerHandler SLAPI startTimer(ISLTimer* pTimer, int64 delay, int32 count, int64 interval) = 0;
+	virtual SLTimerHandler SLAPI startTimer(ISLTimer* pTimer, int64 delay, int32 count, int64 interval, const char* debug) = 0;
 	virtual bool SLAPI killTimer(SLTimerHandler pTimer) = 0;
 	virtual void SLAPI pauseTimer(SLTimerHandler pTimer) = 0;
 	virtual void SLAPI resumeTimer(SLTimerHandler pTimer) = 0;

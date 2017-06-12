@@ -85,7 +85,6 @@ bool Harbor::destory(sl::api::IKernel * pKernel){
 }
 
 void Harbor::onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* ip, int32 nodePort, NodeSession* session){
-
 	_allNode[nodeType].insert(std::make_pair(nodeId, session));
 	for (auto& listener : _listenerPool){
 		listener->onOpen(pKernel, nodeType, nodeId, ip, nodePort);
@@ -155,7 +154,8 @@ void Harbor::startListening(sl::api::IKernel* pKernel){
 void Harbor::send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& args){
 	auto itor = _allNode.find(nodeType);
 	if (itor == _allNode.end()){
-		//SLASSERT(false, "wtf");
+		ECHO_ERROR("send data but can't find node[%s]", getNodeName(nodeType));
+		SLASSERT(false, "wtf");
 		return;
 	}
 	auto itor1 = itor->second.find(nodeId);

@@ -52,6 +52,8 @@ public:
 		return CREATE_FROM_POOL(s_pool, pTimer, delay, count, interval);
 	}
 
+	inline void setDebug(const char* debug) { SafeSprintf(m_debug, sizeof(m_debug), debug, strlen(debug) + 1); }
+
 	inline void release() {s_pool.recover(this); }
 
 private:
@@ -67,6 +69,7 @@ private:
 	int32			m_iCount;
 	jiffies_t		m_interval;
 	int32			m_recursion;
+	char			m_debug[128];
 	static sl::SLPool<CSLTimerBase> s_pool;
 };
 

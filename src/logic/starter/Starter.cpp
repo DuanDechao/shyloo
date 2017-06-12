@@ -39,6 +39,7 @@ bool Starter::launched(sl::api::IKernel * pKernel){
 		SLASSERT(info.timer, "wtf");
 		START_TIMER(info.timer, info.delay, TIMER_BEAT_FOREVER, _checkInterval);
 	}
+
 	return true;
 }
 

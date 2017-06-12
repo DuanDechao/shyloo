@@ -6,6 +6,7 @@
 #include "slxml_reader.h"
 #include "slargs.h"
 #include "sltime.h"
+#include "NodeDefine.h"
 
 #define SEQUENCE_MASK 0x001F
 #define TIMETICK_MASK 0x0001FFFFFFFFFFFF
@@ -37,10 +38,13 @@ bool IdMgr::initialize(sl::api::IKernel * pKernel){
 bool IdMgr::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
 	if (_bIsMultiProcess){
-		RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::ASK_FOR_ALLOC_ID_AREA, IdMgr::askIds);
-		RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::GIVE_ID_AREA, IdMgr::giveIds);
-		
-		START_TIMER(_self, 1000, TIMER_BEAT_FOREVER, ASK_TIME_INTERVAL);
+		if (_harbor->getNodeType() == NodeType::MASTER){
+			RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::ASK_FOR_ALLOC_ID_AREA, IdMgr::askIds);
+		}
+		else{
+			RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::GIVE_ID_AREA, IdMgr::giveIds);
+			START_TIMER(_self, 1000, TIMER_BEAT_FOREVER, ASK_TIME_INTERVAL);
+		}
 	}
 	return true;
 }

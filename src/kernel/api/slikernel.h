@@ -79,9 +79,9 @@ public:
 	virtual void setITimerBase(ITimerBase* pITimerBase){
 		m_pITimerBase = pITimerBase;
 	}
+
 private:
 	ITimerBase* m_pITimerBase;
-
 };
 
 class IAsyncBase {
@@ -118,7 +118,7 @@ public:
 	virtual const char* getInternetIp() = 0;
 
 	//timer interface
-	virtual bool startTimer(api::ITimer* timer, int64 delay, int32 count, int64 interval) = 0;
+	virtual bool startTimer(api::ITimer* timer, int64 delay, int32 count, int64 interval, const char* file, const int32 line) = 0;
 	virtual bool killTimer(api::ITimer* timer) = 0;
 	virtual void pauseTimer(api::ITimer* timer) = 0;
 	virtual void resumeTimer(api::ITimer* timer) = 0;
@@ -148,7 +148,7 @@ public:
 }
 
 #define START_TIMER(timer, delay, count, interval){		\
-	pKernel->startTimer(timer, delay, count, interval);	\
+	pKernel->startTimer(timer, delay, count, interval, __FILE__, __LINE__);	\
 }
 
 #define FIND_MODULE(m, name) {\

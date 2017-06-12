@@ -20,7 +20,7 @@ class SLTimerMgr : public ISLTimerMgr, public CSingleton<SLTimerMgr>{
 	};
 
 public:
-	virtual SLTimerHandler SLAPI startTimer(ISLTimer* pTimer, int64 delay, int32 count, int64 interval);
+	virtual SLTimerHandler SLAPI startTimer(ISLTimer* pTimer, int64 delay, int32 count, int64 interval, const char* debug);
 	virtual bool SLAPI killTimer(SLTimerHandler pTimer);
 	virtual void SLAPI pauseTimer(SLTimerHandler pTimer);
 	virtual void SLAPI resumeTimer(SLTimerHandler pTimer);

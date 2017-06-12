@@ -226,8 +226,7 @@ bool NetworkInterface::registerChannel(Channel* pChannel)
 	ChannelMap::iterator iter = m_channelMap.find(addr);
 	Channel* pExisting = iter != m_channelMap.end() ? iter->second : NULL;
 
-	if(pExisting)
-	{
+	if(pExisting){
 		return false;
 	}
 	m_channelMap[addr] = pChannel;

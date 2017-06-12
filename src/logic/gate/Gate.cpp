@@ -112,7 +112,7 @@ bool Gate::launched(sl::api::IKernel * pKernel){
 
 
 	if (_isQueneOn)
-		START_TIMER(_self, 0, TIMER_BEAT_FOREVER, REPORT_LOAD_INTERVAL);
+		START_TIMER(_self, 20000, TIMER_BEAT_FOREVER, REPORT_LOAD_INTERVAL);
 	
 	test();
 	return true;

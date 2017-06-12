@@ -59,7 +59,7 @@ bool Redis::exec(const int64 id, const char* command, const OArgs& args, const s
 	append(buf, args);
 
 	bool ret = true;
-	ret = redisConn->exec(buf._data, [&](sl::db::ISLRedisResult* result){
+	ret = redisConn->exec(buf._data, buf._size, [&](sl::db::ISLRedisResult* result){
 		if (f){
 			return f(_kernel, result);
 		}
@@ -87,7 +87,7 @@ bool Redis::call(const int64 id, const char* proc, const int32 keyCount, const O
 
 	Context& ctx = _redisContexts[(uint64)id % (uint64)_redisContexts.size()];
 	bool ret = true;
-	ret = ctx._conn->exec(buf._data, [&](sl::db::ISLRedisResult* result){
+	ret = ctx._conn->exec(buf._data, buf._size, [&](sl::db::ISLRedisResult* result){
 		if (f)
 			return f(_kernel, result);
 		return true;
@@ -188,8 +188,11 @@ void Redis::append(CommandBuf& buf, const void* val, const int32 size){
 
 	sl::SafeMemcpy(buf._data + buf._size, sizeof(buf._data) - buf._size, val, size);
 	buf._size += size;
-	SafeSprintf(buf._data + buf._size, sizeof(buf._data) - buf._size, "\r\n");
-	buf._size += (int32)strlen(buf._data + buf._size);
+	buf._data[buf._size] = '\r';
+	buf._data[buf._size + 1] = '\n';
+	buf._size += 2;
+	/*SafeSprintf(buf._data + buf._size, sizeof(buf._data) - buf._size, "\r\n");
+	buf._size += (int32)strlen(buf._data + buf._size);*/
 }
 
 void Redis::test(){

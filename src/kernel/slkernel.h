@@ -26,7 +26,7 @@ public:
 	virtual const char* getInternetIp();
 
 	//timer interface
-	virtual bool startTimer(api::ITimer* timer, int64 delay, int32 count, int64 interval);
+	virtual bool startTimer(api::ITimer* timer, int64 delay, int32 count, int64 interval, const char* file, const int32 line);
 	virtual bool killTimer(api::ITimer* timer);
 	virtual void pauseTimer(api::ITimer* timer);
 	virtual void resumeTimer(api::ITimer* timer);

@@ -53,6 +53,7 @@ IRow* TableControl::addRow(){
 	SLASSERT(_pTableColumn->getKeyType() == DTYPE_CANT_BE_KEY, "wtf");
 	if (_pTableColumn->getKeyType() == DTYPE_CANT_BE_KEY){
 		TableRow* row = NEW TableRow(this, _pTableColumn);
+		row->setRowIndex((int32)_tableRows.size());
 		_tableRows.push_back(row);
 		return row;
 	}
@@ -65,6 +66,7 @@ IRow* TableControl::addRowKey(const int8 type, const void * data, const int32 si
 		TableRow* row = NEW TableRow(this, _pTableColumn);
 		_keyToColIdx.insert(make_pair(key, (int32)_tableRows.size()));
 		row->setData(_pTableColumn->getKeyColumn(), type, data, size, false);
+		row->setRowIndex((int32)_tableRows.size());
 		_tableRows.push_back(row);
 		return row;
 	}
@@ -77,6 +79,7 @@ IRow* TableControl::addRowKeyString(const char* key){
 		TableRow* row = NEW TableRow(this, _pTableColumn);
 		_strToColIdx.insert(make_pair(key, (int32)_tableRows.size()));
 		row->setData(_pTableColumn->getKeyColumn(), DTYPE_STRING, key, (int32)strlen(key) + 1, false);
+		row->setRowIndex((int32)_tableRows.size());
 		_tableRows.push_back(row);
 		return row;
 	}

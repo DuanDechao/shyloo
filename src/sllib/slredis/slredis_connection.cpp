@@ -68,14 +68,19 @@ bool SLRedisConnection::ping(){
 	return reconnect();
 }
 
-bool SLRedisConnection::exec(char* command, const std::function<bool(ISLRedisResult* result)>& f){
+bool SLRedisConnection::exec(char* command, const int32 size, const std::function<bool(ISLRedisResult* result)>& f){
 	if (!ping()){
 		SLASSERT(false, "connect redis failed");
 		return false;
 	}
 
 	redisReply * reply = NULL;
-	__redisAppendCommand(_ctx, command, strlen(command));
+	__redisAppendCommand(_ctx, command, size);
+	
+	struct timeval tv = { 0, 1000 };
+	int32 setRet = redisSetTimeout(_ctx, tv);
+	SLASSERT(setRet == REDIS_OK, "wtf");
+
 	redisGetReply(_ctx, (void**)&reply);
 	if (NULL == reply) {
 		return false;
