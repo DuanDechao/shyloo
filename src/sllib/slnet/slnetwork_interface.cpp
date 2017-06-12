@@ -29,7 +29,7 @@ NetworkInterface::~NetworkInterface()
 		ChannelMap::iterator olditer = iter++;
 		Channel* pChannel = olditer->second;
 		pChannel->destroy(false);
-		delete pChannel;
+		DEL pChannel;
 	}
 
 	m_channelMap.clear();

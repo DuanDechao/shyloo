@@ -32,8 +32,7 @@ bool TCPPacketReceiver::processRecv(bool expectingPacket)
 
 		PacketReceiver::RecvState rstate = this->checkSocketErrors(len, expectingPacket);
 
-		if(rstate == PacketReceiver::RECV_STATE_INTERRUPT)
-		{
+		if(rstate == PacketReceiver::RECV_STATE_INTERRUPT){
 			onGetError(pChannel);
 			return false;
 		}

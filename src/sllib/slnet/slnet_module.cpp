@@ -25,16 +25,16 @@ CSLNetModule::CSLNetModule()
 }
 
 CSLNetModule::~CSLNetModule(){
-	int32 size = m_listenerVec.size();
-	for (int32 i = 0; i < size; i++){
-		if (m_listenerVec[i])
-			DEL m_listenerVec[i];
-	}
-
-	size = m_connectorVec.size();
+	int32 size = m_connectorVec.size();
 	for (int32 i = 0; i < size; i++){
 		if (m_connectorVec[i])
-			DEL m_connectorVec[i];
+			m_connectorVec[i]->release();
+	}
+
+	size = m_listenerVec.size();
+	for (int32 i = 0; i < size; i++){
+		if (m_listenerVec[i])
+			m_listenerVec[i]->release();
 	}
 
 	if (nullptr != m_networkInterface)

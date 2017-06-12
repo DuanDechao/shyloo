@@ -35,6 +35,8 @@ bool DBCreator::launched(sl::api::IKernel * pKernel){
 		FIND_MODULE(s_mysqlMgr, MysqlMgr);
 
 		updateDBTables();
+
+		RGS_EVENT_HANDLER(s_eventEngine, logic_event::EVENT_SHUTDOWN_NOTIFY, DBCreator::onShutdownNotify);
 	}
 	else{
 		RGS_NODE_ARGS_HANDLER(s_harbor, NodeProtocol::DB_MSG_UPDATE_DATABASE_FINISHED, DBCreator::onDatabaseUpdateFinished);
@@ -871,4 +873,10 @@ void DBCreator::broadcastDBUpdateFinished(){
 void DBCreator::onDatabaseUpdateFinished(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
 	logic_event::DBUpdateFinished info;
 	s_eventEngine->execEvent(logic_event::EVENT_DB_UPDATE_FINISHED, &info, sizeof(info));
+}
+
+void DBCreator::onShutdownNotify(sl::api::IKernel* pKernel, const void* context, const int32 size){
+	SLASSERT(size == sizeof(logic_event::ShutDown), "wtf");
+	logic_event::ShutDown* evt = (logic_event::ShutDown*)context;
+	s_eventEngine->execEvent(logic_event::EVENT_SHUTDOWN_COMPLETE, evt, size);
 }

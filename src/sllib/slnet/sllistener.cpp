@@ -64,8 +64,7 @@ void CSLListener::setPacketParser(ISLPacketParser* poPacketParser)
 	m_pListenerReceiver->setPacketParser(poPacketParser);
 }
 
-void CSLListener::release()
-{
+void CSLListener::release(){
 	DEL this;
 }
 

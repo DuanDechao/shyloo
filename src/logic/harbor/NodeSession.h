@@ -11,14 +11,20 @@ public:
 		:m_pHarbor(nullptr),
 		m_bReady(false),
 		m_nodeType(0),
-		m_nodeId(0)
+		m_nodeId(0),
+		m_bConnect(false),
+		m_ip(""),
+		m_port(0)
 	{}
 
 	NodeSession(Harbor* harbor)
 		:m_pHarbor(harbor),
 		 m_bReady(false),
 		 m_nodeType(0),
-		 m_nodeId(0)
+		 m_nodeId(0),
+		 m_bConnect(false),
+		 m_ip(""),
+		 m_port(0)
 	{}
 	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick);

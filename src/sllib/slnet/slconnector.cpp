@@ -17,8 +17,7 @@ CSLConnector::CSLConnector()
 	m_pNetworkInterface = CSLNetModule::getSingletonPtr()->getNetworkInterface();
 }
 
-CSLConnector::~CSLConnector()
-{
+CSLConnector::~CSLConnector(){
 	m_pSession = NULL;
 	m_pNetworkInterface = NULL;
 	m_pPacketParser = NULL;
@@ -28,8 +27,7 @@ CSLConnector::~CSLConnector()
 	m_wPort = 0;
 }
 
-void CSLConnector::setSession(ISLSession* pSession)
-{
+void CSLConnector::setSession(ISLSession* pSession){
 	m_pSession = pSession;
 }
 
@@ -58,8 +56,7 @@ bool CSLConnector::reConnect()
 
 	return connect(m_pszIP, m_wPort);
 }
-void CSLConnector::release()
-{
+void CSLConnector::release(){
 	m_dwRecvBufSize = 0;
 	m_dwSendBufSize = 0;
 
@@ -69,7 +66,7 @@ void CSLConnector::release()
 		pSvrChannel->disconnect();
 	}
 
-	delete this;
+	DEL this;
 }
 
 void CSLConnector::setPacketParser(ISLPacketParser* poPacketParser){
