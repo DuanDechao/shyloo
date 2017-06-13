@@ -30,7 +30,7 @@
 		<node name="scenemgr" type="6" min="1" max="1" delay="5000" cmd=" --name=scenemgr --harbor=$port$ --node_id=$id$" />
 		<node name="db" type="8" min="1" max="1" delay="5000" cmd=" --name=db --harbor=$port$ --node_id=$id$" />
 		<node name="balance" type="9" min="1" max="1" delay="15000" cmd=" --name=balance --harbor=$port$ --agent=$balance_port$ --node_id=$id$" />
-		<node name="robot" type="10" min="1" max="1" delay="20000" cmd=" --name=robot --harbor=$port$ --node_id=$id$" />
+		<!-- <node name="robot" type="10" min="1" max="1" delay="20000" cmd=" --name=robot --harbor=$port$ --node_id=$id$" /> -->
 	</starter>
 	<shutdown>
 		<step close="false" desc="notify random one logic">

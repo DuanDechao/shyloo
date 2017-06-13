@@ -259,10 +259,10 @@ bool NetworkInterface::deregisterChannel(Channel* pChannel)
 
 	m_numExtChannels--;
 
-	if(m_channelMap.erase(addr))
-	{
+	if(m_channelMap.erase(addr)){
 		return false;
 	}
+
 	if(m_pChannelDeregisterHandler)
 	{
 		//m_pChannelDeregisterHandler->

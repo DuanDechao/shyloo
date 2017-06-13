@@ -1,6 +1,7 @@
 #include "sltcp_packet_receiver.h"
 #include "slchannel.h"
 #include "sltcp_packet.h"
+#include "slnetwork_interface.h"
 namespace sl
 {
 namespace network
@@ -53,9 +54,9 @@ bool TCPPacketReceiver::processRecv(bool expectingPacket)
 	return true;
 }
 
-void TCPPacketReceiver::onGetError(Channel* pChannel)
-{
+void TCPPacketReceiver::onGetError(Channel* pChannel){
 	pChannel->condemn();
+	pChannel->destroy();
 }
 
 Reason TCPPacketReceiver::processRecievePacket(Channel* pChannel, Packet* pPacket){

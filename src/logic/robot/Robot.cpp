@@ -121,7 +121,7 @@ void Robot::onServerLoginAck(sl::api::IKernel* pKernel, const int64 id, const OB
 	}
 
 	if (roleCount <= 0){
-		static char roleName[3][64] = { "sdgfsyhbhvds", "sdgfgfhhyhyg", "sdggffhyhyfffffff" };
+		static char roleName[3][64] = { "sdrrr", "sdgfrr", "sdggffhyhyfffffff" };
 		int32 nodeId = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("node_id"));
 		IBStream<256> ask;
 		ask << roleName[nodeId-1] << (int8)1 << (int8)1;
