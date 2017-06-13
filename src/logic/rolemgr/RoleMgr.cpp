@@ -64,7 +64,7 @@ IRole* RoleMgr::createRole(int64 accountId, const sl::OBStream& buf){
 		return nullptr;
 	}
 	int64 actorId = _idMgr->allocID();
-	bool ret = _cacheDB->write("actor", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
+	bool ret = _cacheDB->write("actor", true, [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
 		context->writeInt64("account", accountId);
 		context->writeString("name", name);
 		context->writeInt8("occupation", occupation);

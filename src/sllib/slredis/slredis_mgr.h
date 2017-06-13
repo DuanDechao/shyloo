@@ -9,7 +9,7 @@ namespace sl{
 namespace db{
 class SLRedisMgr : public ISLRedisMgr, public CSingleton<SLRedisMgr>{
 public:
-	ISLRedisConnection* SLAPI create(const char* ip, const int32 port, const int32 timeout = CONNECT_TIME_OUT);
+	ISLRedisConnection* SLAPI create(const char* ip, const int32 port, const char* passwd, const int32 timeout);
 	void SLAPI release(void) { DEL this; }
 	void recover(ISLRedisConnection* conn);
 	

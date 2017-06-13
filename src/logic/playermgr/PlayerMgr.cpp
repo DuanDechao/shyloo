@@ -146,7 +146,7 @@ void PlayerMgr::onSavePlayerTime(sl::api::IKernel* pKernel, IObject* object, int
 }
 
 bool PlayerMgr::savePlayer(sl::api::IKernel* pKernel, IObject* player){
-	bool ret = _cacheDB->write("actor", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
+	bool ret = _cacheDB->write("actor", false, [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
 		//context->writeInt64("id", player->getID());
 		context->writeString("name", player->getPropString(attr_def::name));
 		context->writeInt8("occupation", player->getPropInt8(attr_def::occupation));

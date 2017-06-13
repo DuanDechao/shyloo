@@ -234,7 +234,7 @@ bool CacheDB::readByIndex(const char* table, const CacheDBColumnFuncType& cf, co
 	});
 }
 
-bool CacheDB::write(const char* table, const CacheDBWriteFuncType& f, int32 count, ...){
+bool CacheDB::write(const char* table, bool sync, const CacheDBWriteFuncType& f, int32 count, ...){
 	if (count <= 0 || _tables.find(table) == _tables.end()){
 		SLASSERT(false, "not find table %s", table);
 		return false;
@@ -280,12 +280,12 @@ bool CacheDB::write(const char* table, const CacheDBWriteFuncType& f, int32 coun
 			landData << out.getString(i);
 		}
 		landData.fix();
-		DataLand::getInstance()->askLand(table, count, landData.out(), desc.key.c_str(), DB_OPT::DB_OPT_SAVE);
+		DataLand::getInstance()->askLand(table, count, landData.out(), desc.key.c_str(), DB_OPT::DB_OPT_SAVE, sync);
 	}
 	return ret;
 }
 
-bool CacheDB::writeByIndex(const char* table, const CacheDBWriteFuncType& f, const int64 index){
+bool CacheDB::writeByIndex(const char* table, bool sync, const CacheDBWriteFuncType& f, const int64 index){
 	if (_tables.find(table) == _tables.end()){
 		SLASSERT(false, "not find table %s", table);
 		return false;
@@ -315,12 +315,12 @@ bool CacheDB::writeByIndex(const char* table, const CacheDBWriteFuncType& f, con
 			landData << out.getString(i);
 		}
 		landData.fix();
-		DataLand::getInstance()->askLand(table, 1, landData.out(), desc.index.name.c_str(), DB_OPT::DB_OPT_UPDATE);
+		DataLand::getInstance()->askLand(table, 1, landData.out(), desc.index.name.c_str(), DB_OPT::DB_OPT_UPDATE, sync);
 	}
 	return ret;
 }
 
-bool CacheDB::writeByIndex(const char* table, const CacheDBWriteFuncType& f, const char* index){
+bool CacheDB::writeByIndex(const char* table, bool sync, const CacheDBWriteFuncType& f, const char* index){
 	if (_tables.find(table) == _tables.end()){
 		SLASSERT(false, "wtf");
 		return false;
@@ -351,13 +351,13 @@ bool CacheDB::writeByIndex(const char* table, const CacheDBWriteFuncType& f, con
 			landData << out.getString(i);
 		}
 		landData.fix();
-		DataLand::getInstance()->askLand(table, 1, landData.out(), desc.index.name.c_str(), DB_OPT::DB_OPT_UPDATE);
+		DataLand::getInstance()->askLand(table, 1, landData.out(), desc.index.name.c_str(), DB_OPT::DB_OPT_UPDATE, sync);
 	}
 
 	return ret;
 }
 
-bool CacheDB::del(const char* table, int32 count, ...){
+bool CacheDB::del(const char* table, bool sync, int32 count, ...){
 	if (count <= 0 || _tables.find(table) == _tables.end()){
 		SLASSERT(false, "not find table %s", table);
 		return false;
@@ -393,12 +393,12 @@ bool CacheDB::del(const char* table, int32 count, ...){
 
 	if (ret){
 		landData.fix();
-		DataLand::getInstance()->askLand(table, count, landData.out(), desc.key.c_str(), DB_OPT::DB_OPT_DELETE);
+		DataLand::getInstance()->askLand(table, count, landData.out(), desc.key.c_str(), DB_OPT::DB_OPT_DELETE, sync);
 	}
 	return ret;
 }
 
-bool CacheDB::delByIndex(const char* table, const int64 index){
+bool CacheDB::delByIndex(const char* table, bool sync, const int64 index){
 	if (_tables.find(table) == _tables.end()){
 		SLASSERT(false, "not find table %s", table);
 		return false;
@@ -422,12 +422,12 @@ bool CacheDB::delByIndex(const char* table, const int64 index){
 		IArgs<1, 64> landData;
 		landData << index;
 		landData.fix();
-		DataLand::getInstance()->askLand(table, 1, landData.out(), desc.index.name.c_str(), DB_OPT::DB_OPT_DELETE);
+		DataLand::getInstance()->askLand(table, 1, landData.out(), desc.index.name.c_str(), DB_OPT::DB_OPT_DELETE, sync);
 	}
 	return ret;
 }
 
-bool CacheDB::delByIndex(const char* table, const char* index){
+bool CacheDB::delByIndex(const char* table, bool sync, const char* index){
 	if (_tables.find(table) == _tables.end()){
 		SLASSERT(false, "not find table %s", table);
 		return false;
@@ -451,16 +451,16 @@ bool CacheDB::delByIndex(const char* table, const char* index){
 		IArgs<1, 128> landData;
 		landData << index;
 		landData.fix();
-		DataLand::getInstance()->askLand(table, 1, landData.out(), desc.index.name.c_str(), DB_OPT::DB_OPT_DELETE);
+		DataLand::getInstance()->askLand(table, 1, landData.out(), desc.index.name.c_str(), DB_OPT::DB_OPT_DELETE, sync);
 	}
 	return ret;
 }
 
 void CacheDB::test(){
-	write("actor", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
+	/*write("actor", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
 		context->writeInt64("account", 1454565);
 		context->writeString("name", "fyyyy");
-	}, 1, (int64)2345);
+		}, 1, (int64)2345);*/
 
 	/*writeByIndex("actor", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
 		context->writeString("name", "ddc");
@@ -481,5 +481,5 @@ void CacheDB::test(){
 		};*/
 	
 	//readByIndex("actor", cf, rf, 1454565);
-	delByIndex("actor", 1454565);
+	//delByIndex("actor", 1454565);
 }

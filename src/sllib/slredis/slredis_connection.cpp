@@ -3,14 +3,14 @@
 #include "slredis_mgr.h"
 namespace sl{
 namespace db{
-SLRedisConnection::SLRedisConnection(SLRedisMgr* redisMgr, const char* ip, const int32 port, const int32 timeOut)
+SLRedisConnection::SLRedisConnection(SLRedisMgr* redisMgr, const char* ip, const int32 port, const char* passwd, const int32 timeOut)
 	:_redisMgr(redisMgr),
 	_port(port),
 	_ctx(nullptr),
-	_timeOut(timeOut)
-{
-	safeMemcpy(_ip, sizeof(_ip), ip, strlen(ip));
-}
+	_timeOut(timeOut),
+	_ip(ip),
+	_passwd(passwd)
+{}
 
 SLRedisConnection::~SLRedisConnection(){
 	if (_ctx){
@@ -33,7 +33,7 @@ bool SLRedisConnection::reconnect(){
 	timeval tv;
 	tv.tv_sec = 0;
 	tv.tv_usec = _timeOut;
-	_ctx = redisConnectWithTimeout(_ip, _port, tv);
+	_ctx = redisConnectWithTimeout(_ip.c_str(), _port, tv);
 	SLASSERT(_ctx, "wtf");
 	if (!_ctx || _ctx->err){
 		SLASSERT(false, "connect redis [%s:%d] failed", _ip, _port);
@@ -41,6 +41,25 @@ bool SLRedisConnection::reconnect(){
 			redisFree(_ctx);
 		return false;
 	}
+
+	if (_passwd != ""){
+		redisReply *reply = static_cast<redisReply *>(redisCommand(_ctx, "AUTH %s", _passwd.c_str()));
+		if (reply == NULL){
+			SLASSERT(false, "redis auth failed");
+			redisFree(_ctx);
+			return false;
+		}
+			
+		if (REDIS_REPLY_ERROR == reply->type || REDIS_REPLY_NIL == reply->type) {
+			SLASSERT(false, "error:%s", reply->str);
+			freeReplyObject(reply);
+			redisFree(_ctx);
+			return false;
+		}
+
+		freeReplyObject(reply);
+	}
+
 	return true;
 }
 

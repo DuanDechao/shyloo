@@ -5,11 +5,13 @@
 #include "SQLBase.h"
 #include "CacheDB.h"
 #include "IEventEngine.h"
+#include "IHarbor.h"
 #include "EventID.h"
 #include "GameDefine.h"
+#include "NodeDefine.h"
+#include "NodeProtocol.h"
 
-#define LAND_DATA_DELAY_TIME (1 * MINUTE)
-#define LAND_DATA_PRE_MAX_NUM 1000
+#define LAND_DATA_PROC_MAX_NUM 1000
 bool DataLand::initialize(sl::api::IKernel * pKernel){
 	_kernel = pKernel;
 	_self = this;
@@ -17,13 +19,19 @@ bool DataLand::initialize(sl::api::IKernel * pKernel){
 }
 
 bool DataLand::launched(sl::api::IKernel * pKernel){
-	FIND_MODULE(_db, DB);
-	FIND_MODULE(_cacheDB, CacheDB);
-	FIND_MODULE(_eventEngine, EventEngine);
+	FIND_MODULE(_harbor, Harbor);
+	if (_harbor->getNodeType() == NodeType::DATEBASE){
+		FIND_MODULE(_db, DB);
+		FIND_MODULE(_cacheDB, CacheDB);
+		FIND_MODULE(_eventEngine, EventEngine);
 
-	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_SHUTDOWN_NOTIFY, DataLand::onShutdownNotify);
+		RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::CLUSTER_MSG_ASK_DATA_LAND, DataLand::onClusterAskDataLand);
 
-	START_TIMER(_self, 0, TIMER_BEAT_FOREVER, 30 * SECOND);
+		RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_SHUTDOWN_NOTIFY, DataLand::onShutdownNotify);
+
+		START_TIMER(_self, 0, TIMER_BEAT_FOREVER, 20 * SECOND);
+	}
+	
 	return true;
 }
 
@@ -32,60 +40,89 @@ bool DataLand::destory(sl::api::IKernel * pKernel){
 	return true;
 }
 
-void DataLand::askLand(const char* table, const int32 keyCount, const OArgs& data, const char* key, int8 opt){
-	int32 totalCount = data.getCount();
-	SLASSERT(totalCount >= keyCount, "wtf");
+void DataLand::askLand(const char* table, const int32 keyCount, const OArgs& data, const char* key, int8 opt, bool sync){
+	IArgs<50, 2048> args;
+	args << opt << sync << table << key << keyCount << data;
+	args.fix();
+	_harbor->send(NodeType::DATEBASE, 1, NodeProtocol::CLUSTER_MSG_ASK_DATA_LAND, args.out());
+}
+
+void DataLand::onClusterAskDataLand(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
+	int8 opt = args.getInt8(0);
+	bool sync = args.getBool(1);
+	const char* table = args.getString(2);
+	const char* key = args.getString(3);
+	int32 keyCount = args.getInt32(4);
+
+	int32 totalArgsCount = args.getCount();
+	SLASSERT(totalArgsCount >= keyCount, "wtf");
 
 	std::set<int32> updateCols;
-	for (int32 colIdx = keyCount; colIdx < totalCount; colIdx++){
-		updateCols.insert(CacheDB::getInstance()->getColumnIdx(table, data.getString(colIdx)));
+	for (int32 colIdx = keyCount + 5; colIdx < totalArgsCount; colIdx++){
+		updateCols.insert(CacheDB::getInstance()->getColumnIdx(table, args.getString(colIdx)));
 	}
 
-	for (int32 keyIdx = 0; keyIdx < keyCount; keyIdx++){
+	for (int32 keyIdx = 5; keyIdx < keyCount + 5; keyIdx++){
 		int64 keyIntVal = 0;
 		const char* keyStrVal = nullptr;
-		switch (data.getType(keyIdx)){
-		case ARGS_TYPE_INT8: keyIntVal = data.getInt8(keyIdx); break;
-		case ARGS_TYPE_INT16: keyIntVal = data.getInt16(keyIdx); break;
-		case ARGS_TYPE_INT32: keyIntVal = data.getInt32(keyIdx); break;
-		case ARGS_TYPE_INT64: keyIntVal = data.getInt64(keyIdx); break;
-		case ARGS_TYPE_STRING: keyStrVal = data.getString(keyIdx); break;
+		switch (args.getType(keyIdx)){
+		case ARGS_TYPE_INT8: keyIntVal = args.getInt8(keyIdx); break;
+		case ARGS_TYPE_INT16: keyIntVal = args.getInt16(keyIdx); break;
+		case ARGS_TYPE_INT32: keyIntVal = args.getInt32(keyIdx); break;
+		case ARGS_TYPE_INT64: keyIntVal = args.getInt64(keyIdx); break;
+		case ARGS_TYPE_STRING: keyStrVal = args.getString(keyIdx); break;
 		default: SLASSERT(false, "wtf"); break;
 		}
 
 		if (keyStrVal)
-			appendLandDataList(table, key, keyStrVal, opt, updateCols);
+			appendLandDataList(table, key, keyStrVal, opt, updateCols, sync);
 		else
-			appendLandDataList(table, key, keyIntVal, opt, updateCols);
-		
+			appendLandDataList(table, key, keyIntVal, opt, updateCols, sync);
 	}
 }
 
 template<typename TYPE>
-void DataLand::appendLandDataList(const char* table, const char* key, TYPE keyVal, int8 opt, std::set<int32>& cols){
+void DataLand::appendLandDataList(const char* table, const char* key, TYPE keyVal, int8 opt, std::set<int32>& cols, bool sync){
 	int32 id = LandData::calcId(table, key, keyVal);
 	auto itor = _datasMap.find(id);
 	
-	sl::ISLListNode* dataNode = nullptr;
-	if (itor == _datasMap.end() || ((LandData*)itor->second)->getOpt() > opt){
+	LandData* dataNode = nullptr;
+	if (itor == _datasMap.end() || itor->second->getOpt() > opt){
 		dataNode = NEW LandData(table, key, keyVal, opt, sl::getTimeMilliSecond());
-		((LandData*)dataNode)->setUpdateCols(cols);
-		_datasMap[((LandData*)dataNode)->getId()] = dataNode;
+		dataNode->setUpdateCols(cols);
+
+		if (itor == _datasMap.end() && sync){
+			//没有更高等级操作的任务在前面，并且要求同步数据库
+			landDataToDB(dataNode);
+			DEL dataNode;
+		}
+		else{
+			_datasMap[dataNode->getId()] = dataNode;
+			_landDatas.pushBack(dataNode);
+		}
 	}
 	else{
 		dataNode = itor->second;
-		SLASSERT(((LandData*)dataNode)->checkIdInfo(table, key, keyVal), "wtf");
-		
-		_landDatas.remove(dataNode);
+		SLASSERT((dataNode)->checkIdInfo(table, key, keyVal), "wtf");
 
-		std::set<int32>& updateCols = ((LandData*)dataNode)->getUpdateCols();
+		std::set<int32>& updateCols = dataNode->getUpdateCols();
 		std::set<int32> newCols;
 		std::set_union(updateCols.begin(), updateCols.end(), cols.begin(), cols.end(), inserter(newCols, newCols.begin()));
-		((LandData*)dataNode)->setUpdateCols(newCols);
-		((LandData*)dataNode)->setTick(sl::getTimeMilliSecond());
-	}
+		dataNode->setUpdateCols(newCols);
 
-	_landDatas.pushBack(dataNode);
+		if (sync){
+			landDataToDB(dataNode);
+			
+			auto itor = _datasMap.find(dataNode->getId());
+			if (itor != _datasMap.end() && itor->second == dataNode)
+				_datasMap.erase(itor);
+
+			_landDatas.remove(dataNode);
+			
+			DEL dataNode;
+		}
+	}
+	
 	ECHO_TRACE("ask land data[%s %s %d]", table, key, opt);
 }
 
@@ -96,19 +133,11 @@ void DataLand::onTime(sl::api::IKernel* pKernel, int64 timetick){
 	int32 writeCount = 0;
 	while (!_landDatas.isEmpty()){
 		LandData* data = (LandData*)_landDatas.front();
-		if (timetick - data->getTick() < LAND_DATA_DELAY_TIME || writeCount > LAND_DATA_PRE_MAX_NUM)
+		if (writeCount > LAND_DATA_PROC_MAX_NUM)
 			break;
 		
 		ECHO_TRACE("land data[%s %s %d]...", data->getTableName(), data->getKeyName(), data->getOpt());
-
-		if (data->getKeyType() == TYPE_INTEGER)
-			landDataToDB(data, data->getKeyIntVal());
-		else if (data->getKeyType() == TYPE_STRING)
-			landDataToDB(data, data->getKeyStrVal());
-		else{
-			SLASSERT(false, "unknown Type");
-		}
-		
+		landDataToDB(data);
 		writeCount++;
 
 		auto itor = _datasMap.find(data->getId());
@@ -121,41 +150,52 @@ void DataLand::onTime(sl::api::IKernel* pKernel, int64 timetick){
 	}
 }
 
-template<typename TYPE>
-void DataLand::landDataToDB(LandData* data, TYPE keyVal){
+void DataLand::landDataToDB(LandData* data){
 	SLASSERT(data->getKeyType() == TYPE_INTEGER || data->getKeyType() == TYPE_STRING, "wtf");
+	
+	std::set<int32>& updateCols = data->getUpdateCols();
+	auto& readColsFunc = [&](sl::api::IKernel* pKernel, ICacheDBReader* reader){
+		auto& addFunc = [&reader, &data](int32 col){
+			reader->readColumn(CacheDB::getInstance()->getColumnByIdx(data->getTableName(), col));
+		};
+		std::for_each(updateCols.begin(), updateCols.end(), addFunc);
+	};
+	
 	switch (data->getOpt()){
 	case DB_OPT::DB_OPT_UPDATE:{
-		std::set<int32>& updateCols = data->getUpdateCols();
-		_cacheDB->readByIndex(data->getTableName(), [&](sl::api::IKernel* pKernel, ICacheDBReader* reader){
-			auto& addFunc = [&reader,&data](int32 col){
-				reader->readColumn(CacheDB::getInstance()->getColumnByIdx(data->getTableName(), col));
-			};
-			std::for_each(updateCols.begin(), updateCols.end(), addFunc);
-									   
-		}, [&](sl::api::IKernel* pKernel, ICacheDBReadResult* result){
+		auto& readResultFunc = [&](sl::api::IKernel* pKernel, ICacheDBReadResult* result){
 			if (result->count() > 0){
 				updateToDB(data, updateCols, result);
 			}
-		}, keyVal);
+		};
+
+		if (data->getKeyType() == TYPE_INTEGER)
+			_cacheDB->readByIndex(data->getTableName(), readColsFunc, readResultFunc, data->getKeyIntVal());
+		else if (data->getKeyType() == TYPE_STRING)
+			_cacheDB->readByIndex(data->getTableName(), readColsFunc, readResultFunc, data->getKeyStrVal());
+		else{
+			SLASSERT(false, "unknown Type");
+		}
+		
 		break;
 	}
 
 	case DB_OPT::DB_OPT_SAVE:{
-		std::set<int32>& updateCols = data->getUpdateCols();
-		_cacheDB->read(data->getTableName(), [&](sl::api::IKernel* pKernel, ICacheDBReader* reader){
-			auto& addFunc = [&reader, &data](int32 col){
-				reader->readColumn(CacheDB::getInstance()->getColumnByIdx(data->getTableName(), col));
-			};
-			std::for_each(updateCols.begin(), updateCols.end(), addFunc);
-
-		}, [&](sl::api::IKernel* pKernel, ICacheDBReadResult* result){
+		auto& saveResultFunc = [&](sl::api::IKernel* pKernel, ICacheDBReadResult* result){
 			if (result->count() > 0){
 				saveToDB(data, updateCols, result);
 			}
-		}, 1, keyVal);
+		};
+
+		if (data->getKeyType() == TYPE_INTEGER)
+			_cacheDB->read(data->getTableName(), readColsFunc, saveResultFunc, 1, data->getKeyIntVal());
+		else if (data->getKeyType() == TYPE_STRING)
+			_cacheDB->read(data->getTableName(), readColsFunc, saveResultFunc, 1, data->getKeyStrVal());
+		else{
+			SLASSERT(false, "unknown Type");
+		}
+
 		break;
-								
 	}
 
 	case DB_OPT::DB_OPT_DELETE:{
@@ -285,13 +325,7 @@ void DataLand::landAllData(sl::api::IKernel* pKernel){
 
 		ECHO_TRACE("land data[%s %s %d]...", data->getTableName(), data->getKeyName(), data->getOpt());
 
-		if (data->getKeyType() == TYPE_INTEGER)
-			landDataToDB(data, data->getKeyIntVal());
-		else if (data->getKeyType() == TYPE_STRING)
-			landDataToDB(data, data->getKeyStrVal());
-		else{
-			SLASSERT(false, "unknown Type");
-		}
+		landDataToDB(data);
 
 		auto itor = _datasMap.find(data->getId());
 		if (itor != _datasMap.end() && itor->second == data)

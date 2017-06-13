@@ -51,13 +51,14 @@ public:
 	virtual bool readByIndex(const char* table, const CacheDBColumnFuncType& cf, const CacheDBReadFuncType& f, const int64 index) = 0;
 	virtual bool readByIndex(const char* table, const CacheDBColumnFuncType& cf, const CacheDBReadFuncType& f, const char* index) = 0;
 
-	virtual bool write(const char* table, const CacheDBWriteFuncType& f, int32 count, ...) = 0;
-	virtual bool writeByIndex(const char* table, const CacheDBWriteFuncType& f, const int64 index) = 0;
-	virtual bool writeByIndex(const char* table, const CacheDBWriteFuncType& f, const char* index) = 0;
+	//sync 是否立即同步到数据库
+	virtual bool write(const char* table, bool sync, const CacheDBWriteFuncType& f, int32 count, ...) = 0;
+	virtual bool writeByIndex(const char* table, bool sync, const CacheDBWriteFuncType& f, const int64 index) = 0;
+	virtual bool writeByIndex(const char* table, bool sync, const CacheDBWriteFuncType& f, const char* index) = 0;
 
-	virtual bool del(const char* table, int32 count, ...) = 0;
-	virtual bool delByIndex(const char* table, const int64 index) = 0;
-	virtual bool delByIndex(const char* table, const char* index) = 0;
+	virtual bool del(const char* table, bool sync, int32 count, ...) = 0;
+	virtual bool delByIndex(const char* table, bool sync, const int64 index) = 0;
+	virtual bool delByIndex(const char* table, bool sync, const char* index) = 0;
 };
 
 #endif

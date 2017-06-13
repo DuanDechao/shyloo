@@ -6,5 +6,8 @@
 	<module name="Monitor" />
 	<module name="EventEngine" />
 	<module name="MysqlMgr" />
+	<module name="Redis" />
 	<module name="DBCreator" />
+	<module name="CacheDB" />
+	<module name="DB" />
 </modules>

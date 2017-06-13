@@ -1,7 +1,7 @@
 #include "Redis.h"
 #include "slxml_reader.h"
 #include "slargs.h"
-
+#define CONNECT_TIME_OUT 50000
 bool Redis::initialize(sl::api::IKernel * pKernel){
 	_slRedisMgr = sl::db::getSLRedisMgr();
 	_kernel = pKernel;
@@ -15,7 +15,16 @@ bool Redis::initialize(sl::api::IKernel * pKernel){
 	for (int32 i = 0; i < slaves.count(); i++){
 		const char* ip = slaves[i].getAttributeString("ip");
 		const int32 port = slaves[i].getAttributeInt32("port");
-		sl::db::ISLRedisConnection* redisConn = _slRedisMgr->create(ip, port);
+		const char* passwd = "";
+		if (slaves[i].hasAttribute("passwd"))
+			passwd = slaves[i].getAttributeString("passwd");
+
+		sl::db::ISLRedisConnection* redisConn = _slRedisMgr->create(ip, port, passwd, CONNECT_TIME_OUT);
+		if (!redisConn){
+			SLASSERT(false, "create redis connection failed");
+			return false;
+		}
+		
 		Context ctx;
 		ctx._conn = redisConn;
 		_redisContexts.push_back(ctx);

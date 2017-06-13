@@ -73,8 +73,6 @@ public:
 	static IMysqlMgr* getMysqlMgr() { return s_mysqlMgr; }
 
 	void onDatabaseUpdateFinished(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
-	
-	void onShutdownNotify(sl::api::IKernel* pKernel, const void* context, const int32 size);
 
 private:
 	bool descDBTable(const char* tableName);

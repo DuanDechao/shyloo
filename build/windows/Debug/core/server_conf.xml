@@ -30,7 +30,7 @@
 		<node name="scenemgr" type="6" min="1" max="1" delay="5000" cmd=" --name=scenemgr --harbor=$port$ --node_id=$id$" />
 		<node name="db" type="8" min="1" max="1" delay="5000" cmd=" --name=db --harbor=$port$ --node_id=$id$" />
 		<node name="balance" type="9" min="1" max="1" delay="15000" cmd=" --name=balance --harbor=$port$ --agent=$balance_port$ --node_id=$id$" />
-		<!-- <node name="robot" type="10" min="1" max="1" delay="20000" cmd=" --name=robot --harbor=$port$ --node_id=$id$" /> -->
+		<node name="robot" type="10" min="1" max="1" delay="25000" cmd=" --name=robot --harbor=$port$ --node_id=$id$" />
 	</starter>
 	<shutdown>
 		<step close="false" desc="notify random one logic">
@@ -66,7 +66,7 @@
 	<id multiProc="true" server="-2" area="1" poolSize="1000" />
 	<db host="127.0.0.1" port="3306" user="root" pwd="" db="shyloo" charset="utf8" />
 	<redis>
-		<slave ip="127.0.0.1" port="6379" />
+		<slave ip="127.0.0.1" port="6379" passwd="ddc84625"/>
 	</redis>
 	<loadbroad interval="1000" />
 	<save player="120000" />

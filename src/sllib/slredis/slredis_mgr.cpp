@@ -4,8 +4,8 @@
 namespace sl{
 SL_SINGLETON_INIT(db::SLRedisMgr);
 namespace db{
-ISLRedisConnection* SLRedisMgr::create(const char* ip, const int32 port, const int32 timeout){
-	ISLRedisConnection* newConn = CREATE_FROM_POOL(_redisConnPool, this, ip, port, timeout);
+ISLRedisConnection* SLRedisMgr::create(const char* ip, const int32 port, const char* passwd, const int32 timeout){
+	ISLRedisConnection* newConn = CREATE_FROM_POOL(_redisConnPool, this, ip, port, passwd, timeout);
 	if (!newConn->reconnect()){
 		SLASSERT(false, "connect redis failed");
 		newConn->release();

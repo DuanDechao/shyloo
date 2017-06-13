@@ -6,7 +6,6 @@ namespace sl
 {
 namespace db
 {
-#define CONNECT_TIME_OUT 50000
 class ISLRedisResult{
 public:
 	virtual int8 SLAPI toInt8() const = 0;
@@ -37,7 +36,7 @@ public:
 
 class ISLRedisMgr{
 public:
-	virtual ISLRedisConnection* SLAPI create(const char* ip, const int32 port, const int32 timeout = CONNECT_TIME_OUT) = 0;
+	virtual ISLRedisConnection* SLAPI create(const char* ip, const int32 port, const char* passwd, const int32 timeout) = 0;
 	virtual void SLAPI release(void) = 0;
 };
 

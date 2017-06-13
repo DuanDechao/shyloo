@@ -377,7 +377,7 @@ void Gate::onLogicBindPlayerAck(sl::api::IKernel* pKernel, const int32 nodeType,
 			player.lastActorId = actorId;
 
 			//update DB
-			_cacheDB->write("account", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
+			_cacheDB->write("account", false, [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
 				context->writeInt64("lastActorId", actorId);
 			}, 1, accountId);
 		}
@@ -518,7 +518,7 @@ void Gate::onClientLoginReq(sl::api::IKernel* pKernel, const int64 id, const OBS
 	SLASSERT(success, "read cacheDB failed");
 	if (!accountId){
 		accountId = (int64)_IdMgr->allocID();
-		success = _cacheDB->write("account", [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
+		success = _cacheDB->write("account", true, [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
 			context->writeString("username", accountName);
 		}, 1, accountId);
 		SLASSERT(success, "write db failed");
