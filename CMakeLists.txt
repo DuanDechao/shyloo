@@ -32,6 +32,7 @@ SET(SL_LIB_API
 	"${PROJECT_SOURCE_DIR}/src/sllib/api/slfile.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/api/slthread.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/api/slredis.h"
+	"${PROJECT_SOURCE_DIR}/src/sllib/api/slshm.h"
 )
 SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/slfile_utils.h"
@@ -82,6 +83,7 @@ IF(WIN32)
 		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/sldb.lib"
 		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/slthread.lib"
 		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/slredis.lib"
+		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/slshm.lib"
 	)
 	SET(SL_LIB_RELEASE
 		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/slnet.lib"
@@ -90,6 +92,7 @@ IF(WIN32)
 		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/sldb.lib"
 		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/slthread.lib"
 		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/slredis.lib"
+		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/slshm.lib"
 	)
 	SET(ATTR_LIBD
 		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/AttrGetter.lib"

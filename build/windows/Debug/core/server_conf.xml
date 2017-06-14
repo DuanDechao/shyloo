@@ -66,7 +66,11 @@
 	<id multiProc="true" server="-2" area="1" poolSize="1000" />
 	<db host="127.0.0.1" port="3306" user="root" pwd="" db="shyloo" charset="utf8" />
 	<redis>
+<<<<<<< HEAD
 		<slave ip="127.0.0.1" port="6379"/>
+=======
+		<slave ip="127.0.0.1" port="6379" passwd=""/>
+>>>>>>> ed3f2f565351af67badc36023d58a34aa42c802f
 	</redis>
 	<loadbroad interval="1000" />
 	<save player="120000" />

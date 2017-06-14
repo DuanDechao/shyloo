@@ -15,8 +15,7 @@ public:
 	virtual int32 SLAPI parsePacket(const char* pDataBuf, int32 len);
 };
 
-class NetSession: public ISLSession, public api::IPipe
-{
+class NetSession: public ISLSession, public api::IPipe{
 public:
 	NetSession(){}
 	NetSession(ITcpSession* pTcpSession);
