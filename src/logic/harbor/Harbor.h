@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <string>
 #include "slsingleton.h"
+#include "slshm.h"
+
 class Harbor;
 class NodeSessionServer : public sl::api::ITcpServer{
 public:
@@ -63,6 +65,8 @@ public:
 
 	virtual const char* getNodeName(int32 nodeType){ return _nodeNames[nodeType].c_str(); }
 
+	sl::shm::ISLShmQueue* newShmQueue(bool bBackEnd, const char* pszShmKey, int iShmSize) { return _shmMgr->createShmQueue(bBackEnd, pszShmKey, iShmSize); }
+
 private:
 	sl::api::IKernel*	_pKernel;
 	NodeSessionServer*	_pServer;
@@ -75,6 +79,6 @@ private:
 	std::unordered_map<int32, std::list<INodeMessageHandler *>> _allCBPool;
 	std::unordered_map<int32, std::string> _nodeNames;
 	std::list<INodeListener*>	_listenerPool;
-
+	sl::shm::ISLShmMgr*	_shmMgr;
 };
 #endif
