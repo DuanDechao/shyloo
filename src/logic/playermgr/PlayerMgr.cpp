@@ -227,7 +227,7 @@ void PlayerMgr::recoverObject(sl::api::IKernel* pKernel, const int64 id){
 }
 
 bool PlayerMgr::onClientTestReq(sl::api::IKernel* pKernel, IObject* object, const sl::OBStream& args){
-	//object->setPropString(attr_def::name, "ddc");
+	object->setPropString(attr_def::name, "ddc");
 	_propDelaySender->syncChangedProps(object);
 	return true;
 }
