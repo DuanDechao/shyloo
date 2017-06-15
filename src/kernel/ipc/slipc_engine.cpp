@@ -1,5 +1,6 @@
 #include "slipc_engine.h"
 #include "slipc_session.h"
+#include "slkernel.h"
 using namespace sl::shm;
 namespace sl{
 namespace core{
@@ -76,7 +77,7 @@ int64 IPCEngine::loop(int64 overTime){
 		}
 			
 	}
-
+	//ECHO_ERROR("IPCEngine loop");
 	return sl::getTimeMilliSecond() - startTime;
 }
 
@@ -99,6 +100,10 @@ void IPCEngine::onDisconnect(uint64 clientId){
 	}
 	
 	return m_ipcSessons[clientId]->onTerminate();
+}
+
+const char* IPCEngine::getInternetIp(){
+	return Kernel::getInstance()->getInternetIp();
 }
 
 

@@ -45,6 +45,7 @@ int64 AsyncEngine::loop(int64 overTime){
 	for (AsyncThread* t : _threads){
 		t->loop(perOverTime);
 	}
+	//ECHO_ERROR("AsyncEngine loop");
 	return sl::getTimeMilliSecond() - tick;
 }
 

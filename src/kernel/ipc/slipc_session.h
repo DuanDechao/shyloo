@@ -21,7 +21,7 @@ public:
 	virtual void onRecv(const char* pBuf, uint32 dwLen);
 	virtual void onEstablish(void);
 	virtual void onTerminate();
-	virtual const char* getRemoteIP() { return ""; }
+	virtual const char* getRemoteIP();
 
 	virtual void send(const void* pContext, int dwLen);
 	virtual void close();

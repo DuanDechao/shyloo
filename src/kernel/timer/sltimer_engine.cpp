@@ -81,6 +81,7 @@ bool TimerEngine::resumeTimer(api::ITimer* pTimer)
 }
 
 int64 TimerEngine::loop(int64 overTime){
+	//ECHO_ERROR("TimerEngine loop");
 	return m_pTimerMgr->process(overTime);
 }
 

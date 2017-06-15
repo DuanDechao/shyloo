@@ -32,8 +32,8 @@ class SLIpcMq{
 	};
 
 public:
-	SLIpcMq() :_svrNamePipe(NULL), _clientNamePipe(NULL), _start(false), _terminate(false){}
-	virtual ~SLIpcMq(){}
+	SLIpcMq();
+	virtual ~SLIpcMq();
 
 	bool connect(const int64 serverId, const int64 clientId);
 	bool listen(const int64 serverId);

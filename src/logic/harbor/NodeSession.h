@@ -44,6 +44,7 @@ public:
 	void setConnect(const char* ip, const int32 port);
 	void send(const void* pContext, const int32 size);
 	void prepareSendNodeMessage(const int32 messageId, const int32 size);
+	void setNodeInfo(const int32 nodeType, const int32 nodeId);
 
 private:
 	Harbor*			m_pHarbor;

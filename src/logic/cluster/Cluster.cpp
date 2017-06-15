@@ -53,5 +53,5 @@ void Cluster::newNodeComing(sl::api::IKernel* pKernel, const int32 nodeType, con
 
 
 void Cluster::onTime(sl::api::IKernel* pKernel, int64 timetick){
-	_harbor->connect("127.0.0.1", 7011, -2, 1);
+	_harbor->connect("127.0.0.1", 7700, -2, 1);
 }

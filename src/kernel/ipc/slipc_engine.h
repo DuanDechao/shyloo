@@ -18,7 +18,7 @@ public:
 
 	virtual bool addIPCServer(sl::api::ITcpServer* server,uint64 serverId);
 	virtual bool addIPCClient(sl::api::ITcpSession* session, uint64 clientId, uint64 serverId, int32 size);
-	virtual const char* getInternetIp() { return ""; }
+	virtual const char* getInternetIp();
 
 	void onNewConnect(uint64 clientId);
 	void onDisconnect(uint64 clientId);

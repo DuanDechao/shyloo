@@ -35,7 +35,7 @@ int32 NodeSession::onRecv(sl::api::IKernel* pKernel, const char* pContext, int d
 }
 
 void NodeSession::send(const void* pContext, const int32 size){
-	ITcpSession::send(pContext, size);
+	ITcpSession::send(pContext, size); 
 }
 
 void NodeSession::onConnected(sl::api::IKernel* pKernel){
@@ -86,7 +86,13 @@ void NodeSession::onTime(sl::api::IKernel* pKernel, int64 timetick){
 
 	int64 remoteId = m_nodeType;
 	remoteId = (remoteId << 32) | m_nodeId;
+	ECHO_ERROR("NodeSession reconnect %d %d", m_nodeType, m_nodeId);
 	if (pKernel->addIPCClient(this, localId, remoteId, 65525)){
 		pKernel->killTimer(this);
 	}
+}
+
+void NodeSession::setNodeInfo(const int32 nodeType, const int32 nodeId){
+	m_nodeType = nodeType;
+	m_nodeId = nodeId;
 }

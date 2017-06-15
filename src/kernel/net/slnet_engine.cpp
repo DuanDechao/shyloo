@@ -93,6 +93,7 @@ bool NetEngine::addTcpClient(sl::api::ITcpSession* session, const char* ip, cons
 int64 NetEngine::loop(int64 overTime){
 	int64 startTime = sl::getTimeMilliSecond();
 	m_pSLNetModule->run(overTime);
+	//ECHO_ERROR("netengine loop");
 	return sl::getTimeMilliSecond() - startTime;
 }
 

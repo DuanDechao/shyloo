@@ -152,6 +152,7 @@ void Harbor::connect(const char* ip, const int32 port, const int32 nodeType, con
 	NodeSession* pSession = (NodeSession *)_pIpcServer->mallocTcpSession(_pKernel);
 	SLASSERT(pSession, "wtf");
 	pSession->setConnect(ip, port);
+	pSession->setNodeInfo(nodeType, nodeId);
 	
 	int64 localId = getNodeType();
 	localId = (localId << 32) | getNodeId();

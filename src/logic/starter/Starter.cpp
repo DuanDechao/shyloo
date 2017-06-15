@@ -37,10 +37,10 @@ bool Starter::launched(sl::api::IKernel * pKernel){
 		info.timer = StartNodeTimer::create(info.type);
 		_executes[info.type] = info;
 		SLASSERT(info.timer, "wtf");
-		START_TIMER(info.timer, info.delay, TIMER_BEAT_FOREVER, _checkInterval);
+		//START_TIMER(info.timer, info.delay, TIMER_BEAT_FOREVER, _checkInterval);
 	}
 
-	//START_TIMER(_self, 0, 1, 2000);
+	START_TIMER(_self, 0, 1, 2000);
 	return true;
 }
 
