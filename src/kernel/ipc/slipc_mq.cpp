@@ -124,7 +124,7 @@ bool SLIpcMq::svrCreateNamedPipe(const char* pPipeName){
 bool SLIpcMq::clientOpenNamedPipe(const char* pPipeName){
 	//Á¬½Ó
 	if (!WaitNamedPipe(pPipeName, NMPWAIT_WAIT_FOREVER)){
-		//SLASSERT(false, "wait name pipe[%s] failed", pPipeName);
+		SLASSERT(false, "wait name pipe[%s %d] failed", pPipeName, GetLastError());
 		return false;
 	}
 
