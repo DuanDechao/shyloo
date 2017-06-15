@@ -29,7 +29,7 @@ public:
 	virtual void broadcast(int32 nodeType, const void* context, const int32 size) = 0;
 	virtual void rgsNodeArgsMessageHandler(int32 messageId, const NodeArgsCB& handler) = 0;
 	virtual void rgsNodeMessageHandler(int32 messageId, const NodeCB& handler) = 0;
-	virtual void connect(const char* ip, const int32 port) = 0;
+	virtual void connect(const char* ip, const int32 port, const int32 nodeType, const int32 nodeId) = 0;
 	virtual int32 getNodeType() const = 0;
 	virtual int32 getNodeId() const = 0;
 	virtual const char* getNodeName(int32 nodeType) = 0;

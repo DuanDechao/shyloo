@@ -27,6 +27,7 @@ protected:
 	CCodeQueue*			m_pstSendQueue;			 ///< 发送队列
 	bool				m_bBackEnd;				 ///< 是共享内存队列的前端还是后端
 	char				m_szBuffer[256];
+	int32				m_shmSize;
 
 public:
 	SLShmQueue(bool bBackEnd, const char* pszShmKey, int iShmSize);
@@ -88,6 +89,8 @@ public:
 	virtual bool SLAPI hasCode() const{ return m_pstRecvQueue->GetCodeLen() > 0; }
 
 	virtual bool SLAPI getDataLen() const { return m_pstRecvQueue->GetCodeLen(); }
+
+	virtual int SLAPI getQueueSize() const { return m_shmSize; }
 
 }; // class CShmQueue
 

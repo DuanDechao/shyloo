@@ -36,7 +36,7 @@ bool SLRedisConnection::reconnect(){
 	_ctx = redisConnectWithTimeout(_ip.c_str(), _port, tv);
 	SLASSERT(_ctx, "wtf");
 	if (!_ctx || _ctx->err){
-		SLASSERT(false, "connect redis [%s:%d] failed", _ip, _port);
+		SLASSERT(false, "connect redis [%s:%d] failed", _ip.c_str(), _port);
 		if (_ctx)
 			redisFree(_ctx);
 		return false;

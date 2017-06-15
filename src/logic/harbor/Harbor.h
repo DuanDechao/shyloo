@@ -9,10 +9,20 @@
 #include "slshm.h"
 
 class Harbor;
-class NodeSessionServer : public sl::api::ITcpServer{
+class NodeSessionTcpServer : public sl::api::ITcpServer{
 public:
-	NodeSessionServer(Harbor* pHarbor) :m_pHarbor(pHarbor){}
-	virtual ~NodeSessionServer(){}
+	NodeSessionTcpServer(Harbor* pHarbor) :m_pHarbor(pHarbor){}
+	virtual ~NodeSessionTcpServer(){}
+	virtual sl::api::ITcpSession* mallocTcpSession(sl::api::IKernel* pKernel);
+
+private:
+	Harbor* m_pHarbor;
+};
+
+class NodeSessionIpcServer : public sl::api::ITcpServer{
+public:
+	NodeSessionIpcServer(Harbor* pHarbor) :m_pHarbor(pHarbor){}
+	virtual ~NodeSessionIpcServer(){}
 	virtual sl::api::ITcpSession* mallocTcpSession(sl::api::IKernel* pKernel);
 
 private:
@@ -52,7 +62,7 @@ public:
 	virtual void prepareSend(int32 nodeType, int32 nodeId, int32 messageId, int32 size);
 	virtual void send(int32 nodeType, int32 nodeId, const void* pContext, const int32 size);
 	virtual void send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& args);
-	virtual void connect(const char* ip, const int32 port);
+	virtual void connect(const char* ip, const int32 port, const int32 nodeType, const int32 nodeId);
 
 	virtual void broadcast(int32 nodeType, int32 messageId, const OArgs& args);
 	virtual void broadcast(int32 messageId, const OArgs& args);
@@ -69,7 +79,8 @@ public:
 
 private:
 	sl::api::IKernel*	_pKernel;
-	NodeSessionServer*	_pServer;
+	NodeSessionTcpServer*	_pTcpServer;
+	NodeSessionIpcServer*   _pIpcServer;
 	int32				_nodeType;
 	int32				_nodeId;
 	int32				_port;

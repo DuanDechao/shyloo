@@ -5,7 +5,8 @@ namespace shm{
 SLShmQueue::SLShmQueue(bool bBackEnd, const char* pszShmKey, int iShmSize)
 	:m_pstRecvQueue(NULL),
 	m_pstSendQueue(NULL),
-	m_bBackEnd(bBackEnd)
+	m_bBackEnd(bBackEnd),
+	m_shmSize(iShmSize)
 {
 	Init(m_bBackEnd, pszShmKey, iShmSize);
 }

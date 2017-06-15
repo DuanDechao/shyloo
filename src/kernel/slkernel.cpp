@@ -5,6 +5,7 @@
 #include "slconfig_engine.h"
 #include "slasync_engine.h"
 #include "sllog_engine.h"
+#include "slipc_engine.h"
 #include <time.h>
 
 namespace sl
@@ -28,6 +29,7 @@ bool Kernel::ready(){
 	return ConfigEngine::getInstance() &&
 		TimerEngine::getInstance() &&
 		NetEngine::getInstance() &&
+		IPCEngine::getInstance() &&
 		AsyncEngine::getInstance() &&
 		LogicEngine::getInstance() &&
 		LogEngine::getInstance();
@@ -40,6 +42,7 @@ bool Kernel::initialize(int32 argc, char ** argv){
 	return ConfigEngine::getInstance()->initialize() &&
 		TimerEngine::getInstance()->initialize() &&
 		NetEngine::getInstance()->initialize() &&
+		IPCEngine::getInstance()->initialize() &&
 		AsyncEngine::getInstance()->initialize() &&
 		LogicEngine::getInstance()->initialize() &&
 		LogEngine::getInstance()->initialize();
@@ -50,6 +53,7 @@ bool Kernel::destory(){
 	ConfigEngine::getInstance()->destory();
 	TimerEngine::getInstance()->destory();
 	NetEngine::getInstance()->destory();
+	IPCEngine::getInstance()->destory();
 	AsyncEngine::getInstance()->destory();
 	LogicEngine::getInstance()->destory();
 	LogEngine::getInstance()->destory();
@@ -64,6 +68,7 @@ void Kernel::loop() {
 	while(!m_bShutDown){
 		int64 startTick = sl::getTimeMilliSecond();
 		int64 netTick = NetEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sNetlooptick);
+		int64 ipcTick = IPCEngine::getInstance()->loop(10);
 		int64 asyncTick = AsyncEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sAsynclooptick);
 		int64 timerTick = TimerEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sTimerlooptick);
 		LogEngine::getInstance()->loop(0);
@@ -72,8 +77,8 @@ void Kernel::loop() {
 		if (useTick > ConfigEngine::getInstance()->getCoreConfig()->sLoopduration ||
 			netTick > ConfigEngine::getInstance()->getCoreConfig()->sNetlooptick ||
 			timerTick > ConfigEngine::getInstance()->getCoreConfig()->sTimerlooptick ||
-			asyncTick > ConfigEngine::getInstance()->getCoreConfig()->sAsynclooptick){
-			ECHO_ERROR("Loop use %d(%d, %d, %d)", useTick, netTick, asyncTick, timerTick);
+			asyncTick > ConfigEngine::getInstance()->getCoreConfig()->sAsynclooptick || ipcTick > 10){
+			ECHO_ERROR("Loop use %d(%d, %d, %d, %d)", useTick, netTick, ipcTick, asyncTick, timerTick);
 		}
 		else{
 			Sleep(1);
@@ -146,6 +151,14 @@ void Kernel::syncLog(int32 filter, const char* log, const char* file, const int3
 
 void Kernel::asyncLog(int32 filter, const char* log, const char* file, const int32 line){
 	LogEngine::getInstance()->logAsync(filter, log, file, line);
+}
+
+bool Kernel::addIPCServer(sl::api::ITcpServer* server, uint64 serverId){
+	return IPCEngine::getInstance()->addIPCServer(server, serverId);
+}
+
+bool Kernel::addIPCClient(sl::api::ITcpSession* session, uint64 clientId, uint64 serverId, int32 size){
+	return IPCEngine::getInstance()->addIPCClient(session, clientId, serverId, size);
 }
 
 void Kernel::shutdown(){

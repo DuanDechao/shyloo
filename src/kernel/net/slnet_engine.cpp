@@ -53,8 +53,7 @@ bool NetEngine::destory()
 	return true;
 }
 
-bool NetEngine::addTcpServer(sl::api::ITcpServer* server, const char* ip, const short port, int sendSize, int recvSize)
-{
+bool NetEngine::addTcpServer(sl::api::ITcpServer* server, const char* ip, const short port, int sendSize, int recvSize){
 	if(nullptr == m_pSLNetModule)
 		return false;
 
@@ -71,8 +70,7 @@ bool NetEngine::addTcpServer(sl::api::ITcpServer* server, const char* ip, const 
 	}
 	return true;
 }
-bool NetEngine::addTcpClient(sl::api::ITcpSession* session, const char* ip, const short port, int sendSize, int recvSize)
-{
+bool NetEngine::addTcpClient(sl::api::ITcpSession* session, const char* ip, const short port, int sendSize, int recvSize){
 	if (nullptr == m_pSLNetModule)
 		return false;
 
