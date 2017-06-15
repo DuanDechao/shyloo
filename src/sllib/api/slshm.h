@@ -12,6 +12,7 @@ public:
 	virtual int SLAPI remove() = 0;
 	virtual bool SLAPI hasCode() const = 0;
 	virtual bool SLAPI getDataLen() const = 0;
+	virtual int SLAPI getQueueSize() const = 0;
 };
 
 class ISLShmMgr{

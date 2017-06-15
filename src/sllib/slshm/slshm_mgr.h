@@ -15,6 +15,9 @@ public:
 	virtual void SLAPI recover(ISLShmQueue* queue);
 
 private:
+	std::string getShmKeyFile(const char* shmKey);
+
+private:
 	sl::SLPool<SLShmQueue> _shmQueues;
 };
 }

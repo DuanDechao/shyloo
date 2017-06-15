@@ -17,9 +17,11 @@ bool Cluster::launched(sl::api::IKernel * pKernel){
 			SLASSERT(false, "can't load core file %s", pKernel->getCoreFile());
 			return false;
 		}
-		const char* ip = server_conf.root()["master"][0].getAttributeString("ip");
+		/*const char* ip = server_conf.root()["master"][0].getAttributeString("ip");
 		const int32 port = server_conf.root()["master"][0].getAttributeInt32("port");
-		_harbor->connect(ip, port);
+		_harbor->connect(ip, port, -2, 1);*/
+
+		START_TIMER(this, 0, 1, 1000);
 	}
 	return true;
 }
@@ -46,5 +48,10 @@ void Cluster::newNodeComing(sl::api::IKernel* pKernel, const int32 nodeType, con
 		return;
 
 	_openNodes.insert(nodeIdx);
-	_harbor->connect(ip, port);
+	_harbor->connect(ip, port, newNodeType, newNodeId);
+}
+
+
+void Cluster::onTime(sl::api::IKernel* pKernel, int64 timetick){
+	_harbor->connect("127.0.0.1", 7011, -2, 1);
 }

@@ -25,6 +25,10 @@ public:
 	virtual bool startTcpClient(api::ITcpSession * client, const char* ip, const int32 port, int32 sendSize, int32 recvSize);
 	virtual const char* getInternetIp();
 
+	//ipc interface
+	virtual bool addIPCServer(sl::api::ITcpServer* server, uint64 serverId);
+	virtual bool addIPCClient(sl::api::ITcpSession* session, uint64 clientId, uint64 serverId, int32 size);
+
 	//timer interface
 	virtual bool startTimer(api::ITimer* timer, int64 delay, int32 count, int64 interval, const char* file, const int32 line);
 	virtual bool killTimer(api::ITimer* timer);

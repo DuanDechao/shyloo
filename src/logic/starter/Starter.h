@@ -7,7 +7,7 @@
 #include <unordered_map>
 
 class StartNodeTimer;
-class Starter : public sl::api::IModule, public INodeListener, public sl::SLHolder<Starter>{
+class Starter : public sl::api::IModule, public INodeListener, public sl::api::ITimer, public sl::SLHolder<Starter>{
 public:
 	struct Execute{
 		int32 type;
@@ -38,9 +38,16 @@ public:
 	virtual void onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* ip, const int32 port);
 	virtual void onClose(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId);
 
+
+	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){}
+	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick);
+	virtual void onTerminate(sl::api::IKernel* pKernel, bool beForced, int64 timetick){}
+	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick) {}
+	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick){}
+
 private:
 	void startNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId);
-	
+	void startServer(sl::api::IKernel* pKernel);
 
 private:
 	Starter*				_self;

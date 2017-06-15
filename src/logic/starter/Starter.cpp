@@ -40,12 +40,17 @@ bool Starter::launched(sl::api::IKernel * pKernel){
 		START_TIMER(info.timer, info.delay, TIMER_BEAT_FOREVER, _checkInterval);
 	}
 
+	//START_TIMER(_self, 0, 1, 2000);
 	return true;
 }
 
 bool Starter::destory(sl::api::IKernel * pKernel){
 	DEL this;
 	return true;
+}
+
+void Starter::onTime(sl::api::IKernel* pKernel, int64 timetick){
+	startServer(pKernel);
 }
 
 void Starter::onNodeTimerStart(sl::api::IKernel * pKernel, int32 type, int64 tick){
@@ -62,7 +67,7 @@ void Starter::onNodeTimerStart(sl::api::IKernel * pKernel, int32 type, int64 tic
 }
 
 void Starter::onNodeTimer(sl::api::IKernel * pKernel, int32 type, int64 tick){
-
+	//startServer(pKernel);
 }
 
 void Starter::onNodeTimerEnd(sl::api::IKernel * pKernel, int32 type, int64 tick){
@@ -105,4 +110,12 @@ void Starter::startNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId)
 	args.fix();
 	_harbor->send(NodeType::SLAVE, 1, NodeProtocol::MASTER_MSG_START_NODE, args.out());
 	TRACE_LOG("start new Node %d %d", nodeType, nodeId);
+}
+
+
+void Starter::startServer(sl::api::IKernel* pKernel){
+	for (auto itor = _executes.begin(); itor != _executes.end(); ++itor){
+		SLASSERT(itor->second.timer, "wtf");
+		START_TIMER(itor->second.timer, itor->second.delay, TIMER_BEAT_FOREVER, _checkInterval);
+	}
 }
