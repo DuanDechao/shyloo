@@ -106,7 +106,6 @@ void Harbor::onNodeClose(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId
 void Harbor::onNodeMessage(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* pszBuf, const int32 size){
 	SLASSERT(size >= sizeof(int32), "invalid node message context!");
 	int32 messageId = *(int32*)pszBuf;
-	ECHO_ERROR("get msg %d", messageId);
 	auto itor = _allCBPool.find(messageId);
 	if (itor == _allCBPool.end()){
 		//SLASSERT(false, "have no messageId %d", messageId);
