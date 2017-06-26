@@ -122,10 +122,11 @@ public:
 	virtual bool startTcpServer(api::ITcpServer * server, const char* ip, const int32 port, int32 sendSize, int32 recvSize) = 0;
 	virtual bool startTcpClient(api::ITcpSession * client, const char* ip, const int32 port, int32 sendSize, int32 recvSize) = 0;
 	virtual const char* getInternetIp() = 0;
+	virtual const char* getLocalIp() = 0;
 
 	//ipc interface
-	virtual bool addIPCServer(sl::api::ITcpServer* server, uint64 serverId) = 0;
-	virtual bool addIPCClient(sl::api::ITcpSession* session, uint64 clientId, uint64 serverId, int32 size) = 0;
+	virtual bool addIPCServer(sl::api::ITcpServer* server, const int64 serverId) = 0;
+	virtual bool addIPCClient(sl::api::ITcpSession* session, const int64 clientId, const int64 serverId, const int32 sendSize, const int32 recvSize) = 0;
 
 	//timer interface
 	virtual bool startTimer(api::ITimer* timer, int64 delay, int32 count, int64 interval, const char* file, const int32 line) = 0;
@@ -141,6 +142,7 @@ public:
 	virtual const char* getCoreFile() = 0;
 	virtual const char* getConfigFile() = 0;
 	virtual const char* getEnvirPath() = 0;
+	virtual const char* getIpcPath() = 0;
 
 	//async interface
 	virtual void startAsync(const int64 threadId, IAsyncHandler* handler, const char* debug) = 0;

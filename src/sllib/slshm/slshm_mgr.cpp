@@ -3,9 +3,9 @@
 namespace sl{
 SL_SINGLETON_INIT(shm::SLShmMgr);
 namespace shm{
-ISLShmQueue* SLShmMgr::createShmQueue(bool bBackEnd, const char* pszShmKey, int iShmSize){
+ISLShmQueue* SLShmMgr::createShmQueue(bool bBackEnd, const char* pszShmKey, int sendSize, int recvSize, bool clear){
 	std::string key = getShmKeyFile(pszShmKey);
-	return (ISLShmQueue*)CREATE_FROM_POOL(_shmQueues, bBackEnd, key.c_str(), iShmSize);
+	return (ISLShmQueue*)CREATE_FROM_POOL(_shmQueues, bBackEnd, key.c_str(), sendSize, recvSize, clear);
 }
 
 void SLShmMgr::recover(ISLShmQueue* queue){

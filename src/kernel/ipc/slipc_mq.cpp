@@ -5,6 +5,13 @@
 
 namespace sl{
 namespace core{
+SLIpcMq* SLIpcMq::getInstance(){
+	static SLIpcMq* p = NULL;
+	if (p == NULL)
+		p = new SLIpcMq;
+	return p;
+}
+
 SLIpcMq::SLIpcMq() 
 	:_svrNamePipe(NULL),
 	_clientNamePipe(NULL), 
@@ -15,7 +22,8 @@ SLIpcMq::SLIpcMq()
 SLIpcMq::~SLIpcMq(){
 	_terminate = true;
 
-	_thread.join();
+	if (_start)
+		_thread.join();
 
 	if (_svrNamePipe)
 		CloseHandle(_svrNamePipe);
@@ -27,19 +35,15 @@ SLIpcMq::~SLIpcMq(){
 }
 
 void SLIpcMq::threadRun(){
+	if (!svrCreateNamedPipe(_svrPipeName))
+		return;
+
 	while (!_terminate){
-		if (!svrCreateNamedPipe(_svrPipeName)){
-			SLASSERT(false, "create svr pipe failed");
+		
+		if (!svrReadPipeMsg())
 			return;
-		}
-		ECHO_TRACE("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-		ECHO_TRACE("client conning....");
-		svrReadPipeMsg();
 
 		DisconnectNamedPipe(_svrNamePipe);
-		CloseHandle(_svrNamePipe);
-		_svrNamePipe = NULL;
-		ECHO_TRACE("-----------------------------------------------------------");
 	}
 }
 
@@ -64,7 +68,7 @@ void SLIpcMq::processMsg(){
 		PipeMsgNode* msg = (PipeMsgNode*)_runningQueue.popFront();
 		
 		if (msg->getType() == MSG_CONNECT){
-			IPCEngine::getInstance()->onNewConnect(msg->getId());
+			IPCEngine::getInstance()->onNewConnect(msg->getId(), msg->getRecvSize(), msg->getSendSize());
 		}
 		if (msg->getType() == MSG_CLOSE){
 			IPCEngine::getInstance()->onDisconnect(msg->getId());
@@ -86,23 +90,21 @@ bool SLIpcMq::listen(const int64 serverId){
 	return true;
 }
 
-bool SLIpcMq::connect(const int64 serverId, const int64 clientId){
+bool SLIpcMq::connect(const int64 serverId, const int64 clientId, const int32 sendSize, const int32 recvSize){
 	int32 nodeId = serverId & 0xFFFFFFFF;
 	int32 nodeType = (uint64)serverId >> 32;
-	ECHO_ERROR("SLIpcMq connect [%d %d]", nodeType, nodeId);
 	char pipeName[128] = { 0 };
 	SafeSprintf(pipeName, sizeof(pipeName), "\\\\.\\pipe\\%lld", serverId);
 	if (!clientOpenNamedPipe(pipeName))
 		return false;
 
 	ECHO_TRACE("SLIpcMq connect Namepip [%d %d]success", nodeType, nodeId);
-	PipeMsg msg{ MSG_CONNECT, clientId };
+	PipeMsgNode::PipeMsg msg{ MSG_CONNECT, clientId, sendSize, recvSize};
 	return clientWritePipeMsg(msg);
 }
 
 bool SLIpcMq::svrCreateNamedPipe(const char* pPipeName){
-	OVERLAPPED                ovlpd;
-	_svrNamePipe = CreateNamedPipe(pPipeName, PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, 0, 5, 1024, 1024, 0, NULL);
+	_svrNamePipe = CreateNamedPipe(pPipeName, PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, 0, 20, 512, 512, 10, NULL);
 	if (INVALID_HANDLE_VALUE == _svrNamePipe){
 		SLASSERT(false, "create pipe failed[%d]", GetLastError());
 		_svrNamePipe = NULL;
@@ -110,19 +112,40 @@ bool SLIpcMq::svrCreateNamedPipe(const char* pPipeName){
 	}
 
 	//添加事件以等待客户端连接命名管道
-	//该事件为手动重置事件，且初始化状态为无信号状态
 	_hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 	if (!_hEvent){
 		return false;
 	}
 
-	memset(&ovlpd, 0, sizeof(OVERLAPPED));
-	ovlpd.hEvent = _hEvent;
+	memset(&_ovlpd, 0, sizeof(OVERLAPPED));
+	_ovlpd.hEvent = _hEvent;
 
 	ECHO_TRACE("create Namepipe sever %s success", _svrPipeName);
 
+	return true;
+}
+
+bool SLIpcMq::clientOpenNamedPipe(const char* pPipeName){
+	//连接
+	if (!WaitNamedPipe(pPipeName, NMPWAIT_USE_DEFAULT_WAIT)){
+		ECHO_ERROR("wait name pipe[%s %d] failed", pPipeName, GetLastError());
+		return false;
+	}
+
+	//打开命名管道
+	_clientNamePipe = CreateFile(pPipeName, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (INVALID_HANDLE_VALUE == _clientNamePipe){
+		//CloseHandle(_clientNamePipe);
+		SLASSERT(false, "open pipe failed");
+		return false;
+	}
+
+	return true;
+}
+
+bool SLIpcMq::svrReadPipeMsg(){
 	//等待客户端连接
-	if (!ConnectNamedPipe(_svrNamePipe, &ovlpd)){
+	if (!ConnectNamedPipe(_svrNamePipe, &_ovlpd)){
 		if (ERROR_IO_PENDING != GetLastError() && ERROR_PIPE_CONNECTED != GetLastError()){
 			CloseHandle(_svrNamePipe);
 			CloseHandle(_hEvent);
@@ -141,34 +164,8 @@ bool SLIpcMq::svrCreateNamedPipe(const char* pPipeName){
 		return false;
 	}
 
-	CloseHandle(_hEvent);
-
-	return true;
-}
-
-bool SLIpcMq::clientOpenNamedPipe(const char* pPipeName){
-	//连接
-	if (!WaitNamedPipe(pPipeName, NMPWAIT_WAIT_FOREVER)){
-		ECHO_ERROR("wait name pipe[%s %d] failed", pPipeName, GetLastError());
-		return false;
-	}
-
-	//打开命名管道
-	_clientNamePipe = CreateFile(pPipeName, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (INVALID_HANDLE_VALUE == _clientNamePipe){
-		//CloseHandle(_clientNamePipe);
-		SLASSERT(false, "open pipe failed");
-		return false;
-	}
-
-	return true;
-}
-
-bool SLIpcMq::svrReadPipeMsg(){
-	ECHO_ERROR("start recv pipe msg");
 	DWORD    dwRead;
-	PipeMsg	 msg;
-
+	PipeMsgNode::PipeMsg	 msg;
 	//从命名管道中读取数据
 	if (!ReadFile(_svrNamePipe, &msg, sizeof(msg), &dwRead, NULL)){
 		SLASSERT(false, "read pipe data failed[%d]", GetLastError());
@@ -180,9 +177,8 @@ bool SLIpcMq::svrReadPipeMsg(){
 	return true;
 }
 
-bool SLIpcMq::clientWritePipeMsg(PipeMsg& msg){
+bool SLIpcMq::clientWritePipeMsg(PipeMsgNode::PipeMsg& msg){
 	DWORD                dwWrite;
-
 	//向命名管道中写入数据
 	if (!WriteFile(_clientNamePipe, &msg, sizeof(msg), &dwWrite, NULL)){
 		ECHO_ERROR("write pipe data failed[%d]", GetLastError());

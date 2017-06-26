@@ -19,6 +19,9 @@ public:
 	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick) {}
 
 private:
+	bool isSameDeivce(const char* localIp, const char* remoteIp);
+
+private:
 	IHarbor* _harbor;
 	std::set<int64> _openNodes;
 };

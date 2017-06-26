@@ -115,11 +115,16 @@ void NetEngine::readInternetIp(){
 			if (adapter->Type == MIB_IF_TYPE_ETHERNET){
 				PIP_ADDR_STRING ip = &(adapter->IpAddressList);
 				while (ip){
-					if (select == nullptr)
+					if (select == nullptr){
 						select = ip->IpAddress.String;
+						SafeSprintf(m_localIp, sizeof(m_localIp), "%s", ip->IpAddress.String);
+					}
 					else{
 						if (!isLocalIp(ip->IpAddress.String)){
 							select = ip->IpAddress.String;
+						}
+						else{
+							SafeSprintf(m_localIp, sizeof(m_localIp), "%s", ip->IpAddress.String);
 						}
 					}
 					ip = ip->Next;

@@ -15,6 +15,9 @@ struct sCoreConfig{
 	//socket module
 	int32 sNetlooptick;		//net logic loop frame tick
 
+	//ipc module
+	int32 sIpclooptick;
+
 	//timer module
 	int32 sTimerlooptick;
 

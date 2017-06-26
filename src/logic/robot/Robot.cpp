@@ -8,7 +8,7 @@
 bool Robot::initialize(sl::api::IKernel * pKernel){
 	_kernel = pKernel;
 	_self = this;
-	_robot = {0, "", 0, false};
+	_robot = {"", 0, false};
 
 	return true;
 }
@@ -16,8 +16,6 @@ bool Robot::initialize(sl::api::IKernel * pKernel){
 bool Robot::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_client, Client);
 	
-	//_self->rgsSvrMessageHandler(AgentProtocol::CLIENT_MSG_LOGIN_REQ, &Robot::onClientLoginReq);
-	//_self->rgsSvrMessageHandler(AgentProtocol::CLIENT_MSG_SELECT_ROLE_REQ, &Robot::onClientSelectRoleReq);
 	_self->rgsSvrMessageHandler(ServerMsgID::SERVER_MSG_LOGIN_RSP, &Robot::onServerLoginAck);
 	_self->rgsSvrMessageHandler(ServerMsgID::SERVER_MSG_SELECT_ROLE_RSP, &Robot::onServerSelectRoleAck);
 	_self->rgsSvrMessageHandler(ServerMsgID::SERVER_MSG_ATTRIB_SYNC, &Robot::onServerAttribSync);
@@ -26,21 +24,9 @@ bool Robot::launched(sl::api::IKernel * pKernel){
 	
 	_client->setListener(this);
 
-	char path[256] = { 0 };
-	SafeSprintf(path, sizeof(path), "%s/robot.xml", pKernel->getEnvirPath());
-	sl::XmlReader conf;
-	if (!conf.loadXml(path)){
-		SLASSERT(false, "can not load file %s", pKernel->getEnvirPath());
-		return false;
-	}
-
-	_robotCount = conf.root().getAttributeInt32("count");
-	_svrIp = conf.root()["svr"][0].getAttributeString("ip");
-	_svrPort = conf.root()["svr"][0].getAttributeInt32("port");
-
-	int32 nodeId = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("node_id"));
-
-	START_TIMER(_self, 0, _robotCount, nodeId * 2000);
+	_svrIp = pKernel->getCmdArg("server_ip");
+	_svrPort = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("server_port"));
+	_client->connect(_svrIp.c_str(), _svrPort);
 	
 	return true;
 }
@@ -50,23 +36,22 @@ bool Robot::destory(sl::api::IKernel * pKernel){
 	return true;
 }
 
-void Robot::onServerConnected(sl::api::IKernel* pKernel, const int64 id){
+void Robot::onServerConnected(sl::api::IKernel* pKernel){
 	if (!_robot.canLogin)
 		return;
 
 	IBStream<128> args;
 	args << _robot.name.c_str() << _robot.ticket;
-	sendToSvr(pKernel, id, ClientMsgID::CLIENT_MSG_LOGIN_REQ, args.out());
+	sendToSvr(pKernel, ClientMsgID::CLIENT_MSG_LOGIN_REQ, args.out());
 }
 
-void Robot::onServerDisConnected(sl::api::IKernel* pKernel, const int64 id){
+void Robot::onServerDisConnected(sl::api::IKernel* pKernel){
 	_robot.canLogin = false;
-	_robot.clientId = 0;
 	_robot.name = "";
 	_robot.ticket = 0;
 }
 
-int32 Robot::onServerMsg(sl::api::IKernel* pKernel, const int64 id, const void* context, const int32 size){
+int32 Robot::onServerMsg(sl::api::IKernel* pKernel, const void* context, const int32 size){
 	if (size < sizeof(int32)* 2){
 		return 0;
 	}
@@ -79,7 +64,7 @@ int32 Robot::onServerMsg(sl::api::IKernel* pKernel, const int64 id, const void* 
 	int32 msgId = *((int32*)context);
 	if (_svrProtos.find(msgId) != _svrProtos.end()){
 		OBStream buf((const char*)context + sizeof(int32)* 2, len);
-		(this->*_svrProtos[msgId])(pKernel, id, buf);
+		(this->*_svrProtos[msgId])(pKernel, buf);
 	}
 	else{
 		//SLASSERT(false, "can not find message id[%d]", msgId);
@@ -93,21 +78,32 @@ void Robot::rgsSvrMessageHandler(int32 messageId, svr_args_cb handler){
 	_svrProtos[messageId] = handler;
 }
 
-void Robot::onTime(sl::api::IKernel* pKernel, int64 timetick){
-	_client->connect(_svrIp.c_str(), _svrPort);
-}
-
-void Robot::sendToSvr(sl::api::IKernel* pKernel, const int64 id, const int32 msgId, const OBStream& buf){
+void Robot::sendToSvr(sl::api::IKernel* pKernel, const int32 msgId, const OBStream& buf){
 	int32 header[2];
 	header[0] = msgId;
 	header[1] = buf.getSize() + sizeof(int32)* 2;
 
-	_client->send(id, header, sizeof(header));
-	_client->send(id, buf.getContext(), buf.getSize());
+	_client->send(header, sizeof(header));
+	_client->send(buf.getContext(), buf.getSize());
 	ECHO_TRACE("send msg[%d] to svr", msgId);
 }
 
-void Robot::onServerLoginAck(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
+void Robot::onServerGiveGateAddressAck(sl::api::IKernel* pKernel, const OBStream& args){
+	const char* gateIp = nullptr;
+	int32 gatePort = 0;
+	int64 ticket = 0;
+	if (!args.readString(gateIp) || !args.readInt32(gatePort) || !args.readInt64(ticket)){
+		SLASSERT(false, "wtf");
+		return;
+	}
+
+	_client->close();
+
+	_robot = { pKernel->getCmdArg("account"), ticket, true };
+	_client->connect("127.0.0.1", gatePort);
+}
+
+void Robot::onServerLoginAck(sl::api::IKernel* pKernel, const OBStream& args){
 	int32 errCode = protocol::ErrorCode::ERROR_NO_ERROR;
 	if (!args.readInt32(errCode) || errCode != protocol::ErrorCode::ERROR_NO_ERROR){
 		SLASSERT(false, "login ack failed");
@@ -121,11 +117,9 @@ void Robot::onServerLoginAck(sl::api::IKernel* pKernel, const int64 id, const OB
 	}
 
 	if (roleCount <= 0){
-		static char roleName[3][64] = { "srtyyydddd", "sr", "sdggffththt" };
-		int32 nodeId = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("node_id"));
 		IBStream<256> ask;
-		ask << roleName[nodeId-1] << (int8)1 << (int8)1;
-		sendToSvr(pKernel, id, ClientMsgID::CLIENT_MSG_CREATE_ROLE_REQ, ask.out());
+		ask << pKernel->getCmdArg("role") << (int8)1 << (int8)1;
+		sendToSvr(pKernel, ClientMsgID::CLIENT_MSG_CREATE_ROLE_REQ, ask.out());
 	}
 	else{
 		int64 actorId = 0;
@@ -136,12 +130,12 @@ void Robot::onServerLoginAck(sl::api::IKernel* pKernel, const int64 id, const OB
 
 		IBStream<64> ask;
 		ask << actorId;
-		sendToSvr(pKernel, id, ClientMsgID::CLIENT_MSG_SELECT_ROLE_REQ, ask.out());
+		sendToSvr(pKernel, ClientMsgID::CLIENT_MSG_SELECT_ROLE_REQ, ask.out());
 	}
 
 }
 
-void Robot::onServerCreateRoleAck(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
+void Robot::onServerCreateRoleAck(sl::api::IKernel* pKernel, const OBStream& args){
 	int32 errCode = 0;
 	int64 actorId = 0;
 	if (!args.readInt32(errCode) || !args.readInt64(actorId))
@@ -150,20 +144,20 @@ void Robot::onServerCreateRoleAck(sl::api::IKernel* pKernel, const int64 id, con
 	if (errCode == 0){
 		IBStream<64> ask;
 		ask << actorId;
-		sendToSvr(pKernel, id, ClientMsgID::CLIENT_MSG_SELECT_ROLE_REQ, ask.out());
+		sendToSvr(pKernel, ClientMsgID::CLIENT_MSG_SELECT_ROLE_REQ, ask.out());
 	}
 }
 
-void Robot::onServerSelectRoleAck(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
+void Robot::onServerSelectRoleAck(sl::api::IKernel* pKernel, const OBStream& args){
 	int32 errCode = 0;
 	if (!args.readInt32(errCode))
 		return;
 
 	if (errCode == 0)
-		test(pKernel, id);
+		test(pKernel);
 }
 
-void Robot::onServerAttribSync(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
+void Robot::onServerAttribSync(sl::api::IKernel* pKernel, const OBStream& args){
 	ECHO_TRACE("start sync attrib...");
 	int64 actorId = 0; 
 	int32 propCount = 0; 
@@ -184,48 +178,7 @@ void Robot::onServerAttribSync(sl::api::IKernel* pKernel, const int64 id, const 
 	}
 }
 
-void Robot::onServerGiveGateAddressAck(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
-	const char* gateIp = nullptr;
-	int32 gatePort = 0;
-	int64 ticket = 0;
-	if (!args.readString(gateIp) || !args.readInt32(gatePort) || !args.readInt64(ticket)){
-		SLASSERT(false, "wtf");
-		return;
-	}
-
-	_client->close(id);
-
-	static char accountName[3][64] = { "trutfffyyy", "mmzsfsdfs", "bsfsdfsj" };
-	int32 nodeId = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("node_id"));
-	_robot = { id, accountName[nodeId - 1], ticket , true};
-
-	_client->connect("127.0.0.1", gatePort);
-}
-
-void Robot::test(sl::api::IKernel* pKernel, const int64 id){
+void Robot::test(sl::api::IKernel* pKernel){
 	IBStream<64> ask;
-	sendToSvr(pKernel, id, ClientMsgID::CLIENT_MSG_TEST, ask.out());
-}
-
-void Robot::genRandomString(char* str, const int32 size){
-	int flag, i;
-	srand((unsigned)time(NULL));
-	for (i = 0; i < size - 1; i++){
-		flag = rand() % 3;
-		switch (flag){
-		case 0:
-			str[i] = 'A' + rand() % 26;
-			break;
-		case 1:
-			str[i] = 'a' + rand() % 26;
-			break;
-		case 2:
-			str[i] = '0' + rand() % 10;
-			break;
-		default:
-			str[i] = 'x';
-			break;
-		}
-	}
-	str[size - 1] = '\0';
+	sendToSvr(pKernel, ClientMsgID::CLIENT_MSG_TEST, ask.out());
 }

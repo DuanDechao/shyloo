@@ -3,9 +3,11 @@
 #include "slxml_reader.h"
 #include "slstring_utils.h"
 
+sl::SLPool<AgentSession> AgentSessionServer::s_pool;
 sl::api::ITcpSession* AgentSessionServer::mallocTcpSession(sl::api::IKernel* pKernel){
-	return CREATE_POOL_OBJECT(AgentSession, m_agent);
+	return CREATE_FROM_POOL(s_pool, _agent);
 }
+
 bool Agent::initialize(sl::api::IKernel * pKernel){
 	_kernel = pKernel;
 	return true;

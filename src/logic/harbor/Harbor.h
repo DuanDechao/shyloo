@@ -11,22 +11,22 @@
 class Harbor;
 class NodeSessionTcpServer : public sl::api::ITcpServer{
 public:
-	NodeSessionTcpServer(Harbor* pHarbor) :m_pHarbor(pHarbor){}
+	NodeSessionTcpServer(Harbor* pHarbor) :_harbor(pHarbor){}
 	virtual ~NodeSessionTcpServer(){}
 	virtual sl::api::ITcpSession* mallocTcpSession(sl::api::IKernel* pKernel);
 
 private:
-	Harbor* m_pHarbor;
+	Harbor* _harbor;
 };
 
 class NodeSessionIpcServer : public sl::api::ITcpServer{
 public:
-	NodeSessionIpcServer(Harbor* pHarbor) :m_pHarbor(pHarbor){}
+	NodeSessionIpcServer(Harbor* pHarbor) :_harbor(pHarbor){}
 	virtual ~NodeSessionIpcServer(){}
 	virtual sl::api::ITcpSession* mallocTcpSession(sl::api::IKernel* pKernel);
 
 private:
-	Harbor* m_pHarbor;
+	Harbor* _harbor;
 };
 
 
@@ -62,7 +62,7 @@ public:
 	virtual void prepareSend(int32 nodeType, int32 nodeId, int32 messageId, int32 size);
 	virtual void send(int32 nodeType, int32 nodeId, const void* pContext, const int32 size);
 	virtual void send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& args);
-	virtual void connect(const char* ip, const int32 port, const int32 nodeType, const int32 nodeId);
+	virtual void connect(const char* ip, const int32 port, const int32 nodeType, const int32 nodeId, bool ipcTransfor = false);
 
 	virtual void broadcast(int32 nodeType, int32 messageId, const OArgs& args);
 	virtual void broadcast(int32 messageId, const OArgs& args);
@@ -75,7 +75,7 @@ public:
 
 	virtual const char* getNodeName(int32 nodeType){ return _nodeNames[nodeType].c_str(); }
 
-	sl::shm::ISLShmQueue* newShmQueue(bool bBackEnd, const char* pszShmKey, int iShmSize) { return _shmMgr->createShmQueue(bBackEnd, pszShmKey, iShmSize); }
+	inline bool useIpc() const { return _useIpc; }
 
 private:
 	sl::api::IKernel*	_pKernel;
@@ -90,6 +90,6 @@ private:
 	std::unordered_map<int32, std::list<INodeMessageHandler *>> _allCBPool;
 	std::unordered_map<int32, std::string> _nodeNames;
 	std::list<INodeListener*>	_listenerPool;
-	sl::shm::ISLShmMgr*	_shmMgr;
+	bool						_useIpc;
 };
 #endif

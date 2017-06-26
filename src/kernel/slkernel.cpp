@@ -68,7 +68,7 @@ void Kernel::loop() {
 	while(!m_bShutDown){
 		int64 startTick = sl::getTimeMilliSecond();
 		int64 netTick = NetEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sNetlooptick);
-		int64 ipcTick = IPCEngine::getInstance()->loop(10);
+		int64 ipcTick = IPCEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sIpclooptick);
 		int64 asyncTick = AsyncEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sAsynclooptick);
 		int64 timerTick = TimerEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sTimerlooptick);
 		LogEngine::getInstance()->loop(0);
@@ -77,7 +77,8 @@ void Kernel::loop() {
 		if (useTick > ConfigEngine::getInstance()->getCoreConfig()->sLoopduration ||
 			netTick > ConfigEngine::getInstance()->getCoreConfig()->sNetlooptick ||
 			timerTick > ConfigEngine::getInstance()->getCoreConfig()->sTimerlooptick ||
-			asyncTick > ConfigEngine::getInstance()->getCoreConfig()->sAsynclooptick || ipcTick > 10){
+			asyncTick > ConfigEngine::getInstance()->getCoreConfig()->sAsynclooptick || 
+			ipcTick > ConfigEngine::getInstance()->getCoreConfig()->sIpclooptick){
 			ECHO_ERROR("Loop use %d(%d, %d, %d, %d)", useTick, netTick, ipcTick, asyncTick, timerTick);
 		}
 		else{
@@ -105,6 +106,10 @@ const char* Kernel::getEnvirPath(){
 	return ConfigEngine::getInstance()->getEnvirPath();
 }
 
+const char* Kernel::getIpcPath(){
+	return ConfigEngine::getInstance()->getIpcPath();
+}
+
 bool Kernel::startTcpServer(api::ITcpServer * server, const char* ip, const int32 port, int32 sendSize, int32 recvSize){
 	return NetEngine::getInstance()->addTcpServer(server, ip, port, sendSize, recvSize);
 }
@@ -115,6 +120,10 @@ bool Kernel::startTcpClient(api::ITcpSession * client, const char* ip, const int
 
 const char* Kernel::getInternetIp(){
 	return NetEngine::getInstance()->getInternetIp();
+}
+
+const char* Kernel::getLocalIp(){
+	return NetEngine::getInstance()->getLocalIp();
 }
 
 api::IModule* Kernel::findModule(const char * name){
@@ -153,12 +162,12 @@ void Kernel::asyncLog(int32 filter, const char* log, const char* file, const int
 	LogEngine::getInstance()->logAsync(filter, log, file, line);
 }
 
-bool Kernel::addIPCServer(sl::api::ITcpServer* server, uint64 serverId){
+bool Kernel::addIPCServer(sl::api::ITcpServer* server, const int64 serverId){
 	return IPCEngine::getInstance()->addIPCServer(server, serverId);
 }
 
-bool Kernel::addIPCClient(sl::api::ITcpSession* session, uint64 clientId, uint64 serverId, int32 size){
-	return IPCEngine::getInstance()->addIPCClient(session, clientId, serverId, size);
+bool Kernel::addIPCClient(sl::api::ITcpSession* session, const int64 clientId, const int64 serverId, const int32 sendSize, const int32 recvSize){
+	return IPCEngine::getInstance()->addIPCClient(session, clientId, serverId, sendSize, recvSize);
 }
 
 void Kernel::shutdown(){

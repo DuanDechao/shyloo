@@ -3,34 +3,22 @@
 #include "slikernel.h"
 #include "slobjectpool.h"
 #include "slshm.h"
-#include <string>
+#include "slstring.h"
+#include "GameDefine.h"
+#include "slpool.h"
 
 using namespace sl;
 class Harbor;
 #define RECONNECT_INTERVAL 1 * SECOND
 class NodeSession : public sl::api::ITcpSession, public sl::api::ITimer{
 public:
-	NodeSession()
-		:m_pHarbor(nullptr),
-		m_bReady(false),
-		m_nodeType(0),
-		m_nodeId(0),
-		m_bConnect(false),
-		m_ip(""),
-		m_port(0),
-		m_useShm(false)
-	{}
+	static NodeSession* create(Harbor* harbor){
+		return CREATE_FROM_POOL(s_pool, harbor);
+	}
 
-	NodeSession(Harbor* harbor)
-		:m_pHarbor(harbor),
-		 m_bReady(false),
-		 m_nodeType(0),
-		 m_nodeId(0),
-		 m_bConnect(false),
-		 m_ip(""),
-		 m_port(0),
-		 m_useShm(false)
-	{}
+	void release(){
+		s_pool.recover(this);
+	}
 
 	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick);
@@ -41,25 +29,53 @@ public:
 	virtual int32 onRecv(sl::api::IKernel* pKernel, const char* pContext, int dwLen);
 	virtual void onConnected(sl::api::IKernel* pKernel);
 	virtual void onDisconnect(sl::api::IKernel* pKernel);
-	void setConnect(const char* ip, const int32 port);
+	
 	void send(const void* pContext, const int32 size);
 	void prepareSendNodeMessage(const int32 messageId, const int32 size);
-	void setNodeInfo(const int32 nodeType, const int32 nodeId);
+
+	inline void setConnect(const char* ip, const int32 port){
+		_ip = ip;
+		_port = port;
+		_connect = true;
+	}
+
+	inline void setNodeInfo(const int32 nodeType, const int32 nodeId){
+		_nodeType = nodeType;
+		_nodeId = nodeId;
+	}
+
+	inline void setIpcTransfor(bool isIpc) { _ipcTransfor = isIpc; }
+	inline bool isIpcTransfor() const { return _ipcTransfor; }
+
+protected:
+	friend sl::SLPool<NodeSession>;
+	
+	NodeSession(Harbor* harbor)
+		:_harbor(harbor),
+		_ready(false),
+		_nodeType(0),
+		_nodeId(0),
+		_connect(false),
+		_ip(""),
+		_port(0),
+		_ipcTransfor(false)
+	{}
+
+	~NodeSession(){}
 
 private:
-	Harbor*			m_pHarbor;
-	bool			m_bReady;
-	int32			m_nodeType;
-	int32			m_nodeId;
+	Harbor*			_harbor;
+	bool			_ready;
+	int32			_nodeType;
+	int32			_nodeId;
 
 	//主动连接相关
-	bool			m_bConnect;
-	std::string		m_ip;
-	int32			m_port;
-	
-	bool			m_useShm;
-	sl::shm::ISLShmQueue*	m_shmQueue;
+	bool			_connect;
+	int32			_port;
+	sl::SLString<game::MAX_IP_LEN>	_ip;
+	bool			_ipcTransfor;
+
+	static sl::SLPool<NodeSession> s_pool;
 };
 
-CREATE_OBJECT_POOL(NodeSession);
 #endif

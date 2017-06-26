@@ -48,10 +48,17 @@ void Cluster::newNodeComing(sl::api::IKernel* pKernel, const int32 nodeType, con
 		return;
 
 	_openNodes.insert(nodeIdx);
-	_harbor->connect(ip, port, newNodeType, newNodeId);
+	_harbor->connect(ip, port, newNodeType, newNodeId, isSameDeivce(pKernel->getLocalIp(), ip));
 }
 
 
 void Cluster::onTime(sl::api::IKernel* pKernel, int64 timetick){
 	_harbor->connect("127.0.0.1", 7700, -2, 1);
+}
+
+bool Cluster::isSameDeivce(const char* localIp, const char* remoteIp){
+	if (strcmp(remoteIp, "127.0.0.1") || strcmp(localIp, remoteIp) == 0)
+		return true;
+
+	return false;
 }

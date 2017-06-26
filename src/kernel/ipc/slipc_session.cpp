@@ -9,8 +9,6 @@ IPCSession::IPCSession(ITcpSession* pTcpSession, shm::ISLShmQueue* shmQueue, int
 	m_remoteId(remoteId)
 {
 	m_pTcpSession->m_pPipe = this;
-	m_msgBuf.currSize = 0;
-	m_msgBuf.msgSize = 0;
 }
 
 IPCSession::~IPCSession()
@@ -35,9 +33,6 @@ void IPCSession::onTerminate(){
 }
 
 void IPCSession::send(const void* pContext, int dwLen){
-	int32 nodeId = m_remoteId & 0xFFFFFFFF;
-	int32 nodeType = (uint64)m_remoteId >> 32;
-	KERNEL_LOG("-------------------------put data on[%d %d]", nodeType, nodeId);
 	m_pShmQueue->putData(pContext, dwLen);
 }
 
@@ -50,26 +45,21 @@ const char* IPCSession::getRemoteIP(){
 }
 
 int32 IPCSession::procRecv(){
-	while (m_pShmQueue->hasCode()){
-		int32 readLen = 0;
-		m_pShmQueue->getData(m_msgBuf.buf + m_msgBuf.currSize, 4096 - m_msgBuf.currSize, readLen);
-		if (m_msgBuf.msgSize == 0 && readLen > 0){
-			SLASSERT(m_msgBuf.currSize == 0, "wtf");
-			m_msgBuf.msgSize = *(int32*)(m_msgBuf.buf + sizeof(int32));
-		}
-		m_msgBuf.currSize += readLen;
-
-		if (m_msgBuf.msgSize > 0 && m_msgBuf.currSize >= m_msgBuf.msgSize){
-			onRecv(m_msgBuf.buf, m_msgBuf.currSize);
-			m_msgBuf.msgSize = 0;
-			m_msgBuf.currSize = 0;
-
-			int32 nodeId = m_remoteId & 0xFFFFFFFF;
-			int32 nodeType = (uint64)m_remoteId >> 32;
-			KERNEL_LOG("+++++++++++++++++get  data from[%d %d]", nodeType, nodeId);
+	char temp[10240];
+	while (true){
+		const char* data = m_pShmQueue->peekData(temp, sizeof(int32)* 2);
+		if (data == nullptr)
 			break;
-		}
+
+		int32 msgSize = *(int32*)(data + sizeof(int32));
+		data = m_pShmQueue->peekData(temp, msgSize);
+		if (data == nullptr)
+			break;
+
+		onRecv(data, msgSize);
+		m_pShmQueue->skip(msgSize);
 	}
+
 	return 0;
 }
 

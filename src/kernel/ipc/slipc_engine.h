@@ -3,10 +3,10 @@
 #include "slshm.h"
 #include "slsingleton.h"
 #include <unordered_map>
-#include <list>
-#include <set>
 #include "slipc_session.h"
 #include "slipc_mq.h"
+#include "slikernel.h"
+
 namespace sl{
 namespace core{
 class IPCEngine : public SLSingleton<IPCEngine>{
@@ -16,12 +16,11 @@ public:
 	virtual bool initialize();
 	virtual bool destory();
 
-	virtual bool addIPCServer(sl::api::ITcpServer* server,uint64 serverId);
-	virtual bool addIPCClient(sl::api::ITcpSession* session, uint64 clientId, uint64 serverId, int32 size);
-	virtual const char* getInternetIp();
+	virtual bool addIPCClient(sl::api::ITcpSession* session, const int64 clientId, const int64 serverId, const int32 sendSize, const int32 recvSize);
+	virtual bool addIPCServer(sl::api::ITcpServer* server, const int64 serverId);
 
-	void onNewConnect(uint64 clientId);
-	void onDisconnect(uint64 clientId);
+	void onNewConnect(int64 clientId, int32 sendSize, int32 recvSize);
+	void onDisconnect(int64 clientId);
 
 	virtual int64 loop(int64 overTime);
 
@@ -34,7 +33,7 @@ private:
 	std::unordered_map<int64, IPCSession*> m_ipcSessons;
 	IPCSessionFactory*			m_sessionFactory;
 	uint64						m_serverId;
-	SLIpcMq						m_ipcMQ;
+	SLIpcMq*					m_ipcMQ;
 };
 }
 }

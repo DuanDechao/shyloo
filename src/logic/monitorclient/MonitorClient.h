@@ -10,7 +10,7 @@
 
 class IClient;
 class MonitorClient : public sl::api::IModule, public IClientListener, public sl::SLHolder<MonitorClient>{
-	typedef std::function<void(sl::api::IKernel* pKernel, const int64 id, const sl::OBStream& args)>  MONITOR_CB;
+	typedef std::function<void(sl::api::IKernel* pKernel, const sl::OBStream& args)>  MONITOR_CB;
 	typedef std::function<void(sl::api::IKernel* pKernel)>  MONITOR_FUNC;
 
 	enum{
@@ -24,18 +24,17 @@ public:
 	virtual void rgsSvrMessageHandler(int32 messageId, const MONITOR_CB& handler);
 	virtual void rgsMonitorFunc(int32 funcId, const MONITOR_FUNC& func);
 
-	virtual void onServerConnected(sl::api::IKernel* pKernel, const int64 id);
-	virtual void onServerDisConnected(sl::api::IKernel* pKernel, const int64 id);
-	virtual int32 onServerMsg(sl::api::IKernel* pKernel, const int64 id, const void* context, const int32 size);
+	virtual void onServerConnected(sl::api::IKernel* pKernel);
+	virtual void onServerDisConnected(sl::api::IKernel* pKernel);
+	virtual int32 onServerMsg(sl::api::IKernel* pKernel, const void* context, const int32 size);
 
 	void shutDownServer(sl::api::IKernel* pKernel);
 
 private:
-	void sendToSvr(sl::api::IKernel* pKernel, const int64 id, const int32 msgId, const sl::OBStream& buf);
+	void sendToSvr(sl::api::IKernel* pKernel, const int32 msgId, const sl::OBStream& buf);
 
 private:
 	IClient*	_client;
-	int32		_clientId;
 
 	std::unordered_map<int32, MONITOR_CB> _svrProtos;
 	std::unordered_map<int32, MONITOR_FUNC> _monitorFunc;

@@ -4,12 +4,14 @@
 #include "slobjectpool.h"
 
 class Client;
-class ClientSession : public sl::api::ITcpSession, public sl::api::ITimer
-{
+class ClientSession : public sl::api::ITcpSession, public sl::api::ITimer{
 public:
-	ClientSession();
-	ClientSession(Client* pClient);
-	~ClientSession();
+	ClientSession(Client* pClient) : _client(pClient), _ip(""), _port(0) {}
+	virtual ~ClientSession(){
+		_client = nullptr;
+		_ip = "";
+		_port = 0;
+	}
 
 	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick);
@@ -17,20 +19,18 @@ public:
 	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick) {}
 	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick) {}
 	
-	void setConnect(const char* ip, const int32 port);
+	inline void setConnect(const char* ip, const int32 port){
+		_ip = ip;
+		_port = port;
+	}
 
 	virtual int32 onRecv(sl::api::IKernel* pKernel, const char* pContext, int dwLen);
 	virtual void onConnected(sl::api::IKernel* pKernel);
 	virtual void onDisconnect(sl::api::IKernel* pKernel);
 
 private:
-	int64			m_id;
-	Client*			m_client;
-
-	bool			m_bConnect;
-	std::string		m_ip;
-	int32			m_port;
+	Client*			_client;
+	std::string		_ip;
+	int32			_port;
 };
-
-CREATE_OBJECT_POOL(ClientSession);
 #endif

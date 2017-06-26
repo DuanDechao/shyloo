@@ -3,23 +3,23 @@
 #include "slargs.h"
 
 sl::api::ITcpSession* NodeSessionTcpServer::mallocTcpSession(sl::api::IKernel* pKernel){
-	return CREATE_POOL_OBJECT(NodeSession, m_pHarbor);
+	return NodeSession::create(_harbor);
 }
 
 sl::api::ITcpSession* NodeSessionIpcServer::mallocTcpSession(sl::api::IKernel* pKernel){
-	return CREATE_POOL_OBJECT(NodeSession, m_pHarbor);
+	return NodeSession::create(_harbor);
 }
 
 class NodeCBMessageHandler : public INodeMessageHandler{
 public:
-	NodeCBMessageHandler(const NodeCB cb) : m_cb(cb){}
+	NodeCBMessageHandler(const NodeCB cb) : _cb(cb){}
 	virtual ~NodeCBMessageHandler() {}
 
 	virtual void DealNodeMessage(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* pContext, const int32 size){
-		m_cb(pKernel, nodeType, nodeId, sl::OBStream(pContext, size));
+		_cb(pKernel, nodeType, nodeId, sl::OBStream(pContext, size));
 	}
 private:
-	NodeCB		m_cb;
+	NodeCB		_cb;
 };
 
 
@@ -38,9 +38,6 @@ private:
 
 bool Harbor::initialize(sl::api::IKernel * pKernel){
 	_pKernel = pKernel;
-	_shmMgr = sl::shm::newShmMgr();
-	if (nullptr == _shmMgr)
-		return false;
 	return true;
 }
 
@@ -52,6 +49,7 @@ bool Harbor::launched(sl::api::IKernel * pKernel){
 	}
 	_sendSize = server_conf.root()["harbor"][0].getAttributeInt32("send");
 	_recvSize = server_conf.root()["harbor"][0].getAttributeInt32("recv");
+	_useIpc = server_conf.root()["harbor"][0].getAttributeBoolean("useIpc");
 	const sl::xml::ISLXmlNode& nodes = server_conf.root()["harbor"][0]["node"];
 	for (int32 i = 0; i < nodes.count(); i++){
 		int32 type = nodes[i].getAttributeInt32("type");
@@ -134,37 +132,38 @@ void Harbor::addNodeListener(INodeListener* pNodeListener){
 	_listenerPool.push_back(pNodeListener);
 }
 
-void Harbor::connect(const char* ip, const int32 port, const int32 nodeType, const int32 nodeId){
-	/*sl::api::IKernel * pKernel = _pKernel;
-	NodeSession* pSession = (NodeSession *)_pTcpServer->mallocTcpSession(_pKernel);
-	SLASSERT(pSession, "wtf");
-	pSession->setConnect(ip, port);
-	if (!_pKernel->startTcpClient(pSession, ip, port, _sendSize, _recvSize)){
-	START_TIMER(pSession, 0, TIMER_BEAT_FOREVER, RECONNECT_INTERVAL);
-	ERROR_LOG("connect [%s:%d] failed!", ip, port);
+void Harbor::connect(const char* ip, const int32 port, const int32 nodeType, const int32 nodeId, bool ipcTransfor){
+	if (_useIpc && ipcTransfor){
+		sl::api::IKernel* pKernel = _pKernel;
+		NodeSession* pSession = (NodeSession *)_pIpcServer->mallocTcpSession(_pKernel);
+		SLASSERT(pSession, "wtf");
+		pSession->setConnect(ip, port);
+		pSession->setNodeInfo(nodeType, nodeId);
+
+		int64 localId = (int64)_nodeId | ((int64)_nodeType << 32);
+		int64 remoteId = (int64)nodeId | ((int64)nodeType << 32);
+		if (!_pKernel->addIPCClient(pSession, localId, remoteId, _sendSize, _recvSize)){
+			START_TIMER(pSession, 0, TIMER_BEAT_FOREVER, RECONNECT_INTERVAL);
+			ERROR_LOG("connect [%s:%d] failed!", ip, port);
+		}
+		else{
+			TRACE_LOG("connect [%s:%d] success!", ip, port);
+		}
 	}
 	else{
-	TRACE_LOG("connect [%s:%d] success!", ip, port);
-	}*/
+		sl::api::IKernel * pKernel = _pKernel;
+		NodeSession* pSession = (NodeSession *)_pTcpServer->mallocTcpSession(_pKernel);
+		SLASSERT(pSession, "wtf");
+		pSession->setConnect(ip, port);
+		pSession->setNodeInfo(nodeType, nodeId);
 
-
-	sl::api::IKernel * pKernel = _pKernel;
-	NodeSession* pSession = (NodeSession *)_pIpcServer->mallocTcpSession(_pKernel);
-	SLASSERT(pSession, "wtf");
-	pSession->setConnect(ip, port);
-	pSession->setNodeInfo(nodeType, nodeId);
-	
-	int64 localId = getNodeType();
-	localId = (localId << 32) | getNodeId();
-
-	int64 remoteId = nodeType;
-	remoteId = (remoteId << 32) | nodeId;
-	if (!_pKernel->addIPCClient(pSession, localId, remoteId, 65525)){
-		START_TIMER(pSession, 0, TIMER_BEAT_FOREVER, RECONNECT_INTERVAL);
-		ERROR_LOG("connect [%s:%d] failed!", ip, port);
-	}
-	else{
-		TRACE_LOG("connect [%s:%d] success!", ip, port);
+		if (!_pKernel->startTcpClient(pSession, ip, port, _sendSize, _recvSize)){
+			START_TIMER(pSession, 0, TIMER_BEAT_FOREVER, RECONNECT_INTERVAL);
+			ERROR_LOG("connect [%s:%d] failed!", ip, port);
+		}
+		else{
+			TRACE_LOG("connect [%s:%d] success!", ip, port);
+		}
 	}
 }
 
@@ -187,13 +186,14 @@ void Harbor::startListening(sl::api::IKernel* pKernel){
 		TRACE_LOG("start tcp server[%s:%d] failed", "0.0.0.0", _port);
 	}
 
-	int64 serverIpcId = getNodeType();
-	serverIpcId = (serverIpcId << 32) | getNodeId();
-	if (pKernel->addIPCServer(_pIpcServer, serverIpcId)){
-		TRACE_LOG("start ipc server[%s:%d] success", "0.0.0.0", _port);
-	}
-	else{
-		TRACE_LOG("start ipc server[%s:%d] failed", "0.0.0.0", _port);
+	if (_useIpc){
+		int64 serverIpcId = (int64)_nodeId | ((int64)_nodeType << 32);
+		if (pKernel->addIPCServer(_pIpcServer, serverIpcId)){
+			TRACE_LOG("start ipc server[%s:%d] success", "0.0.0.0", _port);
+		}
+		else{
+			TRACE_LOG("start ipc server[%s:%d] failed", "0.0.0.0", _port);
+		}
 	}
 }
 

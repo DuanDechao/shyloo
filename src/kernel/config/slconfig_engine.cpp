@@ -44,10 +44,12 @@ bool ConfigEngine::loadCoreConfig(){
 		return false;
 	}
 
-	char envirPath[MAX_PATH] = { 0 };
-	SafeSprintf(envirPath, sizeof(envirPath), "%s/%s", sl::getAppPath(), server_conf.root()["envir"][0].getAttributeString("path"));
-	m_envirPath = envirPath;
+	//char envirPath[MAX_PATH] = { 0 };
+	m_envirPath = server_conf.root()["envir"][0].getAttributeString("path");
 	m_envirPath += "/";
+
+	m_ipcPath = server_conf.root()["ipc"][0].getAttributeString("path");
+	m_ipcPath += "/";
 
 	char moduleConfPath[MAX_PATH] = { 0 };
 	SafeSprintf(moduleConfPath, sizeof(moduleConfPath), "%s/core/%s/conf.xml", sl::getAppPath(), name);
@@ -67,6 +69,7 @@ bool ConfigEngine::loadCoreConfig(){
 
 	m_stCoreConfig.sNetlooptick = conf.root()["net"][0].getAttributeInt32("tick");
 	m_stCoreConfig.sTimerlooptick = conf.root()["timer"][0].getAttributeInt32("tick");
+	m_stCoreConfig.sIpclooptick = conf.root()["ipc"][0].getAttributeInt32("tick");
 	m_stCoreConfig.sLoopduration = conf.root()["loop"][0].getAttributeInt32("tick");
 	if (conf.root().subNodeExist("async")){
 		m_stCoreConfig.sAsynclooptick = conf.root()["async"][0].getAttributeInt32("tick");

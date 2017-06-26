@@ -1,6 +1,8 @@
 #include "slipc_engine.h"
 #include "slipc_session.h"
 #include "slkernel.h"
+#include "slipc_mq.h"
+
 using namespace sl::shm;
 namespace sl{
 namespace core{
@@ -12,6 +14,11 @@ bool IPCEngine::initialize(){
 	m_pShmMgr = newShmMgr();
 	if (nullptr == m_pShmMgr)
 		return false;
+
+	m_ipcMQ = SLIpcMq::getInstance();
+	if (nullptr == m_ipcMQ)
+		return false;
+
 	return true;
 }
 
@@ -24,33 +31,33 @@ bool IPCEngine::destory(){
 	return true;
 }
 
-bool IPCEngine::addIPCServer(sl::api::ITcpServer* server, uint64 serverId){
-	if (nullptr == m_pShmMgr || m_ipcMQ.isStart())
+bool IPCEngine::addIPCServer(sl::api::ITcpServer* server, const int64 serverId){
+	if (nullptr == m_pShmMgr || m_ipcMQ->isStart())
 		return false;
 
 	m_serverId = serverId;
 	m_sessionFactory = NEW IPCSessionFactory(server);
 
-	m_ipcMQ.listen(serverId);
+	m_ipcMQ->listen(serverId);
 	
 	return true;
 }
-bool IPCEngine::addIPCClient(sl::api::ITcpSession* session, uint64 clientId, uint64 serverId, int32 size){
+bool IPCEngine::addIPCClient(sl::api::ITcpSession* session, const int64 clientId, const int64 serverId, const int32 sendSize, const int32 recvSize){
 	SLASSERT(m_pShmMgr, "wtf");
 	if (m_ipcSessons.find(serverId) != m_ipcSessons.end()){
 		SLASSERT(false, "has conntected");
 		return true;
 	}
 
-	if (!m_ipcMQ.connect(serverId, clientId)){
-		//SLASSERT(false, "connect failed");
+	char shmKey[128] = { 0 };
+	SafeSprintf(shmKey, sizeof(shmKey), "%s/shmkey/%lld_%lld.key", Kernel::getInstance()->getIpcPath(), clientId, serverId);
+	ISLShmQueue* shmQueue = m_pShmMgr->createShmQueue(true, shmKey, sendSize, recvSize);
+	SLASSERT(shmQueue, "wtf");
+
+	if (!m_ipcMQ->connect(serverId, clientId, sendSize, recvSize)){
+		m_pShmMgr->recover(shmQueue);
 		return false; 
 	}
-
-	char shmKey[128] = { 0 };
-	SafeSprintf(shmKey, sizeof(shmKey), "./shmkey/%lld_%lld.key", (uint64)clientId, (uint64)serverId);
-	ISLShmQueue* shmQueue = m_pShmMgr->createShmQueue(true, shmKey, size);
-	SLASSERT(shmQueue, "wtf");
 	
 	IPCSession* ipcSession = CREATE_POOL_OBJECT(IPCSession, session, shmQueue, clientId, serverId);
 	SLASSERT(ipcSession, "wtf");
@@ -63,29 +70,32 @@ bool IPCEngine::addIPCClient(sl::api::ITcpSession* session, uint64 clientId, uin
 int64 IPCEngine::loop(int64 overTime){
 	int64 startTime = sl::getTimeMilliSecond();
 	
-	m_ipcMQ.loop();
+	m_ipcMQ->loop();
 
 	if (!m_ipcSessons.empty()){
 		int64 costTime = 0;
-		std::unordered_map<int64, IPCSession*>::iterator sessionItor = m_ipcSessons.begin();
-		for (; sessionItor != m_ipcSessons.end(); sessionItor++){
-			costTime = sl::getTimeMilliSecond() - startTime;
-			if (costTime > overTime)
-				return costTime;
-
-			sessionItor->second->procRecv();
-		}
+		while (true){
+			bool needBreak = true;
 			
+			std::unordered_map<int64, IPCSession*>::iterator sessionItor = m_ipcSessons.begin();
+			for (; sessionItor != m_ipcSessons.end(); sessionItor++){
+				if (sessionItor->second->procRecv() > 0)
+					needBreak = false;
+
+				if (needBreak)
+					break;
+			}
+		}
 	}
 	//ECHO_ERROR("IPCEngine loop");
 	return sl::getTimeMilliSecond() - startTime;
 }
 
 
-void IPCEngine::onNewConnect(uint64 clientId){
+void IPCEngine::onNewConnect(int64 clientId, int32 sendSize, int32 recvSize){
 	char shmKey[128] = { 0 };
-	SafeSprintf(shmKey, sizeof(shmKey), "./shmkey/%lld_%lld.key", (uint64)clientId, (uint64)m_serverId);
-	ISLShmQueue* shmQueue = m_pShmMgr->createShmQueue(false, shmKey, 65525);
+	SafeSprintf(shmKey, sizeof(shmKey), "%s/shmkey/%lld_%lld.key", Kernel::getInstance()->getIpcPath(), clientId, m_serverId);
+	ISLShmQueue* shmQueue = m_pShmMgr->createShmQueue(false, shmKey, sendSize, recvSize, false);
 	SLASSERT(shmQueue, "wtf");
 
 	IPCSession* ipcSession = m_sessionFactory->createSession(shmQueue, m_serverId, clientId);
@@ -93,17 +103,13 @@ void IPCEngine::onNewConnect(uint64 clientId){
 	ipcSession->onEstablish();
 }
 
-void IPCEngine::onDisconnect(uint64 clientId){
+void IPCEngine::onDisconnect(int64 clientId){
 	if (m_ipcSessons.find(clientId) == m_ipcSessons.end()){
 		SLASSERT(false, "wtf");
 		return;
 	}
 	
 	return m_ipcSessons[clientId]->onTerminate();
-}
-
-const char* IPCEngine::getInternetIp(){
-	return Kernel::getInstance()->getInternetIp();
 }
 
 

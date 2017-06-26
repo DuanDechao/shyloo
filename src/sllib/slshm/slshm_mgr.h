@@ -10,7 +10,7 @@ namespace sl{
 namespace shm{
 class SLShmMgr : public ISLShmMgr, public CSingleton<SLShmMgr>{
 public:
-	virtual ISLShmQueue* SLAPI createShmQueue(bool bBackEnd, const char* pszShmKey, int iShmSize);
+	virtual ISLShmQueue* SLAPI createShmQueue(bool bBackEnd, const char* pszShmKey, int sendSize, int recvSize, bool clear = true);
 	virtual void SLAPI release(void) { DEL this; }
 	virtual void SLAPI recover(ISLShmQueue* queue);
 

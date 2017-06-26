@@ -2,7 +2,7 @@
 <config>
 	<loop tick="33" />
 	<net tick="20" reconnect="500" />
+	<ipc tick="20" />
 	<timer tick="10" />
-	<db tick="10" minThreadNum="5" maxThreadNum="8" connectionNum="5" />
 	<harbor type="10" />
 </config>

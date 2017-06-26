@@ -3,17 +3,24 @@
 #include "IAgent.h"
 #include <unordered_map>
 #include "slsingleton.h"
+#include "slpool.h"
+#include "AgentSession.h"
+
 class IHarbor;
-class AgentSession;
 class Agent;
 class AgentSessionServer : public sl::api::ITcpServer{
 public:
-	AgentSessionServer(Agent* pAgent) :m_agent(pAgent){}
+	AgentSessionServer(Agent* pAgent) :_agent(pAgent){}
 	virtual ~AgentSessionServer(){}
 	virtual sl::api::ITcpSession* mallocTcpSession(sl::api::IKernel* pKernel);
 
+	inline void recover(AgentSession* session){
+		s_pool.recover(session);
+	}
+
 private:
-	Agent* m_agent;
+	Agent* _agent;
+	static sl::SLPool<AgentSession> s_pool;
 };
 
 class Agent : public IAgent, public sl::SLHolder<Agent>{
@@ -27,6 +34,10 @@ public:
 	int32 onRecv(int64 id, const char* pContext, const int32 size);
 	int64 onOpen(AgentSession* pSession);
 	void onClose(int64 id);
+
+	inline void recover(AgentSession* session){
+		_agentServer->recover(session);
+	}
 
 	virtual void send(const int64 id, const void* pBuf, const int32 size);
 	virtual void kick(const int64 id);

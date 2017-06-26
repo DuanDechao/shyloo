@@ -4,7 +4,6 @@
 
 bool MonitorClient::initialize(sl::api::IKernel * pKernel){
 	_client = nullptr;
-	_clientId = 0;
 	return true;
 }
 
@@ -38,22 +37,25 @@ void MonitorClient::rgsSvrMessageHandler(int32 messageId, const MONITOR_CB& hand
 	_svrProtos[messageId] = handler;
 }
 
-void MonitorClient::onServerConnected(sl::api::IKernel* pKernel, const int64 id){
-	_clientId = id;
+void MonitorClient::onServerConnected(sl::api::IKernel* pKernel){
 	int32 funcId = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("func"));
-	shutDownServer(pKernel);
+	switch (funcId){
+	case MONITOR_FUNC_SVR_SHUTDOWN: shutDownServer(pKernel); break;
+	default:
+		break;
+	}
 }
 
-void MonitorClient::onServerDisConnected(sl::api::IKernel* pKernel, const int64 id){
+void MonitorClient::onServerDisConnected(sl::api::IKernel* pKernel){
 	pKernel->shutdown();
 }
 
 void MonitorClient::shutDownServer(sl::api::IKernel* pKernel){
 	sl::IBStream<32> args;
-	sendToSvr(pKernel, _clientId, MonitorProtocol::CLIENT_SHUTDOWN_SERVER_REQ, args.out());
+	sendToSvr(pKernel, MonitorProtocol::CLIENT_SHUTDOWN_SERVER_REQ, args.out());
 }
 
-int32 MonitorClient::onServerMsg(sl::api::IKernel* pKernel, const int64 id, const void* context, const int32 size){
+int32 MonitorClient::onServerMsg(sl::api::IKernel* pKernel, const void* context, const int32 size){
 	if (size < sizeof(int32)* 2){
 		return 0;
 	}
@@ -66,7 +68,7 @@ int32 MonitorClient::onServerMsg(sl::api::IKernel* pKernel, const int64 id, cons
 	int32 msgId = *((int32*)context);
 	if (_svrProtos.find(msgId) != _svrProtos.end()){
 		sl::OBStream buf((const char*)context + sizeof(int32)* 2, len);
-		_svrProtos[msgId](pKernel, id, buf);
+		_svrProtos[msgId](pKernel, buf);
 	}
 	else{
 		//SLASSERT(false, "can not find message id[%d]", msgId);
@@ -74,11 +76,11 @@ int32 MonitorClient::onServerMsg(sl::api::IKernel* pKernel, const int64 id, cons
 	return len;
 }
 
-void MonitorClient::sendToSvr(sl::api::IKernel* pKernel, const int64 id, const int32 msgId, const sl::OBStream& buf){
+void MonitorClient::sendToSvr(sl::api::IKernel* pKernel, const int32 msgId, const sl::OBStream& buf){
 	int32 header[2];
 	header[0] = msgId;
 	header[1] = buf.getSize() + sizeof(int32)* 2;
 
-	_client->send(id, header, sizeof(header));
-	_client->send(id, buf.getContext(), buf.getSize());
+	_client->send(header, sizeof(header));
+	_client->send(buf.getContext(), buf.getSize());
 }
