@@ -52,8 +52,8 @@ public:
 	virtual void syncLog(int32 filter, const char* log, const char* file, const int32 line);
 	virtual void asyncLog(int32 filter, const char* log, const char* file, const int32 line);
 
-	virtual void shutdown();
-	virtual bool isShutdown() { return m_bShutDown; }
+	virtual void shutdown() { _shutDown = true; }
+	virtual bool isShutdown() { return _shutDown; }
 	void loop();
 
 public:
@@ -63,7 +63,7 @@ public:
 	void parse(int argc, char** argv);
 
 private:
-	bool	m_bShutDown;
+	bool	_shutDown;
 	std::unordered_map<std::string, std::string> _args;
 };
 }

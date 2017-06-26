@@ -104,6 +104,7 @@ bool DBCreator::loadDBFieldsConfig(TableConfig& tableConfig, const sl::ISLXmlNod
 		}
 		SLASSERT(tableConfig._fields.find(fieldInfo._fieldName) == tableConfig._fields.end(), "wtf");
 		tableConfig._fields[fieldInfo._fieldName] = fieldInfo;
+		tableConfig._fieldsVec.push_back(fieldInfo);
 	}
 	return true;
 }
@@ -345,13 +346,10 @@ bool DBCreator::createDBTable(const char* tableName){
 
 	ostringstream os; 
 	os << "CREATE TABLE `" << tableName << "` (";
-	FieldsMap& fields = itor->second._fields;
-	auto colItor = fields.begin();
-	int32 idx = 0;
-	for (; colItor != fields.end(); ++colItor){
+	FieldsVec& fields = itor->second._fieldsVec;
+	for (int32 idx = 0; idx < (int32)fields.size(); idx++){
 		bool sep = idx != 0 ? true : false;
-		appendFieldProp(os, colItor->second, sep);
-		idx++;
+		appendFieldProp(os, fields[idx], sep);
 	}
 
 	auto indexItor = itor->second._indexs.begin();

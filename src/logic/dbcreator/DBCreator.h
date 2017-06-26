@@ -36,10 +36,12 @@ public:
 	};
 
 	typedef std::unordered_map<string, FieldInfo> FieldsMap;
+	typedef std::vector<FieldInfo> FieldsVec;
 	typedef std::unordered_map<string, IndexInfo> IndexsMap;
 	struct TableConfig{
 		string _tableName;
 		FieldsMap _fields;
+		FieldsVec _fieldsVec;
 		IndexsMap _indexs;
 		PartitionInfo _partition;
 	};

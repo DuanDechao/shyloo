@@ -1,19 +1,5 @@
 namespace sl{
 namespace network{
-inline const Address& Channel::addr() const
-{
-	return m_pEndPoint->addr();
-}
-
-inline EndPoint* Channel::getEndPoint() const
-{
-	return m_pEndPoint;
-}
-
-inline PacketReader* Channel::getPacketReader() const
-{
-	return m_pPacketReader;
-}
 
 inline PacketReceiver* Channel::getPacketReceiver() const
 {

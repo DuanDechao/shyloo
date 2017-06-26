@@ -1,26 +1,23 @@
-#ifndef _SL_NETWORKCHANNEL_H_
-#define _SL_NETWORKCHANNEL_H_
+#ifndef _SL_LIB_NET_CHANNEL_H_
+#define _SL_LIB_NET_CHANNEL_H_
 #include "slpacket.h"
 #include "slendpoint.h"
 #include "slnetbase.h"
 #include "slobjectpool.h"
 #include "sladdress.h"
 #include "slnet.h"
-namespace sl
-{
-namespace network
-{
+namespace sl{
+namespace network{
+
 class Bundle;
 class NetworkInterface;
 class PacketReader;
 class PacketSender;
 class PacketReceiver;
 
-class Channel:public ISLChannel
-{
+class Channel:public ISLChannel{
 public:
-	enum ChannelTypes
-	{
+	enum ChannelTypes{
 		//普通通道
 		CHANNEL_NORMAL = 0,
 
@@ -32,7 +29,6 @@ public:
 	typedef std::vector<Bundle*> Bundles;
 
 public:
-	Channel();
 	Channel(NetworkInterface* networkInterface,
 		const EndPoint* pEndPoint,
 		ISLPacketParser* poPacketParser,
@@ -41,14 +37,23 @@ public:
 
 	virtual ~Channel();
 
+	static Channel* create(NetworkInterface* networkInterface, const EndPoint* pEndPoint, ISLPacketParser* poPacketParser,
+		ProtocolType pt = PROTOCOL_TCP, ChannelID id = CHANNEL_ID_NULL){
+		return CREATE_FROM_POOL(s_pool, networkInterface, pEndPoint, poPacketParser, pt, id);
+	}
+
+	inline void release(){
+		s_pool.recover(this);
+	}
+
 public:
-	virtual bool SLAPI isConnected(void) { return (m_flags & FLAG_CONNECTED) > 0;}
+	virtual bool SLAPI isConnected(void) { return (_flags & FLAG_CONNECTED) > 0;}
 	virtual void SLAPI send(const char* pBuf, uint32 dwLen);
 	virtual void SLAPI disconnect(void);
 
-	virtual const uint32 SLAPI getRemoteIP(void){return m_pEndPoint ? m_pEndPoint->addr().m_ip : 0;}
-	virtual const char* SLAPI getRemoteIPStr(void) {return m_pEndPoint ? m_pEndPoint->addr().ipAsString() : "";}
-	virtual const uint16 SLAPI getRemotePort(void) { return m_pEndPoint ? m_pEndPoint->addr().m_port : 0; }
+	virtual const uint32 SLAPI getRemoteIP(void){return _pEndPoint ? _pEndPoint->addr().ip() : 0;}
+	virtual const char* SLAPI getRemoteIPStr(void) {return _pEndPoint ? _pEndPoint->addr().ipAsString() : "";}
+	virtual const uint16 SLAPI getRemotePort(void) { return _pEndPoint ? _pEndPoint->addr().port() : 0; }
 
 	virtual const uint32 SLAPI getLocalIP(void) {return 0;}
 	virtual const char* SLAPI getLocalIPStr(void) {return "";}
@@ -56,30 +61,31 @@ public:
 
 
 public:
-	const char* c_str() const;
-	ChannelID id() const { return m_id; }
-	inline const Address& addr() const;
+	inline const char* c_str() const;
+	inline ChannelID id() const { return _id; }
+	inline const Address& addr() const { _pEndPoint->addr(); }
+	inline EndPoint* getEndPoint() const{ return  _pEndPoint; }
 
-	uint32 numPacketSent() const { return m_numPacketsSent; }
-	uint32 numPacketReceived() const { return m_numPacketsReceived; }
-	uint32 numBytesSent() const { return m_numBytesSent; }
-	uint32 numBytesReceived() const { return m_numBytesReceived; }
-	uint64 lastReceivedTime() const { return m_lastReceivedTime; }
-	void updateLastReceivedTime() { m_lastReceivedTime = getTimeMilliSecond(); }
+	inline uint32 numPacketSent() const { return _numPacketsSent; }
+	inline uint32 numPacketReceived() const { return _numPacketsReceived; }
+	inline uint32 numBytesSent() const { return _numBytesSent; }
+	inline uint32 numBytesReceived() const { return _numBytesReceived; }
+	inline uint64 lastReceivedTime() const { return _lastReceivedTime; }
+	inline void updateLastReceivedTime() { _lastReceivedTime = getTimeMilliSecond(); }
 
-	void setConnected();
-	bool isDestroyed() const {return (m_flags & FLAG_DESTROYED) > 0;}
-	bool isCondemn() const { return (m_flags & FLAG_CONDEMN) > 0; }
-	void condemn();
-	bool sending() const { return (m_flags & FLAG_SENDING) > 0; }
+	inline bool isDestroyed() const {return (_flags & FLAG_DESTROYED) > 0;}
+	inline bool isCondemn() const { return (_flags & FLAG_CONDEMN) > 0; }
+	inline bool sending() const { return (_flags & FLAG_SENDING) > 0; }
 
-	NetworkInterface& getNetworkInterface()	{return *m_pNetworkInterface;}
-	NetworkInterface* getNetworkInterfacePtr() {return m_pNetworkInterface;}
-	void setNetworkInterface(NetworkInterface* pNetworkInterface) {m_pNetworkInterface = pNetworkInterface;}
-	inline void setSession(ISLSession* poSession) { m_pSession = poSession; }
-	inline ISLSession* getSession() { return m_pSession; }
+	inline NetworkInterface& getNetworkInterface()	{return *_pNetworkInterface;}
+	inline NetworkInterface* getNetworkInterfacePtr() {return _pNetworkInterface;}
+	inline void setNetworkInterface(NetworkInterface* pNetworkInterface) {_pNetworkInterface = pNetworkInterface;}
+	inline void setSession(ISLSession* poSession) { _pSession = poSession; }
+	inline ISLSession* getSession() { return _pSession; }
 	
-	inline EndPoint* getEndPoint() const;
+	inline void setConnected();
+	inline void condemn();
+	
 	Bundles& bundles();
 	const Bundles& bundles() const;
 	int32 bundlesLength();
@@ -89,10 +95,10 @@ public:
 	void delayedSend();
 	bool waitSend();
 	
-	inline PacketReader* getPacketReader() const;
-	inline PacketSender* getPacketSender() const;
-	inline void setPacketSender(PacketSender* pPacketSender);
-	inline PacketReceiver* getPacketReceiver() const;
+	inline PacketReader* getPacketReader() const{ return _pPacketReader; }
+	inline PacketSender* getPacketSender() const { return _pPacketSender; }
+	inline void setPacketSender(PacketSender* pPacketSender){ _pPacketSender = pPacketSender; }
+	inline PacketReceiver* getPacketReceiver() const{ return _pPacketReceiver; }
 	void processPackets();
 	void destroy(bool notify = true);
 
@@ -108,16 +114,13 @@ private:
 
 	void clearBundle();
 	Bundle* createSendBundle(); //创建发送bundle,该bundle可能是从send放入发送队列中获取的，如果队列为空，创建一个新的
-	inline void pushBundle(Bundle* pBundle);
+	inline void pushBundle(Bundle* pBundle){ _bundles.push_back(pBundle); }
 
-	
 	void setEndPoint(const EndPoint* pEndPoint);
-	BufferedReceives& bufferedReceives() { return m_bufferedReceives; }
-
+	BufferedReceives& bufferedReceives() { return _bufferedReceives; }
 
 private:
-	enum Flags
-	{
+	enum Flags{
 		FLAG_SENDING	=	0x00000001,			///< 发送信息中
 		FLAG_DESTROYED	=	0x00000002,			///< 通道已经销毁
 		FLAG_CONDEMN	=	0x00000004,			///< 该频道已经变得不合法
@@ -125,40 +128,36 @@ private:
 	};
 
 private:
-	
-	ProtocolType				m_protocolType;
-	ChannelID					m_id;
-	uint64						m_lastReceivedTime;
-	Bundles						m_bundles;
-	BufferedReceives			m_bufferedReceives;
-	ChannelTypes				m_channelType;
-	uint32						m_flags;
+	ProtocolType				_protocolType;
+	ChannelID					_id;
+	uint64						_lastReceivedTime;
+	Bundles						_bundles;
+	BufferedReceives			_bufferedReceives;
+	ChannelTypes				_channelType;
+	uint32						_flags;
 	
 	///statistics
-	uint32						m_numPacketsSent;
-	uint32						m_numPacketsReceived;
-	uint32						m_numBytesSent;
-	uint32						m_numBytesReceived;
-	uint32						m_lastTickBytesReceived;
-	uint32						m_lastTickBytesSent;
+	uint32						_numPacketsSent;
+	uint32						_numPacketsReceived;
+	uint32						_numBytesSent;
+	uint32						_numBytesReceived;
+	uint32						_lastTickBytesReceived;
+	uint32						_lastTickBytesSent;
 
 	//外部对象指针，不需要内部释放
-	NetworkInterface*			m_pNetworkInterface;
-	ISLSession*					m_pSession;
-	ISLPacketParser*			m_pPacketParser;
+	NetworkInterface*			_pNetworkInterface;
+	ISLSession*					_pSession;
+	ISLPacketParser*			_pPacketParser;
 
 	//内部对象指针，需要内部释放
-	EndPoint*					m_pEndPoint;
-	PacketReader*				m_pPacketReader;
-	PacketReceiver*				m_pPacketReceiver;
-	PacketSender*				m_pPacketSender;
+	EndPoint*					_pEndPoint;
+	PacketReader*				_pPacketReader;
+	PacketReceiver*				_pPacketReceiver;
+	PacketSender*				_pPacketSender;
 	
-	
+	static sl::SLPool<Channel>  s_pool;
 };
 
-CREATE_OBJECT_POOL(Channel);
-
 }
 }
-#include "slchannel.inl"
 #endif

@@ -31,26 +31,24 @@ ListenerReceiver::~ListenerReceiver(){
 	m_pPacketParser = nullptr;
 }
 
-int ListenerReceiver::handleInputNotification(int fd)
-{
+int ListenerReceiver::handleInputNotification(int fd){
 	int tickcount = 0;
-	while(tickcount++ <256)
-	{
+	while(tickcount++ <256){
 		EndPoint* pNewEndPoint = m_endpoint->accept();
 		if(pNewEndPoint == NULL){
 			break;
 		}
 		else{
-			Channel* pChannel = CREATE_POOL_OBJECT(Channel, m_networkInterface, pNewEndPoint, m_pPacketParser);
+			Channel* pChannel = Channel::create(m_networkInterface, pNewEndPoint, m_pPacketParser);
 			if (!pChannel){
 				pChannel->destroy();
-				RELEASE_POOL_OBJECT(Channel, pChannel);
+				pChannel->release();
 				return 0;
 			}
 
 			if(!m_networkInterface->registerChannel(pChannel)){
 				pChannel->destroy();
-				RELEASE_POOL_OBJECT(Channel, pChannel);
+				pChannel->release();
 			}
 
 			//

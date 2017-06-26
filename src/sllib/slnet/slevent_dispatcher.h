@@ -3,19 +3,15 @@
 #include "slinterfaces.h"
 #include "sltimer.h"
 
-namespace sl
-{
-namespace network
-{
+namespace sl{
+namespace network{
 class DispatcherCoupling;
 class ErrorReporter;
 class EventPoller;
 
-class EventDispatcher
-{
+class EventDispatcher{
 public:
-	enum EVENT_DISPATCHER_STATUS
-	{
+	enum EVENT_DISPATCHER_STATUS{
 		EVENT_DISPATCHER_STATUS_RUNNING = 0,
 		EVENT_DISPATCHER_STATUS_WAITING_BREAK_PROCESSING = 1,
 		EVENT_DISPATCHER_STATUS_BREAK_PROCESSING = 2
@@ -39,13 +35,13 @@ public:
 	bool deregisterWriteFileDescriptor(int32 fd);
 
 	inline EventPoller* createPoller();
-	EventPoller* pPoller() {return m_pPoller;}
+	inline EventPoller* pPoller() {return _pPoller;}
 
 	int processNetwork(int64 overTime);
 
 protected:
-	int8			m_breakProcessing;
-	EventPoller*	m_pPoller;
+	int8			_breakProcessing;
+	EventPoller*	_pPoller;
 
 };
 }

@@ -3,38 +3,31 @@
 
 #include "slnet.h"
 #include "slchannel.h"
-namespace sl
-{
-namespace network
-{
-class CSLConnector: public ISLConnector
-{
+namespace sl{
+namespace network{
+
+class CSLConnector: public ISLConnector{
 public:
 	CSLConnector();
 	virtual ~CSLConnector();
 
 	virtual void SLAPI setSession(ISLSession* pSession);
-
 	virtual bool SLAPI connect(const char* pszIP, uint16 wPort);
-
 	virtual bool SLAPI reConnect(void);
-
 	virtual void SLAPI setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize);
-
 	virtual void SLAPI setPacketParser(ISLPacketParser* poPacketParser);
-
 	virtual void SLAPI release(void);
 
 private:
 	//外部对象指针，不需要本类释放
-	ISLSession*			m_pSession;
-	NetworkInterface*	m_pNetworkInterface;
-	ISLPacketParser*	m_pPacketParser;
+	ISLSession*			_pSession;
+	NetworkInterface*	_pNetworkInterface;
+	ISLPacketParser*	_pPacketParser;
 
-	uint32				m_dwRecvBufSize;
-	uint32				m_dwSendBufSize;
-	const char*			m_pszIP;
-	uint16				m_wPort;
+	uint32				_dwRecvBufSize;
+	uint32				_dwSendBufSize;
+	const char*			_pszIP;
+	uint16				_wPort;
 	
 };
 }

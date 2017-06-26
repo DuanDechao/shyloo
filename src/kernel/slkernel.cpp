@@ -64,8 +64,8 @@ bool Kernel::destory(){
 
 void Kernel::loop() {
 	srand((uint32)time(nullptr));
-	m_bShutDown = false;
-	while(!m_bShutDown){
+	_shutDown = false;
+	while (!_shutDown){
 		int64 startTick = sl::getTimeMilliSecond();
 		int64 netTick = NetEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sNetlooptick);
 		int64 ipcTick = IPCEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sIpclooptick);
@@ -169,11 +169,6 @@ bool Kernel::addIPCServer(sl::api::ITcpServer* server, const int64 serverId){
 bool Kernel::addIPCClient(sl::api::ITcpSession* session, const int64 clientId, const int64 serverId, const int32 sendSize, const int32 recvSize){
 	return IPCEngine::getInstance()->addIPCClient(session, clientId, serverId, sendSize, recvSize);
 }
-
-void Kernel::shutdown(){
-	m_bShutDown = true;
-}
-
 
 void Kernel::parse(int argc, char** argv){
 	for (int32 i = 1; i < argc; i++){

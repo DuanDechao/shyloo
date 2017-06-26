@@ -1,24 +1,28 @@
 #include "sladdress.h"
-namespace sl
-{
-namespace network
-{
+namespace sl{
+namespace network{
+
 char Address::s_stringBuf[2][32] = {{0},{0}};
-
 int Address::s_curStringBuf = 0;
-const Address Address::NONE(0,0);
 
-Address::Address(std::string ip, uint16 port)
-	:m_ip(0),
-	 m_port(htons(port))
-{
-	network::Address::string2ip(ip.c_str(), m_ip);
+Address::Address():_ip(0),_port(0)
+{}
+
+Address::Address(uint32 ip, uint16 port):_ip(ip), _port(port)
+{}
+
+Address::Address(const char* ip, uint16 port):_ip(0), _port(htons(port)){
+	network::Address::string2ip(ip, _ip);
 }
 
-int32 Address::writeToString(char* str, int32 length) const
-{
-	uint32 uip = ntohl(m_ip);
-	uint16 uport = ntohs(m_port);
+Address::~Address(){
+	_ip = 0;
+	_port = 0;
+};
+
+int32 Address::writeToString(char* str, int32 length) const{
+	uint32 uip = ntohl(_ip);
+	uint16 uport = ntohs(_port);
 	return SafeSprintf(str, length, "%d.%d.%d.%d:%d",
 		(int32)(uint8)(uip >> 24),
 		(int32)(uint8)(uip >> 16),
@@ -27,16 +31,14 @@ int32 Address::writeToString(char* str, int32 length) const
 		uport);
 }
 
-char* Address::c_str() const
-{
+char* Address::c_str() const{
 	char* buf = Address::nextStringBuf();
 	this->writeToString(buf, 32);
 	return buf;
 }
 
-const char* Address::ipAsString() const
-{
-	uint32 uip = ntohl(m_ip);
+const char* Address::ipAsString() const{
+	uint32 uip = ntohl(_ip);
 	char* buf = Address::nextStringBuf();
 	SafeSprintf(buf, 32, "%d.%d.%d.%d",
 		(int32)(uint8)(uip >> 24),
@@ -46,14 +48,12 @@ const char* Address::ipAsString() const
 	return buf;
 }
 
-char* Address::nextStringBuf()
-{
+char* Address::nextStringBuf(){
 	s_curStringBuf = (s_curStringBuf + 1) % 2;
 	return s_stringBuf[s_curStringBuf];
 }
 
-int Address::string2ip(const char* str, uint32& address)
-{
+int32 Address::string2ip(const char* str, uint32& address){
 	uint32 trial;
 #ifdef SL_OS_WINDOWS
 	if((trial = inet_addr(str)) != INADDR_NONE)
@@ -66,8 +66,7 @@ int Address::string2ip(const char* str, uint32& address)
 	}
 
 	struct hostent* hosts = gethostbyname(str);
-	if(hosts != NULL)
-	{
+	if(hosts != NULL){
 		address = *(uint32*)(hosts->h_addr_list[0]);
 		return 0;
 	}
@@ -75,10 +74,8 @@ int Address::string2ip(const char* str, uint32& address)
 	return -1;
 }
 
-int Address::ip2string(uint32 address, char* str)
-{
+int32 Address::ip2string(uint32 address, char* str){
 	address = ntohl(address);
-
 	return SafeSprintf(str, (int32)strlen(str), "%d.%d.%d.%d",
 		(int32)(uint8)(address>>24),
 		(int32)(uint8)(address>>16),

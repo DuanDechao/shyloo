@@ -3,15 +3,13 @@
 #include "slinterfaces.h"
 #include "slnetbase.h"
 #include <map>
-namespace sl
-{
-namespace network
-{
+namespace sl{
+namespace network{
+
 typedef std::map<int32, InputNotificationHandler *> FDReadHandlers;
 typedef std::map<int32, OutputNotificationHandler *> FDWriteHandlers;
 
-class EventPoller
-{
+class EventPoller{
 public:
 	EventPoller();
 	virtual ~EventPoller();
@@ -25,8 +23,8 @@ public:
 	virtual int32 processPendingEvents(int64 maxWait) = 0;
 	virtual int32 getFileDescriptor() const;
 
-	void clearSpareTime() {m_spareTime = 0;}
-	uint64 spareTime() const {return m_spareTime;}
+	inline void clearSpareTime() {_spareTime = 0;}
+	inline uint64 spareTime() const {return _spareTime;}
 
 	static EventPoller* create();
 
@@ -49,11 +47,11 @@ protected:
 	int32 maxFD() const;
 
 private:
-	FDReadHandlers			m_fdReadHandlers;
-	FDWriteHandlers			m_fdWriteHandlers;
+	FDReadHandlers			_fdReadHandlers;
+	FDWriteHandlers			_fdWriteHandlers;
 
 protected:
-	uint64					m_spareTime;
+	uint64					_spareTime;
 
 
 };

@@ -4,33 +4,28 @@
 #include "slobjectpool.h"
 #include "sladdress.h"
 #include "slnetbase.h"
-namespace sl
-{
-namespace network
-{
+namespace sl{
+namespace network{
 #pragma comment(lib,"Iphlpapi.lib")
+
 class Bundle;
-class EndPoint
-{
+class EndPoint{
 public:
 	EndPoint(Address address);
 	EndPoint(uint32 networkAddr = 0, uint16 networkport = 0);
 	virtual ~EndPoint();
 
-	inline operator SLSOCKET() const;
-
 	static void initNetwork();
-	inline bool good() const;
+	inline bool good() const { return _socket != INVALID_SOCKET; }
 
-	void socket(int type);
-	inline SLSOCKET socket() const;
+	inline operator SLSOCKET() const{ return _socket; }
+	inline SLSOCKET socket() const { return _socket; }
+	void socket(int32 type);
 
-	inline void setFileDescriptor(int fd);
+	inline void setFileDescriptor(int fd){ _socket = fd; }
 
 	inline int32 joinMulticastGroup(uint32 networkAddr);
 	inline int32 quitMulticastGroup(uint32 networkAddr);
-
-	inline int32 close();
 
 	inline int32 setnonblocking(bool nonblocking);
 	inline int32 setbroadcast(bool broadcast);
@@ -40,7 +35,6 @@ public:
 	inline int32 setlinger(uint16 onoff, uint16 linger);
 
 	inline int32 bind(uint16 networkPort = 0, uint32 networkAddr = INADDR_ANY);
-
 	inline int32 listen(int32 backlog = 5);
 
 	inline int32 connect(uint16 networkport, uint32 networkAddr = INADDR_BROADCAST, bool autosetflags = true);
@@ -55,7 +49,7 @@ public:
 	inline int32 recv(void* gramData, int32 gramSize);
 	bool recvAll(void* gramData, int32 gramSize);
 
-	inline uint32 getRTT();
+	inline int32 close();
 
 	inline int32 getInterfaceFlags(char* name, int32& flag);
 	inline int32 getInterfaceAddress(const char* name, uint32& address);
@@ -95,8 +89,8 @@ public:
 	bool waitSend();
 
 protected:
-	SLSOCKET		m_socket;
-	Address			m_address;
+	SLSOCKET		_socket;
+	Address			_address;
 
 };
 CREATE_OBJECT_POOL(EndPoint);

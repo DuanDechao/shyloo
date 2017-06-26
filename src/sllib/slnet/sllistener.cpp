@@ -4,64 +4,57 @@
 namespace sl
 {
 CSLListener::CSLListener()
-	:m_dwRecvBufSize(0),
-	 m_dwSendBufSize(0),
-	 m_pListenEndPoint(),
-	 m_pNetworkInterface(nullptr),
-	 m_pListenerReceiver(nullptr)
+	:_dwRecvBufSize(0),
+	 _dwSendBufSize(0),
+	 _pListenEndPoint(),
+	 _pNetworkInterface(nullptr),
+	 _pListenerReceiver(nullptr)
 {
-	m_pNetworkInterface = CSLNetModule::getSingletonPtr()->getNetworkInterface();
-	m_pListenerReceiver = new ListenerReceiver(&m_pListenEndPoint, m_pNetworkInterface);
+	_pNetworkInterface = CSLNetModule::getSingletonPtr()->getNetworkInterface();
+	_pListenerReceiver = new ListenerReceiver(&_pListenEndPoint, _pNetworkInterface);
 }
 
-CSLListener::~CSLListener()
-{
-	if (nullptr != m_pListenerReceiver)
-		delete m_pListenerReceiver;
+CSLListener::~CSLListener(){
+	if (nullptr != _pListenerReceiver)
+		delete _pListenerReceiver;
 
-	m_pListenerReceiver = nullptr;
+	_pListenerReceiver = nullptr;
 
 	stop();
-	m_dwRecvBufSize = 0;
-	m_dwSendBufSize = 0;
+	_dwRecvBufSize = 0;
+	_dwSendBufSize = 0;
 }
 
-void CSLListener::setSessionFactory(ISLSessionFactory* poSessionFactory)
-{
-	m_pListenerReceiver->setSessionFactory(poSessionFactory);
+void CSLListener::setSessionFactory(ISLSessionFactory* poSessionFactory){
+	_pListenerReceiver->setSessionFactory(poSessionFactory);
 }
 
-void CSLListener::setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize)
-{
-	m_dwRecvBufSize = dwRecvBufSize;
-	m_dwSendBufSize = dwSendBufSize;
+void CSLListener::setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize){
+	_dwRecvBufSize = dwRecvBufSize;
+	_dwSendBufSize = dwSendBufSize;
 }
 
-bool CSLListener::start(const char* pszIP, uint16 wPort, bool bReUseAddr /* = true */)
-{
-	SLASSERT(m_pNetworkInterface, "wtf");
-	if (m_pNetworkInterface == nullptr || m_pListenerReceiver == nullptr || 
-		m_dwRecvBufSize <= 0 || m_dwSendBufSize <= 0){
+bool CSLListener::start(const char* pszIP, uint16 wPort, bool bReUseAddr /* = true */){
+	SLASSERT(_pNetworkInterface, "wtf");
+	if (_pNetworkInterface == nullptr || _pListenerReceiver == nullptr || 
+		_dwRecvBufSize <= 0 || _dwSendBufSize <= 0){
 		return false;
 	}
 
-	return m_pNetworkInterface->createListeningSocket(pszIP, wPort, &m_pListenEndPoint, m_pListenerReceiver,
-		m_dwRecvBufSize, m_dwSendBufSize);
+	return _pNetworkInterface->createListeningSocket(pszIP, wPort, &_pListenEndPoint, _pListenerReceiver,
+		_dwRecvBufSize, _dwSendBufSize);
 }
 
-bool CSLListener::stop()
-{
-	if (m_pListenEndPoint.good())
-	{
-		m_pNetworkInterface->deregisterSocket((int32)m_pListenEndPoint);
-		m_pListenEndPoint.close();
+bool CSLListener::stop(){
+	if (_pListenEndPoint.good()){
+		_pNetworkInterface->deregisterSocket((int32)_pListenEndPoint);
+		_pListenEndPoint.close();
 	}
 	return true;
 }
 
-void CSLListener::setPacketParser(ISLPacketParser* poPacketParser)
-{
-	m_pListenerReceiver->setPacketParser(poPacketParser);
+void CSLListener::setPacketParser(ISLPacketParser* poPacketParser){
+	_pListenerReceiver->setPacketParser(poPacketParser);
 }
 
 void CSLListener::release(){

@@ -8,60 +8,57 @@ namespace sl
 namespace network
 {
 CSLConnector::CSLConnector()
-	:m_pSession(nullptr),
-	 m_dwRecvBufSize(0),
-	 m_dwSendBufSize(0),
-	 m_pszIP(nullptr),
-	 m_wPort(0)
+	:_pSession(nullptr),
+	 _dwRecvBufSize(0),
+	 _dwSendBufSize(0),
+	 _pszIP(nullptr),
+	 _wPort(0)
 {
-	m_pNetworkInterface = CSLNetModule::getSingletonPtr()->getNetworkInterface();
+	_pNetworkInterface = CSLNetModule::getSingletonPtr()->getNetworkInterface();
 }
 
 CSLConnector::~CSLConnector(){
-	m_pSession = NULL;
-	m_pNetworkInterface = NULL;
-	m_pPacketParser = NULL;
-	m_dwRecvBufSize = 0;
-	m_dwSendBufSize = 0;
-	m_pszIP = NULL;
-	m_wPort = 0;
+	_pSession = NULL;
+	_pNetworkInterface = NULL;
+	_pPacketParser = NULL;
+	_dwRecvBufSize = 0;
+	_dwSendBufSize = 0;
+	_pszIP = NULL;
+	_wPort = 0;
 }
 
 void CSLConnector::setSession(ISLSession* pSession){
-	m_pSession = pSession;
+	_pSession = pSession;
 }
 
-void CSLConnector::setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize)
-{
-	m_dwRecvBufSize = dwRecvBufSize;
-	m_dwSendBufSize = dwSendBufSize;
+void CSLConnector::setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize){
+	_dwRecvBufSize = dwRecvBufSize;
+	_dwSendBufSize = dwSendBufSize;
 }
 
-bool CSLConnector::connect(const char* pszIP, uint16 wPort)
-{
-	if (nullptr == m_pSession || nullptr == m_pNetworkInterface || m_pPacketParser == nullptr
-		|| m_dwRecvBufSize <= 0 || m_dwSendBufSize <= 0){
+bool CSLConnector::connect(const char* pszIP, uint16 wPort){
+	if (nullptr == _pSession || nullptr == _pNetworkInterface || _pPacketParser == nullptr
+		|| _dwRecvBufSize <= 0 || _dwSendBufSize <= 0){
 		SLASSERT(false, "wtf");
 		return false;
 	}
-	m_pszIP = pszIP;
-	m_wPort = wPort;
-	return m_pNetworkInterface->createConnectingSocket(pszIP, wPort, m_pSession, m_pPacketParser, m_dwRecvBufSize, m_dwSendBufSize);
+	_pszIP = pszIP;
+	_wPort = wPort;
+	return _pNetworkInterface->createConnectingSocket(pszIP, wPort, _pSession, _pPacketParser, _dwRecvBufSize, _dwSendBufSize);
 }
 
-bool CSLConnector::reConnect()
-{
-	if (m_pszIP == nullptr || m_wPort == 0)
+bool CSLConnector::reConnect(){
+	if (_pszIP == nullptr || _wPort == 0)
 		return false;
 
-	return connect(m_pszIP, m_wPort);
+	return connect(_pszIP, _wPort);
 }
 void CSLConnector::release(){
-	m_dwRecvBufSize = 0;
-	m_dwSendBufSize = 0;
+	_dwRecvBufSize = 0;
+	_dwSendBufSize = 0;
 
-	Address addr(m_pszIP, m_wPort);
-	Channel* pSvrChannel = m_pNetworkInterface->findChannel(addr);
+	Address addr(_pszIP, _wPort);
+	Channel* pSvrChannel = _pNetworkInterface->findChannel(addr);
 	if (pSvrChannel != NULL){
 		pSvrChannel->disconnect();
 	}
@@ -70,7 +67,7 @@ void CSLConnector::release(){
 }
 
 void CSLConnector::setPacketParser(ISLPacketParser* poPacketParser){
-	m_pPacketParser = poPacketParser;
+	_pPacketParser = poPacketParser;
 }
 
 }

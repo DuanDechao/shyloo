@@ -1,10 +1,9 @@
 #ifndef _SL_NETWORK_COMMON_H_
 #define _SL_NETWORK_COMMON_H_
 #include "slmulti_sys.h"
-namespace sl
-{
-namespace network
-{
+namespace sl{
+namespace network{
+
 const uint32 BROADCAST		=	0xFFFFFFFF;
 const uint32 LOCALCAST		=	0x0100007F;
 
@@ -78,8 +77,7 @@ typedef uint32				MessageLength1;		///×î´ó4294967295
 
 
 #ifndef IFF_UP
-enum
-{
+enum{
 	IFF_UP					=	0x1,
 	IFF_BROADCAST			=	0x2,
 	IFF_DEBUG				=	0x4,
@@ -95,14 +93,12 @@ enum
 
 
 #define PACKET_MAX_SIZE_UDP			1472
-enum ProtocolType
-{
+enum ProtocolType{
 	PROTOCOL_TCP = 0,
 	PROTOCOL_UDP = 1,
 };
 
-enum Reason
-{
+enum Reason{
 	REASON_SUCCESS				= 0,				///< No reason
 	REASON_TIMER_EXPIRED		= -1,				///< Time expired
 	REASON_NO_SUCH_PORT			= -2,				///< Destination port is not open
