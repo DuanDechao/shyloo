@@ -14,8 +14,8 @@
 #define _SL_LIB_SHM_QUEUE_H_
 
 #include "slshm_create.h"
-#include "slcode_queue.h"
 #include "slshm.h"
+#include "slring_buffer.h"
 namespace sl{
 namespace shm{
 
@@ -34,19 +34,19 @@ public:
 	*/
 	int Init(bool bBackEnd, const char* pszShmKey, int sendSize, int recvSize, bool clear);
 
-	virtual int SLAPI getRecvQueueFreeSize() const { return m_pstRecvQueue->GetFreeSize(); }
-	virtual int SLAPI getSendQueueFreeSize() const { return m_pstSendQueue->GetFreeSize(); }
-	virtual int SLAPI getRecvQueueDataSize() const { return m_pstRecvQueue->GetDataSize(); }
-	virtual int SLAPI getSendQueueDataSize() const { return m_pstSendQueue->GetDataSize(); }
-	virtual int SLAPI putData(const void* pszBuffer, int iLen){ return m_pstSendQueue->Put((const char*)pszBuffer, iLen); }
-	virtual const char* SLAPI getData(char* p, int readLen){ return m_pstRecvQueue->Get(p, readLen); }
-	virtual const char* SLAPI peekData(char *p, int peekLen){ return m_pstRecvQueue->Get(p, peekLen, true); }
-	virtual void SLAPI skip(const int len) { m_pstRecvQueue->skip(len); }
+	virtual int SLAPI getRecvQueueFreeSize() const { return m_pstRecvQueue->getFreeSize(); }
+	virtual int SLAPI getSendQueueFreeSize() const { return m_pstSendQueue->getFreeSize(); }
+	virtual int SLAPI getRecvQueueDataSize() const { return m_pstRecvQueue->getDataSize(); }
+	virtual int SLAPI getSendQueueDataSize() const { return m_pstSendQueue->getDataSize(); }
+	virtual int SLAPI putData(const void* pszBuffer, int iLen){ return m_pstSendQueue->put((const char*)pszBuffer, iLen); }
+	virtual const char* SLAPI getData(char* p, int readLen){ return m_pstRecvQueue->get(p, readLen); }
+	virtual const char* SLAPI peekData(char *p, int peekLen){ return m_pstRecvQueue->get(p, peekLen, true); }
+	virtual void SLAPI skip(const int len) { m_pstRecvQueue->readOut(len); }
 
 private:
 	SLShm				m_stShm;				 ///< 共享内存
-	CCodeQueue*			m_pstRecvQueue;			 ///< 接收队列
-	CCodeQueue*			m_pstSendQueue;			 ///< 发送队列
+	sl::SLRingBuffer*   m_pstRecvQueue;			 ///< 接收队列
+	sl::SLRingBuffer*	m_pstSendQueue;			 ///< 发送队列
 	bool				m_bBackEnd;				 ///< 是共享内存队列的前端还是后端
 	char				m_szBuffer[256];
 	int					m_shmSendSize;

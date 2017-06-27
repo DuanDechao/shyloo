@@ -1,19 +1,27 @@
-#ifndef _SL_ENDPOINT_H_
-#define _SL_ENDPOINT_H_
+#ifndef _SL_LIB_NET_ENDPOINT_H_
+#define _SL_LIB_NET_ENDPOINT_H_
 
-#include "slobjectpool.h"
 #include "sladdress.h"
 #include "slnetbase.h"
+#include "slpool.h"
+#include <map>
+
 namespace sl{
 namespace network{
 #pragma comment(lib,"Iphlpapi.lib")
-
-class Bundle;
 class EndPoint{
 public:
-	EndPoint(Address address);
-	EndPoint(uint32 networkAddr = 0, uint16 networkport = 0);
-	virtual ~EndPoint();
+	inline static EndPoint* create(Address address){
+		return CREATE_FROM_POOL(s_pool, address);
+	}
+
+	inline static EndPoint* create(uint32 ip = 0, uint16 port = 0){
+		return CREATE_FROM_POOL(s_pool, ip, port);
+	}
+
+	inline void release(){
+		s_pool.recover(this);
+	}
 
 	static void initNetwork();
 	inline bool good() const { return _socket != INVALID_SOCKET; }
@@ -43,8 +51,6 @@ public:
 	inline EndPoint* accept(uint16* networkPort = NULL, uint32* networkAddr = NULL, bool autosetflags = true);
 
 	inline int32 send(const void* gramData, int32 gramSize);
-	void send(Bundle* pBundle);
-	void sendto(Bundle* pBundle, uint16 networkPort, uint32 networkAddr = BROADCAST);
 
 	inline int32 recv(void* gramData, int32 gramSize);
 	bool recvAll(void* gramData, int32 gramSize);
@@ -88,12 +94,18 @@ public:
 
 	bool waitSend();
 
-protected:
+private:
+	friend sl::SLPool<EndPoint>;
+	EndPoint(Address address);
+	EndPoint(uint32 networkAddr, uint16 networkport);
+	virtual ~EndPoint();
+
+private:
 	SLSOCKET		_socket;
 	Address			_address;
 
+	static sl::SLPool<EndPoint> s_pool;
 };
-CREATE_OBJECT_POOL(EndPoint);
 
 }
 }

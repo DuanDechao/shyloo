@@ -50,15 +50,15 @@ private:
 };
 
 inline bool operator==(const Address& a, const Address& b){
-	return (a.ip() == b.ip()) && (a.port() == b.port());
+	return (a._ip == b._ip) && (a._port == b._port);
 }
 
 inline bool operator!=(const Address& a, const Address& b){
-	return (a.ip() != b.ip()) && (a.port() != b.port());
+	return (a._ip != b._ip) && (a._port != b._port);
 }
 
 inline bool operator < (const Address& a, const Address& b){
-	return (a.ip() < b.ip()) || (a.ip() == b.ip() && (a.port() < b.port()));
+	return (a._ip < b._ip) || (a._ip == b._ip && (a._port < b._port));
 }
 
 

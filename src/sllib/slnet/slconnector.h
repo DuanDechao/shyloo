@@ -1,5 +1,5 @@
-#ifndef SL_SLNET_CONNECTOR_H
-#define SL_SLNET_CONNECTOR_H
+#ifndef SL_LIB_NET_CONNECTOR_H
+#define SL_LIB_NET_CONNECTOR_H
 
 #include "slnet.h"
 #include "slchannel.h"
@@ -26,7 +26,7 @@ private:
 
 	uint32				_dwRecvBufSize;
 	uint32				_dwSendBufSize;
-	const char*			_pszIP;
+	char				_pszIP[256];
 	uint16				_wPort;
 	
 };

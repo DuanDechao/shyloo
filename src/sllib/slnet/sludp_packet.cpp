@@ -28,7 +28,7 @@ int UDPPacket::recvFromEndPoint(EndPoint& ep, Address* pAddr /* = NULL */)
 
 	//当接收来的大小大于接受缓冲区的时候，recvfrom返回-1
 	int len = ep.recvfrom(data() + wpos(), (int32)(size() - wpos()), 
-		(uint16*)&pAddr->m_port, (uint32*)&pAddr->m_ip);
+		(uint16*)&pAddr->_port, (uint32*)&pAddr->_ip);
 
 	if(len > 0)
 		wpos((int32)(wpos() + len));

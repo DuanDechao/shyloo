@@ -1,17 +1,12 @@
-#ifndef _SL_NETWROK_INTERFACE_H_
-#define _SL_NETWROK_INTERFACE_H_
+#ifndef _SL_LIB_NET_NETWROK_INTERFACE_H_
+#define _SL_LIB_NET_NETWROK_INTERFACE_H_
 
-#include "slmemorystream.h"
 #include "slnetbase.h"
-#include "sltimer.h"
 #include "slendpoint.h"
 #include "slnet.h"
-namespace sl
-{
-namespace network
-{
+namespace sl{
+namespace network{
 class Address;
-class Bundle;
 class Channel;
 class ChannelTimeOutHandler;
 class ChannelDeregisterHandler;
@@ -23,13 +18,11 @@ class MessageHandlers;
 class TCPPacketReceiver;
 
 #define CHECK_DESTROY_CHANNEL_TIME   2 * 60 * 1000
-class NetworkInterface
-{
+class NetworkInterface{
 public:
 	typedef std::map<Address, Channel*>			ChannelMap;
 
 	NetworkInterface(EventDispatcher* pEventDispatcher);
-
 	~NetworkInterface();
 
 	bool createListeningSocket(const char* listeningInterface, uint16 listeningPort, 
@@ -44,17 +37,17 @@ public:
 	Channel* findChannel(const Address& addr);
 	Channel* findChannel(int fd);
 
-	ChannelTimeOutHandler* getChannelTimeOutHandler() const {return m_pChannelTimeOutHandler;}
-	void setChannelTimeOutHandler(ChannelTimeOutHandler* pHandler) {m_pChannelTimeOutHandler = pHandler;}
+	ChannelTimeOutHandler* getChannelTimeOutHandler() const {return _pChannelTimeOutHandler;}
+	void setChannelTimeOutHandler(ChannelTimeOutHandler* pHandler) {_pChannelTimeOutHandler = pHandler;}
 
-	ChannelDeregisterHandler* getChannelDeregisterHandler() const {return m_pChannelDeregisterHandler;}
-	void setChannelDeregisterHandler(ChannelDeregisterHandler* pHandler) {m_pChannelDeregisterHandler = pHandler;}
+	ChannelDeregisterHandler* getChannelDeregisterHandler() const {return _pChannelDeregisterHandler;}
+	void setChannelDeregisterHandler(ChannelDeregisterHandler* pHandler) {_pChannelDeregisterHandler = pHandler;}
 
-	EventDispatcher& getDispatcher() {return *m_pDispatcher;}
+	EventDispatcher& getDispatcher() {return *_pDispatcher;}
 
 	bool deregisterSocket(int32 fd);
 
-	const ChannelMap& channels(void) {return m_channelMap;}
+	const ChannelMap& channels(void) {return _channelMap;}
 
 	//∑¢ÀÕœ‡πÿ
 	void sendIfDelayed(Channel& channel);
@@ -67,18 +60,18 @@ public:
 
 private:
 
-	ChannelMap						m_channelMap;
+	ChannelMap						_channelMap;
 
-	EventDispatcher*				m_pDispatcher;
+	EventDispatcher*				_pDispatcher;
 
-	DelayedChannels*				m_pDelayedChannels;
+	DelayedChannels*				_pDelayedChannels;
 
-	ChannelTimeOutHandler*			m_pChannelTimeOutHandler;
-	ChannelDeregisterHandler*		m_pChannelDeregisterHandler;
+	ChannelTimeOutHandler*			_pChannelTimeOutHandler;
+	ChannelDeregisterHandler*		_pChannelDeregisterHandler;
 
-	int32							m_numExtChannels;
+	int32							_numExtChannels;
 
-	int64							m_lastCheckDestroyChannelTime;
+	int64							_lastCheckDestroyChannelTime;
 };
 }
 }

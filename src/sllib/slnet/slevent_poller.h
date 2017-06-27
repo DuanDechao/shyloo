@@ -1,5 +1,5 @@
-#ifndef _SL_EVENT_POLLER_H_
-#define _SL_EVENT_POLLER_H_
+#ifndef _SL_LIB_NET_EVENT_POLLER_H_
+#define _SL_LIB_NET_EVENT_POLLER_H_
 #include "slinterfaces.h"
 #include "slnetbase.h"
 #include <map>
@@ -52,8 +52,6 @@ private:
 
 protected:
 	uint64					_spareTime;
-
-
 };
 
 }

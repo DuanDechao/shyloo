@@ -1,12 +1,11 @@
 #include "slendpoint.h"
-#include "slbundle.h"
 #include "slpacket_sender.h"
 #include <IPHlpApi.h>
 namespace sl{
 namespace network{
 
 static bool g_networkInitted = false;
-
+sl::SLPool<EndPoint> EndPoint::s_pool;
 EndPoint::EndPoint(uint32 networkAddr /* = 0 */, uint16 networkport /* = 0 */)
 	:_socket(INVALID_SOCKET)
 {
@@ -64,7 +63,6 @@ bool EndPoint::getInterfaces(std::map<uint32, std::string>& interfaces){
 				unsigned long addrs = *(unsigned long*)inaddrs->h_addr_list[count];
 				interfaces[addrs] = "eth0";
 				char* ip = inet_ntoa(*(struct in_addr*)inaddrs->h_addr_list[count]);
-				//SL_DEBUG("EndPoint::getInterfaces: found eth0 %s\n", ip);
 				++count;
 			}
 		}
@@ -189,14 +187,6 @@ bool EndPoint::waitSend(){
 	FD_SET(_socket, &fds);
 
 	return select((int32)(_socket + 1), NULL, &fds, NULL, &tv) > 0;
-}
-
-void EndPoint::send(Bundle* pBundle){
-	SEND_BUNDLE((*this), (*pBundle));
-}
-
-void EndPoint::sendto(Bundle* pBundle, uint16 networkPort, uint32 networkAddr /* = BROADCAST */){
-	SENDTO_BUNDLE((*this), networkAddr, networkPort, (*pBundle));
 }
 
 }

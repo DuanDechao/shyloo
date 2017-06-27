@@ -1,24 +1,19 @@
-#ifndef _SL_LISTENER_RECEIVER_H_
-#define _SL_LISTENER_RECEIVER_H_
+#ifndef _SL_LIB_NET_LISTENER_RECEIVER_H_
+#define _SL_LIB_NET_LISTENER_RECEIVER_H_
 
-#include "sltimer.h"
 #include "slnetbase.h"
 #include "slinterfaces.h"
-#include "slpacket.h"
 #include "slchannel.h"
 
-namespace sl
-{
-namespace network
-{
+namespace sl{
+namespace network{
 class EndPoint;
 class Address;
 class NetworkInferace;
 class EventDispatcher;
 class ISLPacketParser;
 
-class ListenerReceiver: public InputNotificationHandler
-{
+class ListenerReceiver: public InputNotificationHandler{
 public:
 	ListenerReceiver();
 	ListenerReceiver(EndPoint* endpoint, NetworkInterface* networkInterface);
@@ -31,10 +26,10 @@ private:
 	virtual int handleInputNotification(int fd);
 	
 private:
-	EndPoint*			m_endpoint;
-	NetworkInterface*	m_networkInterface;
-	ISLSessionFactory*	m_pSessionFactory;
-	ISLPacketParser*	m_pPacketParser;
+	EndPoint*			_endpoint;
+	NetworkInterface*	_networkInterface;
+	ISLSessionFactory*	_pSessionFactory;
+	ISLPacketParser*	_pPacketParser;
 };
 }
 }

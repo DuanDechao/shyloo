@@ -4,24 +4,17 @@
 #include "sludp_packet_receiver.h"
 #include "slnetwork_interface.h"
 #include "slevent_dispatcher.h"
-#include "slpacket_sender.h"
 #include "sladdress.h"
-#include "slbundle.h"
 #include "sltcp_packet_sender.h"
-#include "sltcp_packet.h"
-#include "slpacket_reader.h"
 namespace sl{
 namespace network{
 
+sl::SLPool<Channel>  Channel::s_pool;
 Channel::Channel(NetworkInterface* networkInterface, const EndPoint* pEndPoint, ISLPacketParser* poPacketParser, ProtocolType pt, ChannelID id)
-	:_channelType(CHANNEL_NORMAL),
-	_flags(0),
+	:_flags(0),
 	_protocolType(pt),
 	_id(id),
 	_lastReceivedTime(0),
-	_bundles(),
-	_bufferedReceives(),
-				  
 	_numPacketsSent(0),
 	_numPacketsReceived(0),
 	_numBytesSent(0),
@@ -34,11 +27,9 @@ Channel::Channel(NetworkInterface* networkInterface, const EndPoint* pEndPoint, 
 	_pPacketParser(poPacketParser),
 
 	_pEndPoint(NULL),
-	_pPacketReader(NULL),
 	_pPacketReceiver(NULL),
 	_pPacketSender(NULL)
 {
-	this->clearBundle();
 	this->setEndPoint(pEndPoint);
 
 	SLASSERT(_pNetworkInterface != NULL, "wtf");
@@ -77,6 +68,12 @@ Channel::Channel(NetworkInterface* networkInterface, const EndPoint* pEndPoint, 
 	if (_pPacketSender){
 		_pPacketSender->SetEndPoint(_pEndPoint);
 	}
+
+	_recvBuf = (sl::SLRingBuffer*)SLMALLOC(102400);
+	_recvBuf->init(102400, true);
+
+	_sendBuf = (sl::SLRingBuffer*)SLMALLOC(102400);
+	_sendBuf->init(102400, true);
 }
 
 Channel::~Channel(){
@@ -94,26 +91,39 @@ bool Channel::finalise(){
 	else{
 		RELEASE_POOL_OBJECT(UDPPacketReceiver, (UDPPacketReceiver*)_pPacketReceiver);
 	}
-	RELEASE_POOL_OBJECT(PacketReader, _pPacketReader);
 
 	_pPacketReceiver = NULL;
 	_pPacketSender = NULL;
-	_pPacketReader = NULL;
 	return true;
 }
 
 void Channel::send(const char* pBuf, uint32 dwLen){
-	Bundle* pBundle = createSendBundle();
-	
-	if (dwLen > (uint32)(pBundle->packetMaxSize())){
+	const int32 freeLen = _sendBuf->getFreeSize();
+	if (dwLen > (uint32)(freeLen)){
 		SLASSERT(false, "wtf");
 		condemn();
 		return;
 	}
+	
+	if (isDestroyed() || isCondemn()){
+		return;
+	}
 
-	pBundle->newMessage();
-	pBundle->append(pBuf, dwLen);
-	send(pBundle);
+	_sendBuf->put(pBuf, dwLen);
+
+	if (!sending()){
+		if (_pPacketSender == NULL){
+			_pPacketSender = CREATE_POOL_OBJECT(TCPPacketSender, _pEndPoint, _pNetworkInterface);
+		}
+
+		_pPacketSender->processSend(this);
+
+		//如果不能立即發送到系統緩衝區，那麼交給poller處理
+		if (_sendBuf->getDataSize() > 0 && !isCondemn() && !isDestroyed()){
+			_flags |= FLAG_SENDING;
+			_pNetworkInterface->getDispatcher().registerWriteFileDescriptor((int32)(*_pEndPoint), _pPacketSender);
+		}
+	}
 }
 
 void Channel::disconnect(){
@@ -121,11 +131,11 @@ void Channel::disconnect(){
 }
 
 void Channel::setEndPoint(const EndPoint* pEndPoint){
-	if(_pEndPoint != pEndPoint){
-		RELEASE_POOL_OBJECT(EndPoint, _pEndPoint);
-		_pEndPoint = const_cast<EndPoint*>(pEndPoint);
+	if (_pEndPoint != pEndPoint && _pEndPoint){
+		_pEndPoint->release();
 	}
 
+	_pEndPoint = const_cast<EndPoint*>(pEndPoint);
 	_lastReceivedTime = getTimeMilliSecond();
 }
 
@@ -152,7 +162,7 @@ void Channel::setConnected() {
 
 void Channel::clearState(bool warnOnDiscard /* = false */){
 	//清空未處理的接受包緩存
-	if(_bufferedReceives.size() > 0){
+	/*if(_bufferedReceives.size() > 0){
 		BufferedReceives::iterator iter = _bufferedReceives.begin();
 		int hasDiscard = 0;
 
@@ -171,7 +181,7 @@ void Channel::clearState(bool warnOnDiscard /* = false */){
 		_bufferedReceives.clear();
 	}
 
-	clearBundle();
+	clearBundle();*/
 
 	_lastReceivedTime = getTimeMilliSecond();
 
@@ -181,7 +191,6 @@ void Channel::clearState(bool warnOnDiscard /* = false */){
 	_numBytesReceived = 0;
 	_lastTickBytesReceived = 0;
 	_lastTickBytesSent = 0;
-	_channelType = CHANNEL_NORMAL;
 	_id = CHANNEL_ID_NULL;
 	_flags = 0;
 
@@ -195,24 +204,6 @@ void Channel::clearState(bool warnOnDiscard /* = false */){
 		_pEndPoint->close();
 		this->setEndPoint(NULL);
 	}
-}
-
-Channel::Bundles& Channel::bundles(){
-	return _bundles;
-}
-
-const Channel::Bundles & Channel::bundles() const{
-	return _bundles;
-}
-
-int32 Channel::bundlesLength(){
-	int32 len = 0;
-	Bundles::iterator iter = _bundles.begin();
-	for (; iter!= _bundles.end(); ++iter){
-		len += (*iter)->packetsLength();
-	}
-	return len;
-
 }
 
 void Channel::delayedSend(){
@@ -232,57 +223,6 @@ const char* Channel::c_str() const{
 	return dodgyString;
 }
 
-void Channel::clearBundle(){
-	Bundles::iterator iter = _bundles.begin();
-	for (; iter != _bundles.end(); ++iter){
-		RELEASE_POOL_OBJECT(Bundle, *iter);
-	}
-
-	_bundles.clear();
-}
-
-void Channel::send(Bundle* pBundle /* = NULL */){
-	if(isDestroyed()){
-		this->clearBundle();
-		if(pBundle){
-			RELEASE_POOL_OBJECT(Bundle, pBundle);
-		}
-		return;
-	}
-
-	if(isCondemn()){
-		this->clearBundle();
-		if(pBundle){
-			RELEASE_POOL_OBJECT(Bundle, pBundle);
-		}
-		return;
-	}
-
-	if(pBundle){
-		pBundle->setChannel(this);
-		pBundle->finiMessage(true);
-		_bundles.push_back(pBundle);
-	}
-
-	uint32 bundleSize = (uint32)_bundles.size();
-	if(bundleSize == 0)
-		return;
-
-	if(!sending()){
-		if(_pPacketSender == NULL){
-			_pPacketSender = CREATE_POOL_OBJECT(TCPPacketSender, _pEndPoint, _pNetworkInterface);
-		}
-
-		_pPacketSender->processSend(this);
-
-		//如果不能立即發送到系統緩衝區，那麼交給poller處理
-		if(_bundles.size() > 0 && !isCondemn() && !isDestroyed()){
-			_flags |= FLAG_SENDING;
-			_pNetworkInterface->getDispatcher().registerWriteFileDescriptor((int32)(*_pEndPoint), _pPacketSender);
-		}
-	}
-}
-
 void Channel::stopSend(){
 	if(!sending())
 		return;
@@ -293,8 +233,8 @@ void Channel::stopSend(){
 }
 
 void Channel::onSendCompleted(){
-	SLASSERT(_bundles.size() == 0 && sending(), "wtf");
-	stopSend();
+	if (_sendBuf->getDataSize() == 0 && sending())
+		stopSend();
 }
 
 void Channel::onPacketSent(int bytes, bool sendCompleted){
@@ -320,11 +260,6 @@ void Channel::onPacketReceived(int bytes){
 
 }
 
-void Channel::addReceiveWindow(Packet* pPacket){
-	_bufferedReceives.push_back(pPacket);
-	uint32 size = (uint32)_bufferedReceives.size();
-}
-
 void Channel::condemn(){
 	if(isCondemn())
 		return;
@@ -342,40 +277,64 @@ void Channel::processPackets(){
 	if(this->isCondemn())
 		return;
 
-	if(_pPacketReader == nullptr)
-		_pPacketReader = CREATE_POOL_OBJECT(PacketReader, this, _pPacketParser);
-	SLASSERT(_pPacketReader, "wtf");
+	char temp[40960];
+	const int32 dataSize = _recvBuf->getDataSize();
+	int32 dataLen = dataSize > 40960 ? 40960 : dataSize;
+	const char* data = _recvBuf->get(temp, dataLen, true);
+	if (data == nullptr)
+		return;
 
-	BufferedReceives::iterator packetIter = _bufferedReceives.begin();
-	for (; packetIter != _bufferedReceives.end(); ++packetIter){
-		Packet* pPacket = (*packetIter);
-		_pPacketReader->processMessages(pPacket);
-		RECLAIM_PACKET(pPacket->IsTCPPacket(), pPacket);
+	int32 used = 0;
+	int32 totalUsed = 0;
+	do{
+		used = _pPacketParser->parsePacket(data + totalUsed, dataLen - totalUsed);
+		if (used > 0){
+			SLASSERT(totalUsed + used <= dataLen, "wtf");
+			_pSession->onRecv(data + totalUsed, used);
+			totalUsed += used;
+		}
+	} while (used > 0 && totalUsed < dataLen);
+
+	if (used >= 0){
+		if (totalUsed > 0)
+			_recvBuf->readOut(totalUsed);
 	}
-
-	_bufferedReceives.clear();
+	else{
+		this->condemn();
+	}
 }
 
 bool Channel::waitSend(){
 	return getEndPoint()->waitSend();
 }
 
-Bundle* Channel::createSendBundle(){
-	if(_bundles.size() > 0){
-		Bundle* pBundle = _bundles.back();
-		Bundle::Packets& packets = pBundle->packets();
 
-		if(pBundle->packetHaveSpace()){
-			//先從隊列中刪除
-			_bundles.pop_back();
-			pBundle->setChannel(this);
-			return pBundle;
-		}
+int32 Channel::recvFromEndPoint(){
+	int32 recvSize = 0;
+	char* recvBuf = _recvBuf->writePtr(recvSize);
+	if (recvSize <= 0){
+		SLASSERT(false, "wtf");
+		return -1;
 	}
 
-	Bundle* pBundle = CREATE_POOL_OBJECT(Bundle);
-	pBundle->setChannel(this);
-	return pBundle;
+	int32 len = _pEndPoint->recv(recvBuf, recvSize);
+	if (len > 0)
+		_recvBuf->writeIn(len);
+
+	return len;
+}
+
+int32 Channel::sendToEndPoint(){
+	const int32 dataSize = _sendBuf->getDataSize();
+	char* tmpBuf = (char*)alloca(dataSize);
+	const char* data = _sendBuf->get(tmpBuf, dataSize, true);
+	
+	int32 len = _pEndPoint->send(data, dataSize);
+	if (len > 0){
+		_sendBuf->readOut(len);
+	}
+
+	return len;
 }
 
 }

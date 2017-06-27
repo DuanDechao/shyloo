@@ -7,47 +7,36 @@
 #include "slnetwork_interface.h"
 #include "slevent_poller.h"
 
-namespace sl
-{
-namespace  network
-{
-PacketSender::PacketSender()
-	:m_pEndPoint(NULL),
-	 m_pNetworkInterface(NULL)
-{}
+namespace sl{
+namespace  network{
 
 PacketSender::PacketSender(EndPoint* endpoint, NetworkInterface* networkInterface)
-	:m_pEndPoint(endpoint),
-	 m_pNetworkInterface(networkInterface)
+	:_pEndPoint(endpoint),
+	 _pNetworkInterface(networkInterface)
 {}
 
-PacketSender::~PacketSender()
-{
-	m_pEndPoint = NULL;
-	m_pNetworkInterface = NULL;
+PacketSender::~PacketSender(){
+	_pEndPoint = NULL;
+	_pNetworkInterface = NULL;
 }
 
-Channel* PacketSender::getChannel()
-{
-	return m_pNetworkInterface->findChannel(m_pEndPoint->addr());
+Channel* PacketSender::getChannel(){
+	return _pNetworkInterface->findChannel(_pEndPoint->addr());
 }
 
-int PacketSender::handleOutputNotification(int fd)
-{
+int PacketSender::handleOutputNotification(int fd){
 	Channel *activeChannel = getChannel();
 	SLASSERT(activeChannel != NULL, "wtf");
 
 	if(activeChannel->isCondemn())
-	{
 		return -1;
-	}
 
 	if(!activeChannel->isConnected()){
 		int error = -1, slen = sizeof(int);
-		getsockopt((int32)*m_pEndPoint, SOL_SOCKET, SO_ERROR, (char*)&error, (socklen_t *)&slen);
+		getsockopt((int32)*_pEndPoint, SOL_SOCKET, SO_ERROR, (char*)&error, (socklen_t *)&slen);
 		if (error == 0){
-			if (activeChannel->bundles().empty()){
-				m_pNetworkInterface->getDispatcher().deregisterWriteFileDescriptor((int32)*m_pEndPoint);
+			if (activeChannel->sendBufEmpty()){
+				_pNetworkInterface->getDispatcher().deregisterWriteFileDescriptor((int32)*_pEndPoint);
 			}
 			ISLSession* poSession = activeChannel->getSession();
 			poSession->onEstablish();
@@ -66,36 +55,25 @@ int PacketSender::handleOutputNotification(int fd)
 	return 0;
 }
 
-Reason PacketSender::processPacket(Channel* pChannel, Packet* pPacket)
-{
-	if(pChannel != NULL)
-	{
-		pChannel->onPacketSent((int32)pPacket->length(), false);
-	}
-
-	return this->processSendPacket(pChannel, pPacket);
+Reason PacketSender::processPacket(Channel* pChannel){
+	return this->processSendPacket(pChannel);
 }
 
-EventDispatcher& PacketSender::dispatcher()
-{
-	return m_pNetworkInterface->getDispatcher();
+EventDispatcher& PacketSender::dispatcher(){
+	return _pNetworkInterface->getDispatcher();
 }
 
-Reason PacketSender::checkSocketErrors(const EndPoint* pEndPoint)
-{
+Reason PacketSender::checkSocketErrors(const EndPoint* pEndPoint){
 	int err;
 	Reason reason;
 
 #ifdef SL_OS_WINDOWS
 	err = WSAGetLastError();
-	if(err == WSAEWOULDBLOCK || err == WSAEINTR)
-	{
+	if(err == WSAEWOULDBLOCK || err == WSAEINTR){
 		reason = REASON_RESOURCE_UNAVAILABLE;
 	}
-	else
-	{
-		switch (err)
-		{
+	else{
+		switch (err){
 		case WSAECONNREFUSED: reason = REASON_NO_SUCH_PORT; break;
 		case WSAECONNRESET: reason = REASON_CLIENT_DISCONNECTED; break;
 		case WSAECONNABORTED: reason = REASON_CLIENT_DISCONNECTED; break;

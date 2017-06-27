@@ -3,25 +3,20 @@
 
 #include "slobjectpool.h"
 #include "slpacket_receiver.h"
-namespace sl
-{
-namespace  network
-{
+namespace sl{
+namespace  network{
 class EndPoint;
 class Channel;
 class Address;
 class NetworkInterface;
 class EventDispatcher;
 
-class TCPPacketReceiver: public PacketReceiver
-{
+class TCPPacketReceiver: public PacketReceiver{
 public:
-	TCPPacketReceiver():PacketReceiver() {}
-
 	TCPPacketReceiver(EndPoint* endpoint, NetworkInterface* networkInterface);
 	~TCPPacketReceiver();
 
-	Reason processRecievePacket(Channel* pChannel, Packet* pPacket);
+	Reason processRecievePacket(Channel* pChannel);
 
 protected:
 	virtual bool processRecv(bool expectingPacket);

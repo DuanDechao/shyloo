@@ -65,6 +65,8 @@ SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/slpool.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slbinary_map.h"
 	"${PROJECT_SOURCE_DIR}/src/public/sllist.h"
+	"${PROJECT_SOURCE_DIR}/src/public/slring_buffer.h"
+	"${PROJECT_SOURCE_DIR}/src/public/slshm_create.h"
 )
 
 IF(WIN32)

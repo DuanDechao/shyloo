@@ -1,7 +1,6 @@
 #include "sludp_packet_receiver.h"
 
 #include "sladdress.h"
-#include "slbundle.h"
 #include "slchannel.h"
 #include "slendpoint.h"
 #include "slevent_dispatcher.h"
@@ -20,70 +19,70 @@ UDPPacketReceiver::~UDPPacketReceiver(){}
 
 bool UDPPacketReceiver::processRecv(bool expectingPacket)
 {
-	Address srcAddr;
+	/*Address srcAddr;
 	UDPPacket* pChannelReceiveWindow = CREATE_POOL_OBJECT(UDPPacket);
 	int len = pChannelReceiveWindow->recvFromEndPoint(*m_pEndPoint, &srcAddr);
 
 	if(len <= 0)
 	{
-		RELEASE_POOL_OBJECT(UDPPacket, pChannelReceiveWindow);
-		PacketReceiver::RecvState rstate = this->checkSocketErrors(len, expectingPacket);
-		return rstate == PacketReceiver::RECV_STATE_CONTINUE;
+	RELEASE_POOL_OBJECT(UDPPacket, pChannelReceiveWindow);
+	PacketReceiver::RecvState rstate = this->checkSocketErrors(len, expectingPacket);
+	return rstate == PacketReceiver::RECV_STATE_CONTINUE;
 	}
 
 	Channel* pSrcChannel = m_pNetworkInterface->findChannel(srcAddr);
 	if(pSrcChannel == NULL)
 	{
-		EndPoint* pNewEndPoint = CREATE_POOL_OBJECT(EndPoint);
+	EndPoint* pNewEndPoint = CREATE_POOL_OBJECT(EndPoint);
 
-		pNewEndPoint->addr(srcAddr.m_port, srcAddr.m_ip);
+	pNewEndPoint->addr(srcAddr._port, srcAddr._ip);
 
-		pSrcChannel = CREATE_POOL_OBJECT(Channel, m_pNetworkInterface, pNewEndPoint, nullptr, PROTOCOL_UDP);
-		if (!pSrcChannel)
-		{
-			pSrcChannel->destroy();
-			RELEASE_POOL_OBJECT(Channel, pSrcChannel);
-			RELEASE_POOL_OBJECT(UDPPacket, pChannelReceiveWindow);
-			return false;
-		}
+	pSrcChannel = Channel::create(m_pNetworkInterface, pNewEndPoint, nullptr, PROTOCOL_UDP);
+	if (!pSrcChannel)
+	{
+	pSrcChannel->destroy();
+	pSrcChannel->release();
+	RELEASE_POOL_OBJECT(UDPPacket, pChannelReceiveWindow);
+	return false;
+	}
 
-		if(!m_pNetworkInterface->registerChannel(pSrcChannel))
-		{
-			RELEASE_POOL_OBJECT(UDPPacket, pChannelReceiveWindow);
-			pSrcChannel->destroy();
-			RELEASE_POOL_OBJECT(Channel, pSrcChannel);
-			return false;
-		}
+	if(!m_pNetworkInterface->registerChannel(pSrcChannel))
+	{
+	RELEASE_POOL_OBJECT(UDPPacket, pChannelReceiveWindow);
+	pSrcChannel->destroy();
+	pSrcChannel->release();
+	return false;
+	}
 	}
 	SLASSERT(pSrcChannel != NULL, "wtf");
 
 	if(pSrcChannel->isCondemn())
 	{
-		RELEASE_POOL_OBJECT(UDPPacket, pChannelReceiveWindow);
-		m_pNetworkInterface->deregisterChannel(pSrcChannel);
-		pSrcChannel->destroy();
-		RELEASE_POOL_OBJECT(Channel, pSrcChannel);
-		return false;
+	RELEASE_POOL_OBJECT(UDPPacket, pChannelReceiveWindow);
+	m_pNetworkInterface->deregisterChannel(pSrcChannel);
+	pSrcChannel->destroy();
+	pSrcChannel->release();
+	return false;
 	}
 
-	Reason ret = this->processPacket(pSrcChannel, pChannelReceiveWindow);
+	Reason ret = this->processPacket(pSrcChannel, 0);
 
 	if(ret != REASON_SUCCESS)
 	{
 
-	}
+	}*/
 
 	return true;
 }
 
-Reason UDPPacketReceiver::processRecievePacket(Channel* pChannel, Packet * pPacket)
+Reason UDPPacketReceiver::processRecievePacket(Channel* pChannel)
 {
 	// 如果为None， 则可能是被过滤器过滤掉了(过滤器正在按照自己的规则组包解密)
-	if(pPacket)
+	/*if(pPacket)
 	{
-		pChannel->addReceiveWindow(pPacket);
+	pChannel->addReceiveWindow(pPacket);
 	}
-
+	*/
 	return REASON_SUCCESS;
 }
 

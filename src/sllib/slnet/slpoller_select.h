@@ -1,15 +1,13 @@
-#ifndef _SL_SELECT_POLLER_H_
-#define _SL_SELECT_POLLER_H_
+#ifndef _SL_LIB_NET_SELECT_POLLER_H_
+#define _SL_LIB_NET_SELECT_POLLER_H_
 
 #include "slevent_poller.h"
 
-namespace sl
-{
-namespace network
-{
+namespace sl{
+namespace network{
+
 #ifndef HAS_EPOLL
-class SelectPoller: public EventPoller
-{
+class SelectPoller: public EventPoller{
 public:
 	SelectPoller();
 
@@ -25,12 +23,13 @@ protected:
 private:
 	void handleNotifications(int& countReady, fd_set& readFDs, fd_set& writeFDs);
 
-	fd_set				m_fdReadSet;
-	fd_set				m_fdWriteSet;
+private:
+	fd_set				_fdReadSet;
+	fd_set				_fdWriteSet;
 
 
-	int					m_fdLargest;
-	int					m_fdWriteCount;
+	int					_fdLargest;
+	int					_fdWriteCount;
 };
 #endif // !HAS_EPOLL
 

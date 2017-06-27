@@ -1,68 +1,65 @@
 #include "sllistener_receiver.h"
 #include "sladdress.h"
-#include "slbundle.h"
 #include "slendpoint.h"
 #include "slevent_dispatcher.h"
 #include "slnetwork_interface.h"
 #include "slpacket_receiver.h"
 
-namespace sl
-{
-namespace network
-{
+namespace sl{
+namespace network{
 ListenerReceiver::ListenerReceiver()
-	:m_endpoint(nullptr),
-	 m_networkInterface(nullptr),
-	 m_pSessionFactory(nullptr),
-	 m_pPacketParser(nullptr)
+	:_endpoint(nullptr),
+	 _networkInterface(nullptr),
+	 _pSessionFactory(nullptr),
+	 _pPacketParser(nullptr)
 {}
 
 ListenerReceiver::ListenerReceiver(EndPoint* endpoint, NetworkInterface* networkInterface)
-	:m_endpoint(endpoint),
-	 m_networkInterface(networkInterface),
-	 m_pSessionFactory(nullptr),
-	 m_pPacketParser(nullptr)
+	:_endpoint(endpoint),
+	 _networkInterface(networkInterface),
+	 _pSessionFactory(nullptr),
+	 _pPacketParser(nullptr)
 {}
 
 ListenerReceiver::~ListenerReceiver(){
-	m_endpoint = nullptr;
-	m_networkInterface = nullptr;
-	m_pSessionFactory = nullptr;
-	m_pPacketParser = nullptr;
+	_endpoint = nullptr;
+	_networkInterface = nullptr;
+	_pSessionFactory = nullptr;
+	_pPacketParser = nullptr;
 }
 
 int ListenerReceiver::handleInputNotification(int fd){
 	int tickcount = 0;
 	while(tickcount++ <256){
-		EndPoint* pNewEndPoint = m_endpoint->accept();
+		EndPoint* pNewEndPoint = _endpoint->accept();
 		if(pNewEndPoint == NULL){
 			break;
 		}
 		else{
-			Channel* pChannel = Channel::create(m_networkInterface, pNewEndPoint, m_pPacketParser);
+			Channel* pChannel = Channel::create(_networkInterface, pNewEndPoint, _pPacketParser);
 			if (!pChannel){
 				pChannel->destroy();
 				pChannel->release();
 				return 0;
 			}
 
-			if(!m_networkInterface->registerChannel(pChannel)){
+			if(!_networkInterface->registerChannel(pChannel)){
 				pChannel->destroy();
 				pChannel->release();
 			}
 
 			//
-			if(m_pSessionFactory == NULL){
+			if(_pSessionFactory == NULL){
 				SLASSERT(false, "wtf");
 				ECHO_ERROR("network inferface have no sessionfactory");
 				return -1;
 			}
 
-			ISLSession* poSession = m_pSessionFactory->createSession(pChannel);
+			ISLSession* poSession = _pSessionFactory->createSession(pChannel);
 			if(NULL == poSession){
 				ECHO_ERROR("create session failed");
 				pChannel->destroy();
-				RELEASE_POOL_OBJECT(Channel, pChannel);
+				pChannel->release();
 				return -2;
 			}
 			if(!pChannel->isConnected()){
@@ -76,11 +73,11 @@ int ListenerReceiver::handleInputNotification(int fd){
 	return 0;
 }
 void ListenerReceiver::setSessionFactory(ISLSessionFactory* poSessionFactory){
-	m_pSessionFactory = poSessionFactory;
+	_pSessionFactory = poSessionFactory;
 }
 
 void ListenerReceiver::setPacketParser(ISLPacketParser* poPacketParser){
-	m_pPacketParser = poPacketParser;
+	_pPacketParser = poPacketParser;
 }
 
 }

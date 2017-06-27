@@ -1,5 +1,5 @@
-#ifndef _SL_EVENT_DISPATCHER_H_
-#define _SL_EVENT_DISPATCHER_H_
+#ifndef _SL_LIB_NET_EVENT_DISPATCHER_H_
+#define _SL_LIB_NET_EVENT_DISPATCHER_H_
 #include "slinterfaces.h"
 #include "sltimer.h"
 

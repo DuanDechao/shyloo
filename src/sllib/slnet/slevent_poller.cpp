@@ -1,9 +1,7 @@
 #include "slevent_poller.h"
 #include "slpoller_select.h"
-namespace sl
-{
-namespace network
-{
+namespace sl{
+namespace network{
 #ifdef SL_OS_LINUX
 #define HAS_EPOLL
 #endif // SL_OS_LINUX

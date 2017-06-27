@@ -1,24 +1,27 @@
 #include "sllistener.h"
 #include "slnet_module.h"
 #include "sllistener_receiver.h"
-namespace sl
-{
+namespace sl{
+namespace network{
 CSLListener::CSLListener()
 	:_dwRecvBufSize(0),
-	 _dwSendBufSize(0),
-	 _pListenEndPoint(),
-	 _pNetworkInterface(nullptr),
-	 _pListenerReceiver(nullptr)
+	_dwSendBufSize(0),
+	_pNetworkInterface(nullptr),
+	_pListenerReceiver(nullptr)
 {
+	_pListenEndPoint = EndPoint::create(0, 0);
 	_pNetworkInterface = CSLNetModule::getSingletonPtr()->getNetworkInterface();
-	_pListenerReceiver = new ListenerReceiver(&_pListenEndPoint, _pNetworkInterface);
+	_pListenerReceiver = NEW ListenerReceiver(_pListenEndPoint, _pNetworkInterface);
 }
 
 CSLListener::~CSLListener(){
 	if (nullptr != _pListenerReceiver)
-		delete _pListenerReceiver;
-
+		DEL _pListenerReceiver;
 	_pListenerReceiver = nullptr;
+
+	if (_pListenEndPoint)
+		_pListenEndPoint->release();
+	_pListenEndPoint = nullptr;
 
 	stop();
 	_dwRecvBufSize = 0;
@@ -36,19 +39,19 @@ void CSLListener::setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize){
 
 bool CSLListener::start(const char* pszIP, uint16 wPort, bool bReUseAddr /* = true */){
 	SLASSERT(_pNetworkInterface, "wtf");
-	if (_pNetworkInterface == nullptr || _pListenerReceiver == nullptr || 
+	if (_pNetworkInterface == nullptr || _pListenerReceiver == nullptr ||
 		_dwRecvBufSize <= 0 || _dwSendBufSize <= 0){
 		return false;
 	}
 
-	return _pNetworkInterface->createListeningSocket(pszIP, wPort, &_pListenEndPoint, _pListenerReceiver,
+	return _pNetworkInterface->createListeningSocket(pszIP, wPort, _pListenEndPoint, _pListenerReceiver,
 		_dwRecvBufSize, _dwSendBufSize);
 }
 
 bool CSLListener::stop(){
-	if (_pListenEndPoint.good()){
+	if (_pListenEndPoint->good()){
 		_pNetworkInterface->deregisterSocket((int32)_pListenEndPoint);
-		_pListenEndPoint.close();
+		_pListenEndPoint->close();
 	}
 	return true;
 }
@@ -60,5 +63,5 @@ void CSLListener::setPacketParser(ISLPacketParser* poPacketParser){
 void CSLListener::release(){
 	DEL this;
 }
-
+}
 }

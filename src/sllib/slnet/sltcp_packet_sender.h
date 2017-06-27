@@ -3,20 +3,16 @@
 #include "slobjectpool.h"
 #include "slpacket_sender.h"
 #include "slnetbase.h"
-namespace sl
-{
-namespace network
-{
+namespace sl{
+namespace network{
 class EndPoint;
 class Channel;
 class Address;
 class NetworkInterface;
 class EventDispatcher;
 
-class TCPPacketSender: public PacketSender
-{
+class TCPPacketSender: public PacketSender{
 public:
-	TCPPacketSender():PacketSender(){}
 	TCPPacketSender(EndPoint* endpoint, NetworkInterface* networkInferface);
 	~TCPPacketSender();
 
@@ -24,7 +20,7 @@ public:
 	virtual bool processSend(Channel* pChannel);
 
 protected:
-	virtual Reason processSendPacket(Channel* pChannel, Packet* pPacket);
+	virtual Reason processSendPacket(Channel* pChannel);
 };
 CREATE_OBJECT_POOL(TCPPacketSender);
 }

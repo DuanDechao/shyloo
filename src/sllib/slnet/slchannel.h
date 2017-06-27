@@ -1,15 +1,14 @@
 #ifndef _SL_LIB_NET_CHANNEL_H_
 #define _SL_LIB_NET_CHANNEL_H_
-#include "slpacket.h"
 #include "slendpoint.h"
 #include "slnetbase.h"
 #include "slobjectpool.h"
 #include "sladdress.h"
 #include "slnet.h"
+#include "slring_buffer.h"
+
 namespace sl{
 namespace network{
-
-class Bundle;
 class NetworkInterface;
 class PacketReader;
 class PacketSender;
@@ -17,26 +16,6 @@ class PacketReceiver;
 
 class Channel:public ISLChannel{
 public:
-	enum ChannelTypes{
-		//普通通道
-		CHANNEL_NORMAL = 0,
-
-		///web通道
-		CHANNEL_WEB = 1,
-	};
-
-	typedef std::vector<Packet*> BufferedReceives;
-	typedef std::vector<Bundle*> Bundles;
-
-public:
-	Channel(NetworkInterface* networkInterface,
-		const EndPoint* pEndPoint,
-		ISLPacketParser* poPacketParser,
-		ProtocolType pt = PROTOCOL_TCP,
-		ChannelID id = CHANNEL_ID_NULL);
-
-	virtual ~Channel();
-
 	static Channel* create(NetworkInterface* networkInterface, const EndPoint* pEndPoint, ISLPacketParser* poPacketParser,
 		ProtocolType pt = PROTOCOL_TCP, ChannelID id = CHANNEL_ID_NULL){
 		return CREATE_FROM_POOL(s_pool, networkInterface, pEndPoint, poPacketParser, pt, id);
@@ -63,7 +42,7 @@ public:
 public:
 	inline const char* c_str() const;
 	inline ChannelID id() const { return _id; }
-	inline const Address& addr() const { _pEndPoint->addr(); }
+	inline const Address& addr() const { return _pEndPoint->addr(); }
 	inline EndPoint* getEndPoint() const{ return  _pEndPoint; }
 
 	inline uint32 numPacketSent() const { return _numPacketsSent; }
@@ -83,41 +62,42 @@ public:
 	inline void setSession(ISLSession* poSession) { _pSession = poSession; }
 	inline ISLSession* getSession() { return _pSession; }
 	
-	inline void setConnected();
-	inline void condemn();
+	void setConnected();
+	void condemn();
 	
-	Bundles& bundles();
-	const Bundles& bundles() const;
-	int32 bundlesLength();
-	
-	void send(Bundle* pBundle = NULL);
 	void stopSend();
 	void delayedSend();
 	bool waitSend();
 	
-	inline PacketReader* getPacketReader() const{ return _pPacketReader; }
 	inline PacketSender* getPacketSender() const { return _pPacketSender; }
 	inline void setPacketSender(PacketSender* pPacketSender){ _pPacketSender = pPacketSender; }
 	inline PacketReceiver* getPacketReceiver() const{ return _pPacketReceiver; }
 	void processPackets();
 	void destroy(bool notify = true);
 
-	void addReceiveWindow(Packet* pPacket);
 	void onPacketReceived(int bytes);
 	void onPacketSent(int bytes, bool sendCompleted);
 	void onSendCompleted();
 
+
+	int32 recvFromEndPoint();
+	int32 sendToEndPoint();
+
+	inline bool sendBufEmpty() const { return _sendBuf->getDataSize() == 0; }
+
 private:
+	friend sl::SLPool<Channel>;
+	Channel(NetworkInterface* networkInterface,
+		const EndPoint* pEndPoint,
+		ISLPacketParser* poPacketParser,
+		ProtocolType pt = PROTOCOL_TCP,
+		ChannelID id = CHANNEL_ID_NULL);
+
+	virtual ~Channel();
 	
 	bool finalise();
 	void clearState(bool warnOnDiscard = false);
-
-	void clearBundle();
-	Bundle* createSendBundle(); //创建发送bundle,该bundle可能是从send放入发送队列中获取的，如果队列为空，创建一个新的
-	inline void pushBundle(Bundle* pBundle){ _bundles.push_back(pBundle); }
-
 	void setEndPoint(const EndPoint* pEndPoint);
-	BufferedReceives& bufferedReceives() { return _bufferedReceives; }
 
 private:
 	enum Flags{
@@ -131,10 +111,10 @@ private:
 	ProtocolType				_protocolType;
 	ChannelID					_id;
 	uint64						_lastReceivedTime;
-	Bundles						_bundles;
-	BufferedReceives			_bufferedReceives;
-	ChannelTypes				_channelType;
 	uint32						_flags;
+	sl::SLRingBuffer*			_recvBuf;
+	sl::SLRingBuffer*			_sendBuf;
+
 	
 	///statistics
 	uint32						_numPacketsSent;
@@ -151,7 +131,6 @@ private:
 
 	//内部对象指针，需要内部释放
 	EndPoint*					_pEndPoint;
-	PacketReader*				_pPacketReader;
 	PacketReceiver*				_pPacketReceiver;
 	PacketSender*				_pPacketSender;
 	

@@ -238,7 +238,7 @@ inline EndPoint* EndPoint::accept(uint16* networkPort /* = NULL */, uint32* netw
 	if(ret == INVALID_SOCKET) return NULL;
 #endif
 
-	EndPoint* pNew = CREATE_POOL_OBJECT(EndPoint);
+	EndPoint* pNew = EndPoint::create(0, 0);
 	pNew->setFileDescriptor(ret);
 	pNew->addr(sin.sin_port, sin.sin_addr.s_addr);
 

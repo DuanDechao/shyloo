@@ -5,7 +5,6 @@
 #include "slnetbase.h"
 #include "slinterfaces.h"
 #include "slpacket_receiver.h"
-#include "sludp_packet.h"
 
 namespace sl
 {
@@ -16,18 +15,14 @@ class Address;
 class NetworkInterface;
 class EventDispatcher;
 
-class UDPPacketReceiver: public PacketReceiver
-{
+class UDPPacketReceiver: public PacketReceiver{
 public:
-	
-	UDPPacketReceiver():PacketReceiver(){}
 	UDPPacketReceiver(EndPoint* endpoint, NetworkInterface* networkInterface);
 	~UDPPacketReceiver();
 
-	Reason processRecievePacket(Channel* pChannel, Packet* pPacket);
+	Reason processRecievePacket(Channel* pChannel);
 
-	virtual PacketReceiver::PACKET_RECEIVER_TYPE type() const
-	{
+	virtual PacketReceiver::PACKET_RECEIVER_TYPE type() const{
 		return UDP_PACKET_RECEIVER;
 	}
 

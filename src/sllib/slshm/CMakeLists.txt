@@ -13,11 +13,11 @@ ENDIF(WIN32)
 
 
 SET(SL_LIB_SHM
-	"${PROJECT_SOURCE_DIR}/src/sllib/slshm/slshm_create.h"
+	#"${PROJECT_SOURCE_DIR}/src/sllib/slshm/slshm_create.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slshm/slshm_buff.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slshm/slshm_queue.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slshm/slshm_queue.cpp"
-	"${PROJECT_SOURCE_DIR}/src/sllib/slshm/slcode_queue.h"
+	#"${PROJECT_SOURCE_DIR}/src/sllib/slshm/slcode_queue.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slshm/slshm_mgr.cpp"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slshm/slshm_mgr.h"
 	#"${PROJECT_SOURCE_DIR}/src/sllib/sltimer/main.cpp"

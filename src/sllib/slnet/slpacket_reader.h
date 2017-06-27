@@ -24,7 +24,7 @@ public:
 
 	virtual void reset();
 
-	virtual void processMessages(Packet* pPacket);
+	virtual void processMessages(const char* msgBuf, const int32 size);
 
 	virtual PacketReader::PACKET_READER_TYPE type() const {return PACKET_READER_TYPE_SOCKET;}
 

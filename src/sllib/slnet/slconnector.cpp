@@ -11,7 +11,6 @@ CSLConnector::CSLConnector()
 	:_pSession(nullptr),
 	 _dwRecvBufSize(0),
 	 _dwSendBufSize(0),
-	 _pszIP(nullptr),
 	 _wPort(0)
 {
 	_pNetworkInterface = CSLNetModule::getSingletonPtr()->getNetworkInterface();
@@ -23,7 +22,6 @@ CSLConnector::~CSLConnector(){
 	_pPacketParser = NULL;
 	_dwRecvBufSize = 0;
 	_dwSendBufSize = 0;
-	_pszIP = NULL;
 	_wPort = 0;
 }
 
@@ -42,7 +40,7 @@ bool CSLConnector::connect(const char* pszIP, uint16 wPort){
 		SLASSERT(false, "wtf");
 		return false;
 	}
-	_pszIP = pszIP;
+	//SafeSprintf(_pszIP, sizeof(_pszIP), "%s", pszIP);
 	_wPort = wPort;
 	return _pNetworkInterface->createConnectingSocket(pszIP, wPort, _pSession, _pPacketParser, _dwRecvBufSize, _dwSendBufSize);
 }

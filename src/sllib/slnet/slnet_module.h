@@ -1,5 +1,5 @@
-#ifndef SL_SLNET_MODULE_H
-#define SL_SLNET_MODULE_H
+#ifndef SL_LIB_NET_NET_MODULE_H
+#define SL_LIB_NET_NET_MODULE_H
 #include "slnet.h"
 #include "slsingleton.h"
 #include "sllistener.h"
@@ -7,27 +7,25 @@
 #include "slnetwork_interface.h"
 #include "slevent_dispatcher.h"
 
-namespace sl
-{
-namespace network
-{
-class CSLNetModule: public ISLNet, public CSingleton<CSLNetModule>
-{
+namespace sl{
+namespace network{
+class CSLNetModule: public ISLNet, public CSingleton<CSLNetModule>{
 public:
 	CSLNetModule();
 	~CSLNetModule();
-public:
+
 	virtual ISLListener* SLAPI createListener();
 	virtual ISLConnector* SLAPI createConnector();
 	virtual bool SLAPI run(int64 overtime);
 	virtual void SLAPI release();
 
-	inline NetworkInterface* getNetworkInterface() {return m_networkInterface;}
+	inline NetworkInterface* getNetworkInterface() {return _networkInterface;}
+
 private:
-	EventDispatcher					m_dispatcher;
-	NetworkInterface*				m_networkInterface;
-	std::vector<CSLListener*>		m_listenerVec;
-	std::vector<CSLConnector*>		m_connectorVec;
+	EventDispatcher					_dispatcher;
+	NetworkInterface*				_networkInterface;
+	std::vector<CSLListener*>		_listenerVec;
+	std::vector<CSLConnector*>		_connectorVec;
 };
 }
 }

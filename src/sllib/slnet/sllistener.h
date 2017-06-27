@@ -1,10 +1,10 @@
-#ifndef SL_SLLISTENER_H
-#define SL_SLLISTENER_H
+#ifndef SL_LIB_NET_LISTENER_H
+#define SL_LIB_NET_LISTENER_H
 #include "slnet.h"
 #include "slnetwork_interface.h"
 namespace sl{
-using namespace network;
-class CSLListener: public ISLListener{
+namespace network{
+class CSLListener : public ISLListener{
 public:
 	CSLListener();
 	virtual ~CSLListener();
@@ -19,10 +19,11 @@ public:
 private:
 	NetworkInterface*		_pNetworkInterface;
 	ListenerReceiver*		_pListenerReceiver;
-	EndPoint			    _pListenEndPoint;
+	EndPoint*			    _pListenEndPoint;
 	int32					_dwRecvBufSize;
 	int32					_dwSendBufSize;
-}; 
+};
+}
 }
 
 

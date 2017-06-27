@@ -1,14 +1,11 @@
 #define SL_DLL_EXPORT
 #include "slnet_module.h"
 #include "slnet.h"
-namespace sl
-{
+namespace sl{
 SL_SINGLETON_INIT(network::CSLNetModule);
-namespace network
-{
+namespace network{
 
-extern "C" SL_DLL_API ISLNet* SLAPI getSLNetModule()
-{
+extern "C" SL_DLL_API ISLNet* SLAPI getSLNetModule(){
 	CSLNetModule* g_netModulePtr = CSLNetModule::getSingletonPtr();
 	if(g_netModulePtr == NULL)
 		g_netModulePtr = NEW CSLNetModule();
@@ -16,61 +13,58 @@ extern "C" SL_DLL_API ISLNet* SLAPI getSLNetModule()
 }
 
 CSLNetModule::CSLNetModule()
-	:m_dispatcher(),
-	 m_networkInterface(NULL),
-	 m_listenerVec(),
-	 m_connectorVec()
+	:_dispatcher(),
+	 _networkInterface(NULL),
+	 _listenerVec(),
+	 _connectorVec()
 {
-	m_networkInterface = new NetworkInterface(&m_dispatcher);
+	_networkInterface = new NetworkInterface(&_dispatcher);
 }
 
 CSLNetModule::~CSLNetModule(){
-	int32 size = m_connectorVec.size();
+	int32 size = _connectorVec.size();
 	for (int32 i = 0; i < size; i++){
-		if (m_connectorVec[i])
-			m_connectorVec[i]->release();
+		if (_connectorVec[i])
+			_connectorVec[i]->release();
 	}
 
-	size = m_listenerVec.size();
+	size = _listenerVec.size();
 	for (int32 i = 0; i < size; i++){
-		if (m_listenerVec[i])
-			m_listenerVec[i]->release();
+		if (_listenerVec[i])
+			_listenerVec[i]->release();
 	}
 
-	if (nullptr != m_networkInterface)
-		DEL m_networkInterface;
+	if (nullptr != _networkInterface)
+		DEL _networkInterface;
 }
 
 void CSLNetModule::release(){
 	DEL this;
 }
 
-ISLListener* CSLNetModule::createListener()
-{
+ISLListener* CSLNetModule::createListener(){
 	CSLListener* poListener = new CSLListener();
 	if (nullptr != poListener)
-		m_listenerVec.push_back(poListener);
+		_listenerVec.push_back(poListener);
 
 	return poListener;
 }
 
-ISLConnector* CSLNetModule::createConnector()
-{
+ISLConnector* CSLNetModule::createConnector(){
 	CSLConnector* poConnector = new CSLConnector();
 	if (nullptr != poConnector)
-		m_connectorVec.push_back(poConnector);
+		_connectorVec.push_back(poConnector);
 
 	return poConnector;
 }
 
-bool CSLNetModule::run(int64 overtime)
-{
+bool CSLNetModule::run(int64 overtime){
 	int64 tick = sl::getTimeMilliSecond();
-	m_networkInterface->checkDestroyChannel();
+	_networkInterface->checkDestroyChannel();
 	
 	int64 netOverTime = overtime - sl::getTimeMilliSecond() + tick;
 	netOverTime = netOverTime >= 0 ? netOverTime : 0;
-	m_dispatcher.processOnce(netOverTime);
+	_dispatcher.processOnce(netOverTime);
 	
 	return true;
 }
