@@ -1,9 +1,8 @@
 #include "slnet_session.h"
 #include "slkernel.h"
-namespace sl
-{
-namespace core
-{
+namespace sl{
+namespace core{
+#define SINGLE_RECV_SIZE 32768
 int32 NetPacketParser::parsePacket(const char* pDataBuf, int32 len){
 	if (!pDataBuf)
 		return -1;
@@ -12,70 +11,70 @@ int32 NetPacketParser::parsePacket(const char* pDataBuf, int32 len){
 		return 0;
 
 	int32 dwLen = *(int32*)(pDataBuf + sizeof(int32));
+	if (dwLen > SINGLE_RECV_SIZE)
+		return -1;
+
 	if (len >= dwLen)
 		return dwLen;
-	else
+	else 
 		return 0;
 }
 
 NetSession::NetSession(ITcpSession* pTcpSession)
-	:m_pTcpSession(pTcpSession),
-	 m_pChannel(NULL)
+	:_tcpSession(pTcpSession),
+	 _channel(NULL)
 {
-	m_pTcpSession->m_pPipe = this;
+	_tcpSession->_pipe = this;
 }
 
-NetSession::~NetSession()
-{
+NetSession::~NetSession(){
 	//m_pTcpSession->close();
 }
 
-void NetSession::setChannel(ISLChannel* pChannel)
-{
-	m_pChannel = pChannel;
+void NetSession::setChannel(ISLChannel* pChannel){
+	_channel = pChannel;
 }
 
-void NetSession::release()
-{
+void NetSession::release(){
 	RELEASE_POOL_OBJECT(NetSession, this);
 }
 
-void NetSession::onRecv(const char* pBuf, uint32 dwLen)
-{
-	m_pTcpSession->onRecv(core::Kernel::getInstance(), pBuf, dwLen);
+void NetSession::onRecv(const char* pBuf, uint32 dwLen){
+	_tcpSession->onRecv(core::Kernel::getInstance(), pBuf, dwLen);
 }
 
-void NetSession::onEstablish()
-{
-	m_pTcpSession->onConnected(core::Kernel::getInstance());
+void NetSession::onEstablish(){
+	_tcpSession->onConnected(core::Kernel::getInstance());
 }
 
-void NetSession::onTerminate()
-{
-	m_pTcpSession->onDisconnect(core::Kernel::getInstance());
+void NetSession::onTerminate(){
+	_tcpSession->onDisconnect(core::Kernel::getInstance());
 }
 
-void NetSession::send(const void* pContext, int dwLen)
-{
-	m_pChannel->send((const char*)pContext, dwLen);
+void NetSession::send(const void* pContext, int dwLen){
+	_channel->send((const char*)pContext, dwLen);
 }
 
-void NetSession::close()
-{
-	return m_pChannel->disconnect();
+void NetSession::close(){
+	return _channel->disconnect();
 }
 
-const char* NetSession::getRemoteIP()
-{
-	return m_pChannel->getRemoteIPStr();
+const char* NetSession::getRemoteIP(){
+	return _channel->getRemoteIPStr();
 }
 
-ISLSession* ServerSessionFactory::createSession(ISLChannel* poChannel)
-{
-	if(NULL == m_pServer)
+void NetSession::adjustSendBuffSize(const int32 size){
+	_channel->adjustSendBuffSize(size);
+}
+void NetSession::adjustRecvBuffSize(const int32 size){
+	_channel->adjustRecvBuffSize(size);
+}
+
+ISLSession* ServerSessionFactory::createSession(ISLChannel* poChannel){
+	if(NULL == _server)
 		return NULL;
 
-	ITcpSession* pTcpSession = m_pServer->mallocTcpSession(core::Kernel::getInstance());
+	ITcpSession* pTcpSession = _server->mallocTcpSession(core::Kernel::getInstance());
 	if(NULL == pTcpSession)
 	{
 		SLASSERT(false, "wtf");

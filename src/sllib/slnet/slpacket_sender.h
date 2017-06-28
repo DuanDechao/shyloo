@@ -14,24 +14,22 @@ class NetworkInterface;
 class EventDispatcher;
 class PacketSender: public OutputNotificationHandler{
 public:
-	PacketSender(EndPoint* endpoint, NetworkInterface* networkInterface);
+	PacketSender(Channel* channel, NetworkInterface* networkInterface);
 	virtual ~PacketSender();
 
 	EventDispatcher& dispatcher();
 
-	inline void SetEndPoint(EndPoint* pEndPoint){ _pEndPoint = pEndPoint;}
-	inline EndPoint* GetEndPoint() const {return _pEndPoint;}
-
 	virtual int handleOutputNotification(int fd);
 	virtual Reason processPacket(Channel* pChannel);
+
 	virtual Reason processSendPacket(Channel* pChannel) = 0;
-	virtual Channel* getChannel();
 	virtual bool processSend(Channel* pChannel) = 0;
+	virtual void release() = 0;
 
 	static Reason checkSocketErrors(const EndPoint* pEndPoint);
 
 protected:
-	EndPoint*				_pEndPoint;
+	Channel*				_channel;
 	NetworkInterface*		_pNetworkInterface;
 };
 }

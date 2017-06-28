@@ -2,15 +2,17 @@
 #include "slchannel.h"
 namespace sl{
 namespace network{
-TCPPacketSender::TCPPacketSender(EndPoint* endpoint, NetworkInterface* networkInferface)
-	:PacketSender(endpoint, networkInferface)
+
+SLPool<TCPPacketSender> TCPPacketSender::s_pool;
+TCPPacketSender::TCPPacketSender(Channel* channel, NetworkInterface* networkInferface)
+	:PacketSender(channel, networkInferface)
 {}
 
 TCPPacketSender::~TCPPacketSender()
 {}
 
 void TCPPacketSender::onGetError(Channel* pChannel){
-	pChannel->condemn();
+	pChannel->destroy();
 }
 
 bool TCPPacketSender::processSend(Channel* pChannel){
@@ -18,12 +20,12 @@ bool TCPPacketSender::processSend(Channel* pChannel){
 
 	//如果由poller通知的，我們需要通過地址找到channel
 	if(noticed){
-		pChannel = getChannel();
+		pChannel = _channel;
 	}
 
 	SLASSERT(pChannel != NULL, "wtf");
 
-	if(pChannel->isCondemn()){
+	if (pChannel->isDestroyed()){
 		return false;
 	}
 
@@ -46,8 +48,8 @@ bool TCPPacketSender::processSend(Channel* pChannel){
 }
 
 Reason TCPPacketSender::processSendPacket(Channel* pChannel){
-	if(pChannel->isCondemn()){
-		return REASON_CHANNEL_CONDEMN;
+	if(pChannel->isDestroyed()){
+		return REASON_CHANNEL_DESTROYED;
 	}
 
 	EndPoint* pEndPoint = pChannel->getEndPoint();

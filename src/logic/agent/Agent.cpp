@@ -16,12 +16,12 @@ bool Agent::initialize(sl::api::IKernel * pKernel){
 bool Agent::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
 
-	sl::XmlReader server_conf;
-	if (!server_conf.loadXml(pKernel->getCoreFile())){
+	sl::XmlReader conf;
+	if (!conf.loadXml(pKernel->getConfigFile())){
 		SLASSERT(false, "can not load core file %s", pKernel->getCoreFile());
 		return false;
 	}
-	const sl::ISLXmlNode& agentConf = server_conf.root()["agent"][0];
+	const sl::ISLXmlNode& agentConf = conf.root()["agent"][0];
 	int32 agentRecvSize = agentConf.getAttributeInt32("recv");
 	int32 agentSendSize = agentConf.getAttributeInt32("send");
 	int32 agentPort = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("agent"));

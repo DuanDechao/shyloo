@@ -1,15 +1,13 @@
-#ifndef _SL_NETWORKUDPPACKET_RECEIVER_H_
-#define _SL_NETWORKUDPPACKET_RECEIVER_H_
+#ifndef _SL_LIB_NET_UDPPACKET_RECEIVER_H_
+#define _SL_LIB_NET_UDPPACKET_RECEIVER_H_
 #include "sltimer.h"
-#include "slobjectpool.h"
 #include "slnetbase.h"
 #include "slinterfaces.h"
 #include "slpacket_receiver.h"
+#include "slpool.h"
 
-namespace sl
-{
-namespace network
-{
+namespace sl{
+namespace network{
 class Channel;
 class Address;
 class NetworkInterface;
@@ -17,8 +15,14 @@ class EventDispatcher;
 
 class UDPPacketReceiver: public PacketReceiver{
 public:
-	UDPPacketReceiver(EndPoint* endpoint, NetworkInterface* networkInterface);
-	~UDPPacketReceiver();
+	
+	inline static UDPPacketReceiver* create(Channel* channel, NetworkInterface* networkInterface){
+		return CREATE_FROM_POOL(s_pool, channel, networkInterface);
+	}
+
+	virtual void release(){
+		s_pool.recover(this);
+	}
 
 	Reason processRecievePacket(Channel* pChannel);
 
@@ -27,11 +31,17 @@ public:
 	}
 
 protected:
+	friend SLPool<UDPPacketReceiver>;
+	UDPPacketReceiver(Channel* channel, NetworkInterface* networkInterface);
+	~UDPPacketReceiver();
+
 	bool processRecv(bool expectingPacket);
 	PacketReceiver::RecvState checkSocketErrors(int len, bool expectingPacket);
+
+private:
+	static SLPool<UDPPacketReceiver> s_pool;
 };
 
-CREATE_OBJECT_POOL(UDPPacketReceiver);
 }
 }
 #endif

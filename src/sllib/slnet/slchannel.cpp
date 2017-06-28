@@ -6,14 +6,14 @@
 #include "slevent_dispatcher.h"
 #include "sladdress.h"
 #include "sltcp_packet_sender.h"
+
 namespace sl{
 namespace network{
 
 sl::SLPool<Channel>  Channel::s_pool;
-Channel::Channel(NetworkInterface* networkInterface, const EndPoint* pEndPoint, ISLPacketParser* poPacketParser, ProtocolType pt, ChannelID id)
+Channel::Channel(NetworkInterface* networkInterface, const EndPoint* pEndPoint, ISLPacketParser* poPacketParser, const int32 recvSize, const int32 sendSize, ProtocolType pt)
 	:_flags(0),
 	_protocolType(pt),
-	_id(id),
 	_lastReceivedTime(0),
 	_numPacketsSent(0),
 	_numPacketsReceived(0),
@@ -21,7 +21,9 @@ Channel::Channel(NetworkInterface* networkInterface, const EndPoint* pEndPoint, 
 	_numBytesReceived(0),
 	_lastTickBytesReceived(0),
 	_lastTickBytesSent(0),
-				 
+	_recvSize(recvSize),
+	_sendSize(sendSize),
+
 	_pNetworkInterface(networkInterface),
 	_pSession(NULL),
 	_pPacketParser(poPacketParser),
@@ -38,59 +40,61 @@ Channel::Channel(NetworkInterface* networkInterface, const EndPoint* pEndPoint, 
 	if (_protocolType == PROTOCOL_TCP){
 		if (_pPacketReceiver){
 			if (_pPacketReceiver->type() == PacketReceiver::UDP_PACKET_RECEIVER){
-				RELEASE_POOL_OBJECT(UDPPacketReceiver, (UDPPacketReceiver*)_pPacketReceiver);
-				_pPacketReceiver = CREATE_POOL_OBJECT(TCPPacketReceiver, _pEndPoint, _pNetworkInterface);
+				_pPacketReceiver->release();
+				_pPacketReceiver = TCPPacketReceiver::create(this, _pNetworkInterface);
 			}
 		}
 		else{
-			_pPacketReceiver = CREATE_POOL_OBJECT(TCPPacketReceiver, _pEndPoint, _pNetworkInterface);
+			_pPacketReceiver = TCPPacketReceiver::create(this, _pNetworkInterface);
 		}
 
 		SLASSERT(_pPacketReceiver->type() == PacketReceiver::TCP_PACKET_RECEIVER, "wtf");
-
 		_pNetworkInterface->getDispatcher().registerReadFileDescriptor((int32)*_pEndPoint, _pPacketReceiver);
 	}
 	else{
 		if (_pPacketReceiver){
 			if (_pPacketReceiver->type() == PacketReceiver::TCP_PACKET_RECEIVER){
-				RELEASE_POOL_OBJECT(TCPPacketReceiver, (TCPPacketReceiver*)_pPacketReceiver);
-				_pPacketReceiver = CREATE_POOL_OBJECT(UDPPacketReceiver, _pEndPoint, _pNetworkInterface);
+				_pPacketReceiver->release();
+				_pPacketReceiver = UDPPacketReceiver::create(this, _pNetworkInterface);
 			}
 		}
 		else{
-			_pPacketReceiver = CREATE_POOL_OBJECT(UDPPacketReceiver, _pEndPoint, _pNetworkInterface);;
+			_pPacketReceiver = UDPPacketReceiver::create(this, _pNetworkInterface);
 		}
 		SLASSERT(_pPacketReceiver->type() == PacketReceiver::UDP_PACKET_RECEIVER, "wtf");
 	}
 
-	_pPacketReceiver->SetEndPoint(_pEndPoint);
+	_recvBuf = (sl::SLRingBuffer*)SLMALLOC(_recvSize);
+	SLASSERT(_recvBuf, "wtf");
+	_recvBuf->init(_recvSize, true);
 
-	if (_pPacketSender){
-		_pPacketSender->SetEndPoint(_pEndPoint);
-	}
-
-	_recvBuf = (sl::SLRingBuffer*)SLMALLOC(102400);
-	_recvBuf->init(102400, true);
-
-	_sendBuf = (sl::SLRingBuffer*)SLMALLOC(102400);
-	_sendBuf->init(102400, true);
+	_sendBuf = (sl::SLRingBuffer*)SLMALLOC(_sendSize);
+	SLASSERT(_sendBuf, "wtf");
+	_sendBuf->init(_sendSize, true);
 }
 
 Channel::~Channel(){
 	if (!isDestroyed())
 		finalise();
+
+	if (_recvBuf)
+		SLFREE(_recvBuf);
+
+	if (_sendBuf)
+		SLFREE(_sendBuf);
+
+	_recvBuf = nullptr;
+	_sendBuf = nullptr;
 }
 
 bool Channel::finalise(){
 	this->clearState();
 
-	if (_protocolType == PROTOCOL_TCP){
-		RELEASE_POOL_OBJECT(TCPPacketReceiver, (TCPPacketReceiver*)_pPacketReceiver);
-		RELEASE_POOL_OBJECT(TCPPacketSender, (TCPPacketSender*)_pPacketSender);
-	}
-	else{
-		RELEASE_POOL_OBJECT(UDPPacketReceiver, (UDPPacketReceiver*)_pPacketReceiver);
-	}
+	if (_pPacketReceiver)
+		_pPacketReceiver->release();
+
+	if (_pPacketSender)
+		_pPacketSender->release();
 
 	_pPacketReceiver = NULL;
 	_pPacketSender = NULL;
@@ -101,11 +105,11 @@ void Channel::send(const char* pBuf, uint32 dwLen){
 	const int32 freeLen = _sendBuf->getFreeSize();
 	if (dwLen > (uint32)(freeLen)){
 		SLASSERT(false, "wtf");
-		condemn();
+		destroy();
 		return;
 	}
 	
-	if (isDestroyed() || isCondemn()){
+	if (isDestroyed()){
 		return;
 	}
 
@@ -113,21 +117,56 @@ void Channel::send(const char* pBuf, uint32 dwLen){
 
 	if (!sending()){
 		if (_pPacketSender == NULL){
-			_pPacketSender = CREATE_POOL_OBJECT(TCPPacketSender, _pEndPoint, _pNetworkInterface);
+			_pPacketSender = TCPPacketSender::create(this, _pNetworkInterface);
 		}
 
 		_pPacketSender->processSend(this);
 
 		//如果不能立即發送到系統緩衝區，那麼交給poller處理
-		if (_sendBuf->getDataSize() > 0 && !isCondemn() && !isDestroyed()){
+		if (_sendBuf->getDataSize() > 0 && !isDestroyed()){
 			_flags |= FLAG_SENDING;
-			_pNetworkInterface->getDispatcher().registerWriteFileDescriptor((int32)(*_pEndPoint), _pPacketSender);
+			_pNetworkInterface->getDispatcher().registerWriteFileDescriptor((int32)(*getEndPoint()), _pPacketSender);
 		}
 	}
 }
 
+void Channel::adjustSendBuffSize(const int32 size){
+	if (adjustBuffSize(_sendBuf, size))
+		_sendSize = size;
+}
+void Channel::adjustRecvBuffSize(const int32 size){
+	if (adjustBuffSize(_recvBuf, size))
+		_recvSize = size;
+}
+
+bool Channel::adjustBuffSize(SLRingBuffer* & buf, const int32 newSize){
+	int32 dataSize = buf->getDataSize();
+	if (dataSize > newSize)
+		return false;
+
+	sl::SLRingBuffer* newBuff = (sl::SLRingBuffer*)SLMALLOC(newSize);
+	SLASSERT(newBuff, "wtf");
+	newBuff->init(newSize, true);
+
+	if (dataSize > 0){
+		char* temp = (char*)alloca(dataSize);
+		const char* data = buf->get(temp, dataSize, true);
+		if (!data){
+			SLASSERT(false, "wtf");
+			SLFREE(newBuff);
+			return false;
+		}
+		newBuff->put(data, dataSize);
+	}
+
+	SLFREE(buf);
+	buf = newBuff;
+
+	return true;
+}
+
 void Channel::disconnect(){
-	condemn();
+	destroy();
 }
 
 void Channel::setEndPoint(const EndPoint* pEndPoint){
@@ -148,9 +187,13 @@ void Channel::destroy(bool notify){
 		_pSession->onTerminate();
 	}
 
+	_pNetworkInterface->deregisterChannel(this);
+
 	finalise();
 	
 	_flags |= FLAG_DESTROYED;
+	
+	release();
 }
 
 void Channel::setConnected() { 
@@ -161,28 +204,6 @@ void Channel::setConnected() {
 }
 
 void Channel::clearState(bool warnOnDiscard /* = false */){
-	//清空未處理的接受包緩存
-	/*if(_bufferedReceives.size() > 0){
-		BufferedReceives::iterator iter = _bufferedReceives.begin();
-		int hasDiscard = 0;
-
-		for (;iter != _bufferedReceives.end(); ++iter){
-			Packet* pPacket = (*iter);
-			if(pPacket->length() > 0)
-				hasDiscard++;
-
-			RECLAIM_PACKET(pPacket->IsTCPPacket(), pPacket);
-		}
-		if(hasDiscard > 0 && warnOnDiscard){
-			ECHO_TRACE("Channel::clearState(%s): Discarding %d buffered packet(s)",
-				this->c_str(), hasDiscard);
-		}
-
-		_bufferedReceives.clear();
-	}
-
-	clearBundle();*/
-
 	_lastReceivedTime = getTimeMilliSecond();
 
 	_numPacketsSent = 0;
@@ -191,7 +212,6 @@ void Channel::clearState(bool warnOnDiscard /* = false */){
 	_numBytesReceived = 0;
 	_lastTickBytesReceived = 0;
 	_lastTickBytesSent = 0;
-	_id = CHANNEL_ID_NULL;
 	_flags = 0;
 
 	if(_pEndPoint && _protocolType == PROTOCOL_TCP && !this->isDestroyed()){
@@ -217,8 +237,7 @@ const char* Channel::c_str() const{
 	if(_pEndPoint && !_pEndPoint->addr().isNone())
 		_pEndPoint->addr().writeToString(tdodgyString, MAX_BUF);
 
-	SafeSprintf(dodgyString, MAX_BUF, "%s/%d/%d/%d", tdodgyString, _id,
-		this->isCondemn(), this->isDestroyed());
+	SafeSprintf(dodgyString, MAX_BUF, "%s/%d", tdodgyString, this->isDestroyed());
 	
 	return dodgyString;
 }
@@ -260,47 +279,41 @@ void Channel::onPacketReceived(int bytes){
 
 }
 
-void Channel::condemn(){
-	if(isCondemn())
-		return;
-
-	_flags |= FLAG_CONDEMN;
-}
-
 void Channel::processPackets(){
 	_lastTickBytesReceived = 0;
 	_lastTickBytesSent = 0;
 
 	if(this->isDestroyed())
 		return;
-
-	if(this->isCondemn())
-		return;
-
-	char temp[40960];
+	
 	const int32 dataSize = _recvBuf->getDataSize();
-	int32 dataLen = dataSize > 40960 ? 40960 : dataSize;
-	const char* data = _recvBuf->get(temp, dataLen, true);
-	if (data == nullptr)
+	if (dataSize <= 0)
 		return;
+
+	char* temp = (char*)alloca(dataSize);
+	const char* data = _recvBuf->get(temp, dataSize, true);
+	if (data == nullptr){
+		SLASSERT(false, "wtf");
+		return;
+	}
 
 	int32 used = 0;
 	int32 totalUsed = 0;
 	do{
-		used = _pPacketParser->parsePacket(data + totalUsed, dataLen - totalUsed);
+		used = _pPacketParser->parsePacket(data + totalUsed, dataSize - totalUsed);
 		if (used > 0){
-			SLASSERT(totalUsed + used <= dataLen, "wtf");
+			SLASSERT(totalUsed + used <= dataSize, "wtf");
 			_pSession->onRecv(data + totalUsed, used);
 			totalUsed += used;
 		}
-	} while (used > 0 && totalUsed < dataLen);
+	} while (used > 0 && totalUsed < dataSize);
 
 	if (used >= 0){
 		if (totalUsed > 0)
 			_recvBuf->readOut(totalUsed);
 	}
 	else{
-		this->condemn();
+		this->destroy();
 	}
 }
 

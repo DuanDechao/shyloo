@@ -7,18 +7,14 @@
 
 namespace sl{
 namespace network{
-ListenerReceiver::ListenerReceiver()
-	:_endpoint(nullptr),
-	 _networkInterface(nullptr),
-	 _pSessionFactory(nullptr),
-	 _pPacketParser(nullptr)
-{}
 
 ListenerReceiver::ListenerReceiver(EndPoint* endpoint, NetworkInterface* networkInterface)
 	:_endpoint(endpoint),
 	 _networkInterface(networkInterface),
 	 _pSessionFactory(nullptr),
-	 _pPacketParser(nullptr)
+	 _pPacketParser(nullptr),
+	 _sendSize(0),
+	 _recvSize(0)
 {}
 
 ListenerReceiver::~ListenerReceiver(){
@@ -26,6 +22,8 @@ ListenerReceiver::~ListenerReceiver(){
 	_networkInterface = nullptr;
 	_pSessionFactory = nullptr;
 	_pPacketParser = nullptr;
+	_sendSize = 0;
+	_recvSize = 0;
 }
 
 int ListenerReceiver::handleInputNotification(int fd){
@@ -36,7 +34,7 @@ int ListenerReceiver::handleInputNotification(int fd){
 			break;
 		}
 		else{
-			Channel* pChannel = Channel::create(_networkInterface, pNewEndPoint, _pPacketParser);
+			Channel* pChannel = Channel::create(_networkInterface, pNewEndPoint, _pPacketParser, _recvSize, _sendSize);
 			if (!pChannel){
 				pChannel->destroy();
 				pChannel->release();

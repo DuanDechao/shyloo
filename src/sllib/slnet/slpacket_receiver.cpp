@@ -4,21 +4,20 @@
 namespace sl{
 namespace network{
 
-PacketReceiver::PacketReceiver(EndPoint* endpoint, NetworkInterface* networkInterface)
-	:_pEndPoint(endpoint),
+PacketReceiver::PacketReceiver(Channel* channel, NetworkInterface* networkInterface)
+	:_channel(channel),
 	 _pNetworkInterface(networkInterface)
 {}
 
 PacketReceiver::~PacketReceiver(){
-	_pEndPoint = NULL;
+	_channel = NULL;
 	_pNetworkInterface = NULL;
 }
 
 int PacketReceiver::handleInputNotification(int fd){
-	Channel *activeChannel = getChannel();
-	SLASSERT(activeChannel != NULL, "wtf");
+	SLASSERT(_channel != NULL, "wtf");
 
-	if(activeChannel->isCondemn()){
+	if (_channel->isDestroyed()){
 		return -1;
 	}
 
@@ -38,10 +37,6 @@ Reason PacketReceiver::processPacket(Channel* pChannel, int32 packetLen){
 
 EventDispatcher& PacketReceiver::dispatcher(){
 	return this->_pNetworkInterface->getDispatcher();
-}
-
-Channel* PacketReceiver::getChannel(){
-	return _pNetworkInterface->findChannel(_pEndPoint->addr());
 }
 
 }

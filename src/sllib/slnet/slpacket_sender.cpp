@@ -1,51 +1,44 @@
 #include "slpacket_sender.h"
-#include "sladdress.h"
-#include "slbundle.h"
 #include "slchannel.h"
-#include "slendpoint.h"
 #include "slevent_dispatcher.h"
 #include "slnetwork_interface.h"
 #include "slevent_poller.h"
+#include "slendpoint.h"
 
 namespace sl{
 namespace  network{
 
-PacketSender::PacketSender(EndPoint* endpoint, NetworkInterface* networkInterface)
-	:_pEndPoint(endpoint),
+PacketSender::PacketSender(Channel* channel, NetworkInterface* networkInterface)
+	:_channel(channel),
 	 _pNetworkInterface(networkInterface)
 {}
 
 PacketSender::~PacketSender(){
-	_pEndPoint = NULL;
+	_channel = NULL;
 	_pNetworkInterface = NULL;
 }
 
-Channel* PacketSender::getChannel(){
-	return _pNetworkInterface->findChannel(_pEndPoint->addr());
-}
-
 int PacketSender::handleOutputNotification(int fd){
-	Channel *activeChannel = getChannel();
-	SLASSERT(activeChannel != NULL, "wtf");
+	SLASSERT(_channel != NULL, "wtf");
 
-	if(activeChannel->isCondemn())
+	if (_channel->isDestroyed())
 		return -1;
 
-	if(!activeChannel->isConnected()){
+	if (!_channel->isConnected()){
 		int error = -1, slen = sizeof(int);
-		getsockopt((int32)*_pEndPoint, SOL_SOCKET, SO_ERROR, (char*)&error, (socklen_t *)&slen);
+		getsockopt((int32)(*(_channel->getEndPoint())), SOL_SOCKET, SO_ERROR, (char*)&error, (socklen_t *)&slen);
 		if (error == 0){
-			if (activeChannel->sendBufEmpty()){
-				_pNetworkInterface->getDispatcher().deregisterWriteFileDescriptor((int32)*_pEndPoint);
+			if (_channel->sendBufEmpty()){
+				_pNetworkInterface->getDispatcher().deregisterWriteFileDescriptor((int32)(*(_channel->getEndPoint())));
 			}
-			ISLSession* poSession = activeChannel->getSession();
+			ISLSession* poSession = _channel->getSession();
 			poSession->onEstablish();
-			activeChannel->setConnected();
+			_channel->setConnected();
 			
 		}
 		else{
 			SLASSERT(false, "wtf");
-			activeChannel->destroy();
+			_channel->destroy();
 			return -2;
 		}
 		return 0;

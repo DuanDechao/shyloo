@@ -4,10 +4,9 @@
 #include "slnet.h"
 #include "slsingleton.h"
 
-namespace sl
-{
-namespace core
-{
+namespace sl{
+namespace core{
+
 #define MAX_IP_LEN 128
 #define MAX_LOCAL_IP_PREFIX_NUM 19
 #pragma comment(lib,"Iphlpapi.lib")

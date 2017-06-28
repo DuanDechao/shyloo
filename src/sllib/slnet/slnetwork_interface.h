@@ -56,8 +56,6 @@ public:
 
 	inline int32 numExtChannels() const;
 
-	int32 checkDestroyChannel();
-
 private:
 
 	ChannelMap						_channelMap;

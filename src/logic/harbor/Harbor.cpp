@@ -47,13 +47,25 @@ bool Harbor::launched(sl::api::IKernel * pKernel){
 		SLASSERT(false, "can not load core file %s", pKernel->getCoreFile());
 		return false;
 	}
-	_sendSize = server_conf.root()["harbor"][0].getAttributeInt32("send");
-	_recvSize = server_conf.root()["harbor"][0].getAttributeInt32("recv");
-	_useIpc = server_conf.root()["harbor"][0].getAttributeBoolean("useIpc");
-	const sl::xml::ISLXmlNode& nodes = server_conf.root()["harbor"][0]["node"];
+
+	const sl::xml::ISLXmlNode& harbor_conf = server_conf.root()["harbor"][0];
+	_sendSize = harbor_conf.getAttributeInt32("send");
+	_recvSize = harbor_conf.getAttributeInt32("recv");
+	_useIpc = harbor_conf.getAttributeBoolean("useIpc");
+	const sl::xml::ISLXmlNode& nodes = harbor_conf["node"];
 	for (int32 i = 0; i < nodes.count(); i++){
 		int32 type = nodes[i].getAttributeInt32("type");
 		_nodeNames[type] = nodes[i].getAttributeString("name");
+	}
+
+	if (harbor_conf.subNodeExist("pipe")){
+		const sl::xml::ISLXmlNode& pipes = harbor_conf["pipe"];
+		for (int32 i = 0; i < pipes.count(); i++){
+			int64 type1 = pipes[i].getAttributeInt64("node1");
+			int64 type2 = pipes[i].getAttributeInt64("node2");
+
+			_nodeSize[(type1 | (type2 << 32))] = pipes[i].getAttributeInt32("size");
+		}
 	}
 
 	XmlReader conf;
@@ -100,6 +112,20 @@ bool Harbor::destory(sl::api::IKernel * pKernel){
 }
 
 void Harbor::onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* ip, int32 nodePort, NodeSession* session){
+	int64 idx = (int64)_nodeType | (((int64)nodeType) << 32);
+	auto itor = _nodeSize.find(idx);
+	if (itor != _nodeSize.end()){
+		session->adjustSendBuffSize(itor->second);
+		TRACE_LOG("node [%s:%d] adjust send buff %d", _nodeNames[nodeType].c_str(), nodeId, itor->second);
+	}
+
+	idx = (int64)nodeType | (((int64)_nodeType) << 32);
+	itor = _nodeSize.find(idx);
+	if (itor != _nodeSize.end()){
+		session->adjustRecvBuffSize(itor->second);
+		TRACE_LOG("node [%s:%d] adjust recv buff %d", _nodeNames[nodeType].c_str(), nodeId, itor->second);
+	}
+
 	_allNode[nodeType].insert(std::make_pair(nodeId, session));
 	for (auto& listener : _listenerPool){
 		listener->onOpen(pKernel, nodeType, nodeId, ip, nodePort);

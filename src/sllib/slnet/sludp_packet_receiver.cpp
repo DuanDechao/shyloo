@@ -1,24 +1,21 @@
 #include "sludp_packet_receiver.h"
-
 #include "sladdress.h"
 #include "slchannel.h"
 #include "slendpoint.h"
 #include "slevent_dispatcher.h"
 #include "slnetwork_interface.h"
 #include "slevent_poller.h"
-namespace sl
-{
-namespace network
-{
-UDPPacketReceiver::UDPPacketReceiver(EndPoint* endpoint,
-									 NetworkInterface* networkInterface)
-									 :PacketReceiver(endpoint, networkInterface)
+namespace sl{
+namespace network{
+
+SLPool<UDPPacketReceiver> UDPPacketReceiver::s_pool;
+UDPPacketReceiver::UDPPacketReceiver(Channel* channel, NetworkInterface* networkInterface)
+	:PacketReceiver(channel, networkInterface)
 {}
 
 UDPPacketReceiver::~UDPPacketReceiver(){}
 
-bool UDPPacketReceiver::processRecv(bool expectingPacket)
-{
+bool UDPPacketReceiver::processRecv(bool expectingPacket){
 	/*Address srcAddr;
 	UDPPacket* pChannelReceiveWindow = CREATE_POOL_OBJECT(UDPPacket);
 	int len = pChannelReceiveWindow->recvFromEndPoint(*m_pEndPoint, &srcAddr);
@@ -75,8 +72,7 @@ bool UDPPacketReceiver::processRecv(bool expectingPacket)
 	return true;
 }
 
-Reason UDPPacketReceiver::processRecievePacket(Channel* pChannel)
-{
+Reason UDPPacketReceiver::processRecievePacket(Channel* pChannel){
 	// 如果为None， 则可能是被过滤器过滤掉了(过滤器正在按照自己的规则组包解密)
 	/*if(pPacket)
 	{
@@ -86,8 +82,7 @@ Reason UDPPacketReceiver::processRecievePacket(Channel* pChannel)
 	return REASON_SUCCESS;
 }
 
-PacketReceiver::RecvState UDPPacketReceiver::checkSocketErrors(int len, bool expectingPacket)
-{
+PacketReceiver::RecvState UDPPacketReceiver::checkSocketErrors(int len, bool expectingPacket){
 	if (len == 0)
 	{
 		/*SL_ELOG(fmt::format("PacketReceiver::processPendingEvents: "

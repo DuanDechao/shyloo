@@ -15,12 +15,16 @@ class ISLPacketParser;
 
 class ListenerReceiver: public InputNotificationHandler{
 public:
-	ListenerReceiver();
 	ListenerReceiver(EndPoint* endpoint, NetworkInterface* networkInterface);
 	~ListenerReceiver();
 
 	void setSessionFactory(ISLSessionFactory* poSessionFactory);
 	void setPacketParser(ISLPacketParser* poPacketParser);
+
+	inline void setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize){
+		_sendSize = dwSendBufSize;
+		_recvSize = dwRecvBufSize;
+	}
 
 private:
 	virtual int handleInputNotification(int fd);
@@ -30,6 +34,8 @@ private:
 	NetworkInterface*	_networkInterface;
 	ISLSessionFactory*	_pSessionFactory;
 	ISLPacketParser*	_pPacketParser;
+	int32				_recvSize;
+	int32				_sendSize;
 };
 }
 }

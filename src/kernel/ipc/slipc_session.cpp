@@ -2,38 +2,35 @@
 #include "slkernel.h"
 namespace sl{
 namespace core{
+#define SINGLE_RECV_SIZE 32768
+sl::SLPool<IPCSession> IPCSession::s_pool;
 IPCSession::IPCSession(ITcpSession* pTcpSession, shm::ISLShmQueue* shmQueue, int64 localId, int64 remoteId)
-	:m_pTcpSession(pTcpSession),
-	m_pShmQueue(shmQueue),
-	m_localId(localId),
-	m_remoteId(remoteId)
+	:_tcpSession(pTcpSession),
+	_shmQueue(shmQueue),
+	_localId(localId),
+	_remoteId(remoteId)
 {
-	m_pTcpSession->m_pPipe = this;
+	_tcpSession->_pipe = this;
 }
 
-IPCSession::~IPCSession()
-{
+IPCSession::~IPCSession(){
 	//m_pTcpSession->close();
 }
 
-void IPCSession::release(){
-	RELEASE_POOL_OBJECT(IPCSession, this);
-}
-
 void IPCSession::onRecv(const char* pBuf, uint32 dwLen){
-	m_pTcpSession->onRecv(core::Kernel::getInstance(), pBuf, dwLen);
+	_tcpSession->onRecv(core::Kernel::getInstance(), pBuf, dwLen);
 }
 
 void IPCSession::onEstablish(){
-	m_pTcpSession->onConnected(core::Kernel::getInstance());
+	_tcpSession->onConnected(core::Kernel::getInstance());
 }
 
 void IPCSession::onTerminate(){
-	m_pTcpSession->onDisconnect(core::Kernel::getInstance());
+	_tcpSession->onDisconnect(core::Kernel::getInstance());
 }
 
 void IPCSession::send(const void* pContext, int dwLen){
-	m_pShmQueue->putData(pContext, dwLen);
+	_shmQueue->putData(pContext, dwLen);
 }
 
 void IPCSession::close(){
@@ -45,34 +42,38 @@ const char* IPCSession::getRemoteIP(){
 }
 
 int32 IPCSession::procRecv(){
-	char temp[10240];
+	char temp[SINGLE_RECV_SIZE];
 	while (true){
-		const char* data = m_pShmQueue->peekData(temp, sizeof(int32)* 2);
+		const char* data = _shmQueue->peekData(temp, sizeof(int32)* 2);
 		if (data == nullptr)
 			break;
 
 		int32 msgSize = *(int32*)(data + sizeof(int32));
-		data = m_pShmQueue->peekData(temp, msgSize);
+		if (msgSize > SINGLE_RECV_SIZE){
+			SLASSERT(false, "wtf");
+			break;
+		}
+		data = _shmQueue->peekData(temp, msgSize);
 		if (data == nullptr)
 			break;
 
 		onRecv(data, msgSize);
-		m_pShmQueue->skip(msgSize);
+		_shmQueue->skip(msgSize);
 	}
 
 	return 0;
 }
 
 IPCSession* IPCSessionFactory::createSession(shm::ISLShmQueue* queue, int64 localId, int64 remoteId){
-	if (NULL == m_pServer)
+	if (NULL ==_server)
 		return NULL;
 
-	ITcpSession* pTcpSession = m_pServer->mallocTcpSession(core::Kernel::getInstance());
+	ITcpSession* pTcpSession = _server->mallocTcpSession(core::Kernel::getInstance());
 	if (NULL == pTcpSession){
 		SLASSERT(false, "wtf");
 		return NULL;
 	}
-	IPCSession* pIPCSession = CREATE_POOL_OBJECT(IPCSession, pTcpSession, queue, localId, remoteId);
+	IPCSession* pIPCSession = IPCSession::create(pTcpSession, queue, localId, remoteId);
 	if (NULL == pIPCSession){
 		SLASSERT(false, "wtf");
 		return NULL;

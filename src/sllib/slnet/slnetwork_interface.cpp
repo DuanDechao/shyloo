@@ -24,7 +24,6 @@ NetworkInterface::~NetworkInterface(){
 		ChannelMap::iterator olditer = iter++;
 		Channel* pChannel = olditer->second;
 		pChannel->destroy(false);
-		pChannel->release();
 	}
 
 	_channelMap.clear();
@@ -90,16 +89,16 @@ bool NetworkInterface::createListeningSocket(const char* listeningInterface, uin
 	pEP->setnodelay(true);
 	pEP->addr(address);
 
-	if(rbuffer > 0){
+	/*if(rbuffer > 0){
 		if(!pEP->setBufferSize(SO_RCVBUF, rbuffer)){
-			SLASSERT(false, "wtf");
+		SLASSERT(false, "wtf");
 		}
-	}
-	if(wbuffer > 0){
+		}
+		if(wbuffer > 0){
 		if(!pEP->setBufferSize(SO_SNDBUF, wbuffer)){
-			SLASSERT(false, "wtf");
+		SLASSERT(false, "wtf");
 		}
-	}
+		}*/
 
 	int backlog = network::g_SOMAXCONN;
 	if(backlog < 5)
@@ -139,7 +138,7 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 	
 	Address addr(serverIp, serverPort);
 	pSvrEndPoint->addr(addr);
-	Channel* pSvrChannel = Channel::create(this, pSvrEndPoint, poPacketParser);
+	Channel* pSvrChannel = Channel::create(this, pSvrEndPoint, poPacketParser, rbuffer, wbuffer);
 	if(!pSvrChannel){
 		SLASSERT(false, "wtf");
 		return false;
@@ -156,9 +155,7 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 	pSession->setChannel(pSvrChannel);
 
 	if(pSvrChannel->getPacketSender() == nullptr){
-		TCPPacketSender* pPackerSender = CREATE_POOL_OBJECT(TCPPacketSender, pSvrEndPoint, this);
-		pSvrChannel->setPacketSender(pPackerSender);
-		//getDispatcher().registerWriteFileDescriptor((int32)(*pSvrEndPoint), pPackerSender);
+		pSvrChannel->setPacketSender(TCPPacketSender::create(pSvrChannel, this));
 	}
 
 	if (ret != -1){
@@ -226,12 +223,12 @@ bool NetworkInterface::deregisterChannel(Channel* pChannel){
 	const Address& addr = pChannel->addr();
 	SLASSERT(pChannel->getEndPoint() != NULL, "wtf");
 
-	_numExtChannels--;
-
 	if(_channelMap.erase(addr)){
 		return false;
 	}
 
+	_numExtChannels--;
+	
 	if(_pChannelDeregisterHandler){
 		//m_pChannelDeregisterHandler->
 	}
@@ -257,36 +254,6 @@ int32 NetworkInterface::numExtChannels() const{
 	return _numExtChannels;
 }
 
-int32 NetworkInterface::checkDestroyChannel(){
-	if (getTimeMilliSecond() - _lastCheckDestroyChannelTime <= CHECK_DESTROY_CHANNEL_TIME)
-		return 0;
-
-	ChannelMap::iterator iter = _channelMap.begin();
-	ChannelMap::iterator iterEnd = _channelMap.end();
-
-	int32 destroyCount = 0;
-	while(iter != iterEnd){
-		Channel* pChannel = iter->second;
-		if (nullptr == pChannel || pChannel->isDestroyed()){
-			pChannel->release();
-			iter = _channelMap.erase(iter);
-			destroyCount++;
-		}
-		else if (pChannel->isCondemn()){
-			pChannel->destroy();
-			pChannel->release();
-			iter = _channelMap.erase(iter);
-			destroyCount++;
-		}
-		else{
-			++iter;
-		}
-	}
-
-	_lastCheckDestroyChannelTime = getTimeMilliSecond();
-
-	return destroyCount;
-}
 
 }
 }

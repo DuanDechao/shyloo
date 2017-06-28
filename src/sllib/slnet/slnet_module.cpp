@@ -18,7 +18,7 @@ CSLNetModule::CSLNetModule()
 	 _listenerVec(),
 	 _connectorVec()
 {
-	_networkInterface = new NetworkInterface(&_dispatcher);
+	_networkInterface = NEW NetworkInterface(&_dispatcher);
 }
 
 CSLNetModule::~CSLNetModule(){
@@ -43,7 +43,7 @@ void CSLNetModule::release(){
 }
 
 ISLListener* CSLNetModule::createListener(){
-	CSLListener* poListener = new CSLListener();
+	CSLListener* poListener = NEW CSLListener();
 	if (nullptr != poListener)
 		_listenerVec.push_back(poListener);
 
@@ -51,7 +51,7 @@ ISLListener* CSLNetModule::createListener(){
 }
 
 ISLConnector* CSLNetModule::createConnector(){
-	CSLConnector* poConnector = new CSLConnector();
+	CSLConnector* poConnector = NEW CSLConnector();
 	if (nullptr != poConnector)
 		_connectorVec.push_back(poConnector);
 
@@ -59,13 +59,7 @@ ISLConnector* CSLNetModule::createConnector(){
 }
 
 bool CSLNetModule::run(int64 overtime){
-	int64 tick = sl::getTimeMilliSecond();
-	_networkInterface->checkDestroyChannel();
-	
-	int64 netOverTime = overtime - sl::getTimeMilliSecond() + tick;
-	netOverTime = netOverTime >= 0 ? netOverTime : 0;
-	_dispatcher.processOnce(netOverTime);
-	
+	_dispatcher.processOnce(overtime);
 	return true;
 }
 

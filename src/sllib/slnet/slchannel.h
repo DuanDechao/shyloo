@@ -16,9 +16,10 @@ class PacketReceiver;
 
 class Channel:public ISLChannel{
 public:
-	static Channel* create(NetworkInterface* networkInterface, const EndPoint* pEndPoint, ISLPacketParser* poPacketParser,
-		ProtocolType pt = PROTOCOL_TCP, ChannelID id = CHANNEL_ID_NULL){
-		return CREATE_FROM_POOL(s_pool, networkInterface, pEndPoint, poPacketParser, pt, id);
+	inline static Channel* create(NetworkInterface* networkInterface, const EndPoint* pEndPoint, ISLPacketParser* poPacketParser,
+		const int32 recvSize, const int32 sendSize, ProtocolType pt = PROTOCOL_TCP)
+	{
+		return CREATE_FROM_POOL(s_pool, networkInterface, pEndPoint, poPacketParser, recvSize, sendSize, pt);
 	}
 
 	inline void release(){
@@ -38,10 +39,11 @@ public:
 	virtual const char* SLAPI getLocalIPStr(void) {return "";}
 	virtual const uint16 SLAPI getLocalPort(void) {return 0;}
 
+	virtual void SLAPI adjustSendBuffSize(const int32 size);
+	virtual void SLAPI adjustRecvBuffSize(const int32 size);
 
 public:
 	inline const char* c_str() const;
-	inline ChannelID id() const { return _id; }
 	inline const Address& addr() const { return _pEndPoint->addr(); }
 	inline EndPoint* getEndPoint() const{ return  _pEndPoint; }
 
@@ -53,7 +55,6 @@ public:
 	inline void updateLastReceivedTime() { _lastReceivedTime = getTimeMilliSecond(); }
 
 	inline bool isDestroyed() const {return (_flags & FLAG_DESTROYED) > 0;}
-	inline bool isCondemn() const { return (_flags & FLAG_CONDEMN) > 0; }
 	inline bool sending() const { return (_flags & FLAG_SENDING) > 0; }
 
 	inline NetworkInterface& getNetworkInterface()	{return *_pNetworkInterface;}
@@ -63,8 +64,6 @@ public:
 	inline ISLSession* getSession() { return _pSession; }
 	
 	void setConnected();
-	void condemn();
-	
 	void stopSend();
 	void delayedSend();
 	bool waitSend();
@@ -90,8 +89,8 @@ private:
 	Channel(NetworkInterface* networkInterface,
 		const EndPoint* pEndPoint,
 		ISLPacketParser* poPacketParser,
-		ProtocolType pt = PROTOCOL_TCP,
-		ChannelID id = CHANNEL_ID_NULL);
+		const int32 recvSize, const int32 sendSize,
+		ProtocolType pt = PROTOCOL_TCP);
 
 	virtual ~Channel();
 	
@@ -99,21 +98,23 @@ private:
 	void clearState(bool warnOnDiscard = false);
 	void setEndPoint(const EndPoint* pEndPoint);
 
+	bool adjustBuffSize(SLRingBuffer* & buf, const int32 newSize);
+
 private:
 	enum Flags{
 		FLAG_SENDING	=	0x00000001,			///< 发送信息中
 		FLAG_DESTROYED	=	0x00000002,			///< 通道已经销毁
-		FLAG_CONDEMN	=	0x00000004,			///< 该频道已经变得不合法
-		FLAG_CONNECTED	=	0x00000008,			///< 通道建立连接
+		FLAG_CONNECTED	=	0x00000004,			///< 通道建立连接
 	};
 
 private:
 	ProtocolType				_protocolType;
-	ChannelID					_id;
 	uint64						_lastReceivedTime;
 	uint32						_flags;
 	sl::SLRingBuffer*			_recvBuf;
 	sl::SLRingBuffer*			_sendBuf;
+	int32						_recvSize;
+	int32						_sendSize;
 
 	
 	///statistics

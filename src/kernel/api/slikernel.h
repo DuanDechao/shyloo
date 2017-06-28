@@ -16,14 +16,15 @@ public:
 	virtual ~IPipe() {}
 	virtual void send(const void* pContext, int dwLen) = 0;
 	virtual void close() = 0;
-
 	virtual const char* getRemoteIP() = 0;
+	virtual void adjustSendBuffSize(const int32 size) = 0;
+	virtual void adjustRecvBuffSize(const int32 size) = 0;
 };
 
 class ISocket{
 public:
 	virtual ~ISocket(){}
-	IPipe* m_pPipe;
+	IPipe* _pipe;
 };
 
 class ITcpSession: public ISocket{
@@ -34,19 +35,29 @@ public:
 	virtual void onDisconnect(IKernel* pKernel) = 0;
 
 	inline void send(const void* pContext, const int32 size){
-		if (m_pPipe)
-			m_pPipe->send(pContext, size);
+		if (_pipe)
+			_pipe->send(pContext, size);
+	}
+
+	inline void adjustSendBuffSize(const int32 size){
+		if (_pipe)
+			_pipe->adjustSendBuffSize(size);
+	}
+
+	inline void adjustRecvBuffSize(const int32 size){
+		if (_pipe)
+			_pipe->adjustRecvBuffSize(size);
 	}
 
 	inline const char* getRemoteIP(){
-		if (m_pPipe)
-			return m_pPipe->getRemoteIP();
+		if (_pipe)
+			return _pipe->getRemoteIP();
 		return "";
 	}
 
 	inline void close(){
-		if (m_pPipe)
-			m_pPipe->close();
+		if (_pipe)
+			_pipe->close();
 	}
 };
 
@@ -80,14 +91,14 @@ public:
 	virtual void onPause(IKernel* pKernel, int64 timetick) = 0;
 	virtual void onResume(IKernel* pKernel, int64 timetick) = 0;
 
-	virtual ITimerBase* getITimerBase() const {return m_pITimerBase;}
+	virtual ITimerBase* getITimerBase() const { return _timerBase; }
 
 	virtual void setITimerBase(ITimerBase* pITimerBase){
-		m_pITimerBase = pITimerBase;
+		_timerBase = pITimerBase;
 	}
 
 private:
-	ITimerBase* m_pITimerBase;
+	ITimerBase* _timerBase;
 };
 
 class IAsyncBase {

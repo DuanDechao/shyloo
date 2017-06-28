@@ -13,8 +13,8 @@ bool Client::initialize(sl::api::IKernel * pKernel){
 
 bool Client::launched(sl::api::IKernel * pKernel){
 	sl::XmlReader server_conf;
-	if (!server_conf.loadXml(pKernel->getCoreFile())){
-		SLASSERT(false, "can not load core file %s", pKernel->getCoreFile());
+	if (!server_conf.loadXml(pKernel->getConfigFile())){
+		SLASSERT(false, "can not load core file %s", pKernel->getConfigFile());
 		return false;
 	}
 	const sl::ISLXmlNode& clientConf = server_conf.root()["client"][0];

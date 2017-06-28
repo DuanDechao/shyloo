@@ -1,51 +1,61 @@
 #ifndef SL_KERNEL_IPC_SESSION_H
 #define SL_KERNEL_IPC_SESSION_H
 #include "slikernel.h"
-#include "slobjectpool.h"
 #include "slshm.h"
+#include "slpool.h"
+
 namespace sl{
 namespace core{
 using namespace api;
 class IPCSession: public api::IPipe{
 public:
-	IPCSession(){}
-	IPCSession(ITcpSession* pTcpSession, shm::ISLShmQueue* shmQueue, int64 localId, int64 remoteId);
-	virtual ~IPCSession();
+	inline static IPCSession* create(ITcpSession* tcpSession, shm::ISLShmQueue* shmQueue, int64 localId, int64 remoteId){
+		return CREATE_FROM_POOL(s_pool, tcpSession, shmQueue, localId, remoteId);
+	}
 
-	virtual void release();
+	inline void release(){
+		s_pool.recover(this);
+	}
+
 	virtual void onRecv(const char* pBuf, uint32 dwLen);
 	virtual void onEstablish(void);
 	virtual void onTerminate();
 	virtual const char* getRemoteIP();
+	virtual void adjustSendBuffSize(const int32 size) {}
+	virtual void adjustRecvBuffSize(const int32 size) {}
 
 	virtual void send(const void* pContext, int dwLen);
 	virtual void close();
 
-	virtual void setTcpSession(ITcpSession* pTcpSession) {m_pTcpSession = pTcpSession;}
+	virtual void setTcpSession(ITcpSession* pTcpSession) { _tcpSession = pTcpSession; }
 
 	int32 procRecv();
 
-	inline int64 getLocalId()const  { return m_localId; }
-	inline int64 getRemoteId()const  { return m_remoteId; }
+	inline int64 getLocalId()const  { return _localId; }
+	inline int64 getRemoteId()const  { return _remoteId; }
 
 private:
-	ITcpSession*	m_pTcpSession;
-	shm::ISLShmQueue*    m_pShmQueue;
-	int64			m_localId;
-	int64           m_remoteId;
+	friend sl::SLPool<IPCSession>;
+	IPCSession(ITcpSession* pTcpSession, shm::ISLShmQueue* shmQueue, int64 localId, int64 remoteId);
+	virtual ~IPCSession();
+
+private:
+	ITcpSession*			_tcpSession;
+	shm::ISLShmQueue*		_shmQueue;
+	int64					_localId;
+	int64					_remoteId;
+	static sl::SLPool<IPCSession> s_pool;
 	
 };
 
 class IPCSessionFactory{
 public:
-	IPCSessionFactory(ITcpServer* pServer) :m_pServer(pServer){}
+	IPCSessionFactory(ITcpServer* pServer) :_server(pServer){}
 	virtual ~IPCSessionFactory(){}
 	virtual IPCSession* createSession(shm::ISLShmQueue* queue, int64 localId, int64 remoteId);
 public:
-	ITcpServer*		m_pServer;
+	ITcpServer*		_server;
 };
-
-CREATE_OBJECT_POOL(IPCSession);
 
 }
 }

@@ -4,7 +4,6 @@ namespace network{
 
 char Address::s_stringBuf[2][32] = {{0},{0}};
 int Address::s_curStringBuf = 0;
-
 Address::Address():_ip(0),_port(0)
 {}
 

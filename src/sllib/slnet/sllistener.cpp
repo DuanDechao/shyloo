@@ -15,6 +15,8 @@ CSLListener::CSLListener()
 }
 
 CSLListener::~CSLListener(){
+	stop();
+
 	if (nullptr != _pListenerReceiver)
 		DEL _pListenerReceiver;
 	_pListenerReceiver = nullptr;
@@ -23,7 +25,6 @@ CSLListener::~CSLListener(){
 		_pListenEndPoint->release();
 	_pListenEndPoint = nullptr;
 
-	stop();
 	_dwRecvBufSize = 0;
 	_dwSendBufSize = 0;
 }
@@ -35,6 +36,7 @@ void CSLListener::setSessionFactory(ISLSessionFactory* poSessionFactory){
 void CSLListener::setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize){
 	_dwRecvBufSize = dwRecvBufSize;
 	_dwSendBufSize = dwSendBufSize;
+	_pListenerReceiver->setBufferSize(_dwRecvBufSize, _dwSendBufSize);
 }
 
 bool CSLListener::start(const char* pszIP, uint16 wPort, bool bReUseAddr /* = true */){

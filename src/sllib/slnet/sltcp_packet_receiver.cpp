@@ -1,42 +1,38 @@
 #include "sltcp_packet_receiver.h"
 #include "slchannel.h"
-#include "sltcp_packet.h"
 #include "slnetwork_interface.h"
-namespace sl
-{
-namespace network
-{
+namespace sl{
+namespace network{
 
-TCPPacketReceiver::TCPPacketReceiver(EndPoint* endpoint,
-									 NetworkInterface* networkInterface)
-									 :PacketReceiver(endpoint, networkInterface)
+sl::SLPool<TCPPacketReceiver> TCPPacketReceiver::s_pool;
+TCPPacketReceiver::TCPPacketReceiver(Channel* channel, NetworkInterface* networkInterface)
+	:PacketReceiver(channel, networkInterface)
 {}
 
 TCPPacketReceiver::~TCPPacketReceiver(){}
 
 bool TCPPacketReceiver::processRecv(bool expectingPacket){
-	Channel* pChannel = getChannel();
-	SLASSERT(pChannel != NULL, "wtf");
+	SLASSERT(_channel != NULL, "wtf");
 
-	if(pChannel->isCondemn())
+	if (_channel->isDestroyed())
 		return false;
 
-	int32 len = pChannel->recvFromEndPoint();
+	int32 len = _channel->recvFromEndPoint();
 	if(len < 0){
 		PacketReceiver::RecvState rstate = this->checkSocketErrors(len, expectingPacket);
 		if(rstate == PacketReceiver::RECV_STATE_INTERRUPT){
-			onGetError(pChannel);
+			onGetError(_channel);
 			return false;
 		}
 		return rstate == PacketReceiver::RECV_STATE_CONTINUE;
 	}
 	else if(len == 0){
 		///Õý³£ÍË³ö
-		onGetError(pChannel);
+		onGetError(_channel);
 		return false;
 	}
 
-	Reason ret = this->processPacket(pChannel, len);
+	Reason ret = this->processPacket(_channel, len);
 	if(ret != REASON_SUCCESS){
 		return false;
 	}
@@ -44,7 +40,6 @@ bool TCPPacketReceiver::processRecv(bool expectingPacket){
 }
 
 void TCPPacketReceiver::onGetError(Channel* pChannel){
-	pChannel->condemn();
 	pChannel->destroy();
 }
 

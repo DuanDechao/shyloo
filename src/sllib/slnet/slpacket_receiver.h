@@ -26,7 +26,7 @@ public:
 	};
 
 public:
-	PacketReceiver(EndPoint* endpoint, NetworkInterface* networkInterface);
+	PacketReceiver(Channel* channel, NetworkInterface* networkInterface);
 	virtual ~PacketReceiver();
 
 	virtual Reason processPacket(Channel* pChannel, int32 packetLen);
@@ -37,18 +37,15 @@ public:
 		return TCP_PACKET_RECEIVER;
 	}
 
-	inline void SetEndPoint(EndPoint* pEndPoint){ _pEndPoint = pEndPoint;}
-	inline EndPoint* GetEndPoint() const {return _pEndPoint;}
-
 	virtual int handleInputNotification(int fd);
-	virtual Channel* getChannel();
+	virtual void release() = 0;
 
 protected:
 	virtual bool processRecv(bool expectingPacket) = 0;
 	virtual RecvState checkSocketErrors(int len, bool expectingPacket) = 0;
 
 protected:
-	EndPoint*			_pEndPoint;
+	Channel*			_channel;
 	NetworkInterface*	_pNetworkInterface;
 
 };

@@ -4,5 +4,6 @@
 	<net tick="20" reconnect="500" />
 	<ipc tick="20" />
 	<timer tick="10" />
+	<client send="163840" recv="163840"/>
 	<harbor type="10" />
 </config>

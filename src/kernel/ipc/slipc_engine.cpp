@@ -2,6 +2,7 @@
 #include "slipc_session.h"
 #include "slkernel.h"
 #include "slipc_mq.h"
+#include "sltime.h"
 
 using namespace sl::shm;
 namespace sl{
@@ -59,7 +60,7 @@ bool IPCEngine::addIPCClient(sl::api::ITcpSession* session, const int64 clientId
 		return false; 
 	}
 	
-	IPCSession* ipcSession = CREATE_POOL_OBJECT(IPCSession, session, shmQueue, clientId, serverId);
+	IPCSession* ipcSession = IPCSession::create(session, shmQueue, clientId, serverId);
 	SLASSERT(ipcSession, "wtf");
 	m_ipcSessons[serverId] = ipcSession;
 	ipcSession->onEstablish();

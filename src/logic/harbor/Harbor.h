@@ -89,6 +89,7 @@ private:
 	std::unordered_map<int32, std::unordered_map<int32, NodeSession*>> _allNode;
 	std::unordered_map<int32, std::list<INodeMessageHandler *>> _allCBPool;
 	std::unordered_map<int32, std::string> _nodeNames;
+	std::unordered_map<int64, int32> _nodeSize;
 	std::list<INodeListener*>	_listenerPool;
 	bool						_useIpc;
 };

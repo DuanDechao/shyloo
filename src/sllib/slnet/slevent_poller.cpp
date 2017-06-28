@@ -121,9 +121,9 @@ int EventPoller::maxFD() const{
 EventPoller* EventPoller::create()
 {
 #ifdef HAS_EPOLL
-	return new EventPoller();
+	return NEW EventPoller();
 #else
-	return new SelectPoller();
+	return NEW SelectPoller();
 #endif // HAS_EPOLL
 }
 

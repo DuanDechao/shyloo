@@ -3,14 +3,12 @@
 #include "slnet.h"
 #include "slikernel.h"
 #include "slobjectpool.h"
-namespace sl
-{
-namespace core
-{
+namespace sl{
+namespace core{
+
 using namespace api;
 using namespace network;
-class NetPacketParser : public ISLPacketParser
-{
+class NetPacketParser : public ISLPacketParser{
 public:
 	virtual int32 SLAPI parsePacket(const char* pDataBuf, int32 len);
 };
@@ -26,25 +24,28 @@ public:
 	virtual void SLAPI onRecv(const char* pBuf, uint32 dwLen);
 	virtual void SLAPI onEstablish(void);
 	virtual void SLAPI onTerminate();
+	
 	virtual const char* getRemoteIP();
-
 	virtual void send(const void* pContext, int dwLen);
 	virtual void close();
+	virtual void adjustSendBuffSize(const int32 size);
+	virtual void adjustRecvBuffSize(const int32 size);
 
-	virtual void setTcpSession(ITcpSession* pTcpSession) {m_pTcpSession = pTcpSession;}
+	inline void setTcpSession(ITcpSession* pTcpSession) { _tcpSession = pTcpSession; }
+
 private:
-	ISLChannel*		m_pChannel;
-	ITcpSession*	m_pTcpSession;
+	ISLChannel*		_channel;
+	ITcpSession*	_tcpSession;
 };
 
-class ServerSessionFactory: public ISLSessionFactory
-{
+class ServerSessionFactory: public ISLSessionFactory{
 public:
-	ServerSessionFactory(ITcpServer* pServer):m_pServer(pServer){}
+	ServerSessionFactory(ITcpServer* pServer) : _server(pServer){}
 	virtual ~ServerSessionFactory(){}
 	virtual ISLSession* SLAPI createSession(ISLChannel* poChannel);
-public:
-	ITcpServer*		m_pServer;
+
+private:
+	ITcpServer*		_server;
 };
 
 CREATE_OBJECT_POOL(NetSession);

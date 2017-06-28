@@ -1,5 +1,5 @@
-#ifndef _SL_NETWORK_COMMON_H_
-#define _SL_NETWORK_COMMON_H_
+#ifndef _SL_LIB_NET_NETWORK_BASE_H_
+#define _SL_LIB_NET_NETWORK_BASE_H_
 #include "slmulti_sys.h"
 namespace sl{
 namespace network{
@@ -11,10 +11,6 @@ const uint32 LOCALCAST		=	0x0100007F;
 typedef uint16				MessageID;
 typedef uint16				MessageLength;
 typedef uint32				MessageLength1;
-
-
-typedef int32				ChannelID;
-const ChannelID				CHANNEL_ID_NULL = 0;
 
 
 //通道超時時間
@@ -113,92 +109,11 @@ enum Reason{
 	REASON_CHANNEL_LOST			= -11,				///< Corresponds to channel lost
 	REASON_SHUTTING_DOWN		= -12,				///< Corresponds to shutting down up
 	REASON_WEBSOCKET_ERROR		= -13,				///< html5 error
-	REASON_CHANNEL_CONDEMN		= -14,				///< condemn error
+	REASON_CHANNEL_DESTROYED	= -14,				///< destroy error
 
 };
 
 typedef UINT_PTR			SLSOCKET;
-
-#define SEND_BUNDLE_COMMON(SND_FUNC, BUNDLE)																\
-	BUNDLE.finiMessage();																					\
-																											\
-	network::Bundle::Packets::iterator iter = BUNDLE.packets().begin();										\
-	for (; iter != BUNDLE.packets().end(); ++iter)															\
-	{																										\
-		Packet* pPacket = (*iter);																			\
-		int retries = 0;																					\
-		Reason reason;																						\
-		pPacket->m_sentSize = 0;																				\
-																											\
-		while(true)																							\
-		{																									\
-			++retries;																						\
-			int slen = SND_FUNC;																			\
-																											\
-			if(slen > 0)																					\
-				pPacket->m_sentSize += slen;																	\
-																											\
-			if(pPacket->m_sentSize != pPacket->length())														\
-			{																								\
-				reason = PacketSender::checkSocketErrors(&ep);												\
-				/* 如果发送出现错误那么我们可以继续尝试一次， 超过60次退出	*/								\
-			if (reason == REASON_NO_SUCH_PORT && retries <= 3)												\
-			{																								\
-				continue;																					\
-			}																								\
-																											\
-			/* 如果系统发送缓冲已经满了，则我们等待10ms	*/													\
-			if ((reason == REASON_RESOURCE_UNAVAILABLE || reason == REASON_GENERAL_NETWORK)					\
-					&& retries <= 60)																		\
-			{																								\
-				ep.waitSend();																				\
-				continue;																					\
-			}																								\
-																											\
-			if(retries > 60 && reason != REASON_SUCCESS)													\
-			{																								\
-			}																								\
-			}																								\
-			else																							\
-			{																								\
-				break;																						\
-			}																								\
-		}																									\
-																											\
-	}																										\
-																											\
-	BUNDLE.clearPackets();																					\
-																											\
-
-#define SEND_BUNDLE(ENDPOINT, BUNDLE)																		\
-{																											\
-	EndPoint& ep = ENDPOINT;																				\
-	SEND_BUNDLE_COMMON(ENDPOINT.send(pPacket->data() + pPacket->m_sentSize,									\
-	(int32)(pPacket->length() - pPacket->m_sentSize)), BUNDLE);														\
-}																											\
-
-#define SENDTO_BUNDLE(ENDPOINT, ADDR, PORT, BUNDLE)															\
-{																											\
-	EndPoint& ep = ENDPOINT;																				\
-	SEND_BUNDLE_COMMON(ENDPOINT.sendto(pPacket->data() + pPacket->m_sentSize,								\
-	(int32)(pPacket->length() - pPacket->m_sentSize), PORT, ADDR), BUNDLE);											\
-}																											\
-
-#define MALLOC_PACKET(outputPacket, isTCPPacket)															\
-{																											\
-	if(isTCPPacket)																							\
-	outputPacket = CREATE_POOL_OBJECT(TCPPacket);															\
-	else																									\
-	outputPacket = CREATE_POOL_OBJECT(UDPPacket);															\
-}																											\
-
-#define RECLAIM_PACKET(isTCPPacket, pPacket)																\
-{																											\
-	if(isTCPPacket)																							\
-	RELEASE_POOL_OBJECT(TCPPacket, static_cast<TCPPacket*>(pPacket));										\
-	else																									\
-	RELEASE_POOL_OBJECT(UDPPacket, static_cast<UDPPacket*>(pPacket));										\
-}																											\
 
 //network stats
 extern uint64				g_numPacketsSent;

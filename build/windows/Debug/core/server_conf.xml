@@ -3,9 +3,7 @@
 	<log path="./log" format="time|pid|newline|fileline|type|stdout" />
 	<envir path="./envir" />
 	<ipc path="./ipc" />
-	<agent send="1024" recv="1024" />
 	<client send="1024" recv="1024"/>
-	<monitor send="1024" recv="1024"/>
 	<harbor send="1048576" recv="1048576" useIpc="false" >
 		<node type="-3" name="slave" hidden="true"/>
 		<node type="-2" name="master" />
@@ -17,6 +15,22 @@
 		<node type="6" name="scenemgr" />
 		<node type="8" name="db" />
 		<node type="9" name="balance" />
+		
+		<pipe node1="2" node2="1" size="4194304" />
+		<pipe node1="2" node2="2" size="4194304" />
+		<pipe node1="1" node2="2" size="2097152" />
+		
+		<pipe node1="1" node2="5" size="2097152" />
+		<pipe node1="5" node2="1" size="2097152" />
+		
+		<pipe node1="1" node2="6" size="2097152" />
+		<pipe node1="6" node2="1" size="2097152" />
+		
+		<pipe node1="2" node2="6" size="4194304" />
+		<pipe node1="2" node2="8" size="4194304" />
+		
+		<pipe node1="6" node2="3" size="4194304" />
+		<pipe node1="3" node2="6" size="4194304" />
 	</harbor>
 	<starter check="2000" dead="10000">
 		<port node="1" start="7241" end="7299" />
