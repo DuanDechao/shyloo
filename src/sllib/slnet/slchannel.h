@@ -98,7 +98,7 @@ private:
 	void clearState(bool warnOnDiscard = false);
 	void setEndPoint(const EndPoint* pEndPoint);
 
-	bool adjustBuffSize(SLRingBuffer* & buf, const int32 newSize);
+	sl::SLRingBuffer* adjustNewBuffSize(SLRingBuffer* buf, const int32 newSize);
 
 private:
 	enum Flags{

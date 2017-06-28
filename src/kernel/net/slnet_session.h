@@ -2,7 +2,8 @@
 #define SL_KERNEL_NET_SESSION_H
 #include "slnet.h"
 #include "slikernel.h"
-#include "slobjectpool.h"
+#include "slpool.h"
+
 namespace sl{
 namespace core{
 
@@ -15,12 +16,12 @@ public:
 
 class NetSession: public ISLSession, public api::IPipe{
 public:
-	NetSession(){}
-	NetSession(ITcpSession* pTcpSession);
-	virtual ~NetSession();
+	inline static NetSession* create(ITcpSession* pTcpSession){
+		return CREATE_FROM_POOL(s_pool, pTcpSession);
+	}
 
-	virtual void SLAPI setChannel(ISLChannel* pChannel);
-	virtual void SLAPI release();
+	virtual void SLAPI setChannel(ISLChannel* pChannel){ _channel = pChannel; }
+	virtual void SLAPI release(){ s_pool.recover(this); }
 	virtual void SLAPI onRecv(const char* pBuf, uint32 dwLen);
 	virtual void SLAPI onEstablish(void);
 	virtual void SLAPI onTerminate();
@@ -34,8 +35,14 @@ public:
 	inline void setTcpSession(ITcpSession* pTcpSession) { _tcpSession = pTcpSession; }
 
 private:
+	friend sl::SLPool<NetSession>;
+	NetSession(ITcpSession* pTcpSession);
+	virtual ~NetSession();
+
+private:
 	ISLChannel*		_channel;
 	ITcpSession*	_tcpSession;
+	static sl::SLPool<NetSession> s_pool;
 };
 
 class ServerSessionFactory: public ISLSessionFactory{
@@ -47,8 +54,6 @@ public:
 private:
 	ITcpServer*		_server;
 };
-
-CREATE_OBJECT_POOL(NetSession);
 
 }
 }

@@ -20,6 +20,7 @@ int32 NetPacketParser::parsePacket(const char* pDataBuf, int32 len){
 		return 0;
 }
 
+sl::SLPool<NetSession> NetSession::s_pool;
 NetSession::NetSession(ITcpSession* pTcpSession)
 	:_tcpSession(pTcpSession),
 	 _channel(NULL)
@@ -29,14 +30,6 @@ NetSession::NetSession(ITcpSession* pTcpSession)
 
 NetSession::~NetSession(){
 	//m_pTcpSession->close();
-}
-
-void NetSession::setChannel(ISLChannel* pChannel){
-	_channel = pChannel;
-}
-
-void NetSession::release(){
-	RELEASE_POOL_OBJECT(NetSession, this);
 }
 
 void NetSession::onRecv(const char* pBuf, uint32 dwLen){
@@ -75,14 +68,13 @@ ISLSession* ServerSessionFactory::createSession(ISLChannel* poChannel){
 		return NULL;
 
 	ITcpSession* pTcpSession = _server->mallocTcpSession(core::Kernel::getInstance());
-	if(NULL == pTcpSession)
-	{
+	if(NULL == pTcpSession){
 		SLASSERT(false, "wtf");
 		return NULL;
 	}
-	NetSession* pNetSession = CREATE_POOL_OBJECT(NetSession, pTcpSession);
-	if(NULL == pNetSession)
-	{
+
+	NetSession* pNetSession = NetSession::create(pTcpSession);
+	if(NULL == pNetSession){
 		SLASSERT(false, "wtf");
 		return NULL;
 	}

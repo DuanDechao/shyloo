@@ -51,7 +51,8 @@ int32 IPCSession::procRecv(){
 		int32 msgSize = *(int32*)(data + sizeof(int32));
 		if (msgSize > SINGLE_RECV_SIZE){
 			SLASSERT(false, "wtf");
-			break;
+			close();
+			return -1;
 		}
 		data = _shmQueue->peekData(temp, msgSize);
 		if (data == nullptr)

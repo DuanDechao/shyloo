@@ -131,18 +131,25 @@ void Channel::send(const char* pBuf, uint32 dwLen){
 }
 
 void Channel::adjustSendBuffSize(const int32 size){
-	if (adjustBuffSize(_sendBuf, size))
+	sl::SLRingBuffer* newBuf = adjustNewBuffSize(_sendBuf, size);
+	if (newBuf){
+		_sendBuf = newBuf;
 		_sendSize = size;
-}
-void Channel::adjustRecvBuffSize(const int32 size){
-	if (adjustBuffSize(_recvBuf, size))
-		_recvSize = size;
+	}
 }
 
-bool Channel::adjustBuffSize(SLRingBuffer* & buf, const int32 newSize){
+void Channel::adjustRecvBuffSize(const int32 size){
+	sl::SLRingBuffer* newBuf = adjustNewBuffSize(_recvBuf, size);
+	if (newBuf){
+		_recvBuf = newBuf;
+		_recvSize = size;
+	}
+}
+
+sl::SLRingBuffer* Channel::adjustNewBuffSize(SLRingBuffer* buf, const int32 newSize){
 	int32 dataSize = buf->getDataSize();
 	if (dataSize > newSize)
-		return false;
+		return nullptr;
 
 	sl::SLRingBuffer* newBuff = (sl::SLRingBuffer*)SLMALLOC(newSize);
 	SLASSERT(newBuff, "wtf");
@@ -154,15 +161,12 @@ bool Channel::adjustBuffSize(SLRingBuffer* & buf, const int32 newSize){
 		if (!data){
 			SLASSERT(false, "wtf");
 			SLFREE(newBuff);
-			return false;
+			return nullptr;
 		}
 		newBuff->put(data, dataSize);
 	}
 
-	SLFREE(buf);
-	buf = newBuff;
-
-	return true;
+	return newBuff;
 }
 
 void Channel::disconnect(){

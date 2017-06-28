@@ -1,11 +1,11 @@
 #include "slnet_engine.h"
 #include "slnet_session.h"
+#include "sltime.h"
 #include <IPHlpApi.h>
+
 using namespace sl::network;
-namespace sl
-{
-namespace core
-{
+namespace sl{
+namespace core{
 
 char g_localIpPrefix[MAX_LOCAL_IP_PREFIX_NUM][MAX_IP_LEN] = {
 	"0.",
@@ -33,8 +33,7 @@ NetEngine::~NetEngine(){
 	m_pSLNetModule->release();
 }
 
-bool NetEngine::initialize()
-{
+bool NetEngine::initialize(){
 	readInternetIp();
 	m_pSLNetModule = getSLNetModule();
 	if(nullptr == m_pSLNetModule)
@@ -42,13 +41,11 @@ bool NetEngine::initialize()
 	return true;
 }
 
-bool NetEngine::ready()
-{
+bool NetEngine::ready(){
 	return true;
 }
 
-bool NetEngine::destory()
-{
+bool NetEngine::destory(){
 	DEL this;
 	return true;
 }
@@ -80,7 +77,7 @@ bool NetEngine::addTcpClient(sl::api::ITcpSession* session, const char* ip, cons
 
 	pConnector->setBufferSize(recvSize, sendSize);
 	pConnector->setPacketParser(NEW NetPacketParser);
-	NetSession* pNetSession = CREATE_POOL_OBJECT(NetSession, session);
+	NetSession* pNetSession = NetSession::create(session);
 	SLASSERT(pNetSession, "wtf");
 	pConnector->setSession(pNetSession);
 	if (!pConnector->connect(ip, port)){
