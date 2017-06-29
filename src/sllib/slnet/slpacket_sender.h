@@ -1,7 +1,6 @@
 #ifndef _SL_LIB_NET_PACKET_SENDER_H_
 #define _SL_LIB_NET_PACKET_SENDER_H_
 #include "slnetbase.h"
-#include "slobjectpool.h"
 #include "slinterfaces.h"
 
 namespace sl{

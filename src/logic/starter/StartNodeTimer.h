@@ -2,16 +2,16 @@
 #define SL_START_NODE_TIMER_H
 #include "slikernel.h"
 #include "Starter.h"
-#include "slobjectpool.h"
-using namespace sl;
+#include "slpool.h"
 class StartNodeTimer : public sl::api::ITimer{
 public:
-	StartNodeTimer(){}
-	StartNodeTimer(int32 type) :m_type(type){}
+	inline static StartNodeTimer* create(int32 type){
+		return CREATE_FROM_POOL(s_pool, type);
+	}
 
-	static StartNodeTimer* create(int32 type);
-
-	void release();
+	inline void release(){
+		s_pool.recover(this);
+	}
 
 	virtual void onInit(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick);
@@ -21,8 +21,13 @@ public:
 	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick) {}
 
 private:
-	int32		m_type;
+	friend sl::SLPool<StartNodeTimer>;
+	StartNodeTimer(int32 type) :_type(type){}
+	~StartNodeTimer(){}
+
+private:
+	int32	_type;
+	static sl::SLPool<StartNodeTimer> s_pool;
 };
 
-CREATE_OBJECT_POOL(StartNodeTimer);
 #endif

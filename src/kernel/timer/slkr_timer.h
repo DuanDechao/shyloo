@@ -2,14 +2,20 @@
 #define SL_KERNEL_TIMER_H
 #include "slikernel.h"
 #include "sltimer.h"
-#include "slkernel.h"
-#include "slobjectpool.h"
-namespace sl
-{
-namespace core
-{
+#include "slpool.h"
+
+namespace sl{
+namespace core{
 class CKrTimer: public timer::ISLTimer, public api::ITimerBase{
 public:
+	inline static CKrTimer* create(api::ITimer* pITimer){
+		return CREATE_FROM_POOL(s_pool, pITimer);
+	}
+
+	inline void release(){
+		s_pool.recover(this);
+	}
+
 	virtual void SLAPI onInit(int64 timetick);
 	virtual void SLAPI onStart(int64 timetick);
 	virtual void SLAPI onTime(int64 timetick);
@@ -17,20 +23,24 @@ public:
 	virtual void SLAPI onPause(int64 timetick);
 	virtual void SLAPI onResume(int64 timetick);
 
-public:
-	CKrTimer(){}
-	virtual ~CKrTimer();
-
-	void setITimer(api::ITimer* pITimer);
-
-	void setTimerHandler(timer::SLTimerHandler timerHander) {m_timerHander = timerHander;}
-	timer::SLTimerHandler getTimerHandler() const {return m_timerHander;}
+	inline void setITimer(api::ITimer* pITimer){ _timer = pITimer; }
+	inline void setTimerHandler(timer::SLTimerHandler timerHander) { _timerHander = timerHander;}
+	inline timer::SLTimerHandler getTimerHandler() const { return _timerHander; }
 
 private:
-	api::ITimer*				m_pITimer;
-	timer::SLTimerHandler		m_timerHander;
+	friend sl::SLPool<CKrTimer>;
+
+	CKrTimer(api::ITimer* pITimer) :_timer(pITimer), _timerHander(nullptr){}
+	virtual ~CKrTimer(){
+		_timer = nullptr;
+		_timerHander = INVALID_TIMER_HANDER;
+	}
+
+private:
+	api::ITimer*				_timer;
+	timer::SLTimerHandler		_timerHander;
+	static sl::SLPool<CKrTimer> s_pool;
 };
-CREATE_OBJECT_POOL(CKrTimer);
 
 }
 

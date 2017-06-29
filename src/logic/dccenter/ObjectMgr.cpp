@@ -107,7 +107,7 @@ bool ObjectMgr::loadObjectPropConfig(sl::api::IKernel * pKernel){
 	char path[256] = { 0 };
 	SafeSprintf(path, sizeof(path)-1, "%s/dccenter", pKernel->getEnvirPath());
 
-	sl::ListFileInDirection(path, ".xml", [this](const char * name, const char * path) {
+	sl::CFileUtils::ListFileInDirection(path, ".xml", [this](const char * name, const char * path) {
 		if (_propConfigsPath.end() != _propConfigsPath.find(name)) {
 			SLASSERT(false, "prop xml name repeated");
 			return;

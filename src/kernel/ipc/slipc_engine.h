@@ -22,6 +22,8 @@ public:
 	void onNewConnect(int64 clientId, int32 sendSize, int32 recvSize);
 	void onDisconnect(int64 clientId);
 
+	bool close(int64 serverId, int64 clientId);
+
 	virtual int64 loop(int64 overTime);
 
 private:
@@ -29,11 +31,11 @@ private:
 	~IPCEngine();
 
 private:
-	shm::ISLShmMgr*			    m_pShmMgr;
-	std::unordered_map<int64, IPCSession*> m_ipcSessons;
-	IPCSessionFactory*			m_sessionFactory;
-	uint64						m_serverId;
-	SLIpcMq*					m_ipcMQ;
+	shm::ISLShmMgr*							_shmMgr;
+	std::unordered_map<int64, IPCSession*>  _ipcSessons;
+	IPCSessionFactory*						_sessionFactory;
+	uint64									_serverId;
+	SLIpcMq*								_ipcMQ;
 };
 }
 }

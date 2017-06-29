@@ -1,7 +1,6 @@
 #ifndef SL_LOGIC_NODE_SESSION_H
 #define SL_LOGIC_NODE_SESSION_H
 #include "slikernel.h"
-#include "slobjectpool.h"
 #include "slshm.h"
 #include "slstring.h"
 #include "GameDefine.h"

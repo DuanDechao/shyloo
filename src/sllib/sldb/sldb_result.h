@@ -1,17 +1,18 @@
 #ifndef __SL_DB_REUSLT_H__
 #define __SL_DB_REUSLT_H__
 #include "sldb_define.h"
-#include "slobjectpool.h"
 #include <unordered_map>
-namespace sl
-{
-namespace db
-{
+#include "slpool.h"
+
+namespace sl{
+namespace db{
 
 class SLDBResult : public ISLDBResult{
 public:
-	SLDBResult();
-	~SLDBResult();
+	inline static SLDBResult* create(){
+		return CREATE_FROM_POOL(s_pool);
+	}
+	
 	virtual bool SLAPI next();
 	virtual void SLAPI release();
 
@@ -26,8 +27,8 @@ public:
 	virtual float SLAPI toFloat(const int32 index);
 	virtual const char* SLAPI toString(const int32 index);
 	
-	virtual unsigned int SLAPI fieldNum() const { return m_filedNum; }
-	virtual unsigned int SLAPI rowNum() const { return m_rowNum; }
+	virtual unsigned int SLAPI fieldNum() const { return _filedNum; }
+	virtual unsigned int SLAPI rowNum() const { return _rowNum; }
 	virtual const char* SLAPI fieldName(const int32 index) const;
 	virtual const char* SLAPI fieldValue(const int32 index) const;
 	virtual unsigned long SLAPI fieldLength(const int32 index) const;
@@ -35,16 +36,22 @@ public:
 	void setResult(MYSQL& mysql);
 
 private:
-	MYSQL_RES*		m_result;
-	MYSQL_FIELD*	m_fields;
-	MYSQL_ROW		m_currRow;
+	friend sl::SLPool<SLDBResult>;
 
-	unsigned long*	m_curRowfieldLengths;
-	unsigned int	m_filedNum;
-	unsigned int    m_rowNum;
+	SLDBResult();
+	~SLDBResult();
+
+private:
+	MYSQL_RES*		_result;
+	MYSQL_FIELD*	_fields;
+	MYSQL_ROW		_currRow;
+
+	unsigned long*	_curRowfieldLengths;
+	unsigned int	_filedNum;
+	unsigned int    _rowNum;
+
+	static sl::SLPool<SLDBResult> s_pool;
 };
-
-CREATE_OBJECT_POOL(SLDBResult);
 
 }
 }

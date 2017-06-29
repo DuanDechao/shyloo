@@ -185,7 +185,7 @@ int main(){
 
 	
 	std::vector<std::string> files;
-	sl::ListFileInDirection(dccenterPath, ".xml", [&files](const char * name, const char * path) {
+	sl::CFileUtils::ListFileInDirection(dccenterPath, ".xml", [&files](const char * name, const char * path) {
 		files.push_back(path);
 	});
 

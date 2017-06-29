@@ -2,7 +2,6 @@
 #define _SL_LIB_NET_CHANNEL_H_
 #include "slendpoint.h"
 #include "slnetbase.h"
-#include "slobjectpool.h"
 #include "sladdress.h"
 #include "slnet.h"
 #include "slring_buffer.h"

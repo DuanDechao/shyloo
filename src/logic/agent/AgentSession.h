@@ -1,7 +1,6 @@
 #ifndef __SL_AGENT_SESSION_H__
 #define __SL_AGENT_SESSION_H__
 #include "slikernel.h"
-#include "slobjectpool.h"
 #include "slpool.h"
 
 class Agent;

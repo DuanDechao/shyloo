@@ -1,7 +1,6 @@
 #ifndef __SL_CLINET_SESSION_H__
 #define __SL_CLINET_SESSION_H__
 #include "slikernel.h"
-#include "slobjectpool.h"
 
 class Client;
 class ClientSession : public sl::api::ITcpSession, public sl::api::ITimer{

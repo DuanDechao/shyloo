@@ -1,12 +1,11 @@
 #include "Starter.h"
 #include "IHarbor.h"
 #include "slxml_reader.h"
-#include "slobjectpool.h"
 #include "StartNodeTimer.h"
 #include "slargs.h"
 #include "NodeDefine.h"
 #include "NodeProtocol.h"
-using namespace sl;
+#include "sltime.h"
 
 bool Starter::initialize(sl::api::IKernel * pKernel){
 	_self = this;

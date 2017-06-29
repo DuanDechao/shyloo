@@ -103,6 +103,16 @@ bool SLIpcMq::connect(const int64 serverId, const int64 clientId, const int32 se
 	return clientWritePipeMsg(msg);
 }
 
+bool SLIpcMq::close(const int64 serverId, const int64 clientId){
+	char pipeName[128] = { 0 };
+	SafeSprintf(pipeName, sizeof(pipeName), "\\\\.\\pipe\\%lld", serverId);
+	if (!clientOpenNamedPipe(pipeName))
+		return false;
+
+	PipeMsgNode::PipeMsg msg{ MSG_CLOSE, clientId, 0, 0 };
+	return clientWritePipeMsg(msg);
+}
+
 bool SLIpcMq::svrCreateNamedPipe(const char* pPipeName){
 	_svrNamePipe = CreateNamedPipe(pPipeName, PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, 0, 20, 512, 512, 10, NULL);
 	if (INVALID_HANDLE_VALUE == _svrNamePipe){

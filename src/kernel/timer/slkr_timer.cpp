@@ -1,39 +1,31 @@
 #include "slkr_timer.h"
-namespace sl
-{
-namespace core
-{
-CKrTimer::~CKrTimer(){
-	m_pITimer = nullptr;
-	m_timerHander = INVALID_TIMER_HANDER;
-}
+#include "slkernel.h"
+namespace sl{
+namespace core{
 
+sl::SLPool<CKrTimer> CKrTimer::s_pool;
 void CKrTimer::onInit(int64 timetick){
-	m_pITimer->onInit(Kernel::getInstance(), timetick);
+	_timer->onInit(Kernel::getInstance(), timetick);
 }
 
 void CKrTimer::onStart(int64 timetick){
-	m_pITimer->onStart(Kernel::getInstance(), timetick);
+	_timer->onStart(Kernel::getInstance(), timetick);
 }
 
 void CKrTimer::onTime(int64 timetick){
-	m_pITimer->onTime(Kernel::getInstance(), timetick);
+	_timer->onTime(Kernel::getInstance(), timetick);
 }
 
 void CKrTimer::onTerminate(bool beForced, int64 timetick){
-	m_pITimer->onTerminate(Kernel::getInstance(), beForced, timetick);
+	_timer->onTerminate(Kernel::getInstance(), beForced, timetick);
 }
 
 void CKrTimer::onPause(int64 timetick){
-	m_pITimer->onPause(Kernel::getInstance(), timetick);
+	_timer->onPause(Kernel::getInstance(), timetick);
 }
 
 void CKrTimer::onResume(int64 timetick){
-	m_pITimer->onResume(Kernel::getInstance(), timetick);
-}
-
-void CKrTimer::setITimer(api::ITimer* pITimer) {
-	m_pITimer = pITimer; 
+	_timer->onResume(Kernel::getInstance(), timetick);
 }
 
 }

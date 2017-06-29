@@ -14,7 +14,7 @@ bool AI::initialize(sl::api::IKernel * pKernel){
 	SafeSprintf(path, sizeof(path)-1, "%s/ai", pKernel->getEnvirPath());
 
 	bool ret = true;
-	sl::ListFileInDirection(path, ".xml", [&](const char * name, const char * path) {
+	sl::CFileUtils::ListFileInDirection(path, ".xml", [&](const char * name, const char * path) {
 		if (_ais.find(name) == _ais.end()){
 			SLASSERT(false, "ai config xml name repeated");
 			ret = false;

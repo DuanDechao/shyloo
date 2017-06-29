@@ -1,5 +1,7 @@
 #include "slipc_session.h"
 #include "slkernel.h"
+#include "slipc_engine.h"
+
 namespace sl{
 namespace core{
 #define SINGLE_RECV_SIZE 32768
@@ -34,7 +36,7 @@ void IPCSession::send(const void* pContext, int dwLen){
 }
 
 void IPCSession::close(){
-
+	((IPCEngine*)IPCEngine::getInstance())->close(_remoteId, _localId);
 }
 
 const char* IPCSession::getRemoteIP(){

@@ -47,7 +47,7 @@ ISLDBResult* SLDBConnection::executeWithResult(const char* commandSql){
 		return NULL;
 	}
 	
-	SLDBResult* res = CREATE_POOL_OBJECT(SLDBResult);
+	SLDBResult* res = SLDBResult::create();
 	SLASSERT(res, "create SLDBResult failed!");
 	res->setResult(m_mysqlHandler);
 	

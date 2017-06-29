@@ -34,12 +34,11 @@ timer::SLTimerHandler TimerEngine::getTimerHander(api::ITimer* pTimer){
 }
 
 bool TimerEngine::startTimer(api::ITimer* pTimer, int64 delay, int32 count, int64 interval, const char* file, const int32 line){
-	CKrTimer* pKrTimer = CREATE_POOL_OBJECT(CKrTimer);
+	CKrTimer* pKrTimer = CKrTimer::create(pTimer);
 	if(nullptr == pKrTimer)
 		return false;
 
 	pTimer->setITimerBase(pKrTimer);
-	pKrTimer->setITimer(pTimer);
 
 	char debug[128] = { 0 };
 	SafeSprintf(debug, sizeof(debug), "%s:%d", file, line);

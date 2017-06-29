@@ -2,7 +2,6 @@
 #define __SL_CORE_DBMGR_H__
 #include "IDB.h"
 #include <unordered_map>
-#include "slobjectpool.h"
 #include "slikernel.h"
 #include <list>
 #include "slsingleton.h"
