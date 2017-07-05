@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<root start="0">
+	<prop name="id" type="int64" visible="false" share="false" save="false" blob="false" />
+	<prop name="type" type="int32" visible="false" share="false" save="false" blob="false" />
+	<prop name="sceneId" type="string" size="64" visible="false" share="false" save="false" blob="false" />
+	<prop name="x" type="float" visible="false" share="false" save="false" blob="false"/>
+	<prop name="y" type="float" visible="false" share="false" save="false" blob="false" />
+	<prop name="z" type="float" visible="false" share="false" save="false" blob="false" />
+	<prop name="oldX" type="float" visible="false" share="false" save="false" blob="false"/>
+	<prop name="oldY" type="float" visible="false" share="false" save="false" blob="false" />
+	<prop name="oldZ" type="float" visible="false" share="false" save="false" blob="false" />
+	<prop name="gate" type="int32" visible="false" share="false" save="false" blob="false" />
+	<prop name="appear" type="int8" visible="false" share="false" save="false" blob="false" />
+	<prop name="vision" type="float" visible="false" share="false" save="false" blob="false" />
+	<prop name="logic" type="int32" visible="false" share="false" save="false" blob="false" />
+	
+	<temp name="SCENE_X_NODE" type="int64" />
+	<temp name="SCENE_Y_NODE" type="int64" />
+	<temp name="SCENE_Z_NODE" type="int64" />
+</root>

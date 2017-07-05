@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<config>
+	<loop tick="33" />
+	<net tick="20" reconnect="500" />
+	<ipc tick="20" />
+	<timer tick="10" />
+	<async tick="10" threadNum="5" />
+	<harbor type="8" />
+</config>

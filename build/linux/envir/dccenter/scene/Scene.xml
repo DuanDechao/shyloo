@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<root start="0">
+	<prop name="sceneId" type="string" size="64" visible="false" share="false" save="false" blob="false" />
+	<prop name="state" type="int32" visible="false" share="false" save="false" blob="false" />
+	<prop name="startTime" type="int64" visible="false" share="false" save="false" blob="false" />
+	
+	<table name="SCENEOBJECTS">
+		<column name="ID" type="int64" key="true" />
+	</table>
+</root>

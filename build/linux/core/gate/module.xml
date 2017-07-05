@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<modules path="./">
+	<module name="Harbor" />
+	<module name="Cluster" />
+	<module name="Capacity" />
+	<module name="Monitor" />
+	<module name="Agent" />
+	<module name="EventEngine" />
+	<module name="RoleMgr" />
+	<module name="Redis" />
+	<module name="CacheDB" />
+	<module name="MysqlMgr" />
+	<module name="DB" />
+	<module name="IdMgr" />
+	<module name="Gate" />
+</modules>

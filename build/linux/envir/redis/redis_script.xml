@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<config>
+	<script name="db_get">
+	<![CDATA[
+	    local keyName = ARGV[1]
+		local count = ARGV[2]
+		
+		local ret = {}
+		for i = 1, count do
+		    local row = {}
+			for j, v in ipairs(KEYS) do
+				local tmp = redis.call('hget', keyName..ARGV[2 + i], v)
+				if tmp ~= nil then
+				   row[#row + 1] = tmp
+				end
+			end
+			ret[#ret + 1] = row
+		end
+		return ret;
+	]]>
+	</script>
+	<script name="db_get_index">
+	<![CDATA[
+		local members = redis.call('smembers', ARGV[1])
+		local ret = {}
+		for i, v in ipairs(members) do
+			local row = {}
+			local isDel = redis.call('hget', v, 'del')
+			if isDel ~= nil and isDel == '0' then
+				for j, col in ipairs(KEYS) do
+					local tmp = redis.call('hget', v, col)
+					if tmp ~= nil then
+						row[#row + 1] = tmp
+					end
+				end
+			else
+				redis.call('srem', ARGV[1], v)
+			end
+			ret[#ret + 1] = row
+		end
+		return ret;
+	]]>
+	</script>
+	<script name="db_set">
+	<![CDATA[
+		local keyName = ARGV[1]
+		local key = ARGV[2]
+		local count = ARGV[3]
+		
+		--parse index
+		local index = nil
+		if ARGV[3 + count + 1] ~= nil then
+			index = { 
+				name = ARGV[3 + count + 1], 
+				col = ARGV[3 + count + 2] 
+			}
+		end
+
+		local effect = 0;
+		--set
+		for i = 1, count do
+			--del old index
+			if index ~= nil then
+				local old = redis.call('hget', keyName..ARGV[3 + i], index.col)
+				local ret = redis.call('hmset', keyName..ARGV[3 + i], key, ARGV[3 + i], 'del', 0, unpack(KEYS))
+				if ret then
+					local new = redis.call('hget', keyName..ARGV[3 + i], index.col)
+					if new ~= old then
+						if old then
+							redis.call('srem', index.name..old, keyName..ARGV[3 + i])
+						end
+						if new then
+							redis.call('sadd', index.name..new, keyName..ARGV[3 + i]) 
+						end
+					end
+					effect = effect + 1
+				end
+			else
+				local ret = redis.call('hmset', keyName..ARGV[3 + i], key, ARGV[3 + i], 'del', 0, unpack(KEYS))
+				if ret then
+					effect = effect + 1
+				end
+			end
+		end
+		
+		return effect
+	]]>
+	</script>
+	<script name="db_set_index">
+	<![CDATA[
+		local effect = 0
+		local members = redis.call('smembers', ARGV[1])
+		for i, v in ipairs(members) do
+			local isDel = redis.call('hget', v, 'del')
+			if isDel ~= nil and isDel == '0' then
+				local ret = redis.call('hmset', v, unpack(KEYS))
+				if ret then
+					effect = effect + 1
+				end
+			else
+				redis.call('srem', ARGV[1], v)
+			end
+		end
+		
+		return effect
+	]]>
+	</script>
+	<script name="db_del">
+		local isRemove = KEYS[1]
+		local keyName = ARGV[1]
+		local count = ARGV[2]
+		if isRemove == '1' then
+			for i = 1, count do
+			   redis.call('del', keyName..ARGV[2+i])
+			end
+		else
+		    for i = 1, count do
+			   redis.call('hset', keyName..ARGV[2+i], 'del', 1)
+			end
+		end
+		return 1
+	</script>
+	<script name="db_del_index">
+		local members = redis.call('smembers', ARGV[1])
+		if members ~= nil then
+			if ARGV[2] == '1' then
+				return redis.call('del', ARGV[1], unpack(members))
+			else
+				for i, v in ipairs(members) do
+					redis.call('hset', v, 'del', 1)
+				end
+				return redis.call('del', ARGV[1])
+			end
+		end
+		return 1
+	</script>
+	<script name="db_rank_insert">
+		redis.call('hset', KEYS[1], KEYS[3], ARGV[1])
+		return redis.call('zadd', KEYS[2], ARGV[2], KEYS[3])
+	</script>
+</config>

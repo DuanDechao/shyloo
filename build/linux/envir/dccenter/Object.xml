@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<root start="1">
+	<prop name="id" type="int64" visible="true" share="false" save="true" blob="true" copy="false" />
+	<prop name="status" type="int64" visible="true" share="false" save="true" blob="true" copy="false" />
+	<prop name="ai" type="string" size="64" visible="false" share="false" save="false" blob="false" copy="false"/>
+	<prop name="aiInterval" type="int32" visible="false" share="false" save="false" blob="false" copy="false"/>
+	<prop name="type" type="int8" visible="false" share="false" save="false" blob="false" copy="false"/>
+	
+	<temp name="AITIMER" type="int64" />
+	
+	<table name="CHECK_TIMER">
+		<column name="TIMER" type="int64" key="true"/>
+	</table>
+	
+	<table name="AITABLE">
+		<column name="STATE" type="int8" key="false"/>
+		<column name="PARAM1" type="int64" key="false"/>
+		<column name="PARAM2" type="int64" key="false"/>
+		<column name="PARAM3" type="int64" key="false"/>
+		<column name="PARAM4" type="int64" key="false"/>
+		<column name="PARAM5" type="int64" key="false"/>
+	</table>
+</root>

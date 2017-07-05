@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<root parent="SceneObject" start="200">
+	<!-- 同步到客户端 -->
+	<prop name="maxHp" type="int32" visible="true" share="true" save="true" blob="true" />
+	<prop name="maxMp" type="int32" visible="true" share="true" save="true" blob="true" />
+	<prop name="hp" type="int32" visible="true" share="true" save="true" blob="true" />
+	<prop name="mp" type="int32" visible="true" share="true" save="true" blob="true" />
+	
+	<!-- 不同步到客户端 -->
+</root>

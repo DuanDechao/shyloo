@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<root parent="Biology" start="300">
+	<!-- 同步到客户端 -->
+	<prop name="exp" type="int64" visible="true" share="true" save="true" blob="true" copy="false"/>
+	<prop name="name" type="string" size="64" visible="true" share="true" save="true" blob="false" copy="false"/>
+	<prop name="occupation" type="int8" visible="true" share="true" save="false" blob="false" copy="false"/>
+	<prop name="sex" type="int8" visible="true" share="false" save="true" blob="false" copy="false" />
+	
+	<!-- 不同步到客户端 -->
+	<prop name="account" type="int64" visible="false" share="false" save="false" blob="false" />
+	<prop name="agent" type="int64" visible="false" share="false" save="false" blob="false" />
+	<prop name="recoverTimer" type="int64" visible="false" share="false" save="false" blob="false" />
+	<prop name="gate" type="int32" visible="false" share="false" save="false" blob="false" />
+	<prop name="logic" type="int32" visible="false" share="false" save="false" blob="false" />
+	<prop name="firstLogin" type="int8" visible="false" share="false" save="true" blob="false" />
+	
+	<temp name="AI_REF" type="int32" />
+	<temp name="PROP_UPDATE_TIMER" type="int64" />
+	
+	<table name="PROP_SELF_TABLE">
+		<column name="PROP" type="int64" key="true"/>
+	</table>
+	
+	<table name="PROP_SHARED_TABLE">
+		<column name="PROP" type="int64" key="true"/>
+	</table>
+</root>

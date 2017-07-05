@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<config>
+	<loop tick="33" />
+	<net tick="20" reconnect="500" />
+	<ipc tick="20"/>
+	<timer tick="10" />
+	<agent send="16384" recv="16384" />
+	<harbor type="9" />
+</config>

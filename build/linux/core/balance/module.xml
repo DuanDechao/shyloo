@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<modules path="./">
+	<module name="Harbor" />
+	<module name="Cluster" />
+	<module name="Capacity" />
+	<module name="Monitor" />
+	<module name="Agent" />
+	<module name="Balance" />
+	<module name="EventEngine" />
+</modules>

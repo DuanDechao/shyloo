@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<root>
+	<prop name="visible" />
+	<prop name="share" />
+	<prop name="save" />
+	<prop name="significant" />
+	<prop name="blob" />
+	<prop name="copy" />
+
+	
+	<table name="STATICSCENEOBJECTS">
+		<column name="ID" type="int64" key="true" />
+		<column name="SCENEID" type="string" size="64" key="false" />
+		<column name="TYPE" type="int64" key="false" />
+	</table>
+	
+	<table name="SCENES">
+		<column name="ID" type="string" size="64" key="true" />
+		<column name="NAME" type="string" size="64" key="false" />
+		<column name="NODE" type="int32" key="false" />
+		<column name="STATE" type="int32" key="false" />
+		<column name="INDEX" type="int32" key="false" />
+		<column name="COUNT" type="int32" key="false" />
+	</table>
+	
+	<table name="SCENECOPY">
+		<column name="ID" type="string" size="64" key="true" />
+		<column name="OBJECT" type="int64" key="false" />
+	</table>
+</root>

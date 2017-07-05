@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<root parent="Object" start="100">
+	
+	<!-- 不同步到客户端 -->
+	<prop name="scene" type="string" size="64" visible="false" share="false" save="true" blob="false" copy="true"/>
+	<prop name="x" type="float" visible="false" share="false" save="true" blob="false" copy="true" />
+	<prop name="y" type="float" visible="false" share="false" save="true" blob="false" copy="true" />
+	<prop name="z" type="float" visible="false" share="false" save="true" blob="false" copy="true" />
+	<prop name="vision" type="float" visible="false" share="false" save="false" blob="false" copy="false"/>
+	
+	<temp name="IS_APPEAR" type="int8" />
+	<temp name="SYNCTOSCENE" type="int8" />
+	<temp name="SYNCTOSCENE_TIMER" type="int64" />
+	<temp name="RGS_SHADOW" type="int8" />
+	<temp name="SHADOW_SYNC_TIMER" type="int64" />
+	
+	<table name="AOI_INTERESTERS">
+		<column name="ID" type="int64" key="true"/>
+		<column name="TYPE" type="int8" key="false"/>
+	</table>
+	
+	<table name="AOI_WATCHERS">
+		<column name="ID" type="int64" key="true"/>
+		<column name="LOGIC" type="int32" key="false"/>
+		<column name="GATE" type="int32" key="false"/>
+	</table>
+	
+	<table name="SHADOW">
+		<column name="LOGIC" type="int32" key="true"/>
+		<column name="COUNT" type="int32" key="false"/>
+	</table>
+	
+	<table name="SHADOW_SYNC_PROP">
+		<column name="PROP" type="int64" key="true"/>
+	</table>
+</root>

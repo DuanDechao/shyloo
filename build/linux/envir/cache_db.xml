@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<cache_db>
+	<table name="account" del="true">
+		<column name="username" type="string" />
+		<column name="accountId" type="int64" key="true" />
+		<column name="lastActorId" type="int64" />
+		<index name="username" />
+	</table>
+	
+	<table name="actor" del="true">
+		<column name="id" type="int64" key="true" />
+		<column name="account" type="int64" />
+		<column name="name" type="string" />
+		<column name="occupation" type="int8" />
+		<column name="sex" type="int8" />
+		<column name="props" type="blob" />
+		<column name="scene" type="string" />
+		<column name="x" type="float" />
+		<column name="y" type="float" />
+		<column name="z" type="float" />
+		<column name="firstLogin" type="int8" />
+		<index name="account" />
+	</table>
+</cache_db>

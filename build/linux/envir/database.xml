@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<database name="shyloo">
+	<table name="account">
+		<field name="username" type="string" size="32" notNull="true" default="ddc"/>
+		<field name="accountId" type="int64" key="true" notNull="true"/>
+		<field name="lastActorId" type="int64" notNull="true" default="0" />
+		<index type="primary" fields="accountId" />
+		<index type="unique" func="hash" fields="username" />
+	</table>
+	
+	<table name="actor">
+		<field name="id" type="int64" notNull="true" />
+		<field name="account" type="int64" notNull="true" default="0" />
+		<field name="name" type="string" size="32" notNull="true" default="ddc"/>
+		<field name="occupation" type="int8" default="0" />
+		<field name="sex" type="int8" default="0" />
+		<field name="props" type="blob" notNull="true" />
+		<field name="scene" type="string" size="64" notNull="true" default="lxd"/>
+		<field name="x" type="float" notNull="true" default="0" />
+		<field name="y" type="float" notNull="true" default="0" />
+		<field name="z" type="float" notNull="true" default="0" />
+		<field name="firstLogin" type="int8" notNull="true" default="1" />
+		<index type="primary" fields="id" />
+		<index type="normal" func="btree" fields="account" />
+		<partition type="hash" field="id" default="4" />
+	</table>
+</database>
