@@ -28,23 +28,6 @@
 #define VSNPRINTF _vsnprintf
 #define atoll _atoi64
 
-typedef int socklen_t;
-typedef unsigned int pid_t;
-
-//Windows socket的错误码和含义和linux不一样，通过宏统一
-#define SL_ERRNO			GetLastError()
-#define SL_WSA_ERRNO		WSAGetLastError()
-#define SL_EWOULDBLOCK		WSAEWOULDBLOCK		//	10035
-#define SL_EINPROGRESS		WSAEINPROGRESS		//	10036
-#define SL_ETIME			WSAETIMEDOUT		//	10060
-#define SL_EINTR			WSAEINTR			//	10000
-#define SL_ECONNRESET		WSAECONNRESET		//	10054	用来表示远程关闭了连接
-#define GetNowProcessId		GetCurrentProcessId 
-
-#ifndef SL_INVALID_SOCKET
-#define	SL_INVALID_SOCKET	(SOCKET)(~0)
-#endif
-
 #define ECHO(format, ...){	\
 	char _log[4096] = {0};	\
 	SafeSprintf(_log, sizeof(_log), "%s:%d:%s"#format, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__);	\

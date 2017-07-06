@@ -29,23 +29,8 @@
 #define CSLEEP(n) usleep(n * 1000)
 #define SafeSprintf snprintf
 #define VSNPRINTF vsnprintf
-
-#define closesocket			close
 #define GetNowProcessId		getpid
 #define GetCurrentThreadId	pthread_self
-
-typedef int SOCKET;
-
-#ifndef SL_INVALID_SOCKET
-#define	SL_INVALID_SOCKET	(SOCKET)(~0)
-#endif
-#define SL_ERRNO			errno
-#define SL_WSA_ERRNO		errno
-#define SL_EWOULDBLOCK		EWOULDBLOCK
-#define SL_EINPROGRESS		EINPROGRESS
-#define SL_ETIME			ETIME
-#define SL_EINTR			EINTR
-#define SL_ECONNRESET		ECONNRESET
 
 #ifdef _DEBUG
 #define  ECHO(format, a...) {\

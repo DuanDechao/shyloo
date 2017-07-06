@@ -127,6 +127,38 @@ typedef UINT_PTR			SLSOCKET;
 typedef uintptr_t			SLSOCKET;
 #endif
 
+#ifdef SL_OS_WINDOWS
+//Windows socket的错误码和含义和linux不一样，通过宏统一
+#define SL_ERRNO			GetLastError()
+#define SL_WSA_ERRNO		WSAGetLastError()
+#define SL_EWOULDBLOCK		WSAEWOULDBLOCK		//	10035
+#define SL_EINPROGRESS		WSAEINPROGRESS		//	10036
+#define SL_ETIME			WSAETIMEDOUT		//	10060
+#define SL_EINTR			WSAEINTR			//	10000
+#define SL_ECONNRESET		WSAECONNRESET		//	10054	用来表示远程关闭了连接
+#define GetNowProcessId		GetCurrentProcessId 
+
+typedef int socklen_t;
+
+#endif
+
+#ifdef SL_OS_LINUX
+#define SL_ERRNO			errno
+#define SL_WSA_ERRNO		errno
+#define SL_EWOULDBLOCK		EWOULDBLOCK
+#define SL_EINPROGRESS		EINPROGRESS
+#define SL_ETIME			ETIME
+#define SL_EINTR			EINTR
+#define SL_ECONNRESET		ECONNRESET
+
+#define closesocket			close
+
+#endif
+
+#ifndef SL_INVALID_SOCKET
+#define	SL_INVALID_SOCKET	(SLSOCKET)(~0)
+#endif
+
 //network stats
 extern uint64				g_numPacketsSent;
 extern uint64				g_numPacketsReceived;
