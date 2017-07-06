@@ -1,7 +1,7 @@
 #ifndef SL_LOGIC_IDMGR_H
 #define SL_LOGIC_IDMGR_H
 #include "slikernel.h"
-#include "IIdmgr.h"
+#include "IIdMgr.h"
 #include "slsingleton.h"
 class IHarbor;
 class OArgs;

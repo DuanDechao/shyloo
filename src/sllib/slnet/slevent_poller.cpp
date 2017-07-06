@@ -115,7 +115,7 @@ int EventPoller::maxFD() const{
 		++iFDWriteHandler;
 	}
 
-	return max(readMaxFD, writeMaxFD);
+	return readMaxFD > writeMaxFD ? readMaxFD : writeMaxFD;
 }
 
 EventPoller* EventPoller::create()

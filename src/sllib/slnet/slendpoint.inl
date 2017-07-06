@@ -2,7 +2,7 @@ namespace sl{
 namespace network{
 inline void EndPoint::socket(int32 type){
 	this->setFileDescriptor((int32)::socket(AF_INET, type, 0));
-	if((_socket == INVALID_SOCKET) && (WSAGetLastError() == WSANOTINITIALISED)){
+	if((_socket == SL_INVALID_SOCKET) && (WSAGetLastError() == WSANOTINITIALISED)){
 		EndPoint::initNetwork();
 		this->setFileDescriptor((int32)::socket(AF_INET, type, 0));
 	}
@@ -21,7 +21,7 @@ inline int32 EndPoint::setnonblocking(bool nonblocking)
 	return ::ioctlsocket(_socket, FIONBIO, &val);
 #else
 	int32 val = nonblocking ? O_NONBLOCK : 0;
-	return ::fcntl(_socket, F_SETFL, val);
+	return fcntl(_socket, F_SETFL, val);
 #endif
 }
 
@@ -91,7 +91,7 @@ inline int32 EndPoint::quitMulticastGroup(uint32 networkAddr){
 #endif
 }
 
-inline int32 EndPoint::close(){
+inline int32 EndPoint::closeEndPoint(){
 	if(_socket == -1){
 		return 0;
 	}
@@ -106,7 +106,7 @@ inline int32 EndPoint::close(){
 	}
 
 #ifdef SL_OS_WINDOWS
-	_socket = INVALID_SOCKET;
+	_socket = SL_INVALID_SOCKET;
 #else
 	_socket = -1;
 #endif
@@ -235,7 +235,7 @@ inline EndPoint* EndPoint::accept(uint16* networkPort /* = NULL */, uint32* netw
 #ifdef SL_OS_LINUX
 	if(ret < 0) return NULL;
 #else
-	if(ret == INVALID_SOCKET) return NULL;
+	if(ret == SL_INVALID_SOCKET) return NULL;
 #endif
 
 	EndPoint* pNew = EndPoint::create(0, 0);

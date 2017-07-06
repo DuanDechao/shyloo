@@ -23,7 +23,7 @@ MMObject::~MMObject(){
 		DEL _memory;
 	_memory = nullptr;
 
-	for (auto& table = _tables.begin(); table != _tables.end(); ++table){
+	for (auto table = _tables.begin(); table != _tables.end(); ++table){
 		DEL table->second;
 	}
 	_tables.clear();

@@ -4,7 +4,7 @@
 #include "Role.h"
 #include "IDCCenter.h"
 #include "slbinary_map.h"
-#include "IIdmgr.h"
+#include "IIdMgr.h"
 
 bool RoleMgr::initialize(sl::api::IKernel * pKernel){
 	_self = this;

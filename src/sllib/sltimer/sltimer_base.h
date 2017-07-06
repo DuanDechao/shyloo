@@ -3,7 +3,6 @@
 #include "slmulti_sys.h"
 #include "sltimer.h"
 #include "slpool.h"
-#include "sltime_stamp.h"
 #include "sllist.h"
 
 namespace sl{
@@ -27,13 +26,13 @@ public:
 	TimerState pollTimer();
 
 	void setExpireTime(jiffies_t expire){ m_expire = expire; }
-	TimeStamp getExpireTime() const { return m_expire; }
+	jiffies_t getExpireTime() const { return m_expire; }
 	void adjustExpireTime(jiffies_t nowJiffies);
 
 	void setPauseTime(jiffies_t pause){ m_pause = m_pause; }
-	TimeStamp getPauseTime() const { return m_pause; }
+	jiffies_t getPauseTime() const { return m_pause; }
 
-	TimeStamp getIntervalTime() const { return m_interval; }
+	jiffies_t getIntervalTime() const { return m_interval; }
 
 	void onInit();
 	void onStart();

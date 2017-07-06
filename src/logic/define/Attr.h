@@ -1,10 +1,15 @@
 #ifndef __ATTR_H__
 #define __ATTR_H__
+#include "slmulti_sys.h" 
 
+#ifdef SL_OS_WINDOWS
 #ifdef ATTR_EXPORT
 #define ATTR_API __declspec (dllexport)
 #else
 #define ATTR_API __declspec (dllimport)
+#endif
+#else
+#define ATTR_API
 #endif
 
 class IProp;

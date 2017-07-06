@@ -3,16 +3,21 @@
 #ifndef _SL_FILE_UTILS_H_
 #define _SL_FILE_UTILS_H_
 
+#include "slmulti_sys.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <errno.h>
 #include <string>
 #include <fcntl.h>
-#include <io.h>
 #include <vector>
 #include <functional>
+
+#ifdef SL_OS_WINDOWS
 #include <Shlwapi.h>
+#include <io.h>
+#endif
+
 namespace sl
 {
 //读写文件的封装类
@@ -195,8 +200,8 @@ public:
 	@param [in] f			 处理函数
 	@return 无
 	*/
-	static void ListFileInDirection(const char * path, const char * extension, const std::function<void(const char *, const char *)> &f) {
 #ifdef SL_OS_WINDOWS
+	static void ListFileInDirection(const char * path, const char * extension, const std::function<void(const char *, const char *)> &f) {
 		WIN32_FIND_DATA finder;
 
 		char tmp[512] = { 0 };
@@ -220,7 +225,15 @@ public:
 				}
 			}
 		}
+	}
 #else
+	static const char* get_filename_ext(const char* fileName){
+		const char* dot = strrchr(fileName, '.');
+		if(!dot || dot == fileName) return "";
+		return dot;
+	}
+
+	static void ListFileInDirection(const char * path, const char * extension, const std::function<void(const char *, const char *)> &f) {
 		DIR * dp = opendir(path);
 		if (dp == nullptr)
 			return;
@@ -240,7 +253,7 @@ public:
 			if (S_ISDIR(st.st_mode))
 				ListFileInDirection(tmp, extension, f);
 			else {
-				if (0 == strcmp(extension, GetFileExt(dirp->d_name))) {
+				if (0 == strcmp(extension, get_filename_ext(dirp->d_name))) {
 					char name[256];
 					SafeSprintf(name, sizeof(name), "%s", dirp->d_name);
 					char * dot = strrchr(name, '.');
@@ -250,8 +263,8 @@ public:
 				}
 			}
 		}
-#endif
 	}
+#endif
 
 }; // class CFileUtils
 	

@@ -20,14 +20,21 @@ typedef void*				pointer;        ///< 无类型指针
 //using std::string;                          ///< 引用STL的String类型
 
 typedef int64				datetime_t;     ///< 64位的时间类型
-typedef uint64				uid_t;          ///< 用户ID类型
+//typedef uint64				uid_t;          ///< 用户ID类型
 
+#ifdef WIN32
 #define SLAPI __stdcall
 
 #ifdef SL_DLL_EXPORT
 #define SL_DLL_API __declspec (dllexport)
 #else
 #define SL_DLL_API __declspec (dllimport)
+#endif
+
+#else
+#define SLAPI
+#define SL_DLL_API
+
 #endif
 
 #endif

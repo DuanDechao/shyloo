@@ -7,6 +7,7 @@
 #include "EventID.h"
 #include "IEventEngine.h"
 #include "NodeDefine.h"
+#include <algorithm>
 
 sl::api::IKernel* DBCreator::s_kernel = nullptr;
 IHarbor* DBCreator::s_harbor = nullptr;

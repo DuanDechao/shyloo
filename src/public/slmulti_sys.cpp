@@ -17,17 +17,17 @@ FILE * fp = nullptr;
 #endif
 
 
-void OpenAllocLog() {
-	if(fp == nullptr) {
-		char filename[260];
-#ifdef SL_OS_WINDOWS
-		SafeSprintf(filename, sizeof(filename), "alloc_%d.log", GetCurrentProcessId());
-#else
-		SafeSprintf(filename, sizeof(filename), "alloc_%d.log", getpid());
-#endif // SL_OS_WINDOWS
-		fopen_s(&fp, filename, "a");
-	}
-}
+// void OpenAllocLog() {
+	// if(fp == nullptr) {
+		// char filename[260];
+// #ifdef SL_OS_WINDOWS
+		// SafeSprintf(filename, sizeof(filename), "alloc_%d.log", GetCurrentProcessId());
+// #else
+		// SafeSprintf(filename, sizeof(filename), "alloc_%d.log", getpid());
+// #endif // SL_OS_WINDOWS
+		// fopen(fp, filename, "a");
+	// }
+// }
 
 void __AssertionFail(const char* file, int line, const char* funname, const char* debug){
 	fflush(stdout);

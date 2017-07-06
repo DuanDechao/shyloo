@@ -225,7 +225,7 @@ void Channel::clearState(bool warnOnDiscard /* = false */){
 	
 	//由于endpoint通常由外部给入，必须释放，频道重新激活时重新赋值
 	if(_pEndPoint){
-		_pEndPoint->close();
+		_pEndPoint->closeEndPoint();
 		this->setEndPoint(NULL);
 	}
 }

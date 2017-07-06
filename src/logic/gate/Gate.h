@@ -8,6 +8,7 @@
 #include "slbinary_stream.h"
 #include <unordered_map>
 #include <unordered_set>
+#include <list>
 #include "slsingleton.h"
 using namespace sl;
 

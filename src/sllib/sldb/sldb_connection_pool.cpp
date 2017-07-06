@@ -16,7 +16,7 @@ SLDBConnectionPool::SLDBConnectionPool(int32 maxDBConnectionNum, const char* szH
 	m_connInfo.charset(szCharSet);
 	m_connInfo.port(port);
 
-	InitializeCriticalSection(&m_allocConnectionMutex);
+	//InitializeCriticalSection(&m_allocConnectionMutex);
 }
 
 SLDBConnectionPool::~SLDBConnectionPool(){
@@ -31,7 +31,7 @@ SLDBConnectionPool::~SLDBConnectionPool(){
 	m_freeConns.clear();
 	m_maxConnectionNum = 0;
 
-	DeleteCriticalSection(&m_allocConnectionMutex);
+	//DeleteCriticalSection(&m_allocConnectionMutex);
 }
 
 void SLDBConnectionPool::release(){
@@ -39,7 +39,7 @@ void SLDBConnectionPool::release(){
 }
 
 ISLDBConnection* SLDBConnectionPool::allocConnection(){
-	EnterCriticalSection(&m_allocConnectionMutex);
+	//EnterCriticalSection(&m_allocConnectionMutex);
 	
 	SLDBConnection* pConnection = NULL;
 	if (m_freeConns.empty() && (int32)m_allConns.size() <= m_maxConnectionNum){
@@ -56,7 +56,7 @@ ISLDBConnection* SLDBConnectionPool::allocConnection(){
 		m_freeConns.pop_front();	
 	}
 
-	LeaveCriticalSection(&m_allocConnectionMutex);
+	//LeaveCriticalSection(&m_allocConnectionMutex);
 	return pConnection;
 }
 

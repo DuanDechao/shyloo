@@ -216,6 +216,8 @@ void *redisvCommand(redisContext *c, const char *format, va_list ap);
 void *redisCommand(redisContext *c, const char *format, ...);
 void *redisCommandArgv(redisContext *c, int argc, const char **argv, const size_t *argvlen);
 
+int __redisAppendCommand(redisContext *c, const char *cmd, size_t len);
+
 #ifdef __cplusplus
 }
 #endif

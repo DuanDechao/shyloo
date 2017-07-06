@@ -5,6 +5,7 @@
 #pragma once
 #endif
 #include <assert.h>
+#include "slmulti_sys.h"
 namespace sl
 {
 template<typename T>

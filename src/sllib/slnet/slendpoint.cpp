@@ -7,7 +7,7 @@ namespace network{
 static bool g_networkInitted = false;
 sl::SLPool<EndPoint> EndPoint::s_pool;
 EndPoint::EndPoint(uint32 networkAddr /* = 0 */, uint16 networkport /* = 0 */)
-	:_socket(INVALID_SOCKET)
+	:_socket(SL_INVALID_SOCKET)
 {
 	if (networkAddr){
 		_address._ip = networkAddr;
@@ -16,7 +16,7 @@ EndPoint::EndPoint(uint32 networkAddr /* = 0 */, uint16 networkport /* = 0 */)
 }
 
 EndPoint::EndPoint(Address address)
-	:_socket(INVALID_SOCKET)
+	:_socket(SL_INVALID_SOCKET)
 {
 	if (address._ip > 0){
 		_address = address;
@@ -24,7 +24,7 @@ EndPoint::EndPoint(Address address)
 }
 
 inline EndPoint::~EndPoint(){
-	this->close();
+	this->closeEndPoint();
 }
 
 bool EndPoint::getClosedPort(network::Address& closedPort){

@@ -17,11 +17,16 @@ void propEnumGen(const char* attrFileName, std::set<std::string>& propNames, std
 		return;
 	}
 	attrFile << "#ifndef __ATTR_H__" << endl;
-	attrFile << "#define __ATTR_H__" << endl << endl;
+	attrFile << "#define __ATTR_H__" << endl;
+	attrFile << "#include \"slmulti_sys.h\" " << endl << endl;
+	attrFile << "#ifdef SL_OS_WINDOWS" << endl;
 	attrFile << "#ifdef ATTR_EXPORT" << endl;
 	attrFile << "#define ATTR_API __declspec (dllexport)" << endl;
 	attrFile << "#else" << endl;
 	attrFile << "#define ATTR_API __declspec (dllimport)" << endl;
+	attrFile << "#endif" << endl;
+	attrFile << "#else" << endl;
+	attrFile << "#define ATTR_API" << endl;
 	attrFile << "#endif" << endl <<endl;
 
 	attrFile << "class IProp;" << endl << endl;

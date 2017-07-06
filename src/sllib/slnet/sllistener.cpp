@@ -52,8 +52,8 @@ bool CSLListener::start(const char* pszIP, uint16 wPort, bool bReUseAddr /* = tr
 
 bool CSLListener::stop(){
 	if (_pListenEndPoint->good()){
-		_pNetworkInterface->deregisterSocket((int32)_pListenEndPoint);
-		_pListenEndPoint->close();
+		_pNetworkInterface->deregisterSocket((int32)*_pListenEndPoint);
+		_pListenEndPoint->closeEndPoint();
 	}
 	return true;
 }

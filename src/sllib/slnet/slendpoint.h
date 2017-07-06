@@ -24,7 +24,7 @@ public:
 	}
 
 	static void initNetwork();
-	inline bool good() const { return _socket != INVALID_SOCKET; }
+	inline bool good() const { return _socket != SL_INVALID_SOCKET; }
 
 	inline operator SLSOCKET() const{ return _socket; }
 	inline SLSOCKET socket() const { return _socket; }
@@ -55,7 +55,7 @@ public:
 	inline int32 recv(void* gramData, int32 gramSize);
 	bool recvAll(void* gramData, int32 gramSize);
 
-	inline int32 close();
+	inline int32 closeEndPoint();
 
 	inline int32 getInterfaceFlags(char* name, int32& flag);
 	inline int32 getInterfaceAddress(const char* name, uint32& address);

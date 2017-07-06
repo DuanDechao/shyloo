@@ -111,7 +111,7 @@ PacketReceiver::RecvState UDPPacketReceiver::checkSocketErrors(int len, bool exp
 	}
 
 #ifdef unix
-	if (errno == EAGAIN ||
+	/*if (errno == EAGAIN ||
 		errno == ECONNREFUSED ||
 		errno == EHOSTUNREACH)
 	{
@@ -138,7 +138,7 @@ PacketReceiver::RecvState UDPPacketReceiver::checkSocketErrors(int len, bool exp
 			WARNING_MSG("UDPPacketReceiver::processPendingEvents: "
 				"getClosedPort() failed\n");
 		}
-	}
+	}*/
 #else
 	if (wsaErr == WSAECONNRESET)
 	{
@@ -147,13 +147,7 @@ PacketReceiver::RecvState UDPPacketReceiver::checkSocketErrors(int len, bool exp
 #endif // unix
 
 #ifdef _WIN32
-	/*WARNING_MSG(fmt::format("UDPPacketReceiver::processPendingEvents: "
-		"Throwing REASON_GENERAL_NETWORK - {}\n",
-		wsaErr));*/
 #else
-	WARNING_MSG(fmt::format("UDPPacketReceiver::processPendingEvents: "
-		"Throwing REASON_GENERAL_NETWORK - {}\n",
-		kbe_strerror()));
 #endif
 	/*this->dispatcher().errorReporter().reportException(
 		REASON_GENERAL_NETWORK);*/

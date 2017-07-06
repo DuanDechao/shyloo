@@ -18,6 +18,16 @@ IF(WIN32)
 	SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 ENDIF(WIN32)
 
+IF(UNIX)
+	SET(LIBRARY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/build/linux")
+	LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/build/linux)
+	SET(CMAKE_CXX_FLAGS "-std=c++0x -Wall -lpthread -rdynamic -ldl -Dlinux -lcurl -lmysqlclient -Wl,-rpath,./")
+	SET(CMAKE_CXX_FLAGS_DEBUG "-g -D_DEBUG -o0 -pg -L${PROJECT_SOURCE_DIR}/thirdlibrary/debug ")
+	SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -L${PROJECT_SOURCE_DIR}/thirdlibrary/release")
+	SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -L${PROJECT_SOURCE_DIR}/thirdlibrary/release")
+	MESSAGE(STATUS "Linux")
+ENDIF(UNIX)
+
 
 SET(SL_KERNEL_API
 	"${PROJECT_SOURCE_DIR}/src/kernel/api/slikernel.h"
@@ -103,6 +113,33 @@ IF(WIN32)
 		optimized "${PROJECT_SOURCE_DIR}/build/windows/Debug/AttrGetter.lib"
 	)
 ENDIF(WIN32)
+
+IF(UNIX)
+	SET(SL_LIB_DEBUG
+		debug "${PROJECT_SOURCE_DIR}/build/linux/libslnet.so"
+		debug "${PROJECT_SOURCE_DIR}/build/linux/libsltimer.so"
+		debug "${PROJECT_SOURCE_DIR}/build/linux/libslxml.so"
+		debug "${PROJECT_SOURCE_DIR}/build/linux/libsldb.so"
+		#debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/libslthread.lib"
+		debug "${PROJECT_SOURCE_DIR}/build/linux/libslredis.so"
+		debug "${PROJECT_SOURCE_DIR}/build/linux/libslshm.so"
+	)
+	SET(SL_LIB_RELEASE
+		optimized "${PROJECT_SOURCE_DIR}/build/linux/libslnet.so"
+		optimized "${PROJECT_SOURCE_DIR}/build/linux/libsltimer.so"
+		optimized "${PROJECT_SOURCE_DIR}/build/linux/libslxml.so"
+		optimized "${PROJECT_SOURCE_DIR}/build/linux/libsldb.so"
+		#optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/slthread.lib"
+		optimized "${PROJECT_SOURCE_DIR}/build/linux/libslredis.so"
+		optimized "${PROJECT_SOURCE_DIR}/build/linux/libslshm.so"
+	)
+	SET(ATTR_LIBD
+		debug "${PROJECT_SOURCE_DIR}/build/linux/libAttrGetter.so"
+	)
+	SET(ATTR_LIB
+		optimized "${PROJECT_SOURCE_DIR}/build/linux/libAttrGetter.so"
+	)
+ENDIF(UNIX)
 
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/sllib)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/kernel)

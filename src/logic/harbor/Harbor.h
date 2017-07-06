@@ -4,6 +4,7 @@
 #include "slikernel.h"
 #include "NodeSession.h"
 #include <unordered_map>
+#include <list>
 #include <string>
 #include "slsingleton.h"
 #include "slshm.h"

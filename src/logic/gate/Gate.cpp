@@ -3,7 +3,7 @@
 #include "NodeDefine.h"
 #include "NodeProtocol.h"
 #include "ICacheDB.h"
-#include "IIdmgr.h"
+#include "IIdMgr.h"
 #include "DBDef.h"
 #include "IRoleMgr.h"
 #include "ProtocolID.pb.h"
@@ -12,6 +12,7 @@
 #include "sltime.h"
 #include "slxml_reader.h"
 #include "slstring_utils.h"
+#include <algorithm>
 
 #define REPORT_LOAD_INTERVAL 1000
 #define TICKET_EXPIRE_TIME 10000
@@ -135,7 +136,7 @@ void Gate::onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32 n
 void Gate::onClose(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId){
 	if (nodeType == NodeType::ACCOUNT){
 		std::unordered_map<int64, Player> temp(_players);
-		for (auto& itor = temp.begin(); itor != temp.end(); ++itor){
+		for (auto itor = temp.begin(); itor != temp.end(); ++itor){
 			_agent->kick(itor->first);
 		}
 	}

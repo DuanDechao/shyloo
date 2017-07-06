@@ -42,7 +42,7 @@ bool NetworkInterface::createListeningSocket(const char* listeningInterface, uin
 	
 	if(pEP->good()){
 		_pDispatcher->deregisterReadFileDescriptor((int32)*pEP);
-		pEP->close();
+		pEP->closeEndPoint();
 	}
 
 	Address address;
@@ -65,7 +65,7 @@ bool NetworkInterface::createListeningSocket(const char* listeningInterface, uin
 
 	//尝试绑定到端口，如果被占用向后递增
 	if(pEP->bind(htons(listeningPort), ifIPAddr) != 0){
-		pEP->close();
+		pEP->closeEndPoint();
 		pEP->release();
 		return false;
 	}
@@ -80,7 +80,7 @@ bool NetworkInterface::createListeningSocket(const char* listeningInterface, uin
 			address._ip = addr;
 		}
 		else{
-			pEP->close();
+			pEP->closeEndPoint();
 			return false;
 		}
 	}
@@ -105,7 +105,7 @@ bool NetworkInterface::createListeningSocket(const char* listeningInterface, uin
 		backlog = 5;
 
 	if(pEP->listen(backlog) == -1){
-		pEP->close();
+		pEP->closeEndPoint();
 		return false;
 	}
 
@@ -128,10 +128,10 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 	Address::string2ip(serverIp, address);
 	int32 ret = 0;
 	if ((ret = pSvrEndPoint->connect(htons(serverPort), address)) == -1){
-		int32 error = WSAGetLastError();
+		int32 error = SL_WSA_ERRNO;
 		if (error != WSAEWOULDBLOCK){
 			//SLASSERT(false, "wtf");
-			pSvrEndPoint->close();
+			pSvrEndPoint->closeEndPoint();
 			return false;
 		}
 	}

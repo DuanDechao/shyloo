@@ -44,8 +44,10 @@ ADD_LIBRARY(sldb SHARED
 	${SL_LIB_DB}
 )
 
+IF(WIN32)
 TARGET_LINK_LIBRARIES(sldb
 	"${PROJECT_SOURCE_DIR}/thirdlibrary/mysql/x64/lib/libmysql.lib"
 )
+ENDIF(WIN32)
 
 SET_PROPERTY(TARGET sldb PROPERTY FOLDER "sllib")

@@ -1,6 +1,7 @@
 #ifndef __SL_CORE_SQL_BASE_H__
 #define __SL_CORE_SQL_BASE_H__
 #include <sstream>
+#include <list>
 enum DB_OPT{
 	DB_OPT_NONE = 0,
 	DB_OPT_QUERY,
@@ -107,7 +108,7 @@ private:
 
 	Expr and_or(const Expr& right,	const std::string& logOp) const{
 		auto ret = *this;
-		auto& rigthExprs = right.exprs();
+		auto rigthExprs = right.exprs();
 		ret._exprs.push_front(NEW SetExpr("(", nullptr, 0, false));
 		ret._exprs.push_back(NEW SetExpr(std::move(logOp), nullptr, 0, false));
 		ret._exprs.splice(ret._exprs.cend(), std::move(rigthExprs));

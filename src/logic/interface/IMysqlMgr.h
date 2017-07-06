@@ -73,7 +73,7 @@ public:
 
 	template<typename... Args>
 	SQLCommand& orWhere(const Expr& expr, Args... args){
-		return orWhereInner(field, args...);
+		return orWhereInner(expr, args...);
 	}
 	template<typename... Args>
 	SQLCommand& orWhereInner(const Expr& expr, Args... args){

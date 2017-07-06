@@ -5,209 +5,108 @@
 #include <stdio.h>
 #include <string>
 #include <stdarg.h>
-namespace sl
-{
+#include "sltools.h"
+namespace sl{
 //定长的字符串封装类
-template<int SIZE = 1024>
-class SLString
-{
+template<int16 SIZE = 64>
+class SLString{
 public:
 	SLString(){
-		m_szBuf[0] = 0;
+		SafeMemset(m_szBuf, sizeof(m_szBuf), 0, sizeof(m_szBuf));
 	}
 
 	SLString(const char* str){
-		*this = str;
+		SafeMemset(m_szBuf, sizeof(m_szBuf), 0, sizeof(m_szBuf));
+
+		int32 ilen = (int32)strlen(str);
+		ilen = (ilen > SIZE) ? SIZE : ilen;
+		safeMemcpy(m_szBuf, sizeof(m_szBuf), str, ilen);
 	}
 
-	SLString(const std::string str){
-		*this = str;
-	}
+	inline const char* getString() const { return m_szBuf; }
+	inline void clear() { SafeMemset(m_szBuf, sizeof(m_szBuf), 0, sizeof(m_szBuf)); }
+	inline const char* c_str() const{return m_szBuf;}
+	inline const char& operator[] (int i) const{ return m_szBuf[i]; }
+	inline char& operator[] (int i){return m_szBuf[i]; }
+	inline void assign(const char* str, const int32 ilen){ safeMemcpy(m_szBuf, sizeof(m_szBuf), str, (ilen > SIZE) ? (SIZE) : (ilen)); }
+	inline int32 length() const { return (int32)strlen(m_szBuf); }
 
-	template<int S>
-	SLString(const SLString<S>& str){
-		*this = str;
-	}
+	bool operator == (const char* str) const { return !strcmp(m_szBuf, str); }
+	bool operator != (const char* str) const { return strcmp(m_szBuf, str); }
+	bool operator == (const SLString& buff) const { return !strcmp(m_szBuf, buff.m_szBuf); }
+	bool operator != (const SLString& buff) const { return strcmp(m_szBuf, buff.m_szBuf); }
+	bool operator < (const SLString& buff) const { return (strcmp(m_szBuf, buff.m_szBuf)) < 0; }
 
-	virtual ~SLString(){
-		m_szBuf[0] = 0;
-	}
 
-	const char* c_str() const{
-		return m_szBuf;
-	}
+	SLString& operator = (const char* str){
+		SafeMemset(m_szBuf, sizeof(m_szBuf), 0, sizeof(m_szBuf));
 
-	const char& operator[] (int i) const{
-		return m_szBuf[i];
-	}
-
-	char& operator[] (int i){
-		return m_szBuf[i];
-	}
-
-	SLString& operator = (const char* str) {
-		SafeSprintf(m_szBuf, SIZE, "%s", str);
-		m_szBuf[SIZE - 1] = 0;
+		int32 ilen = (int32)strlen(str);
+		ilen = (ilen > SIZE) ? SIZE : ilen;
+		safeMemcpy(m_szBuf, sizeof(m_szBuf), str, ilen);
 		return *this;
 	}
 
-	SLString& operator = (const std::string& str) {
-		return *this = str.c_str();
+	SLString& operator = (const int32 value){
+		SafeSprintf(m_szBuf, sizeof(m_szBuf), "%d", value);
+		return *this;
 	}
 
-	template<int S>
-	SLString& operator = (const SLString<S>& szString){
-		return *this = szString.c_str();
+	SLString& operator = (const int64 value){
+		SafeSprintf(m_szBuf, sizeof(m_szBuf), "%lld", value);
+		return *this;
+	}
+
+	SLString& operator = (const SLString & buff){
+		int32 ilen = (int32)strlen(buff.getString());
+		ilen = (ilen > SIZE) ? (SIZE) : ilen;
+		safeMemcpy(m_szBuf, sizeof(m_szBuf), buff.m_szBuf, ilen);
+		return *this;
 	}
 
 	SLString& operator << (const char* str){
-		int iLen = length();
-		int iMaxLen = Size() - iLen;
-		iMaxLen = iMaxLen < 0 ? 0 : iMaxLen;
-		SafeSprintf(m_szBuf + iLen, iMaxLen, "%s", str);
-		m_szBuf[SIZE - 1] = 0;
+		int32 ilen = (int32)strlen(m_szBuf);
+		SafeSprintf(m_szBuf + ilen, sizeof(m_szBuf)-ilen, "%s", str);
 		return *this;
 	}
 
-	SLString& operator << (const std::string str){
-		return *this << str.c_str();
+	SLString& operator << (const int32 value){
+		int32 ilen = (int32)strlen(m_szBuf);
+		SafeSprintf(m_szBuf + ilen, sizeof(m_szBuf)-ilen, "%d", value);
+		return *this;
 	}
 
-	template<int S>
-	SLString& operator << (const SLString<S>& szString){
-		return *this << szString.c_str();
+	SLString& operator << (const int64 value){
+		int32 ilen = (int32)strlen(m_szBuf);
+		SafeSprintf(m_szBuf + ilen, sizeof(m_szBuf)-ilen, "%lld", value);
+		return *this;
 	}
 
-	virtual int length() const{
-		return (int)strlen(m_szBuf);
+	SLString& operator << (const float value){
+		int32 ilen = (int32)strlen(m_szBuf);
+		SafeSprintf(m_szBuf + ilen, sizeof(m_szBuf)-ilen, "%.2f", value);
+		return *this;
 	}
 
-	virtual int Size() const{
-		return sizeof(m_szBuf);
-	}
-
-	void Clear(){
-		SafeMemset(m_szBuf, sizeof(m_szBuf), 0, SIZE);
+	SLString& operator << (char value){
+		int32 ilen = (int32)strlen(m_szBuf);
+		m_szBuf[ilen] = value;
+		m_szBuf[ilen + 1] = 0;
+		return *this;
 	}
 
 	operator size_t() const{
-		size_t __h = 0;
+		size_t hash = 0;
 		int32 count = (int32)strlen(m_szBuf);
-		for (size_t i = 0; i < count; i++)
-			__h = 5 * __h + (size_t)m_szBuf[i];
-		return size_t(__h);
-	}
-
-	bool operator == (const char* str) const{
-		return strcmp(m_szBuf, str) == 0;
-	}
-
-	bool operator == (const std::string str) const{
-		return *this == str.c_str();
-	}
-
-	template<int S>
-	bool operator == (const SLString<S>& str) const{
-		return *this == str.c_str();
-	}
-
-	bool operator >= (const char* pstr) const
-	{
-		return strcmp(m_szBuf, pstr) >= 0;
-	}
-
-	bool operator >= (const std::string str) const{
-		return *this >= str.c_str();
-	}
-
-	template<int S>
-	bool operator >= (const SLString<S>& str) const{
-		return *this >= str.c_str();
-	}
-
-	bool operator <= (const char* pstr) const
-	{
-		return strcmp(m_szBuf, pstr) <= 0;
-	}
-
-	bool operator <= (const std::string str) const{
-		return *this <= str.c_str();
-	}
-
-	template<int S>
-	bool operator <= (const SLString<S>& str) const{
-		return *this <= str.c_str();
-	}
-
-	bool operator < (const char* pstr) const
-	{
-		return strcmp(m_szBuf, pstr) >= 0;
-	}
-
-	bool operator < (const std::string str) const{
-		return *this < str.c_str();
-	}
-
-	template<int S>
-	bool operator < (const SLString<S>& str) const{
-		return *this < str.c_str();
-	}
-
-	bool operator < (const SLString<SIZE>& str) const{
-		return *this < str.c_str();
-	}
-
-	bool operator > (const char* pstr) const{
-		return strcmp(m_szBuf, pstr) > 0;
-	}
-
-	bool operator > (const std::string str) const{
-		return *this > str.c_str();
-	}
-
-	template<int S>
-	bool operator > (const SLString<S>& str) const{
-		return *this > str.c_str();
-	}
-
-	bool operator != (const char* pstr) const{
-		return strcmp(m_szBuf, pstr) != 0;
-	}
-
-	bool operator != (const std::string str) const{
-		return *this != str.c_str();
-	}
-
-	template<int S>
-	bool operator != (const SLString<S>& str) const{
-		return *this != str.c_str();
+		for (int32 i = 0; i < count + 1; i++)
+			hash = 33 * hash + (size_t)m_szBuf[i];
+		return hash;
 	}
 
 private:
-	char    m_szBuf[SIZE];
+	char    m_szBuf[SIZE + 1];
 
 };// class SLString
-
-
-
-//template<int SIZE>
-//struct HashFunc
-//{
-//	size_t operator()(const SLString<SIZE> &str) const{
-//		unsigned long __h = 0;
-//		for (size_t i = 0; i < (size_t)str.length(); i++)
-//			__h = 5 * __h + str[i];
-//		return size_t(__h);
-//	}
-//};
-//
-//template<int SIZE>
-//struct EqualFunc
-//{
-//	bool operator()(const SLString<SIZE> &lstr, const SLString<SIZE> &rstr) const{
-//		return lstr == rstr;
-//	}
-//};
 
 } //namespace sl
 

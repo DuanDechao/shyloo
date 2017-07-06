@@ -1,6 +1,14 @@
 #ifndef _SL_LIB_NET_NETWORK_BASE_H_
 #define _SL_LIB_NET_NETWORK_BASE_H_
 #include "slmulti_sys.h"
+#ifndef WIN32
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <netinet/tcp.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+#include <fcntl.h>
+#endif
 namespace sl{
 namespace network{
 
@@ -113,7 +121,11 @@ enum Reason{
 
 };
 
+#ifdef WIN32
 typedef UINT_PTR			SLSOCKET;
+#else
+typedef uintptr_t			SLSOCKET;
+#endif
 
 //network stats
 extern uint64				g_numPacketsSent;

@@ -2,6 +2,7 @@
 #define SL_IMODULE_H
 #include "slikernel.h"
 #include "slstring_utils.h"
+#include "sltime.h"
 namespace sl
 {
 namespace api
@@ -85,7 +86,7 @@ typedef IModule * (*GetModuleFun)(void);
 #define GET_DLL_ENTRANCE	\
 	static IModule * plogicModule = NULL;	\
 	extern "C" IModule * GET_LOGIC_FUN() { \
-	srand(getTimeMilliSecond());	\
+	srand(sl::getTimeMilliSecond());	\
 	return plogicModule;	\
 }
 #endif // SL_OS_LINUX

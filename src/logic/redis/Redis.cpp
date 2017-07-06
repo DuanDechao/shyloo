@@ -205,8 +205,8 @@ void Redis::append(CommandBuf& buf, const void* val, const int32 size){
 }
 
 void Redis::test(){
-	IArgs<2, 128> args;
+	/*IArgs<2, 128> args;
 	args << "foo" << 35454646465;
 	args.fix();
-	exec(0, "set", args.out());
+	exec(0, "set", args.out());*/
 }

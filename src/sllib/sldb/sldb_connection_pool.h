@@ -24,7 +24,7 @@ private:
 	std::list<SLDBConnection*>		m_allConns;
 	std::list<SLDBConnection*>		m_freeConns;
 
-	CRITICAL_SECTION				m_allocConnectionMutex;	//分配connection时的互斥锁
+	//CRITICAL_SECTION				m_allocConnectionMutex;	//分配connection时的互斥锁
 };
 }
 }

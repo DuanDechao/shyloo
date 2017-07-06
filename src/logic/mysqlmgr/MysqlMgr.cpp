@@ -110,7 +110,7 @@ int32 MysqlMgr::escapeString(char* dest, const int32 destSize, const char* src, 
 
 void MysqlMgr::test(){
 	TestHandler* handler = NEW TestHandler();
-	auto& f = [&](sl::api::IKernel* pKernel, SQLCommand& sqlCommand){
+	auto f = [&](sl::api::IKernel* pKernel, SQLCommand& sqlCommand){
 		sqlCommand.table("user").insert(Field("id") = 1111122661331, Field("name") = "ddc\0ffc");
 	};
 	execSql(0, handler, f);

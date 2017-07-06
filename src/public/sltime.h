@@ -69,15 +69,7 @@ namespace sl
 		bool operator<=(CTimeSpan timeSpan) const {return m_timeSpan <= timeSpan.m_timeSpan;}
 		bool operator>=(CTimeSpan timeSpan) const {return m_timeSpan >= timeSpan.m_timeSpan;}
 
-		//时间格式化
-		/*
-			仅支持以下格式参数
-			%D - 天数
-			%H - 小时 (0-23)
-			%M - 分   (0-59)
-			%S - 秒   (0-59)
-			%% - 百分符号
-		*/
+		
 
 		std::string Format(const char* pszFormat) const
 		{
@@ -324,8 +316,6 @@ namespace sl
 		time_t m_time;
 
 	}; //class  CTime
-
-	
 
 	inline int64 getTimeMilliSecond(){
 		return (int64)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();

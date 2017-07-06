@@ -1,11 +1,10 @@
 #include "ObjectMgr.h"
-#include "slxml_reader.h"
 #include "slfile_utils.h"
 #include "slxml_reader.h"
 #include "ObjectProp.h"
 #include "MMObject.h"
 #include "TableControl.h"
-#include "IIdmgr.h"
+#include "IIdMgr.h"
 
 bool ObjectMgr::initialize(sl::api::IKernel * pKernel){
 	_self = this;
@@ -136,7 +135,7 @@ ObjectPropInfo* ObjectMgr::createTemplate(sl::api::IKernel* pKernel, const char*
 	sl::XmlReader propConf;
 	if (!propConf.loadXml(itor->second.c_str())){
 		SLASSERT(false, "can not load file %s", itor->second.c_str());
-		return false;
+		return nullptr;
 	}
 
 	ObjectPropInfo* propInfo = nullptr;

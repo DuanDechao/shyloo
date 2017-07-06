@@ -2,7 +2,6 @@
 #define SL_SLTIMER_MGR_H
 #include "sltimer.h"
 #include "sltimer_base.h"
-#include "sltime_stamp.h"
 #include "slsingleton.h"
 #include "sltimer_base.h"
 namespace sl{
