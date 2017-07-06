@@ -28,16 +28,6 @@ SOURCE_GROUP(api FILES ${SL_LIB_API})
 SOURCE_GROUP(public FILES ${PUBLIC})
 SOURCE_GROUP(\\ FILES ${SL_LIB_DB})
 
-IF(WIN32)
-	SET(MYSQL_LIB_DEBUG
-		debug "${PROJECT_SOURCE_DIR}/src/sllib/sldb/mysql/x64/lib/libmysql.lib"
-	)
-	SET(MYSQL_LIB_RELEASE
-		optimized "${PROJECT_SOURCE_DIR}/src/sllib/sldb/mysql/x64/lib/libmysql.lib"
-	)
-ENDIF(WIN32)
-
-
 ADD_LIBRARY(sldb SHARED
 	${SL_LIB_API}
 	${PUBLIC}

@@ -26,16 +26,15 @@ ADD_LIBRARY(Redis SHARED
 	${SL_LOGIC_DEFINE}
 )
 
-TARGET_LINK_LIBRARIES(Redis
-	${SL_LIB_DEBUG}
-	${SL_LIB_RELEASE}
-)
+IF(WIN32)
+TARGET_LINK_LIBRARIES(Redis slredis.lib slxml.lib)
+ENDIF(WIN32)
 
-IF(UNIX)
-TARGET_LINK_LIBRARIES(Redis
-    debug "${PROJECT_SOURCE_DIR}/build/linux/libsldb.so"
-	optimized "${PROJECT_SOURCE_DIR}/build/linux/libslredis.so"
-)
-ENDIF(UNIX)
+#IF(UNIX)
+#TARGET_LINK_LIBRARIES(Redis
+#    debug "${PROJECT_SOURCE_DIR}/build/linux/libslredis.so"
+#	optimized "${PROJECT_SOURCE_DIR}/build/linux/libslredis.so"
+#)
+#ENDIF(UNIX)
 
 SET_PROPERTY(TARGET Redis PROPERTY FOLDER "core")

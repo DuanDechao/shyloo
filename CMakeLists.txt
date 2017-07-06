@@ -79,41 +79,6 @@ SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/slshm_create.h"
 )
 
-IF(WIN32)
-	SET(THIRD_LIB_DEBUG
-		debug "${PROJECT_SOURCE_DIR}/thirdlibrary/mysql/lib/libmysql.lib"
-	)
-	
-	SET(THIRD_LIB_RELEASE
-		optimized "${PROJECT_SOURCE_DIR}/thirdlibrary/mysql/lib/libmysql.lib"
-	)
-	
-	SET(SL_LIB_DEBUG
-		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/slnet.lib"
-		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/sltimer.lib"
-		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/slxml.lib"
-		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/sldb.lib"
-		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/slthread.lib"
-		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/slredis.lib"
-		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/slshm.lib"
-	)
-	SET(SL_LIB_RELEASE
-		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/slnet.lib"
-		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/sltimer.lib"
-		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/slxml.lib"
-		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/sldb.lib"
-		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/slthread.lib"
-		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/slredis.lib"
-		optimized "${PROJECT_SOURCE_DIR}/build/windows/Release/slshm.lib"
-	)
-	SET(ATTR_LIBD
-		debug "${PROJECT_SOURCE_DIR}/build/windows/Debug/AttrGetter.lib"
-	)
-	SET(ATTR_LIB
-		optimized "${PROJECT_SOURCE_DIR}/build/windows/Debug/AttrGetter.lib"
-	)
-ENDIF(WIN32)
-
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/sllib)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/kernel)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/attrgen)

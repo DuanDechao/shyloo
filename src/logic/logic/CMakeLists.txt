@@ -26,15 +26,16 @@ ADD_LIBRARY(Logic SHARED
 	${SL_LOGIC_DEFINE}
 )
 
-TARGET_LINK_LIBRARIES(Logic
-	${SL_LIB_DEBUG}
-	${SL_LIB_RELEASE}
-	${ATTR_LIBD}
-	${ATTR_LIB}
-)
 IF(WIN32)
-TARGET_LINK_LIBRARIES(Logic "AttrGetter.lib")
+TARGET_LINK_LIBRARIES(Logic AttrGetter.lib slxml.lib)
 ENDIF(WIN32)
+
+#IF(UNIX)
+#TARGET_LINK_LIBRARIES(Logic
+# debug "${PROJECT_SOURCE_DIR}/build/linux/libAttrGetter.so"
+# optimized "${PROJECT_SOURCE_DIR}/build/linux/libAttrGetter.so"
+#)
+#ENDIF(UNIX)
 
 #SET_PROPERTY(TARGET Gate PROPERTY FOLDER "core")
 SET_PROPERTY(TARGET Logic PROPERTY FOLDER "framework")

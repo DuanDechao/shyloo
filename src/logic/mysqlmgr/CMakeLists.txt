@@ -30,13 +30,8 @@ ADD_LIBRARY(MysqlMgr SHARED
 	${SL_LOGIC_DEFINE}
 )
 
-TARGET_LINK_LIBRARIES(MysqlMgr
-	${SL_LIB_DEBUG}
-	${SL_LIB_RELEASE}
-)
-
-TARGET_LINK_LIBRARIES(MysqlMgr
-	"${PROJECT_SOURCE_DIR}/thirdlibrary/mysql/x64/lib/libmysql.lib"
-)
+IF(WIN32)
+TARGET_LINK_LIBRARIES(MysqlMgr sldb.lib slxml.lib)
+ENDIF(WIN32)
 
 SET_PROPERTY(TARGET MysqlMgr PROPERTY FOLDER "core")

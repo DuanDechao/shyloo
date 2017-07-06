@@ -30,16 +30,15 @@ ADD_LIBRARY(CacheDB SHARED
 	${SL_LOGIC_DEFINE}
 )
 
-TARGET_LINK_LIBRARIES(CacheDB
-	${SL_LIB_DEBUG}
-	${SL_LIB_RELEASE}
-)
+IF(WIN32)
+TARGET_LINK_LIBRARIES(CacheDB slxml.lib slredis.lib)
+ENDIF(WIN32)
 
-IF(UNIX)
-TARGET_LINK_LIBRARIES(CacheDB
-    debug "${PROJECT_SOURCE_DIR}/build/linux/libsldb.so"
-    optimized "${PROJECT_SOURCE_DIR}/build/linux/libslredis.so"
-)
-ENDIF(UNIX)
+#IF(UNIX)
+#TARGET_LINK_LIBRARIES(CacheDB
+#    debug "${PROJECT_SOURCE_DIR}/build/linux/libslredis.so"
+#    optimized "${PROJECT_SOURCE_DIR}/build/linux/libslredis.so"
+#)
+#ENDIF(UNIX)
 
 SET_PROPERTY(TARGET CacheDB PROPERTY FOLDER "core")
