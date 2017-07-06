@@ -61,9 +61,9 @@ int SelectPoller::processPendingEvents(int64 maxWait){
 #ifdef SL_OS_WINDOWS
 	if(_fdLargest == -1){
 		Sleep(int32(maxWait));
-	}
+	}else
 #endif // SL_OS_WINDOWS
-	else{
+	{
 		countReady = select(_fdLargest + 1, &readFDs, _fdWriteCount ? &writeFDs: NULL,
 			NULL, &nextTimeout);
 	}

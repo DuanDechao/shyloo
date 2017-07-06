@@ -32,7 +32,14 @@ TARGET_LINK_LIBRARIES(ShadowMgr
 	${ATTR_LIBD}
 	${ATTR_LIB}
 )
-TARGET_LINK_LIBRARIES(ShadowMgr "AttrGetter.lib")
+
+IF(UNIX)
+TARGET_LINK_LIBRARIES(ShadowMgr
+ debug "${PROJECT_SOURCE_DIR}/build/linux/libAttrGetter.so"
+ optimized "${PROJECT_SOURCE_DIR}/build/linux/libAttrGetter.so"
+)
+ENDIF(UNIX)
+
 
 #SET_PROPERTY(TARGET Gate PROPERTY FOLDER "core")
 SET_PROPERTY(TARGET ShadowMgr PROPERTY FOLDER "framework")

@@ -140,10 +140,10 @@ PacketReceiver::RecvState UDPPacketReceiver::checkSocketErrors(int len, bool exp
 		}
 	}*/
 #else
-	if (wsaErr == WSAECONNRESET)
+/*	if (wsaErr == WSAECONNRESET)
 	{
 		return RECV_STATE_CONTINUE;
-	}
+	}*/
 #endif // unix
 
 #ifdef _WIN32

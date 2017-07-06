@@ -4,6 +4,7 @@
 #include "slmulti_sys.h"
 #include <vector>
 #include <string>
+#include <algorithm>
 using namespace std;
 namespace sl
 {

@@ -32,5 +32,11 @@ TARGET_LINK_LIBRARIES(PropDelaySender
 	${ATTR_LIBD}
 	${ATTR_LIB}
 )
-TARGET_LINK_LIBRARIES(PropDelaySender "AttrGetter.lib")
+IF(UNIX)
+TARGET_LINK_LIBRARIES(PropDelaySender
+  debug "${PROJECT_SOURCE_DIR}/build/linux/libAttrGetter.so"
+  optimized "${PROJECT_SOURCE_DIR}/build/linux/libAttrGetter.so"
+)
+ENDIF(UNIX)
+
 SET_PROPERTY(TARGET PropDelaySender PROPERTY FOLDER "framework")

@@ -1,6 +1,8 @@
 #include "slendpoint.h"
 #include "slpacket_sender.h"
+#ifdef SL_OS_WINDOWS
 #include <IPHlpApi.h>
+#endif
 namespace sl{
 namespace network{
 

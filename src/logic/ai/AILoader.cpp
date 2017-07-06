@@ -15,7 +15,7 @@ AIMachine* AILoader::load(sl::api::IKernel* pKernel, const char* file, int32& in
 	sl::XmlReader aiConf;
 	if (!aiConf.loadXml(file)){
 		SLASSERT(false, "load ai file %s failed", file);
-		return false;
+		return nullptr;
 	}
 	const sl::xml::ISLXmlNode& root = aiConf.root();
 	interval = root.getAttributeInt32("interval");

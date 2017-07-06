@@ -83,7 +83,7 @@ struct Expr{
 	Expr(const Field& field, const string& op, T& value){
 		std::ostringstream os;
 		bool bEscape = SerializeHelper::Serialize(os, value);
-		string& valStr = os.str();
+		string valStr = os.str();
 		_exprs.push_back(NEW SetExpr(field._field + op, valStr.c_str(), valStr.size(), bEscape));
 	}
 

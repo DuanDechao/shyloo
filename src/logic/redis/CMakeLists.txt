@@ -30,8 +30,12 @@ TARGET_LINK_LIBRARIES(Redis
 	${SL_LIB_DEBUG}
 	${SL_LIB_RELEASE}
 )
+
+IF(UNIX)
 TARGET_LINK_LIBRARIES(Redis
-	"${PROJECT_SOURCE_DIR}/build/windows/Debug/slredis.lib"
+    debug "${PROJECT_SOURCE_DIR}/build/linux/libsldb.so"
+	optimized "${PROJECT_SOURCE_DIR}/build/linux/libslredis.so"
 )
+ENDIF(UNIX)
 
 SET_PROPERTY(TARGET Redis PROPERTY FOLDER "core")

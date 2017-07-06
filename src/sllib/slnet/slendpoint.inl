@@ -2,10 +2,17 @@ namespace sl{
 namespace network{
 inline void EndPoint::socket(int32 type){
 	this->setFileDescriptor((int32)::socket(AF_INET, type, 0));
+#ifdef SL_OS_WINDOWS
 	if((_socket == SL_INVALID_SOCKET) && (WSAGetLastError() == WSANOTINITIALISED)){
 		EndPoint::initNetwork();
 		this->setFileDescriptor((int32)::socket(AF_INET, type, 0));
 	}
+#else
+    if(_socket == SL_INVALID_SOCKET){
+        EndPoint::initNetwork();
+       this->setFileDescriptor((int32)::socket(AF_INET, type, 0));
+    }   
+#endif
 }
 
 inline int32 EndPoint::setnodelay(bool nodelay /* = true */)

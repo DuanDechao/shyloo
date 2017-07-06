@@ -154,8 +154,8 @@ void DataLand::landDataToDB(LandData* data){
 	SLASSERT(data->getKeyType() == TYPE_INTEGER || data->getKeyType() == TYPE_STRING, "wtf");
 	
 	std::set<int32>& updateCols = data->getUpdateCols();
-	auto& readColsFunc = [&](sl::api::IKernel* pKernel, ICacheDBReader* reader){
-		auto& addFunc = [&reader, &data](int32 col){
+	auto readColsFunc = [&](sl::api::IKernel* pKernel, ICacheDBReader* reader){
+		auto addFunc = [&reader, &data](int32 col){
 			reader->readColumn(CacheDB::getInstance()->getColumnByIdx(data->getTableName(), col));
 		};
 		std::for_each(updateCols.begin(), updateCols.end(), addFunc);
@@ -163,7 +163,7 @@ void DataLand::landDataToDB(LandData* data){
 	
 	switch (data->getOpt()){
 	case DB_OPT::DB_OPT_UPDATE:{
-		auto& readResultFunc = [&](sl::api::IKernel* pKernel, ICacheDBReadResult* result){
+		auto readResultFunc = [&](sl::api::IKernel* pKernel, ICacheDBReadResult* result){
 			if (result->count() > 0){
 				updateToDB(data, updateCols, result);
 			}
@@ -181,7 +181,7 @@ void DataLand::landDataToDB(LandData* data){
 	}
 
 	case DB_OPT::DB_OPT_SAVE:{
-		auto& saveResultFunc = [&](sl::api::IKernel* pKernel, ICacheDBReadResult* result){
+		auto saveResultFunc = [&](sl::api::IKernel* pKernel, ICacheDBReadResult* result){
 			if (result->count() > 0){
 				saveToDB(data, updateCols, result);
 			}
@@ -211,7 +211,7 @@ void DataLand::updateToDB(LandData* data, std::set<int32>& cols, ICacheDBReadRes
 	IDBCall* callor = CREATE_DB_CALL(_db, data->getTick(), 0);
 	callor->update(data->getTableName(), [&](sl::api::IKernel* pKernel, IDBUpdateParamAdder* adder, IDBCallCondition* condition){
 		int32 idx = 0;
-		auto& readFunc = [&idx, &result, &data, &adder](int32 col){
+		auto readFunc = [&idx, &result, &data, &adder](int32 col){
 			const char* colStr = CacheDB::getInstance()->getColumnByIdx(data->getTableName(), col);
 			int8 colType = CacheDB::getInstance()->getColumnType(data->getTableName(), colStr);
 			switch (colType){
@@ -252,7 +252,7 @@ void DataLand::saveToDB(LandData* data, std::set<int32>& cols, ICacheDBReadResul
 	IDBCall* callor = CREATE_DB_CALL(_db, data->getTick(), 0);
 	callor->save(data->getTableName(), [&](sl::api::IKernel* pKernel, IDBSaveParamAdder* adder){
 		int32 idx = 0;
-		auto& readFunc = [&idx, &result, &data, &adder](int32 col){
+		auto readFunc = [&idx, &result, &data, &adder](int32 col){
 			const char* colStr = CacheDB::getInstance()->getColumnByIdx(data->getTableName(), col);
 			int8 colType = CacheDB::getInstance()->getColumnType(data->getTableName(), colStr);
 			switch (colType){

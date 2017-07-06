@@ -75,7 +75,6 @@ typedef int SOCKET;
 #define MAX_PATH 260
 #define strtok_s strtok_r
 #define stricmp strcasecmp
-#define max(a, b) ((a > b) ? (a) : (b))
 #endif
 
 #endif

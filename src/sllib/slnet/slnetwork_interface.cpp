@@ -129,7 +129,7 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 	int32 ret = 0;
 	if ((ret = pSvrEndPoint->connect(htons(serverPort), address)) == -1){
 		int32 error = SL_WSA_ERRNO;
-		if (error != WSAEWOULDBLOCK){
+		if (error != SL_EWOULDBLOCK){
 			//SLASSERT(false, "wtf");
 			pSvrEndPoint->closeEndPoint();
 			return false;

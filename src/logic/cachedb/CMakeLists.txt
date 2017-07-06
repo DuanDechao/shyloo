@@ -34,8 +34,12 @@ TARGET_LINK_LIBRARIES(CacheDB
 	${SL_LIB_DEBUG}
 	${SL_LIB_RELEASE}
 )
+
+IF(UNIX)
 TARGET_LINK_LIBRARIES(CacheDB
-	"${PROJECT_SOURCE_DIR}/build/windows/Debug/slredis.lib"
+    debug "${PROJECT_SOURCE_DIR}/build/linux/libsldb.so"
+    optimized "${PROJECT_SOURCE_DIR}/build/linux/libslredis.so"
 )
+ENDIF(UNIX)
 
 SET_PROPERTY(TARGET CacheDB PROPERTY FOLDER "core")

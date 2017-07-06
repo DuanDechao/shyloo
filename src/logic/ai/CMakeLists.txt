@@ -58,6 +58,11 @@ TARGET_LINK_LIBRARIES(AI
 	${ATTR_LIBD}
 	${ATTR_LIB}
 )
-TARGET_LINK_LIBRARIES(AI "AttrGetter.lib")
+IF(UNIX)
+TARGET_LINK_LIBRARIES(AI
+	debug "${PROJECT_SOURCE_DIR}/build/linux/libAttrGetter.so"
+	optimized "${PROJECT_SOURCE_DIR}/build/linux/libAttrGetter.so"
+)
+ENDIF(UNIX)
 
 SET_PROPERTY(TARGET AI PROPERTY FOLDER "framework")

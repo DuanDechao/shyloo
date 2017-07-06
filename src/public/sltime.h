@@ -204,12 +204,12 @@ namespace sl
 		{
 			if(ptm != NULL)
 			{
-				gmtime_s(ptm, &m_time);
+				//gmtime(ptm, &m_time);
 				return ptm;
 			}
 			else
 			{
-				gmtime_s(ptm, &m_time);
+				//gmtime_s(ptm, &m_time);
 				return ptm;
 			}
 		}
@@ -219,7 +219,7 @@ namespace sl
 			if(ptm != NULL)
 			{
 				struct tm* ptmTemp;
-				localtime_s(ptmTemp, &m_time);
+				//localtime_s(ptmTemp, &m_time);
 				if(ptmTemp == NULL)
 				{
 					return NULL;
@@ -231,7 +231,7 @@ namespace sl
 			else
 			{
 				struct tm* ptmTemp;
-				localtime_s(ptmTemp, &m_time);
+				//localtime_s(ptmTemp, &m_time);
 				return ptmTemp;
 			}
 		}
@@ -239,8 +239,8 @@ namespace sl
 		static bool IsSameDay(time_t time1, time_t time2)
 		{
 			struct tm t1,t2;
-			localtime_s(&t1, &time1);
-			localtime_s(&t1, &time2);
+			//localtime_s(&t1, &time1);
+			//localtime_s(&t1, &time2);
 			return (t1.tm_year == t2.tm_year && t1.tm_mon == t2.tm_mon && t1.tm_mday == t2.tm_mday);
 		}
 
@@ -250,8 +250,8 @@ namespace sl
 			time_t day1 = static_cast<time_t>(time1);
 			time_t day2 = static_cast<time_t>(time2);
 			struct tm t1, t2;
-			localtime_s(&t1, &day1);
-			localtime_s(&t2, &day2);
+			//localtime_s(&t1, &day1);
+			//localtime_s(&t2, &day2);
 			if(t1.tm_year > t2.tm_year)
 			{
 				return true;
@@ -306,7 +306,7 @@ namespace sl
 		char* Format(char* pszBuffer, int iMaxLen, const char* pszFormat) const{
 			time_t time = m_time;
 			struct tm ptmTemp;
-			localtime_s(&ptmTemp, &time);
+			//localtime_s(&ptmTemp, &time);
 			if(!strftime(pszBuffer, iMaxLen, pszFormat, &ptmTemp)){
 				pszBuffer[0] = '\0';
 			}
