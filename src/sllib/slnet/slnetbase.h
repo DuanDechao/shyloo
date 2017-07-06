@@ -129,7 +129,6 @@ typedef uintptr_t			SLSOCKET;
 
 #ifdef SL_OS_WINDOWS
 //Windows socket的错误码和含义和linux不一样，通过宏统一
-#define SL_ERRNO			GetLastError()
 #define SL_WSA_ERRNO		WSAGetLastError()
 #define SL_EWOULDBLOCK		WSAEWOULDBLOCK		//	10035
 #define SL_EINPROGRESS		WSAEINPROGRESS		//	10036
@@ -143,7 +142,6 @@ typedef int socklen_t;
 #endif
 
 #ifdef SL_OS_LINUX
-#define SL_ERRNO			errno
 #define SL_WSA_ERRNO		errno
 #define SL_EWOULDBLOCK		EWOULDBLOCK
 #define SL_EINPROGRESS		EINPROGRESS

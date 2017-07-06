@@ -21,7 +21,7 @@ public:
 		SLASSERT(pszKey != NULL, "wtf");
 
 		_key.assign(pszKey);
-		_size	=	sSize;
+		_size	=	(DWORD)sSize;
 		_shm	=	CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, _size, _key.c_str());
 		
 		if(_shm && (errno == ERROR_ALREADY_EXISTS)){

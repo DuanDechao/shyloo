@@ -31,6 +31,7 @@
 #define VSNPRINTF vsnprintf
 #define GetNowProcessId		getpid
 #define GetCurrentThreadId	pthread_self
+#define SL_ERRNO			errno
 
 #ifdef _DEBUG
 #define  ECHO(format, a...) {\

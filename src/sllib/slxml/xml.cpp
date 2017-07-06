@@ -1,10 +1,8 @@
 #define SL_DLL_EXPORT
 #include "xml.h"
 #include "slstring_utils.h"
-namespace sl
-{
-namespace xml
-{
+namespace sl{
+namespace xml{
 
 CSLXmlNode::CSLXmlNode(const TiXmlElement* poTiXmlNode){
 	m_value = poTiXmlNode->Value();
@@ -14,8 +12,7 @@ CSLXmlNode::CSLXmlNode(const TiXmlElement* poTiXmlNode){
 	loadText(poTiXmlNode);
 }
 
-CSLXmlNode::~CSLXmlNode()
-{
+CSLXmlNode::~CSLXmlNode(){
 	std::map<std::string, CSLXmlArray*>::iterator iter = m_xmlChilds.begin();
 	for (; iter != m_xmlChilds.end(); ++iter){
 		DEL iter->second;
@@ -25,50 +22,42 @@ CSLXmlNode::~CSLXmlNode()
 	m_allChilds.clear();
 }
 
-int8 CSLXmlNode::getAttributeInt8(const char* name) const
-{
+int8 CSLXmlNode::getAttributeInt8(const char* name) const{
 	const AttrVal* val = findAttr(name);
 	return val ? (int8)val->AttrInt64 : 0;
 }
 
-int16 CSLXmlNode::getAttributeInt16(const char* name) const
-{
+int16 CSLXmlNode::getAttributeInt16(const char* name) const{
 	const AttrVal* val = findAttr(name);
 	return val ? (int16)val->AttrInt64 : 0;
 }
 
-int32 CSLXmlNode::getAttributeInt32(const char* name) const
-{
+int32 CSLXmlNode::getAttributeInt32(const char* name) const{
 	const AttrVal* val = findAttr(name);
 	return val ? (int32)val->AttrInt64 : 0;
 }
 
-int64 CSLXmlNode::getAttributeInt64(const char* name) const
-{
+int64 CSLXmlNode::getAttributeInt64(const char* name) const{
 	const AttrVal* val = findAttr(name);
 	return val ? val->AttrInt64 : 0;
 }
 
-const char * CSLXmlNode::getAttributeString(const char* name) const
-{
+const char * CSLXmlNode::getAttributeString(const char* name) const{
 	const AttrVal* val = findAttr(name);
 	return val ? val->AttrStr.c_str() : nullptr;
 }
 
-float CSLXmlNode::getAttributeFloat(const char* name) const
-{
+float CSLXmlNode::getAttributeFloat(const char* name) const{
 	const AttrVal* val = findAttr(name);
 	return val ? val->AttrFloat : (float)0.0;
 }
 
-bool CSLXmlNode::getAttributeBoolean(const char* name) const
-{
+bool CSLXmlNode::getAttributeBoolean(const char* name) const{
 	const AttrVal* val = findAttr(name);
 	return val ? val->AttrBoolean : false;
 }
 
-const ISLXmlNode& CSLXmlNode::operator[](const char* nodeName) const
-{
+const ISLXmlNode& CSLXmlNode::operator[](const char* nodeName) const{
 	if (nullptr == nodeName){
 		SLASSERT(false, "invalid params");
 		return m_xmlNull;
@@ -111,8 +100,7 @@ void CSLXmlNode::loadText(const TiXmlElement* element){
 		m_text = element->GetText();
 }
 
-const CSLXmlNode::AttrVal* CSLXmlNode::findAttr(const char* name) const
-{
+const CSLXmlNode::AttrVal* CSLXmlNode::findAttr(const char* name) const{
 	if (name == nullptr)
 		return nullptr;
 
@@ -128,8 +116,7 @@ CSLXmlReader::CSLXmlReader()
 	:m_pRootNode(nullptr)
 {}
 
-CSLXmlReader::~CSLXmlReader()
-{
+CSLXmlReader::~CSLXmlReader(){
 	if (m_pRootNode)
 		delete m_pRootNode;
 	m_pRootNode = nullptr;
@@ -154,14 +141,12 @@ bool CSLXmlReader::loadXmlFile(const char* path){
 	return true;
 }
 
-const ISLXmlNode& CSLXmlReader::root() const
-{
+const ISLXmlNode& CSLXmlReader::root() const{
 	SLASSERT(m_pRootNode, "where is root node");
 	return *m_pRootNode;
 }
 
-void CSLXmlReader::release()
-{
+void CSLXmlReader::release(){
 	DEL this;
 }
 

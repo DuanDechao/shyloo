@@ -23,10 +23,11 @@
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "shlwapi.lib")
 
-#define CSLEEP(n) Sleep(n)
-#define SafeSprintf __SafeSprintf
-#define VSNPRINTF _vsnprintf
-#define atoll _atoi64
+#define CSLEEP(n)			Sleep(n)
+#define SafeSprintf			__SafeSprintf
+#define VSNPRINTF			_vsnprintf
+#define atoll				_atoi64
+#define SL_ERRNO			GetLastError()
 
 #define ECHO(format, ...){	\
 	char _log[4096] = {0};	\
