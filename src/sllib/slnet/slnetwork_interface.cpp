@@ -75,7 +75,7 @@ bool NetworkInterface::createListeningSocket(const char* listeningInterface, uin
 	pEP->getlocaladdress((uint16*)&address._port,(uint32*)&address._ip);
 
 	if(0 == address._ip){
-		uint32 addr;
+		uint32 addr = 0;
 		if(0 == pEP->getDefaultInterfaceAddress(addr)){
 			address._ip = addr;
 		}
@@ -182,7 +182,7 @@ Channel* NetworkInterface::findChannel(const Address& addr){
 Channel* NetworkInterface::findChannel(int fd){
 	ChannelMap::iterator iter = _channelMap.begin();
 	for (; iter != _channelMap.end(); ++iter){
-		if(iter->second->getEndPoint() && *iter->second->getEndPoint() == fd)
+		if(iter->second->getEndPoint() && *iter->second->getEndPoint() == (uint32)fd)
 			return iter->second;
 	}
 

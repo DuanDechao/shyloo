@@ -8,8 +8,8 @@ SLRedisConnection::SLRedisConnection(SLRedisMgr* redisMgr, const char* ip, const
 	_port(port),
 	_ctx(nullptr),
 	_timeOut(timeOut),
-	_ip(ip),
-	_passwd(passwd)
+	_passwd(passwd),
+    _ip(ip)
 {}
 
 SLRedisConnection::~SLRedisConnection(){
@@ -98,7 +98,10 @@ bool SLRedisConnection::exec(char* command, const int32 size, const std::functio
 	
 	struct timeval tv = { 0, 1000 };
 	int32 setRet = redisSetTimeout(_ctx, tv);
-	SLASSERT(setRet == REDIS_OK, "wtf");
+	if(setRet != REDIS_OK){
+		SLASSERT(false, "wtf");
+		return false;
+	}
 
 	redisGetReply(_ctx, (void**)&reply);
 	if (NULL == reply) {

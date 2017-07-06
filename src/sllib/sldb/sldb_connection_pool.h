@@ -10,7 +10,7 @@ class SLDBConnectionPool : public ISLDBConnectionPool{
 public:
 	SLDBConnectionPool(int32 maxDBConnectionNum, const char* szHostName, const int32 port, const char* szName, const char* szPwd, 
 		const char* szDBName, const char* szCharSet);
-	~SLDBConnectionPool();
+	virtual ~SLDBConnectionPool();
 
 	virtual ISLDBConnection* SLAPI allocConnection();
 	virtual void SLAPI releaseConnection(ISLDBConnection* pConn);

@@ -55,8 +55,8 @@ protected:
 		_nodeType(0),
 		_nodeId(0),
 		_connect(false),
-		_ip(""),
 		_port(0),
+		_ip(""),
 		_ipcTransfor(false)
 	{}
 

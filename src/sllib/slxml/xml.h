@@ -4,10 +4,8 @@
 #include "tinyxml.h"
 #include <vector>
 #include <map>
-namespace sl
-{
-namespace xml
-{
+namespace sl{
+namespace xml{
 
 class CSLXMLNull : public ISLXmlNode{
 	virtual int8 SLAPI getAttributeInt8(const char* name) const { SLASSERT(false, "this is null xml node"); return 0; }
@@ -80,7 +78,7 @@ private:
 class CSLXmlArray : public ISLXmlNode{
 public:
 	CSLXmlArray(const char* value) :m_value(value){}
-	~CSLXmlArray(){
+	virtual	~CSLXmlArray(){
 		for (int32 i = 0; i < (int32)m_elements.size(); i++){
 			DEL m_elements[i];
 		}
@@ -123,7 +121,7 @@ private:
 class CSLXmlReader : public ISLXmlReader{
 public:
 	CSLXmlReader();
-	~CSLXmlReader();
+	virtual ~CSLXmlReader();
 	virtual bool SLAPI loadXmlFile(const char* path);
 	virtual const ISLXmlNode& SLAPI root() const;
 	virtual void SLAPI release();

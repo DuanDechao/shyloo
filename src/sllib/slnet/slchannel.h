@@ -101,6 +101,7 @@ private:
 
 private:
 	enum Flags{
+		FLAG_NONE		=   0x00000000,
 		FLAG_SENDING	=	0x00000001,			///< 发送信息中
 		FLAG_DESTROYED	=	0x00000002,			///< 通道已经销毁
 		FLAG_CONNECTED	=	0x00000004,			///< 通道建立连接

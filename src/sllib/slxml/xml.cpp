@@ -131,7 +131,7 @@ bool CSLXmlReader::loadXmlFile(const char* path){
 		return false;
 
 	TiXmlElement* xmlNode = doc.RootElement();
-	const char* dn = xmlNode->Value();
+   //	const char* dn = xmlNode->Value();
 	if (nullptr == xmlNode)
 		return false;
 	m_pRootNode = new CSLXmlNode(xmlNode);

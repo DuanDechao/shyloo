@@ -158,6 +158,8 @@ int64 SLTimerMgr::process(int64 overTime){
 		case sl::timer::CSLTimerBase::TIME_RECREATE: reCreateTimer(pTimer); break;
 		case sl::timer::CSLTimerBase::TIME_REMOVE: endTimer(pTimer); break;
 		case sl::timer::CSLTimerBase::TIME_DESTORY: pTimer->release(); break;
+		case sl::timer::CSLTimerBase::TIME_PAUSED: break;
+		default: break;
 		}
 	}
 

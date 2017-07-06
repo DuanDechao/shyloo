@@ -57,9 +57,9 @@ PacketReceiver::RecvState TCPPacketReceiver::checkSocketErrors(int len, bool exp
 
 	if(
 #ifdef SL_OS_WINDOWS
-		wsaErr = WSAEWOULDBLOCK && !expectingPacket		///< Send出错大概是缓冲区满了， recv出错已经无数据可读了
+		wsaErr == WSAEWOULDBLOCK && !expectingPacket		///< Send出错大概是缓冲区满了， recv出错已经无数据可读了
 #else
-		errno = EAGAIN && !expectingPacket
+		errno == EAGAIN && !expectingPacket
 #endif
 		)
 	{

@@ -166,7 +166,7 @@ int32 SLRedisCallResult::Count() const {
 bool SLRedisCallResult::GetResult(int32 idx, const std::function<bool(const ISLRedisResult *)>& f) const {
 	if (_reply->type == REDIS_REPLY_ARRAY) {
 		SLASSERT(idx >= 0 && idx < _reply->elements, "out of range");
-		if (idx >= 0 && idx < _reply->elements) {
+		if (idx >= 0 && (uint32)idx < _reply->elements) {
 			SLRedisCallResult rst(_reply->element[idx]);
 			return f(&rst);
 		}

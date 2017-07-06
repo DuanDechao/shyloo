@@ -86,7 +86,8 @@ inline int32 EndPoint::joinMulticastGroup(uint32 networkAddr){
 #ifdef SL_OS_WINDOWS
 	return -1;
 #else
-	struct ip_mreqn req;
+	//struct ip_mreqn req;
+	return -1;
 #endif
 }
 
@@ -94,12 +95,13 @@ inline int32 EndPoint::quitMulticastGroup(uint32 networkAddr){
 #ifdef SL_OS_WINDOWS
 	return -1;
 #else
-	struct ip_mreqn req;
+//	struct ip_mreqn req;
+	return -1;
 #endif
 }
 
 inline int32 EndPoint::closeEndPoint(){
-	if(_socket == -1){
+	if(_socket == SL_INVALID_SOCKET){
 		return 0;
 	}
 #ifdef SL_OS_LINUX
@@ -112,11 +114,8 @@ inline int32 EndPoint::closeEndPoint(){
 		this->setFileDescriptor(-1);
 	}
 
-#ifdef SL_OS_WINDOWS
 	_socket = SL_INVALID_SOCKET;
-#else
-	_socket = -1;
-#endif
+
 	_address = Address((uint32)0,0);
 
 	return ret;
@@ -270,7 +269,7 @@ inline int32 EndPoint::recv(void* gramData, int32 gramSize){
 
 #ifdef SL_OS_LINUX
 inline int32 EndPoint::getInterfaceFlags(char* name, int32& flag){
-
+    return 0;
 }
 #else
 inline int32 EndPoint::getInterfaceFlags(char* name, int32& flag){

@@ -12,7 +12,7 @@ namespace network{
 class CSLNetModule: public ISLNet, public CSingleton<CSLNetModule>{
 public:
 	CSLNetModule();
-	~CSLNetModule();
+	virtual ~CSLNetModule();
 
 	virtual ISLListener* SLAPI createListener();
 	virtual ISLConnector* SLAPI createConnector();

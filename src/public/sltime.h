@@ -244,7 +244,7 @@ namespace sl
 			return (t1.tm_year == t2.tm_year && t1.tm_mon == t2.tm_mon && t1.tm_mday == t2.tm_mday);
 		}
 
-		static bool CompareTime(int time1, int time2, int iDay)
+		/*static bool CompareTime(int time1, int time2, int iDay)
 		{
 			time1 += iDay * 24 * 3600;
 			time_t day1 = static_cast<time_t>(time1);
@@ -282,7 +282,7 @@ namespace sl
 			{
 				return false;
 			}
-		}
+		}*/
 
 		bool IsSameDay(time_t times)
 		{
@@ -305,9 +305,9 @@ namespace sl
 
 		char* Format(char* pszBuffer, int iMaxLen, const char* pszFormat) const{
 			time_t time = m_time;
-			struct tm ptmTemp;
-			//localtime_s(&ptmTemp, &time);
-			if(!strftime(pszBuffer, iMaxLen, pszFormat, &ptmTemp)){
+			struct tm *ptmTemp;
+			ptmTemp = localtime(&time);
+			if(!strftime(pszBuffer, iMaxLen, pszFormat, ptmTemp)){
 				pszBuffer[0] = '\0';
 			}
 			return pszBuffer;

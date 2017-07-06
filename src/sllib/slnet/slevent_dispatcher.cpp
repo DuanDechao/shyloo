@@ -46,7 +46,7 @@ void EventDispatcher::processUntilBreak(int64 overTime){
 	int64 tick = sl::getTimeMilliSecond();
 	while(_breakProcessing != EVENT_DISPATCHER_STATUS_BREAK_PROCESSING){
 		this->processOnce(overTime);
-		if ((sl::getTimeMilliSecond() - tick) >= (uint64)overTime){
+		if ((sl::getTimeMilliSecond() - tick) >= overTime){
 			breakProcessing(true);
 		}
 	}

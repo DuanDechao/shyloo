@@ -9,7 +9,7 @@ namespace db
 class SLDBConnection : public ISLDBConnection{
 public:
 	SLDBConnection(ISLDBConnectionPool* pConnPool);
-	~SLDBConnection();
+    virtual	~SLDBConnection();
 	virtual bool open(const char* szHostName, const int32 port, const char* szName, const char* szPwd, const char* szDBName, const char* szCharSet);
 	virtual bool SLAPI reOpen();
 	virtual ISLDBResult* SLAPI executeWithResult(const char* commandSql);

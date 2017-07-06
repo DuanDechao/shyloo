@@ -13,8 +13,8 @@ ListenerReceiver::ListenerReceiver(EndPoint* endpoint, NetworkInterface* network
 	 _networkInterface(networkInterface),
 	 _pSessionFactory(nullptr),
 	 _pPacketParser(nullptr),
-	 _sendSize(0),
-	 _recvSize(0)
+	 _recvSize(0),
+	 _sendSize(0)
 {}
 
 ListenerReceiver::~ListenerReceiver(){

@@ -8,7 +8,11 @@
 
 namespace sl{
 namespace network{
+
+#ifdef SL_OS_WINDOWS
 #pragma comment(lib,"Iphlpapi.lib")
+#endif
+
 class EndPoint{
 public:
 	inline static EndPoint* create(Address address){

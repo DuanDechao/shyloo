@@ -71,6 +71,7 @@ bool EndPoint::getInterfaces(std::map<uint32, std::string>& interfaces){
 	}
 	return count > 0;
 #else
+	return true;
 #endif
 }
 

@@ -12,17 +12,20 @@ namespace network{
 
 sl::SLPool<Channel>  Channel::s_pool;
 Channel::Channel(NetworkInterface* networkInterface, const EndPoint* pEndPoint, ISLPacketParser* poPacketParser, const int32 recvSize, const int32 sendSize, ProtocolType pt)
-	:_flags(0),
-	_protocolType(pt),
+	:_protocolType(pt),
 	_lastReceivedTime(0),
+	_flags(FLAG_NONE),
+	_recvBuf(nullptr),
+	_sendBuf(nullptr),
+	_recvSize(recvSize),
+    _sendSize(sendSize),
+
 	_numPacketsSent(0),
 	_numPacketsReceived(0),
 	_numBytesSent(0),
 	_numBytesReceived(0),
 	_lastTickBytesReceived(0),
 	_lastTickBytesSent(0),
-	_recvSize(recvSize),
-	_sendSize(sendSize),
 
 	_pNetworkInterface(networkInterface),
 	_pSession(NULL),

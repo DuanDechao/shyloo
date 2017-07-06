@@ -107,7 +107,7 @@ public:
 	static string & RepleaceAll(string& str, const string& oldstr, const string& newstr){
 		do{
 			string::size_type pos(0);
-			if(pos == str.find(oldstr) != string::npos){
+			if((pos = str.find(oldstr)) != string::npos){
 				str.replace(pos, oldstr.length(), newstr);
 			}
 			else{

@@ -11,10 +11,10 @@ CSLTimerBase::CSLTimerBase(ISLTimer* pTimer, jiffies_t delay, int32 count, jiffi
 	:m_stat(TIME_RECREATE),
 	m_pause(0),
 	m_pTimerObj(pTimer),
+	m_expire(delay),
 	m_bDelay(true),
 	m_iCount(count),
 	m_interval(interval),
-	m_expire(delay),
 	m_recursion(0)
 {}
 
