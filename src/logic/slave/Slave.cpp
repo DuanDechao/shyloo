@@ -15,6 +15,36 @@
 #define EXECUTE_CMD_BALANCE_PORT_SIZE	14
 #define EXECUTE_CMD_ID_SIZE			4
 
+#define NODE_CHECK_INTERVAL			500
+
+#ifdef SL_OS_LINUX
+#define EXECUTE_NAME				"shyloo"
+#define MAX_CMD_ARGS_COUNT			256
+#endif
+
+
+void Slave::CheckNodeTimer::onTime(sl::api::IKernel* pKernel, int64 timetick){
+#ifdef SL_OS_LINUX
+	if (_node.process > 0){
+		int32 status = 0;
+		pid_t ret = waitpid(_node.process, &status, WNOHANG);
+		if (ret != 0){
+			if (ret > 0){
+				TRACE_LOG("process [%s] is lost, try restart", _node.cmd);
+				_node.process = Slave::startNode(pKernel, _node.cmd);
+			}
+			else{
+				ECHO_ERROR("wait pid %s failed[%d]", _node.cmd, SL_ERRNO);
+			}
+		}
+	}
+	else{
+		TRACE_LOG("process [%s] is not running, try again", _node.cmd);
+		_node.process = Slave::startNode(pKernel, _node.cmd);
+	}
+#endif
+}
+
 bool Slave::initialize(sl::api::IKernel * pKernel){
 	sl::XmlReader server_conf;
 	if (!server_conf.loadXml(pKernel->getCoreFile())){
@@ -43,10 +73,18 @@ bool Slave::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
 
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::MASTER_MSG_START_NODE, Slave::openNewNode);
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::MASTER_MSG_STOP_NODES, Slave::stopNodes);
 
 	return true;
 }
 bool Slave::destory(sl::api::IKernel * pKernel){
+	for (auto itor = _cmds.begin(); itor != _cmds.end(); ++itor){
+		if (itor->second.timer){
+			pKernel->killTimer(itor->second.timer);
+			itor->second.timer = nullptr;
+		}
+	}
+
 	DEL this;
 	return true;
 }
@@ -63,6 +101,15 @@ void Slave::openNewNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId,
 			startNode(pKernel, iter->second.cmd);
 		else
 			startNewNode(pKernel, _executes[newNodeType].name, _executes[newNodeType].cmd, newNodeType, newNodeId);
+	}
+}
+
+void Slave::stopNodes(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args){
+	for (auto itor = _cmds.begin(); itor != _cmds.end(); ++itor){
+		if (itor->second.timer){
+			pKernel->killTimer(itor->second.timer);
+			itor->second.timer = nullptr;
+		}
 	}
 }
 
@@ -109,10 +156,21 @@ void Slave::startNewNode(sl::api::IKernel* pKernel, const char* name, const char
 	int64 node = (((int64)nodeType) << 32) | nodeId;
 	SafeSprintf(_cmds[node].cmd, sizeof(_cmds[node].cmd), "%s", tmp.c_str());
 
-	startNode(pKernel, _cmds[node].cmd);
+	_cmds[node].process = startNode(pKernel, _cmds[node].cmd);
+
+#ifdef SL_OS_LINUX
+	_cmds[node].timer = NEW CheckNodeTimer(_cmds[node]);
+	START_TIMER(_cmds[node].timer, 0, TIMER_BEAT_FOREVER, NODE_CHECK_INTERVAL);
+#endif
 }
 
+
+#ifdef SL_OS_WINDOWS
 int32 Slave::startNode(sl::api::IKernel* pKernel, const char* cmd){
+#else
+pid_t Slave::startNode(sl::api::IKernel* pKernel, const char* cmd){
+#endif
+
 	char process[256];
 #ifdef SL_OS_WINDOWS
 	SafeSprintf(process, sizeof(process)-1, "%s/shyloo.exe", sl::getAppPath());
@@ -129,6 +187,30 @@ int32 Slave::startNode(sl::api::IKernel* pKernel, const char* cmd){
 #endif
 
 #ifdef SL_OS_LINUX
+	SafeSprintf(process, sizeof(process)-1, "%s/%s", sl::getAppPath(), EXECUTE_NAME);
 
+	char args[MAX_CMD_LEN];
+	SafeSprintf(args, sizeof(args), cmd);
+
+	char *p[MAX_CMD_ARGS_COUNT];
+	SafeMemset(p, sizeof(p), 0, sizeof(p));
+	p[0] = EXECUTE_NAME;
+	int32 idx = 1;
+	char * checkPtr = args;
+	char * innerPtr = nullptr;
+	while((p[idx] = strtok_r(checkPtr, " ", &innerPtr)) != nullptr){
+		++idx;
+		checkPtr = nullptr;
+	}
+
+	pid_t pid;
+	pid =fork();
+	if (pid < 0){
+		return pid;
+	}
+	else if(pid == 0)
+		execv(process, p);
+	else
+		return pid;
 #endif
 }

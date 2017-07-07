@@ -28,6 +28,7 @@
 #define VSNPRINTF			_vsnprintf
 #define atoll				_atoi64
 #define SL_ERRNO			GetLastError()
+#define GetNowProcessId		GetCurrentProcessId
 
 #define ECHO(format, ...){	\
 	char _log[4096] = {0};	\

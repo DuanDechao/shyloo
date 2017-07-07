@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 class StartNodeTimer;
+class IEventEngine;
 class Starter : public sl::api::IModule, public INodeListener, public sl::api::ITimer, public sl::SLHolder<Starter>{
 public:
 	struct Execute{
@@ -45,6 +46,8 @@ public:
 	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick) {}
 	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick){}
 
+	void preShutDown(sl::api::IKernel* pKernel, const void* context, const int32 size);
+
 private:
 	void startNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId);
 	void startServer(sl::api::IKernel* pKernel);
@@ -53,6 +56,7 @@ private:
 	Starter*				_self;
 	sl::api::IKernel*		_kernel;
 	IHarbor*				_harbor;
+	IEventEngine*			_eventEngine;
 
 	std::unordered_map<int32, Execute> _executes;
 	std::unordered_map<int32, NodeGroup> _nodes;

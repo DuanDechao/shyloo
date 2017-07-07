@@ -135,7 +135,6 @@ typedef uintptr_t			SLSOCKET;
 #define SL_ETIME			WSAETIMEDOUT		//	10060
 #define SL_EINTR			WSAEINTR			//	10000
 #define SL_ECONNRESET		WSAECONNRESET		//	10054	用来表示远程关闭了连接
-#define GetNowProcessId		GetCurrentProcessId 
 
 typedef int socklen_t;
 

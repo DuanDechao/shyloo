@@ -6,23 +6,18 @@
 #include "NodeDefine.h"
 #include "NodeProtocol.h"
 #include "sltime.h"
+#include "IEventEngine.h"
+#include "EventID.h"
 
 bool Starter::initialize(sl::api::IKernel * pKernel){
 	_self = this;
 	_kernel = pKernel;
-	return true;
-}
-
-bool Starter::launched(sl::api::IKernel * pKernel){
-	FIND_MODULE(_harbor, Harbor);
 
 	sl::XmlReader server_conf;
 	if (!server_conf.loadXml(pKernel->getCoreFile())){
 		SLASSERT(false, "load core file %s failed", pKernel->getCoreFile());
 		return false;
 	}
-	_harbor->addNodeListener(this);
-
 	const sl::xml::ISLXmlNode& starter = server_conf.root()["starter"][0];
 	_checkInterval = starter.getAttributeInt64("check");
 	_deadTime = starter.getAttributeInt64("dead");
@@ -36,10 +31,24 @@ bool Starter::launched(sl::api::IKernel * pKernel){
 		info.timer = StartNodeTimer::create(info.type);
 		_executes[info.type] = info;
 		SLASSERT(info.timer, "wtf");
-		//START_TIMER(info.timer, info.delay, TIMER_BEAT_FOREVER, _checkInterval);
 	}
 
-	START_TIMER(_self, 0, 1, 2000);
+	return true;
+}
+
+bool Starter::launched(sl::api::IKernel * pKernel){
+	FIND_MODULE(_harbor, Harbor);
+	if (_harbor->getNodeType() == NodeType::MASTER){
+		_harbor->addNodeListener(this);
+
+		FIND_MODULE(_eventEngine, EventEngine);
+
+		RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_PRE_SHUTDOWN, Starter::preShutDown);
+		
+		START_TIMER(_self, 0, 1, 2000);
+	}
+	
+	
 	return true;
 }
 
@@ -117,4 +126,21 @@ void Starter::startServer(sl::api::IKernel* pKernel){
 		SLASSERT(itor->second.timer, "wtf");
 		START_TIMER(itor->second.timer, itor->second.delay, TIMER_BEAT_FOREVER, _checkInterval);
 	}
+}
+
+void Starter::preShutDown(sl::api::IKernel* pKernel, const void* context, const int32 size){
+	SLASSERT(size == sizeof(logic_event::PreShutDown), "wtf");
+	std::vector<StartNodeTimer* > timers;
+	for (auto itor = _executes.begin(); itor != _executes.end(); ++itor){
+		if (itor->second.timer)
+			timers.push_back(itor->second.timer);
+	}
+
+	for (auto* timer: timers){
+		pKernel->killTimer(timer);
+	}
+
+	IArgs<1, 32> args;
+	args.fix();
+	_harbor->broadcast(NodeType::SLAVE, NodeProtocol::MASTER_MSG_STOP_NODES, args.out());
 }
