@@ -244,7 +244,7 @@ void AOI::notifyWatcherObjectDisappear(sl::api::IKernel* pKernel, int32 gate, in
 }
 
 void AOI::onObjectEnterVision(sl::api::IKernel* pKernel, const void* context, const int32 size){
-	logic_event::VisionInfo * info = (logic_event::VisionInfo*)context;
+//	logic_event::VisionInfo * info = (logic_event::VisionInfo*)context;
 	//printAOI(info->object);
 }
 

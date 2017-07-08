@@ -87,7 +87,7 @@ void SceneMgr::addObjectToScene(sl::api::IKernel* pKernel, const char* scene, in
 	const IRow* row = _scenes->findRow(scene);
 	SLASSERT(row, "wtf");
 
-	const char* name = row->getDataString(OCStaticTableMacro::SCENES::NAME);
+	//const char* name = row->getDataString(OCStaticTableMacro::SCENES::NAME);
 	int32 nodeId = row->getDataInt32(OCStaticTableMacro::SCENES::NODE);
 	int32 count = row->getDataInt32(OCStaticTableMacro::SCENES::COUNT);
 
@@ -156,7 +156,7 @@ void SceneMgr::removeObjectFromScene(sl::api::IKernel* pKernel, const char* scen
 	const IRow* row = _scenes->findRow(scene);
 	SLASSERT(row, "wtf");
 
-	const char* sceneName = row->getDataString(OCStaticTableMacro::SCENES::NAME);
+	//const char* sceneName = row->getDataString(OCStaticTableMacro::SCENES::NAME);
 	int32 nodeId = row->getDataInt32(OCStaticTableMacro::SCENES::NODE);
 	int32 count = row->getDataInt32(OCStaticTableMacro::SCENES::COUNT);
 

@@ -16,13 +16,13 @@ union KeyValue{
 };
 class LandData : public sl::ISLListNode{
 public:
-	LandData(const char* table, const char* key, int64 val, int8 opt, int64 tick) :_tableName(table), _keyName(key), _opt(opt), _tick(tick), _keyType(0){
+	LandData(const char* table, const char* key, int64 val, int8 opt, int64 tick) :_tableName(table), _keyName(key),_id(0), _opt(opt), _keyType(0), _tick(tick){
 		_key.valueInt = val;
 		_keyType = TYPE_INTEGER;
 		_id = calcId(table, key, val);
 	}
 
-	LandData(const char* table, const char* key, const char* val, int8 opt, int64 tick) :_tableName(table), _keyName(key), _opt(opt), _tick(tick), _keyType(0){
+	LandData(const char* table, const char* key, const char* val, int8 opt, int64 tick) :_tableName(table), _keyName(key), _opt(opt), _keyType(0), _tick(tick){
 		SafeSprintf(_key.valueStr, sizeof(_key.valueStr), "%s", val);
 		_keyType = TYPE_STRING;
 		_id = calcId(table, key, val);

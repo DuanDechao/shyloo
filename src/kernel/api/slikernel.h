@@ -125,6 +125,7 @@ private:
 
 class IKernel{
 public:
+	virtual ~IKernel() {}
 	virtual bool ready() = 0;
 	virtual bool initialize(int32 argc, char ** argv) = 0;
 	virtual bool destory() = 0;

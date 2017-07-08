@@ -5,6 +5,13 @@
 #include "NodeProtocol.h"
 #include "slxml_reader.h"
 #include "slargs.h"
+#include "sltools.h"
+
+#ifdef SL_OS_LINUX
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#endif
 
 #define EXECUTE_CMD_PORT			"$port$"
 #define EXECUTE_CMD_OUT_PORT		"$out_port$"
@@ -18,7 +25,6 @@
 #define NODE_CHECK_INTERVAL			500
 
 #ifdef SL_OS_LINUX
-#define EXECUTE_NAME				"shyloo"
 #define MAX_CMD_ARGS_COUNT			256
 #endif
 
@@ -31,7 +37,7 @@ void Slave::CheckNodeTimer::onTime(sl::api::IKernel* pKernel, int64 timetick){
 		if (ret != 0){
 			if (ret > 0){
 				TRACE_LOG("process [%s] is lost, try restart", _node.cmd);
-				_node.process = Slave::startNode(pKernel, _node.cmd);
+				_node.process = Slave::getInstance()->startNode(pKernel, _node.cmd);
 			}
 			else{
 				ECHO_ERROR("wait pid %s failed[%d]", _node.cmd, SL_ERRNO);
@@ -40,7 +46,7 @@ void Slave::CheckNodeTimer::onTime(sl::api::IKernel* pKernel, int64 timetick){
 	}
 	else{
 		TRACE_LOG("process [%s] is not running, try again", _node.cmd);
-		_node.process = Slave::startNode(pKernel, _node.cmd);
+		_node.process = Slave::getInstance()->startNode(pKernel, _node.cmd);
 	}
 #endif
 }
@@ -187,14 +193,14 @@ pid_t Slave::startNode(sl::api::IKernel* pKernel, const char* cmd){
 #endif
 
 #ifdef SL_OS_LINUX
-	SafeSprintf(process, sizeof(process)-1, "%s/%s", sl::getAppPath(), EXECUTE_NAME);
+	SafeSprintf(process, sizeof(process)-1, "%s/shyloo", sl::getAppPath());
 
 	char args[MAX_CMD_LEN];
 	SafeSprintf(args, sizeof(args), cmd);
 
 	char *p[MAX_CMD_ARGS_COUNT];
-	SafeMemset(p, sizeof(p), 0, sizeof(p));
-	p[0] = EXECUTE_NAME;
+	sl::SafeMemset(p, sizeof(p), 0, sizeof(p));
+	p[0] = "shyloo";
 	int32 idx = 1;
 	char * checkPtr = args;
 	char * innerPtr = nullptr;
@@ -208,9 +214,10 @@ pid_t Slave::startNode(sl::api::IKernel* pKernel, const char* cmd){
 	if (pid < 0){
 		return pid;
 	}
-	else if(pid == 0)
+	else if(pid == 0){
 		execv(process, p);
-	else
+		return 0;
+	}else
 		return pid;
 #endif
 }

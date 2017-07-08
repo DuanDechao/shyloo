@@ -14,7 +14,7 @@ namespace core{
 
 class LogNode :public sl::ISLListNode{
 public:
-	LogNode() :_filter(0), _file(""), _line(0), _tick(0), _log("") {}
+	LogNode() :_filter(0),_tick(0), _file(""), _line(0), _log("") {}
 	~LogNode(){}
 
 	inline void setTick(int64 tick) { _tick = tick; }

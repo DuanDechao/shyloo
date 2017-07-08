@@ -30,49 +30,10 @@ extern "C"
 #define HOUR 60 * MINUTE
 #define DAY 24 * HOUR
 
-#ifdef _DEBUG
-
 #define NEW new
 #define DEL delete
 #define MALLOC malloc
 #define FREE free
-
-#ifdef SL_OS_WINDOWS
-#ifdef _DEBUG
-#define	SLASSERT(p, format, ...) { \
-	char debug[4096] = {0}; \
-	SafeSprintf(debug, sizeof(debug), format, ##__VA_ARGS__); \
-	((p) ? (void)0 : (void)__AssertionFail(__FILE__, __LINE__, __FUNCTION__, debug)); \
-}
-#else
-#define	SLASSERT(p, format, ...)
-#endif
-
-#define CSLEEP(t) Sleep(t)
-
-#endif // SL_OS_WINDOWS
-
-#ifdef SL_OS_LINUX
-#define SLASSERT(p, format, a...){   \
-	char debug[4096] = {0};	\
-	SafeSprintf(debug, sizeof(debug), format, ##a);	\
-	((p) ? (void)0 : (void)__AssertionFail(__FILE__, __LINE__, __FUNCTION__, debug));	\
-}
-
-#define CSLEEP(t) usleep((t) * 1000)
-#endif
-
-#else
-
-#define NEW new
-#define DEL delete
-#define MALLOC malloc
-#define FREE free
-
-#define TRACEMEM
-
-#define SLASSERT(p, format, ...)
-#endif // DEBUG
 
 #ifdef NEDMALLOC
 

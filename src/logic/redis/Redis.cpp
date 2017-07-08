@@ -89,7 +89,7 @@ bool Redis::call(const int64 id, const char* proc, const int32 keyCount, const O
 
 	char keyCountStr[32] = { 0 };
 	SafeSprintf(keyCountStr, 32, "%d", keyCount);
-	SafeSprintf(buf._data + buf._size, sizeof(buf._data) - buf._size, "*%d\r\n$7\r\nEVALSHA\r\n$%d\r\n%s\r\n$%d\r\n%s\r\n", args.getCount() + 3, len, scriptId, strlen(keyCountStr), keyCountStr);
+	SafeSprintf(buf._data + buf._size, (int32)sizeof(buf._data) - buf._size, "*%d\r\n$7\r\nEVALSHA\r\n$%d\r\n%s\r\n$%d\r\n%s\r\n", args.getCount() + 3, len, scriptId, (int32)strlen(keyCountStr), keyCountStr);
 	buf._size += (int32)strlen(buf._data + buf._size);
 
 	append(buf, args);

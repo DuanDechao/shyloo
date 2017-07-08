@@ -11,7 +11,7 @@ struct TableLayout : public MemLayout{
 
 class TableColumn{
 public:
-	TableColumn() :m_keyType(DTYPE_CANT_BE_KEY), m_size(0), m_keyColIdx(-1){}
+	TableColumn() :m_keyType(DTYPE_CANT_BE_KEY), m_keyColIdx(-1), m_size(0){}
 	~TableColumn(){}
 
 	bool loadColumnConfig(const sl::ISLXmlNode& root);
@@ -60,7 +60,7 @@ class TableControl;
 class TableRow : public IRow{
 public:
 	TableRow(TableControl* pTable, const TableColumn* pTableCol);
-	~TableRow();
+	virtual ~TableRow();
 
 	int32 getRowIndex() const { return _rowIndex; }
 	void setRowIndex(const int32 index) { _rowIndex = index; }

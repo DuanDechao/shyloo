@@ -28,7 +28,7 @@ void SelectPoller::handleNotifications(int& countReady, fd_set& readFDs, fd_set&
 		this->triggerWrite(fd);
 	}
 #else
-	for (int fd = 0; fd < _fdLargest && countReady > 0; ++fd){
+	for (int fd = 0; fd <= _fdLargest && countReady > 0; ++fd){
 		if(FD_ISSET(fd, &readFDs)){
 			--countReady;
 			this->triggerRead(fd);

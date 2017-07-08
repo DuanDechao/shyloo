@@ -28,12 +28,12 @@ int PacketSender::handleOutputNotification(int fd){
 		int error = -1, slen = sizeof(int);
 		getsockopt((int32)(*(_channel->getEndPoint())), SOL_SOCKET, SO_ERROR, (char*)&error, (socklen_t *)&slen);
 		if (error == 0){
-			if (_channel->sendBufEmpty()){
-				_pNetworkInterface->getDispatcher().deregisterWriteFileDescriptor((int32)(*(_channel->getEndPoint())));
-			}
 			ISLSession* poSession = _channel->getSession();
 			poSession->onEstablish();
 			_channel->setConnected();
+			if(_channel->sendBufEmpty()){
+				_pNetworkInterface->getDispatcher().deregisterWriteFileDescriptor((int32)(*(_channel->getEndPoint())));
+			}
 			
 		}
 		else{
@@ -73,7 +73,18 @@ Reason PacketSender::checkSocketErrors(const EndPoint* pEndPoint){
 		default: reason = REASON_GENERAL_NETWORK; break;
 		}
 	}
+#else
+   err = errno;
+   switch (err){
+   case ECONNREFUSED:	reason = REASON_NO_SUCH_PORT; break;
+   case EAGAIN:		reason = REASON_RESOURCE_UNAVAILABLE; break;
+   case EPIPE:			reason = REASON_CLIENT_DISCONNECTED; break;
+   case ECONNRESET:	reason = REASON_CLIENT_DISCONNECTED; break;
+   case ENOBUFS:		reason = REASON_TRANSMIT_QUEUE_FULL; break;
+   default:			reason = REASON_GENERAL_NETWORK; break;
+   }
 #endif
+
 	return reason;
 }
 }

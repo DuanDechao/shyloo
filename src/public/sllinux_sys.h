@@ -33,6 +33,17 @@
 #define GetCurrentThreadId	pthread_self
 #define SL_ERRNO			errno
 
+
+#ifdef _DEBUG
+#define SLASSERT(p, format, a...){   \
+	char debug[4096] = {0};	\
+	SafeSprintf(debug, sizeof(debug), format, ##a);	\
+	((p) ? (void)0 : (void)__AssertionFail(__FILE__, __LINE__, __FUNCTION__, debug));	\
+}
+#else
+#define SLASSERT(p, format, ...)
+#endif
+
 #ifdef _DEBUG
 #define  ECHO(format, a...) {\
 	char _log[4096] = {0};	\

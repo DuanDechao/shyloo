@@ -183,12 +183,12 @@ bool ScriptEngine::executeFunction(sl::api::IKernel* pKernel, int32 argc, const 
 }
 
 void ScriptEngine::test(){
-	IScriptCallor* callor = prepareCall("ai.condition", "call");
+	/*IScriptCallor* callor = prepareCall("ai.condition", "call");
 	callor->addString("IsNumber(4)");
 	callor->addPointer(nullptr); 
 	callor->call(s_kernel, [&](sl::api::IKernel* pKernel, const IScriptResult* result){
-		bool ret = result->getBool(0);
-		int32 temp = 0;
-	});
+		result->getBool(0);
+		//int32 temp = 0;
+	});*/
 }
 

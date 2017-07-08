@@ -7,7 +7,7 @@ int32 NetPacketParser::parsePacket(const char* pDataBuf, int32 len){
 	if (!pDataBuf)
 		return -1;
 	
-	if (len < 2 * sizeof(int32))
+	if (len < 2 * (int32)sizeof(int32))
 		return 0;
 
 	int32 dwLen = *(int32*)(pDataBuf + sizeof(int32));
@@ -22,8 +22,8 @@ int32 NetPacketParser::parsePacket(const char* pDataBuf, int32 len){
 
 sl::SLPool<NetSession> NetSession::s_pool;
 NetSession::NetSession(ITcpSession* pTcpSession)
-	:_tcpSession(pTcpSession),
-	 _channel(NULL)
+	:_channel(NULL),
+	_tcpSession(pTcpSession)
 {
 	_tcpSession->_pipe = this;
 }

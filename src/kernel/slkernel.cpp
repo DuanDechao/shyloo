@@ -39,13 +39,28 @@ bool Kernel::ready(){
 bool Kernel::initialize(int32 argc, char ** argv){
 	parse(argc, argv);
 
-	return ConfigEngine::getInstance()->initialize() &&
+	/*return ConfigEngine::getInstance()->initialize() &&
 		TimerEngine::getInstance()->initialize() &&
 		NetEngine::getInstance()->initialize() &&
 		IPCEngine::getInstance()->initialize() &&
 		AsyncEngine::getInstance()->initialize() &&
 		LogicEngine::getInstance()->initialize() &&
-		LogEngine::getInstance()->initialize();
+		LogEngine::getInstance()->initialize();*/
+	bool configRet = false;
+	bool timerRet = false;
+	bool netRet = false;
+	bool ipcRet = false;
+	bool asyncRet = false;
+	bool logicRet = false;
+	bool logRet = false;
+	configRet = ConfigEngine::getInstance()->initialize();
+	timerRet = TimerEngine::getInstance()->initialize();
+	netRet = NetEngine::getInstance()->initialize();
+	ipcRet = IPCEngine::getInstance()->initialize();
+	asyncRet = AsyncEngine::getInstance()->initialize();
+	logicRet = LogicEngine::getInstance()->initialize();
+	logRet = LogEngine::getInstance()->initialize();
+	return configRet && timerRet && netRet && ipcRet && asyncRet && logicRet && logRet;
 		
 }
 
@@ -82,7 +97,7 @@ void Kernel::loop() {
 			ECHO_ERROR("Loop use %d(%d, %d, %d, %d)", useTick, netTick, ipcTick, asyncTick, timerTick);
 		}
 		else{
-			Sleep(1);
+			CSLEEP(1);
 		}
 	}
 }

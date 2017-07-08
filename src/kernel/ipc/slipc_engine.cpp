@@ -71,7 +71,7 @@ bool IPCEngine::addIPCClient(sl::api::ITcpSession* session, const int64 clientId
 int64 IPCEngine::loop(int64 overTime){
 	int64 startTime = sl::getTimeMilliSecond();
 	
-	_ipcMQ->loop();
+	//_ipcMQ->loop();
 
 	if (!_ipcSessons.empty()){
 		int64 costTime = 0;
@@ -131,7 +131,7 @@ bool IPCEngine::close(int64 serverId, int64 clientId){
 	_ipcSessons[serverId]->release();
 	_ipcSessons.erase(serverId);
 
-	return _ipcMQ->close(serverId, clientId);
+	return _ipcMQ->closePipe(serverId, clientId);
 }
 
 

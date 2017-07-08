@@ -15,7 +15,7 @@ public:
 		sl::SafeMemset(_layouts, mallocSize, 0, mallocSize);
 	}
 
-	~ObjectProp(){
+	virtual ~ObjectProp(){
 		FREE(_layouts);
 	}
 

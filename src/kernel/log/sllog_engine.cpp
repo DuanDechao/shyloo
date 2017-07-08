@@ -111,7 +111,7 @@ void LogEngine::threadRun(){
 
 		} while (readCount < MAX_READ_COUNT);
 
-		Sleep(1);
+		CSLEEP(1);
 	}
 }
 

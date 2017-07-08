@@ -1,5 +1,4 @@
 
-IF(WIN32)
 INCLUDE_DIRECTORIES(
 	"${PROJECT_SOURCE_DIR}/src/sllib/api"
 	"${PROJECT_SOURCE_DIR}/src/public"
@@ -15,7 +14,6 @@ INCLUDE_DIRECTORIES(
 	"${PROJECT_SOURCE_DIR}/src/kernel/log"
 	"${PROJECT_SOURCE_DIR}/src/kernel/ipc"
 )
-ENDIF(WIN32)
 
 SET(SL_KERNEL_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/kernel/interface/slicore.h"
@@ -117,6 +115,22 @@ ADD_EXECUTABLE(shyloo
 )
 ENDIF(WIN32)
 
+IF(UNIX)
+ADD_EXECUTABLE(shyloo
+    ${SL_KERNEL_API}
+    ${PUBLIC}
+    ${SL_KERNEL_INTERFACE}
+    ${SL_KERNEL_NET}
+    ${SL_KERNEL_TIMER}
+    ${SL_KERNEL_LOGIC}
+    ${SL_KERNEL_CONFIG}
+    ${SL_KERNEL_ASYNC}
+    ${SL_KERNEL_LOG}
+    ${SL_KERNEL_IPC}
+    ${SL_KERNEL}
+)
+ENDIF(UNIX)
+
 IF(WIN32)
 TARGET_LINK_LIBRARIES(shyloo slxml.lib slnet.lib sltimer.lib slshm.lib)
 ENDIF(WIN32)
@@ -124,3 +138,8 @@ ENDIF(WIN32)
 IF(WIN32)
 SET(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/build/windows")
 ENDIF(WIN32)
+
+IF(UNIX)
+SET(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/build/linux")
+TARGET_LINK_LIBRARIES(shyloo libslxml.so libslnet.so libsltimer.so libslshm.so)
+ENDIF(UNIX)

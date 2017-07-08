@@ -2,16 +2,18 @@
 #include "MysqlMgr.h"
 
 SQLBuilder::SQLBuilder()
-	:_optType(DB_OPT_NONE),
+	:_table(""),
+	 _optType(DB_OPT_NONE),
 	 _limit(0),
-	 _selectExpr("*")
+	 _selectExpr("*"),
+	 _finalExpr("")
 {}
 
 SQLBuilder::SQLBuilder(const char* sql, const char* table, const int8 optType)
 	:_table(table),
 	_optType(optType),
-	_selectExpr("*"),
 	_limit(0),
+	_selectExpr("*"),
 	_finalExpr(string(sql))
 {}
 

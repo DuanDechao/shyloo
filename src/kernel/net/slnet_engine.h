@@ -9,7 +9,11 @@ namespace core{
 
 #define MAX_IP_LEN 128
 #define MAX_LOCAL_IP_PREFIX_NUM 19
+
+#ifdef SL_OS_WINDOWS
 #pragma comment(lib,"Iphlpapi.lib")
+#endif
+
 class NetEngine: public SLSingleton<NetEngine>{
 	friend class SLSingleton<NetEngine>;
 public:
