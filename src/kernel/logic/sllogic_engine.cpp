@@ -1,25 +1,23 @@
 #include "sllogic_engine.h"
-#include <Windows.h>
 #include "slimodule.h"
 #include "slkernel.h"
 #include "slconfig_engine.h"
 #include "sltools.h"
 
-namespace sl
-{
-namespace core
-{
-#ifdef SL_OS_LINUX
+#ifdef SL_OS_WINDOWS
+#include <Windows.h>
+#else
 #include <dlfcn.h>
-#endif // SL_OS_LINUX
+#endif
 
-bool LogicEngine::ready()
-{
+namespace sl{
+namespace core{
+using namespace api;
+bool LogicEngine::ready(){
 	return true;
 }
 
-bool LogicEngine::initialize()
-{
+bool LogicEngine::initialize(){
 	const sModuleConfig* pModuleConfig = ConfigEngine::getInstance()->getModuleConfig();
 	std::vector<std::string>::const_iterator itor = pModuleConfig->vctModules.begin();
 	std::vector<std::string>::const_iterator iend = pModuleConfig->vctModules.end();
@@ -28,7 +26,7 @@ bool LogicEngine::initialize()
 		char path[1024] = {0};
 
 #ifdef SL_OS_LINUX
-		SafeSprintf(path, sizeof(path), "%s/%s/%s.so", sl::getAppPath(), pModuleConfig->strModulePath, (*itor).c_str());
+		SafeSprintf(path, sizeof(path), "%s/%slib%s.so", sl::getAppPath(), pModuleConfig->strModulePath.c_str(), (*itor).c_str());
 		//»ñÈ¡dllÂ·¾¶
 		void* handle = dlopen(path, RTLD_LAZY);
 		SLASSERT(handle, "dlopen so %s failed", path);
@@ -93,14 +91,12 @@ bool LogicEngine::initialize()
 	return true;
 }
 
-bool LogicEngine::destory()
-{
+bool LogicEngine::destory(){
 	DEL this;
 	return true;
 }
 
-LogicEngine::~LogicEngine()
-{
+LogicEngine::~LogicEngine(){
 	std::map<std::string, api::IModule *>::iterator itor = m_mapModule.begin();
 	std::map<std::string, api::IModule *>::iterator iend = m_mapModule.end();
 	while(itor != iend){
@@ -126,8 +122,7 @@ LogicEngine::~LogicEngine()
 
 }
 
-api::IModule* LogicEngine::findModule(const char* pModuleName)
-{
+api::IModule* LogicEngine::findModule(const char* pModuleName){
 	std::map<std::string, api::IModule*>::iterator itor = m_mapModule.find(pModuleName);
 	if(itor == m_mapModule.end() || NULL == itor->second){
 		return NULL;

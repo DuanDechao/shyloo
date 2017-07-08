@@ -68,9 +68,9 @@ bool ObjectMgr::destory(sl::api::IKernel * pKernel){
 }
 
 void ObjectMgr::onTime(sl::api::IKernel* pKernel, int64 timetick){
-	IObject* player = create("ddc", 1, "Player", false);
-	uint64 playerId = player->getID();
-	ECHO_TRACE("player id:%llu", player->getID());
+	//IObject* player = create("ddc", 1, "Player", false);
+	//uint64 playerId = player->getID();
+	//ECHO_TRACE("player id:%llu", player->getID());
 }
 
 bool ObjectMgr::initPropDefineConfig(sl::api::IKernel * pKernel){

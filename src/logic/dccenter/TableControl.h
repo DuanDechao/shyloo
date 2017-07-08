@@ -18,7 +18,7 @@ class TableControl : public ITableControl{
 
 public:
 	TableControl(const int32 name, const TableColumn* pTableColumn, IObject* pHost = nullptr);
-	~TableControl();
+    virtual	~TableControl();
 
 	int32 getName() const { return _name; }
 	virtual IObject* getHost() const { return _pHost; }

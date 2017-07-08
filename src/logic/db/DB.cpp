@@ -56,7 +56,7 @@ IDBCall* DB::create(int64 threadId, const int64 id, const char* file, const int3
 }
 
 void DB::test(){
-	IDBCall* dbcall = DBContext<SIZE_64>::create(_self, 0, 0);
+	//IDBCall* dbcall = DBContext<SIZE_64>::create(_self, 0, 0);
 }
 
 

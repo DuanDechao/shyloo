@@ -47,7 +47,7 @@ private:
 
 class CacheDBContext : public ICacheDBContext{
 public:
-	CacheDBContext(const CacheDB::CacheTable& desc, IArgs<MAX_KEYS, MAX_ARGS>& args) : _desc(desc), _args(args),_index(false), _count(0) {}
+	CacheDBContext(const CacheDB::CacheTable& desc, IArgs<MAX_KEYS, MAX_ARGS>& args) : _desc(desc), _args(args),_count(0), _index(false) {}
 	virtual ~CacheDBContext() {}
 
 	virtual void writeInt8(const char* col, int8 val) { _args << col << val; ++_count; checkIndex(col); }

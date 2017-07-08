@@ -180,7 +180,7 @@ void Gate::onAgentClose(sl::api::IKernel* pKernel, const int64 id){
 }
 
 int32 Gate::onAgentRecv(sl::api::IKernel* pKernel, const int64 id, const void* context, const int32 size){
-	if (size < sizeof(int32)* 2){
+	if (size < (int32)(sizeof(int32)* 2)){
 		return 0;
 	}
 
@@ -356,8 +356,7 @@ void Gate::onAccountBindAccountAck(sl::api::IKernel* pKernel, const int32 nodeTy
 void Gate::onAccountKickFromAccount(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
 	int64 agentId = args.getInt64(0);
 	if (_players.find(agentId) != _players.end()){
-		Player& player = _players[agentId];
-		SLASSERT(player.state >= GATE_STATE_ROLELOADED, "wtf");
+		SLASSERT(_players[agentId].state >= GATE_STATE_ROLELOADED, "wtf");
 
 		reset(pKernel, agentId, GATE_STATE_NONE);
 	}
@@ -404,7 +403,7 @@ void Gate::onLogicTransforToAgent(sl::api::IKernel* pKernel, const int32 nodeTyp
 
 	Player* player = findPlayerByActorId(info->actorId);
 	if (player != nullptr && player->state == GATE_STATE_ONLINE){
-		const int32 messageId = ((client::Header*)((const char*)context + sizeof(client::Transfor)))->messageId;
+		//const int32 messageId = ((client::Header*)((const char*)context + sizeof(client::Transfor)))->messageId;
 		if (delay > 0){
 			DelaySendTimer* timer = NEW DelaySendTimer((const char*)context + sizeof(client::Transfor), size - sizeof(client::Transfor));
 			timer->addActor(info->actorId);
@@ -425,12 +424,12 @@ void Gate::onLogicBrocastToAgents(sl::api::IKernel* pKernel, const int32 nodeTyp
 	const int32 size = args.getSize();
 	SLASSERT(size > sizeof(client::Header), "size is invaild");
 	client::Header* header = (client::Header*)context;
-	const int32 messageId = header->messageId;
+	//const int32 messageId = header->messageId;
 	const int32 packetSize = header->size;
 
 	int32 remainSize = size - packetSize;
 	const char* buff = (const char*)context + packetSize;
-	while (remainSize > sizeof(client::Brocast)){
+	while (remainSize > (int32)sizeof(client::Brocast)){
 		client::Brocast* info = (client::Brocast*)buff;
 		int32 delay = info->delay * 100;
 		int32 gate = info->gate;
@@ -515,8 +514,8 @@ void Gate::onClientLoginReq(sl::api::IKernel* pKernel, const int64 id, const OBS
 		if (result->count() == 1)
 			accountId = result->getInt64(0, 0);
 	}, accountName);
-
 	SLASSERT(success, "read cacheDB failed");
+
 	if (!accountId){
 		accountId = (int64)_IdMgr->allocID();
 		success = _cacheDB->write("account", true, [&](sl::api::IKernel* pKernel, ICacheDBContext* context){
@@ -568,7 +567,7 @@ void Gate::onClientCreateRoleReq(sl::api::IKernel* pKernel, const int64 id, cons
 	SLASSERT(_players.find(id) != _players.end(), "where is agent?");
 	Player& player = _players[id];
 	if (player.state == GATE_STATE_ROLELOADED){
-		if (player.roles.size() >= _maxRoleNum){
+		if ((int32)player.roles.size() >= _maxRoleNum){
 			IBStream<128> buf;
 			buf << protocol::ErrorCode::ERROR_TOO_MUCH_ROLE;
 			sendToClient(pKernel, id, ServerMsgID::SERVER_MSG_CREATE_ROLE_RSP, buf.out());

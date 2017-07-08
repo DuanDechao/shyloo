@@ -30,6 +30,16 @@
 #define SL_ERRNO			GetLastError()
 #define GetNowProcessId		GetCurrentProcessId
 
+#ifdef _DEBUG
+#define	SLASSERT(p, format, ...) { \
+	char debug[4096] = {0}; \
+	SafeSprintf(debug, sizeof(debug), format, ##__VA_ARGS__); \
+	((p) ? (void)0 : (void)__AssertionFail(__FILE__, __LINE__, __FUNCTION__, debug)); \
+}
+#else
+#define	SLASSERT(p, format, ...)
+#endif
+
 #define ECHO(format, ...){	\
 	char _log[4096] = {0};	\
 	SafeSprintf(_log, sizeof(_log), "%s:%d:%s"#format, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__);	\

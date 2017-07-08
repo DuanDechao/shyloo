@@ -587,7 +587,7 @@ bool DBCreator::updateDBTablePrimaryKey(const char* tableName, const MysqlResult
 		}
 		else{
 			dbPriKeysNum++;
-			if (dbPriKeysNum > priKeys.size()){
+			if (dbPriKeysNum > (int32)priKeys.size()){
 				needUpdatePriKeys = true;
 			}
 			else if (strcmp(priKeys[dbPriKeysNum - 1].c_str(), dbIndexColumnName->second.c_str()) != 0){
@@ -601,7 +601,7 @@ bool DBCreator::updateDBTablePrimaryKey(const char* tableName, const MysqlResult
 		}
 	}
 
-	if (needUpdatePriKeys && dbPriKeysNum != priKeys.size()){
+	if (needUpdatePriKeys && dbPriKeysNum != (int32)priKeys.size()){
 		needUpdatePriKeys = true;
 	}
 

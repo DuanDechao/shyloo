@@ -17,7 +17,9 @@
 #include "slplatform.h"
 #include "slstring_utils.h"
 #include "sltime.h"
+#ifdef SL_OS_WINDOWS
 #include <io.h>
+#endif
 #include <sys/stat.h>
 
 namespace sl
@@ -505,14 +507,14 @@ public:
 
 typedef CLogT<CNullMutex> CLog;
 	
-class CNLog : public CLog, public CSingleton<CNLog>{};
-class CELog : public CLog, public CSingleton<CELog>{};
-class CSLog : public CLog, public CSingleton<CSLog>{};
+//class CNLog : public CLog, public CSingleton<CNLog>{};
+//class CELog : public CLog, public CSingleton<CELog>{};
+//class CSLog : public CLog, public CSingleton<CSLog>{};
 
 	
-SL_SINGLETON_INIT(CNLog);
-SL_SINGLETON_INIT(CELog);
-SL_SINGLETON_INIT(CSLog);
+//SL_SINGLETON_INIT(CNLog);
+//SL_SINGLETON_INIT(CELog);
+//SL_SINGLETON_INIT(CSLog);
 
 }  // namespace sl
 

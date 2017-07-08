@@ -32,6 +32,7 @@ public:
 
 class IRow{
 public:
+	virtual ~IRow() {}
 	virtual int32 getRowIndex() const = 0;
 
 	virtual int8 getDataInt8(const int32 col) const = 0;
@@ -87,7 +88,7 @@ typedef std::function<void(sl::api::IKernel *, IObject *, const char *, const IP
 
 class IObject{
 public:
-
+    virtual ~IObject() {}
 	virtual const int64 getID() const = 0;
 
 	virtual const std::vector<const IProp*>& getObjProps(bool noParent = false) const = 0;

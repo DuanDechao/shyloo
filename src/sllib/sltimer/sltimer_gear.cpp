@@ -3,10 +3,10 @@
 namespace sl{
 namespace timer{
 SLTimerGear::SLTimerGear(int32 maxSlotNum, SLTimerGear* nextGear)
-	:_nowSlot(0),
-	_maxSlotNum(maxSlotNum),
+	:_slots(nullptr),
 	_nextGear(nextGear),
-	_slots(nullptr)
+	_nowSlot(0),
+	_maxSlotNum(maxSlotNum)
 {
 	_slots = NEW SLList[maxSlotNum];
 }

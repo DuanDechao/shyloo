@@ -3,13 +3,10 @@
 #include "slikernel.h"
 #include "slstring_utils.h"
 #include "sltime.h"
-namespace sl
-{
-namespace api
-{
+namespace sl{
+namespace api{
 #define MODULE_NAME_LENGTH 64
-class IModule
-{
+class IModule{
 public:
 	virtual ~IModule(){}
 	virtual bool initialize(IKernel* pKernel) = 0;
@@ -17,31 +14,26 @@ public:
 	virtual bool destory(IKernel* pKernel) = 0;
 
 public:
-	IModule()
-	{
+	IModule(){
 		m_pNextModule = nullptr;
 		m_pName[MODULE_NAME_LENGTH -1] = 0;
 	}
 
-	bool setNext(IModule * & pModule)
-	{
+	bool setNext(IModule * & pModule){
 		m_pNextModule = pModule;
 		return true;
 	}
 
-	IModule* getNext()
-	{
+	IModule* getNext(){
 		return m_pNextModule;
 	}
 
-	bool setName(const char * pName)
-	{
+	bool setName(const char * pName){
 		safeMemcpy(m_pName, sizeof(m_pName), pName, MODULE_NAME_LENGTH -1);
 		return true;
 	}
 
-	const char* getName() const
-	{
+	const char* getName() const{
 		return m_pName;
 	}
 

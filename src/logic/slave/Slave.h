@@ -3,12 +3,17 @@
 #include "slikernel.h"
 #include "slimodule.h"
 #include <unordered_map>
+#include "slsingleton.h"
+
+#ifdef SL_OS_LINUX
+#include <sys/wait.h>
+#endif
 
 #define MAX_CMD_LEN		256
 
 class IHarbor;
 class OArgs;
-class Slave :public sl::api::IModule{
+class Slave :public sl::api::IModule, public sl::SLHolder<Slave>{
 public:
 	
 	struct EXECUTE_INFO{

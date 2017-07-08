@@ -6,7 +6,7 @@
 class ScriptEngine;
 class ScriptCallor: public IScriptCallor{
 public:
-	ScriptCallor(ScriptEngine* engine) : _engine(engine), _count(0), _top(0), _using(false){}
+	ScriptCallor(ScriptEngine* engine) : _engine(engine), _using(false), _count(0), _top(0){}
 
 	virtual void addBool(bool value);
 	virtual void addInt8(int8 value);

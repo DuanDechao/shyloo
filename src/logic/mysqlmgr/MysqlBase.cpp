@@ -29,8 +29,8 @@ bool MysqlBase::onExecute(sl::api::IKernel* pKernel){
 			int32 fieldNum = (int32)dbResult->fieldNum();
 			unordered_map<string, string> rowResult;
 			for (int32 i = 0; i < fieldNum; i++){
-				const char* field = dbResult->fieldValue(i);
-				int32 length = dbResult->fieldLength(i) + 1;
+			//	const char* field = dbResult->fieldValue(i);
+			//	int32 length = dbResult->fieldLength(i) + 1;
 				rowResult.insert(make_pair(dbResult->fieldName(i), string(dbResult->fieldValue(i), dbResult->fieldLength(i) + 1)));
 			}
 			_result.push_back(std::move(rowResult));

@@ -11,7 +11,7 @@ class MMObject : public IObject{
 	typedef sl::CallBackType<const IProp*, PropCallBack>::type	 PROP_CB_POOL;
 public:
 	MMObject(const char* name, const ObjectPropInfo* pPropInfo);
-	~MMObject();
+    virtual ~MMObject();
 		
 	virtual const char* getObjTypeString() const { return _name.c_str(); }
 	inline const ObjectPropInfo* getObjectPropInfo() const { return _poPropInfo; }

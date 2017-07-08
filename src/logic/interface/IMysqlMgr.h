@@ -8,6 +8,7 @@
 
 class ISQLBuilder{
 public:
+	virtual ~ISQLBuilder() {}
 	virtual ISQLBuilder* table(const char* tableName) = 0;
 	virtual ISQLBuilder* select(const char* field) = 0;
 	virtual ISQLBuilder* where(const Expr& expr) = 0;

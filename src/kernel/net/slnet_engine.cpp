@@ -1,7 +1,14 @@
 #include "slnet_engine.h"
 #include "slnet_session.h"
 #include "sltime.h"
+
+#ifdef SL_OS_WINDOWS
 #include <IPHlpApi.h>
+#else
+#include <ifaddrs.h>
+#include <signal.h>
+#include <arpa/inet.h>
+#endif
 
 using namespace sl::network;
 namespace sl{
@@ -95,6 +102,7 @@ int64 NetEngine::loop(int64 overTime){
 }
 
 void NetEngine::readInternetIp(){
+#ifdef SL_OS_WINDOWS
 	sl::SafeMemset(m_ip, sizeof(m_ip), 0, sizeof(m_ip));
 	PIP_ADAPTER_INFO adapters = (PIP_ADAPTER_INFO)SLMALLOC(sizeof(IP_ADAPTER_INFO));
 	unsigned long size = sizeof(IP_ADAPTER_INFO);
@@ -137,6 +145,34 @@ void NetEngine::readInternetIp(){
 	}
 
 	SLFREE(adapters);
+#else
+    sl::SafeMemset(m_ip, sizeof(m_ip), 0, sizeof(m_ip));
+	ifaddrs* addrs = nullptr;
+	getifaddrs(&addrs);
+    
+    bool first = true;
+    for(ifaddrs* addr = addrs; addr; addr = addr->ifa_next){
+		if(strcmp(addr->ifa_name, "lo") == 0)
+			continue;
+		
+		if(addr->ifa_addr->sa_family == AF_INET){
+			char ip[MAX_IP_LEN];
+			inet_ntop(AF_INET, &(((sockaddr_in*)addr->ifa_addr)->sin_addr), ip, MAX_IP_LEN);
+			if(strcmp(ip, "127.0.0.1") != 0){
+				if(first){
+					SafeSprintf(m_ip, sizeof(m_ip), "%s", ip);
+					first = false;
+				}
+				else{
+					if(isLocalIp(ip)){
+						SafeSprintf(m_ip, sizeof(m_ip), "%s", ip);
+					}
+				}
+			}
+		}
+	}
+	freeifaddrs(addrs);
+#endif
 }
 
 bool NetEngine::isLocalIp(const char* ip){

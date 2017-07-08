@@ -42,7 +42,7 @@ public:
 
 	bool connect(const int64 serverId, const int64 clientId, const int32 sendSize, const int32 recvSize);
 	bool listen(const int64 serverId);
-	bool close(const int64 serverId, const int64 clientId);
+	bool closePipe(const int64 serverId, const int64 clientId);
 
 	void processMsg();
 
@@ -69,11 +69,17 @@ private:
 	bool			_terminate;
 	bool			_start;
 	char			_svrPipeName[128];
+    int32			_serverId;
 
+#ifdef SL_OS_WINDOWS
 	HANDLE			_svrNamePipe;
 	HANDLE			_clientNamePipe;
 	HANDLE			_hEvent;
 	OVERLAPPED      _ovlpd;
+#else
+	int32			_svrNamePipe;
+	int32			_clientNamePipe;
+#endif
 };
 
 }
