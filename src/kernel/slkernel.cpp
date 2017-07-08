@@ -39,14 +39,22 @@ bool Kernel::ready(){
 bool Kernel::initialize(int32 argc, char ** argv){
 	parse(argc, argv);
 
-	return ConfigEngine::getInstance()->initialize() &&
+	/*return ConfigEngine::getInstance()->initialize() &&
 		TimerEngine::getInstance()->initialize() &&
 		NetEngine::getInstance()->initialize() &&
 		IPCEngine::getInstance()->initialize() &&
 		AsyncEngine::getInstance()->initialize() &&
 		LogicEngine::getInstance()->initialize() &&
-		LogEngine::getInstance()->initialize();
+		LogEngine::getInstance()->initialize();*/
 		
+	bool configRet = ConfigEngine::getInstance()->initialize();
+	bool timerRet = TimerEngine::getInstance()->initialize();
+	bool netRet = NetEngine::getInstance()->initialize();
+	bool ipcRet = IPCEngine::getInstance()->initialize();
+	bool asyncRet = AsyncEngine::getInstance()->initialize();
+	bool logicRet = LogicEngine::getInstance()->initialize();
+	bool logRet = LogEngine::getInstance()->initialize();
+	return configRet && timerRet && netRet && ipcRet && asyncRet && logicRet && logRet;
 }
 
 bool Kernel::destory(){
