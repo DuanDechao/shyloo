@@ -42,7 +42,7 @@ bool EventPoller::deregisterForRead(int fd){
 bool EventPoller::deregisterForWrite(int fd){
 	_fdWriteHandlers[fd] = nullptr;
 	_fdWriteHandlers.erase(fd);
-	printf("deregister write fd[%d]-------------\n", fd);
+	//printf("deregister write fd[%d]-------------\n", fd);
 	return this->doDeregisterForWrite(fd);
 }
 
@@ -61,7 +61,7 @@ bool EventPoller::triggerWrite(int fd){
 	if(iter == _fdWriteHandlers.end())
 		return false;
 	
-	printf("trigger write fd[%d %p]+++++++++\n",fd, iter->second);
+	//printf("trigger write fd[%d %p]+++++++++\n",fd, iter->second);
 	iter->second->handleOutputNotification(fd);
 	return true;
 }

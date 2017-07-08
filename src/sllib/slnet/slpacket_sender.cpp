@@ -28,13 +28,12 @@ int PacketSender::handleOutputNotification(int fd){
 		int error = -1, slen = sizeof(int);
 		getsockopt((int32)(*(_channel->getEndPoint())), SOL_SOCKET, SO_ERROR, (char*)&error, (socklen_t *)&slen);
 		if (error == 0){
+			if (_channel->sendBufEmpty()){
+				_pNetworkInterface->getDispatcher().deregisterWriteFileDescriptor((int32)(*(_channel->getEndPoint())));
+			}
 			ISLSession* poSession = _channel->getSession();
 			poSession->onEstablish();
 			_channel->setConnected();
-			if(_channel->sendBufEmpty()){
-				_pNetworkInterface->getDispatcher().deregisterWriteFileDescriptor((int32)(*(_channel->getEndPoint())));
-			}
-			
 		}
 		else{
 			SLASSERT(false, "wtf");

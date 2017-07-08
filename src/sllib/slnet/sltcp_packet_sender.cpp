@@ -57,9 +57,9 @@ Reason TCPPacketSender::processSendPacket(Channel* pChannel){
 
 	pChannel->onPacketSent(sentLen, true);
 
-	//return REASON_SUCCESS;
+	return REASON_SUCCESS;
 
-	return checkSocketErrors(pEndPoint);
+	//return checkSocketErrors(pEndPoint);
 }
 
 
