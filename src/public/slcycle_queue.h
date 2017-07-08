@@ -12,11 +12,11 @@ public:
 		_size = size + 1;
 		SLASSERT(_size > 0, "size is invaild");
 		
-		_queue = (T*)MALLOC(_size * sizeof(T));
+		_queue = (T*)SLMALLOC(_size * sizeof(T));
 	}
 
 	~CycleQueue(){
-		FREE(_queue);
+		SLFREE(_queue);
 	}
 
 	inline bool read(T& t){

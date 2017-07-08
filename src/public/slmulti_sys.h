@@ -32,8 +32,6 @@ extern "C"
 
 #define NEW new
 #define DEL delete
-#define MALLOC malloc
-#define FREE free
 
 #ifdef NEDMALLOC
 

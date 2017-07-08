@@ -11,12 +11,12 @@ class ObjectProp: public IProp{
 public:
 	ObjectProp(int32 name, int32 size) :_name(name), _size(size){
 		int32 mallocSize = _size * sizeof(PropLayout*);
-		_layouts = (PropLayout**)MALLOC(mallocSize);
+		_layouts = (PropLayout**)SLMALLOC(mallocSize);
 		sl::SafeMemset(_layouts, mallocSize, 0, mallocSize);
 	}
 
 	virtual ~ObjectProp(){
-		FREE(_layouts);
+		SLFREE(_layouts);
 	}
 
 	virtual const int32 getName() const { return _name; }
