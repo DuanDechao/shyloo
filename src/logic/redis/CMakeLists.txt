@@ -30,11 +30,8 @@ IF(WIN32)
 TARGET_LINK_LIBRARIES(Redis slredis.lib slxml.lib)
 ENDIF(WIN32)
 
-#IF(UNIX)
-#TARGET_LINK_LIBRARIES(Redis
-#    debug "${PROJECT_SOURCE_DIR}/build/linux/libslredis.so"
-#	optimized "${PROJECT_SOURCE_DIR}/build/linux/libslredis.so"
-#)
-#ENDIF(UNIX)
+IF(UNIX)
+TARGET_LINK_LIBRARIES(Redis libslredis.so)
+ENDIF(UNIX)
 
 SET_PROPERTY(TARGET Redis PROPERTY FOLDER "core")

@@ -39,13 +39,34 @@ bool Kernel::ready(){
 bool Kernel::initialize(int32 argc, char ** argv){
 	parse(argc, argv);
 
-	return ConfigEngine::getInstance()->initialize() &&
+	/*return ConfigEngine::getInstance()->initialize() &&
 		TimerEngine::getInstance()->initialize() &&
 		NetEngine::getInstance()->initialize() &&
 		IPCEngine::getInstance()->initialize() &&
 		AsyncEngine::getInstance()->initialize() &&
 		LogicEngine::getInstance()->initialize() &&
-		LogEngine::getInstance()->initialize();
+		LogEngine::getInstance()->initialize();*/
+
+	if(!ConfigEngine::getInstance()->initialize())
+		return false;
+
+    if(!TimerEngine::getInstance()->initialize())
+		return false;
+
+    if(!NetEngine::getInstance()->initialize())
+		return false;
+
+	if(!IPCEngine::getInstance()->initialize())
+		return false;
+	
+    if(!AsyncEngine::getInstance()->initialize())
+		return false;
+	
+    if(!LogicEngine::getInstance()->initialize())
+		return false;
+    
+    if(!LogEngine::getInstance()->initialize())
+		return false;
 }
 
 bool Kernel::destory(){

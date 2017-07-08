@@ -32,12 +32,9 @@ IF(WIN32)
 TARGET_LINK_LIBRARIES(RoleMgr AttrGetter.lib)
 ENDIF(WIN32)
 
-#IF(UNIX)
-#TARGET_LINK_LIBRARIES(RoleMgr
-#	debug "${PROJECT_SOURCE_DIR}/build/linux/libAttrGetter.so"
-#    optimized "${PROJECT_SOURCE_DIR}/build/linux/libAttrGetter.so"
-#)
-#ENDIF(UNIX)
+IF(UNIX)
+TARGET_LINK_LIBRARIES(RoleMgr libAttrGetter.so)
+ENDIF(UNIX)
 
 #SET_PROPERTY(TARGET Gate PROPERTY FOLDER "core")
 SET_PROPERTY(TARGET RoleMgr PROPERTY FOLDER "framework")

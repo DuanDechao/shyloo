@@ -37,12 +37,9 @@ IF(WIN32)
 TARGET_LINK_LIBRARIES(ObjectLocator AttrGetter.lib)
 ENDIF(WIN32)
 
-#IF(UNIX)
-#TARGET_LINK_LIBRARIES(ObjectLocator
-# debug "${PROJECT_SOURCE_DIR}/build/linux/libAttrGetter.so"
-# optimized "${PROJECT_SOURCE_DIR}/build/linux/libAttrGetter.so"
-#)
-#ENDIF(UNIX)
+IF(UNIX)
+TARGET_LINK_LIBRARIES(ObjectLocator libAttrGetter.so)
+ENDIF(UNIX)
 
 
 SET_PROPERTY(TARGET ObjectLocator PROPERTY FOLDER "framework")

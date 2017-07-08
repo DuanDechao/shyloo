@@ -43,6 +43,7 @@ bool LogicEngine::initialize(){
 #endif // SL_OS_WINDOWS
 
 		if(!fun){
+			printf("canot get dll[%s]\n", path);
 			return false;
 		}
 
@@ -52,6 +53,7 @@ bool LogicEngine::initialize(){
 			const char* pName = plogic->getName();
 			std::map<std::string, api::IModule *>::iterator mitor = m_mapModule.find(pName);
 			if(mitor != m_mapModule.end()){
+				printf("can't find module[%s]\n", pName);
 				return false;
 			}
 
@@ -70,6 +72,7 @@ bool LogicEngine::initialize(){
 			KERNEL_LOG("initializing name %s.", (*vitor)->getName());
 			bool res = (*vitor)->initialize(core::Kernel::getInstance());
 			if(!res){
+				printf("initialize name %s failed.\n", (*vitor)->getName());
 				KERNEL_ERROR("initialize name %s failed.", (*vitor)->getName());
 				return false;
 			}
@@ -81,6 +84,7 @@ bool LogicEngine::initialize(){
 			bool res = (*vitor)->launched(Kernel::getInstance());
 			KERNEL_LOG("launching name %s.", (*vitor)->getName());
 			if(!res){
+				printf("launch name %s failed.\n", (*vitor)->getName());
 				KERNEL_ERROR("launch name %s failed.", (*vitor)->getName());
 				return false;
 			}

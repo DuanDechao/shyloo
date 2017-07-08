@@ -30,12 +30,9 @@ IF(WIN32)
 TARGET_LINK_LIBRARIES(PlayerMgr AttrGetter.lib slxml.lib)
 ENDIF(WIN32)
 
-#IF(UNIX)
-#  TARGET_LINK_LIBRARIES(PlayerMgr
-#  debug "${PROJECT_SOURCE_DIR}/build/linux/libAttrGetter.so"
-#  optimized "${PROJECT_SOURCE_DIR}/build/linux/libAttrGetter.so"
-#)
-#ENDIF(UNIX)
+IF(UNIX)
+  TARGET_LINK_LIBRARIES(PlayerMgr libAttrGetter.so)
+ENDIF(UNIX)
 
 
 #SET_PROPERTY(TARGET Gate PROPERTY FOLDER "core")

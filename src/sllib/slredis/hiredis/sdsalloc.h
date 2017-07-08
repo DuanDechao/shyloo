@@ -36,7 +36,7 @@
  * Just define the following defines to what you want to use. Also add
  * the include of your alternate allocator if needed (not needed in order
  * to use the default libc allocator). */
-//#include "util.h"
-#define s_malloc MALLOC
-#define s_realloc REALLOC
-#define s_free FREE
+#include "slmulti_sys.h"
+#define s_malloc SLMALLOC
+#define s_realloc SLREALLOC
+#define s_free SLFREE
