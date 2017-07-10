@@ -42,7 +42,9 @@ TableRow::TableRow(TableControl* pTable,const TableColumn* pTableCol)
 }
 
 TableRow::~TableRow(){
-	DEL _pRowData;
+	if (_pRowData)
+		DEL _pRowData;
+
 	_pRowData = nullptr;
 	_pTable = nullptr;
 	_pTableColumn = nullptr;

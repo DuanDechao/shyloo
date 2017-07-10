@@ -8,7 +8,11 @@ using namespace sl::shm;
 namespace sl{
 namespace core{
 IPCEngine::~IPCEngine(){
-	_shmMgr->release();
+	if (_shmMgr)
+		_shmMgr->release();
+
+	if (_ipcMQ)
+		_ipcMQ->release();
 }
 
 bool IPCEngine::initialize(){

@@ -6,7 +6,13 @@ TableControl::TableControl(const int32 name, const TableColumn* pTableColumn, IO
 {}
 
 TableControl::~TableControl(){
-
+	for (auto* row : _tableRows){
+		if (row)
+			DEL row;
+	}
+	_tableRows.clear();
+	_strToColIdx.clear();
+	_keyToColIdx.clear();
 }
 
 const IRow* TableControl::getRow(const int32 index) const{
@@ -42,8 +48,9 @@ const IRow* TableControl::findRow(const char* key) const{
 }
 
 void TableControl::clearRows(){
-	for (int32 i = 0; i < (int32)_tableRows.size(); i++){
-		DEL _tableRows[i];
+	for (auto* row : _tableRows){
+		if (row)
+			DEL row;
 	}
 	_tableRows.clear();
 	_strToColIdx.clear();

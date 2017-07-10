@@ -20,7 +20,7 @@ ScriptResult::ScriptResult(lua_State* state){
 bool ScriptResult::getBool(const int32 index) const{
 	SLASSERT(index < _count, "wtf");
 	SLASSERT(lua_isboolean(_state, _start + index), "wtf");
-	return (bool)lua_toboolean(_state, _start + index);
+	return lua_toboolean(_state, _start + index);
 }
 
 int8 ScriptResult::getInt8(const int32 index)const{

@@ -174,7 +174,7 @@ const IProp* ObjectMgr::setObjectProp(const char* propName, const int32 objTypeI
 		prop = itor->second;
 	}
 	else{
-		prop = NEW ObjectProp(sl::CalcStringUniqueId(propName), _propConfigsPath.size());
+		prop = NEW ObjectProp(sl::CalcStringUniqueId(propName), (int32)_propConfigsPath.size());
 		_allProps[propName] = prop;
 	}
 	prop->setLayout(objTypeId, layout);
@@ -188,7 +188,7 @@ const IProp* ObjectMgr::setObjectTempProp(const char* propName, const int32 objT
 		prop = itor->second;
 	}
 	else{
-		prop = NEW ObjectProp(sl::CalcStringUniqueId(propName), _propConfigsPath.size());
+		prop = NEW ObjectProp(sl::CalcStringUniqueId(propName), (int32)_propConfigsPath.size());
 		_allTempProps[propName] = prop;
 	}
 	prop->setLayout(objTypeId, layout);

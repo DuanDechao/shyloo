@@ -30,7 +30,7 @@ bool Sequence::onEnter(sl::api::IKernel* pKernel, IObject* object, int32 level){
 	return true;
 }
 AINode::AIState Sequence::onTick(sl::api::IKernel* pKernel, IObject* object, int32 level){
-	int32 index = getParam(object, level, 0) - 1;
+	int32 index = (int32)getParam(object, level, 0) - 1;
 	if (index < 0 || index >= _childNodes.size()){
 		SLASSERT(false, "index is invailed");
 		return AINode::AIState::AINODE_FAILTURE;
@@ -58,7 +58,7 @@ AINode::AIState Sequence::onTick(sl::api::IKernel* pKernel, IObject* object, int
 	return AINode::AIState::AINODE_RUNNING;
 }
 void Sequence::onLeave(sl::api::IKernel* pKernel, IObject* object, int32 level){
-	int32 index = getParam(object, level, 0) - 1;
+	int32 index = (int32)getParam(object, level, 0) - 1;
 	SLASSERT(index >= 0 && index < _childNodes.size(), "index is invailed");
 	if (index >= 0 && index < _childNodes.size())
 		_childNodes[index]->leave(pKernel, object, level + 1);

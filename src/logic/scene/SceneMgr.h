@@ -26,8 +26,8 @@ public:
 private:
 	void distributeScene(sl::api::IKernel* pKernel, const char* scene);
 	void addObjectToScene(sl::api::IKernel* pKernel, const char* scene, int64 id, float x, float y, float z, int32 gate, int32 logic, float vision);
-	void appearObjectToScene(sl::api::IKernel* pKernel, const char* scene, int32 id, int32 gate);
-	void removeObjectFromScene(sl::api::IKernel* pKernel, const char* scene, int32 id);
+	void appearObjectToScene(sl::api::IKernel* pKernel, const char* scene, int64 id, int32 gate);
+	void removeObjectFromScene(sl::api::IKernel* pKernel, const char* scene, int64 id);
 
 private:
 	sl::api::IKernel* _kernel;

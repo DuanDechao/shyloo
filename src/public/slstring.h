@@ -32,7 +32,7 @@ public:
 	inline int32 length() const { return (int32)strlen(m_szBuf); }
 
 	bool operator == (const char* str) const { return !strcmp(m_szBuf, str); }
-	bool operator != (const char* str) const { return strcmp(m_szBuf, str); }
+	bool operator != (const char* str) const { return !(*this == str); }
 	bool operator == (const SLString& buff) const { return !strcmp(m_szBuf, buff.m_szBuf); }
 	bool operator != (const SLString& buff) const { return strcmp(m_szBuf, buff.m_szBuf); }
 	bool operator < (const SLString& buff) const { return (strcmp(m_szBuf, buff.m_szBuf)) < 0; }
@@ -62,6 +62,12 @@ public:
 		ilen = (ilen > SIZE) ? (SIZE) : ilen;
 		safeMemcpy(m_szBuf, sizeof(m_szBuf), buff.m_szBuf, ilen);
 		return *this;
+	}
+
+	SLString(const SLString & buff){
+		int32 ilen = (int32)strlen(buff.getString());
+		ilen = (ilen > SIZE) ? (SIZE) : ilen;
+		safeMemcpy(m_szBuf, sizeof(m_szBuf), buff.m_szBuf, ilen);
 	}
 
 	SLString& operator << (const char* str){

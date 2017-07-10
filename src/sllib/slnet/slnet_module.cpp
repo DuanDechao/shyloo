@@ -22,13 +22,13 @@ CSLNetModule::CSLNetModule()
 }
 
 CSLNetModule::~CSLNetModule(){
-	int32 size = _connectorVec.size();
+	int32 size = (int32)_connectorVec.size();
 	for (int32 i = 0; i < size; i++){
 		if (_connectorVec[i])
 			_connectorVec[i]->release();
 	}
 
-	size = _listenerVec.size();
+	size = (int32)_listenerVec.size();
 	for (int32 i = 0; i < size; i++){
 		if (_listenerVec[i])
 			_listenerVec[i]->release();

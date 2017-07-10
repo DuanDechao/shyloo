@@ -72,6 +72,7 @@
 #define MAX_PATH 260
 #define strtok_s strtok_r
 #define stricmp strcasecmp
+
 #endif
 
 #endif

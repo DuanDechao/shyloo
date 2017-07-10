@@ -40,6 +40,8 @@ class SLIpcMq{
 public:
 	static SLIpcMq* getInstance();
 
+	inline void release(){ DEL this; }
+
 	bool connect(const int64 serverId, const int64 clientId, const int32 sendSize, const int32 recvSize);
 	bool listen(const int64 serverId);
 	bool closePipe(const int64 serverId, const int64 clientId);
@@ -69,7 +71,7 @@ private:
 	bool			_terminate;
 	bool			_start;
 	char			_svrPipeName[128];
-    int32			_serverId;
+    int64			_serverId;
 
 #ifdef SL_OS_WINDOWS
 	HANDLE			_svrNamePipe;

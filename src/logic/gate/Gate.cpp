@@ -435,7 +435,7 @@ void Gate::onLogicBrocastToAgents(sl::api::IKernel* pKernel, const int32 nodeTyp
 		int32 gate = info->gate;
 		int32 count = info->count;
 		int32 needSize = sizeof(client::Brocast) + sizeof(int64)* count;
-		SLASSERT(needSize >= needSize, "invalid message packet");
+		SLASSERT(remainSize >= needSize, "invalid message packet");
 
 		if (count > 0){
 			if (gate == _harbor->getNodeId()){

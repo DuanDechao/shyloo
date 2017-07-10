@@ -718,7 +718,7 @@ bool DBCreator::updateDBTablePartition(const char* tableName, const MysqlResult&
 
 		//É¾³ý¶àÓà·ÖÇø
 		if (partitionInfo._partByDay && partitionInfo._limit > 0){
-			int32 more = result.size() + partitionInfo._defaultValue.size() - partitionInfo._limit;
+			int32 more = (int32)result.size() + (int32)partitionInfo._defaultValue.size() - partitionInfo._limit;
 			SLASSERT(more < (int32)result.size(), "wtf");
 			if (more > 0){
 				for (int32 i = 0; i < more; i++){
@@ -732,7 +732,7 @@ bool DBCreator::updateDBTablePartition(const char* tableName, const MysqlResult&
 	else if (partitionInfo._type == "hash"){
 		SLASSERT(partitionInfo._defaultValue.size() == 1, "wtf");
 		auto valItor = partitionInfo._defaultValue.begin();
-		int32 dbPartNum = result.size(); 
+		int32 dbPartNum = (int32)result.size(); 
 		if (dbPartNum == 1){
 			auto dbName = result[0].find("partition_name");
 			SLASSERT(dbName != result[0].end(), "wtf");
@@ -799,7 +799,7 @@ void DBCreator::appendDBTablePartition(const char* tableName, ostringstream& os,
 				os << " PARTITION by range(`" << partInfo._field << "`) (";
 		}
 
-		int32 i = 1, count = partInfo._defaultValue.size();
+		int32 i = 1, count = (int32)(partInfo._defaultValue.size());
 		auto partItor = partInfo._defaultValue.begin();
 		for (; partItor != partInfo._defaultValue.end(); ++partItor){
 			os << "PARTITION " << partItor->first << " VALUE LESS THAN ";

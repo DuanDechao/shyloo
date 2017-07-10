@@ -67,7 +67,7 @@ struct Field{
 	SetExpr* operator = (const T value){
 		ostringstream os;
 		bool bEscape = SerializeHelper::Serialize(os, value);
-		return NEW SetExpr(_field, os.str().c_str(), os.str().size(), bEscape);
+		return NEW SetExpr(_field, os.str().c_str(), (int32)(os.str().size()), bEscape);
 	}
 
 	SetExpr* addStruct(const void* val, const int32 size){
@@ -84,7 +84,7 @@ struct Expr{
 		std::ostringstream os;
 		bool bEscape = SerializeHelper::Serialize(os, value);
 		string valStr = os.str();
-		_exprs.push_back(NEW SetExpr(field._field + op, valStr.c_str(), valStr.size(), bEscape));
+		_exprs.push_back(NEW SetExpr(field._field + op, valStr.c_str(), (int32)valStr.size(), bEscape));
 	}
 
 	void append(const SetExpr* expr){

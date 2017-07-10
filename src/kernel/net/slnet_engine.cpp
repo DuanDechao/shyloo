@@ -37,7 +37,8 @@ char g_localIpPrefix[MAX_LOCAL_IP_PREFIX_NUM][MAX_IP_LEN] = {
 };
 
 NetEngine::~NetEngine(){
-	m_pSLNetModule->release();
+	if (m_pSLNetModule)
+		m_pSLNetModule->release();
 }
 
 bool NetEngine::initialize(){
@@ -177,7 +178,7 @@ void NetEngine::readInternetIp(){
 
 bool NetEngine::isLocalIp(const char* ip){
 	for (int32 i = 0; i < MAX_LOCAL_IP_PREFIX_NUM; i++){
-		int32 len = strlen(g_localIpPrefix[i]);
+		int32 len = (int32)strlen(g_localIpPrefix[i]);
 		if (strncmp(ip, g_localIpPrefix[i], len) == 0)
 			return true;
 	}

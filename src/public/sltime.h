@@ -20,11 +20,9 @@
 #include <time.h>
 #define CTIME_SECONDS_PRE_DAY		86400			///< 每天最大的秒数
 
-namespace sl
-{
+namespace sl{
 	///时间相关定义
-	enum EnumTimeDef
-	{
+	enum EnumTimeDef{
 		ETD_TIME_ZERO	=	0*3600,					///< 0点钟
 		ETD_TIME_ONE	=	1*3600,					///< 1点钟
 		ETD_TIME_TWO	=	2*3600,					///< 2点钟
@@ -39,8 +37,7 @@ namespace sl
 	};
 
 	//时间跨度类
-	class CTimeSpan
-	{
+	class CTimeSpan{
 	public:
 		CTimeSpan() {}
 		CTimeSpan(time_t time) { m_timeSpan = time;}
@@ -71,18 +68,14 @@ namespace sl
 
 		
 
-		std::string Format(const char* pszFormat) const
-		{
+		std::string Format(const char* pszFormat) const{
 			char szBuffer[32];
 			char ch = 0;
 			std::string s;
 			
-			while((ch = *pszFormat++) != '\0')
-			{
-				if(ch == '%')
-				{
-					switch (ch = *pszFormat++)
-					{
+			while((ch = *pszFormat++) != '\0'){
+				if(ch == '%'){
+					switch (ch = *pszFormat++){
 					case '%':
 						s += ch;
 						break;
@@ -106,8 +99,7 @@ namespace sl
 						return "";
 					}
 				}
-				else
-				{
+				else{
 					s += ch;
 				}
 			}
@@ -125,13 +117,11 @@ namespace sl
 	public:
 		CTime() {}
 		CTime(time_t time) {m_time = time;}
-		CTime(struct tm t)
-		{
+		CTime(struct tm t){
 			m_time = mktime(&t);
 		}
 
-		CTime(int iYear, int iMonth, int iDay, int iHour, int iMin, int iSec, int iDST = -1)
-		{
+		CTime(int iYear, int iMonth, int iDay, int iHour, int iMin, int iSec, int iDST = -1){
 			struct tm atm;
 			atm.tm_sec   = iSec;
 			atm.tm_min   = iMin;
@@ -143,12 +133,12 @@ namespace sl
 			m_time = mktime(&atm);
 
 		}
-		CTime(const std::string& strDateTime)
-		{
+
+		CTime(const std::string& strDateTime){
 			struct tm stTm;
 			const size_t iLen = strDateTime.length();
-			if(iLen == 19)  /// YYYY-mm-dd HH:MM:SS
-			{
+			if(iLen == 19){
+				/// YYYY-mm-dd HH:MM:SS
 				stTm.tm_year =  strtol(strDateTime.substr(0,4).c_str(), NULL, 10) - 1900;
 				stTm.tm_mon  =  strtol(strDateTime.substr(5,2).c_str(), NULL, 10) - 1;
 				stTm.tm_mday =  strtol(strDateTime.substr(8,2).c_str(), NULL, 10);
@@ -161,8 +151,8 @@ namespace sl
 					m_time = 0;
 				}
 			}
-			else if(iLen == 14) /// YYYYmmddHHMMSS
-			{
+			else if(iLen == 14) {
+				/// YYYYmmddHHMMSS
 				stTm.tm_year =  strtol(strDateTime.substr(0,4).c_str(), NULL, 10) - 1900;
 				stTm.tm_mon  =  strtol(strDateTime.substr(4,2).c_str(), NULL, 10) - 1;
 				stTm.tm_mday =  strtol(strDateTime.substr(6,2).c_str(), NULL, 10);
@@ -170,13 +160,12 @@ namespace sl
 				stTm.tm_min  =  strtol(strDateTime.substr(10,2).c_str(), NULL, 10);
 				stTm.tm_sec  =  strtol(strDateTime.substr(12,2).c_str(), NULL, 10);
 				m_time = mktime(&stTm);
-				if(m_time == -1)
-				{
+				if(m_time == -1){
 					m_time = 0;
 				}
 			}
-			else if(iLen == 10) //YYYY-mm-dd
-			{
+			else if(iLen == 10){
+				//YYYY-mm-dd
 				stTm.tm_year =  strtol(strDateTime.substr(0,4).c_str(), NULL, 10) - 1900;
 				stTm.tm_mon  =  strtol(strDateTime.substr(5,2).c_str(), NULL, 10) - 1;
 				stTm.tm_mday =  strtol(strDateTime.substr(8,2).c_str(), NULL, 10);
@@ -184,13 +173,11 @@ namespace sl
 				stTm.tm_min  = 0;
 				stTm.tm_sec  = 0;
 				m_time  = mktime(&stTm);
-				if(m_time == -1)
-				{
+				if(m_time == -1){
 					m_time = 0;
 				}
 			}
-			else
-			{
+			else{
 				m_time = 0;
 			}
 		}
@@ -200,112 +187,86 @@ namespace sl
 		const CTime& operator=(const CTime& timeSrc) {m_time = timeSrc.m_time; return *this;}
 		const CTime& operator=(time_t t) {m_time = t; return *this;}
 
-		struct tm* GetGmtTm(struct tm* ptm = NULL) const
-		{
-			if(ptm != NULL)
-			{
-				//gmtime(ptm, &m_time);
+		struct tm* GetGmtTm(struct tm* ptm = NULL) const{
+			if(ptm != NULL){
+				ptm = gmtime(&m_time);
 				return ptm;
 			}
-			else
-			{
-				//gmtime_s(ptm, &m_time);
-				return ptm;
-			}
-		}
-
-		struct tm* GetLocalTm(struct tm* ptm = NULL) const
-		{
-			if(ptm != NULL)
-			{
+			else{
 				struct tm* ptmTemp;
-				//localtime_s(ptmTemp, &m_time);
-				if(ptmTemp == NULL)
-				{
-					return NULL;
-				}
-
-				*ptm = *ptmTemp;
-				return ptm;
-			}
-			else
-			{
-				struct tm* ptmTemp;
-				//localtime_s(ptmTemp, &m_time);
+				ptmTemp = gmtime(&m_time);
 				return ptmTemp;
 			}
 		}
 
-		static bool IsSameDay(time_t time1, time_t time2)
-		{
-			struct tm t1,t2;
-			//localtime_s(&t1, &time1);
-			//localtime_s(&t1, &time2);
-			return (t1.tm_year == t2.tm_year && t1.tm_mon == t2.tm_mon && t1.tm_mday == t2.tm_mday);
+		struct tm* GetLocalTm(struct tm* ptm = NULL) const{
+			if(ptm != NULL){
+				ptm = localtime(&m_time);
+				return ptm;
+			}
+			else{
+				struct tm* ptmTemp;
+				ptmTemp = localtime(&m_time);
+				return ptmTemp;
+			}
 		}
 
-		/*static bool CompareTime(int time1, int time2, int iDay)
-		{
+		static bool IsSameDay(time_t time1, time_t time2){
+			struct tm *t1,*t2;
+			t1 = localtime(&time1);
+			t2 = localtime(&time2);
+			return (t1->tm_year == t2->tm_year && t1->tm_mon == t2->tm_mon && t1->tm_mday == t2->tm_mday);
+		}
+
+		static bool CompareTime(int time1, int time2, int iDay){
 			time1 += iDay * 24 * 3600;
 			time_t day1 = static_cast<time_t>(time1);
 			time_t day2 = static_cast<time_t>(time2);
-			struct tm t1, t2;
-			//localtime_s(&t1, &day1);
-			//localtime_s(&t2, &day2);
-			if(t1.tm_year > t2.tm_year)
-			{
+			struct tm *t1, *t2;
+			t1 = localtime(&day1);
+			t2 = localtime(&day2);
+			if (t1->tm_year > t2->tm_year){
 				return true;
 			}
-			else if(t1.tm_year == t2.tm_year)
-			{
-				if(t1.tm_mon > t2.tm_mon)
-				{
+			else if (t1->tm_year == t2->tm_year){
+				if (t1->tm_mon > t2->tm_mon){
 					return true;
 				}
-				else if(t1.tm_mon == t2.tm_mon)
-				{
-					if(t1.tm_mday >= t2.tm_mday)
-					{
+				else if (t1->tm_mon == t2->tm_mon){
+					if (t1->tm_mday >= t2->tm_mday){
 						return true;
 					}
-					else
-					{
+					else{
 						return false;
 					}
 				}
-				else
-				{
+				else{
 					return false;
 				}
 			}
-			else
-			{
+			else{
 				return false;
 			}
-		}*/
+		}
 
-		bool IsSameDay(time_t times)
-		{
+		bool IsSameDay(time_t times){
 			return IsSameDay(times, m_time);
 		}
 
-		bool IsSameDayWithMigration(time_t times, int ieff)
-		{
+		bool IsSameDayWithMigration(time_t times, int ieff){
 			if(times < 0 || ieff >= CTIME_SECONDS_PRE_DAY)
-			{
 				return false;
-			}
+			
 			if(m_time - ieff < 0 || times - ieff < 0)
-			{
 				return false;
-			}
+			
 			CTime tms(m_time - ieff);
 			return tms.IsSameDay(times -ieff);
 		}
 
 		char* Format(char* pszBuffer, int iMaxLen, const char* pszFormat) const{
 			time_t time = m_time;
-			struct tm *ptmTemp;
+			struct tm *ptmTemp = nullptr;
 			ptmTemp = localtime(&time);
 			if(!strftime(pszBuffer, iMaxLen, pszFormat, ptmTemp)){
 				pszBuffer[0] = '\0';

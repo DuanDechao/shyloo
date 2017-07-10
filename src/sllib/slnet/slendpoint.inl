@@ -253,8 +253,10 @@ inline EndPoint* EndPoint::accept(uint16* networkPort /* = NULL */, uint32* netw
 		pNew->setnodelay(true);
 	}
 
-	if(networkAddr != NULL) *networkPort = sin.sin_port;
-	if(networkPort != NULL) *networkAddr = sin.sin_addr.s_addr;
+	if (networkPort != NULL)
+		*networkPort = sin.sin_port;
+	if (networkAddr != NULL)
+		*networkAddr = sin.sin_addr.s_addr;
 
 	return pNew;
 }

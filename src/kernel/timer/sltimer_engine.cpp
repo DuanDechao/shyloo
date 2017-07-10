@@ -18,6 +18,8 @@ bool TimerEngine::ready(){
 }
 
 bool TimerEngine::destory(){
+	if (m_pTimerMgr)
+		m_pTimerMgr->release();
 	DEL this;
 	return true;
 }

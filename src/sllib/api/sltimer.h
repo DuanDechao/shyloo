@@ -26,6 +26,7 @@ public:
 	virtual void SLAPI pauseTimer(SLTimerHandler pTimer) = 0;
 	virtual void SLAPI resumeTimer(SLTimerHandler pTimer) = 0;
 	virtual int64 SLAPI process(int64 overTime) = 0;
+	virtual void SLAPI release() = 0;
 };
 
 extern "C" SL_DLL_API ISLTimerMgr* SLAPI getSLTimerModule(void);

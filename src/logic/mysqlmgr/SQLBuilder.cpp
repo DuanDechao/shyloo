@@ -266,7 +266,7 @@ void SQLBuilder::escapeString(string& dest, const SetExpr* val){
 	if (!val->needEsacape()){
 		dest += val->value();
 	}else{
-		int32 srcSize = val->value().size();
+		int32 srcSize = (int32)(val->value().size());
 		char* destStr = (char*)alloca(srcSize * 2 + 3);
 		int32 escapeLen = MysqlMgr::escapeString(destStr, srcSize * 2 + 3, val->value().c_str(), srcSize);
 		dest.append("'");

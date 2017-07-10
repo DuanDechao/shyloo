@@ -475,8 +475,6 @@ void Scene::removeSceneNode(SceneEntity* node){
 
 	node->prev = nullptr;
 	node->next= nullptr;
-	node->prev = nullptr;
-	node->next = nullptr;
 }
 
 void Scene::moveSceneNode(SceneEntity* head, SceneEntity* node, int8 quadrant, bool forward){

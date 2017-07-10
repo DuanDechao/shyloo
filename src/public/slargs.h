@@ -158,7 +158,7 @@ public:
 	}
 
 	IArgs& operator << (const char* string){
-		int32 size = strlen(string) + 1;
+		int32 size = (int32)strlen(string) + 1;
 		if (_bFixed || _header.argsCount >= maxCount || _header.dataOffset + size > maxSize){
 			SLASSERT(false, "can not contain more args");
 			return *this;

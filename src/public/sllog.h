@@ -268,7 +268,7 @@ public:
 			stNowTime.tv_usec = 0;
 			#endif
 			CTime stNow(stNowTime.tv_sec);
-			stNowTime.tv_sec = stNowTime.tv_sec;
+			//stNowTime.tv_sec = stNowTime.tv_sec;
 			
 		///计算Log的文件名
 		char szTimeBuf[32] = {0};
@@ -339,14 +339,15 @@ public:
 
 		///向目标输出
 		if( !(m_uiFormat & ENoFile) ){
+			FILE* pstFile = nullptr;
 		#ifdef SL_OS_LINUX
 			mode_t iMode = umask(0);
-			FILE* pstFile = fopen(szFilePath, "a+");
+			pstFile = fopen(szFilePath, "a+");
 			umask(iMode);
 		#else
-			FILE* pstFile = fopen(szFilePath, "a+");
+			pstFile = fopen(szFilePath, "a+");
 		#endif
-			if(pstFile){
+			if (pstFile){
 				fprintf(pstFile, "%s", m_szLine);
 				fflush(pstFile);
 				fclose(pstFile);

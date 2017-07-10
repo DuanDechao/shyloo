@@ -52,6 +52,10 @@ SLTimerMgr::~SLTimerMgr(){
 	m_gear5 = nullptr;
 }
 
+void SLTimerMgr::release(){
+	DEL this;
+}
+
 
 SLTimerHandler SLTimerMgr::startTimer(ISLTimer* pTimer, int64 delay, int32 count, int64 interval, const char* debug){
 	if (interval != 0 && interval < JIFFIES_INTERVAL)

@@ -15,7 +15,7 @@ namespace core{
 SLIpcMq* SLIpcMq::getInstance(){
 	static SLIpcMq* p = NULL;
 	if (p == NULL)
-		p = new SLIpcMq;
+		p = NEW SLIpcMq;
 	return p;
 }
 

@@ -21,7 +21,7 @@ bool ScriptTable::getBoolean(const int64 key){
 	lua_pushinteger(_state, key);
 	lua_rawget(_state, _tableIndex);
 	SLASSERT(lua_isboolean(_state, -1), "wtf");
-	return (bool)lua_toboolean(_state, -1);
+	return lua_toboolean(_state, -1);
 }
 
 int8 ScriptTable::getInt8(const int64 key){

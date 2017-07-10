@@ -14,13 +14,12 @@ void SLShmMgr::recover(ISLShmQueue* queue){
 }
 
 std::string SLShmMgr::getShmKeyFile(const char* shmKey){
+
 	FILE* pstFile = fopen(shmKey, "a+");
-	if (pstFile){
+	if (pstFile)
 		fclose(pstFile);
-	}
-	else{
+	else
 		SLASSERT(false, "wtf");
-	}
 
 	char keyPathStr[128] = { 0 };
 	SafeSprintf(keyPathStr, sizeof(keyPathStr), "TEXT(%s)", shmKey);

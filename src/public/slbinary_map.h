@@ -97,7 +97,7 @@ public:
 	IBMap& writeFloat(const int32 key, float val) { writeData(key, val); return *this; }
 	IBMap& writeString(const int32 key, const char* val) {
 		SLASSERT(!_fixed, "has fixed");
-		int32 len = strlen(val);
+		int32 len = (int32)strlen(val);
 		SLASSERT(_downOffset + len + 1 <= downSize, "out of range");
 		if (_downOffset + len + 1 <= downSize){
 			sl::SafeMemcpy(_separate + _downOffset, downSize - _downOffset, val, len);

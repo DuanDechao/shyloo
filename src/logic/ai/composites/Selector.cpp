@@ -22,7 +22,7 @@ bool Selector::onEnter(sl::api::IKernel* pKernel, IObject* object, int32 level){
 		return false;
 	}
 	
-	int32 nodeSize = _childNodes.size();
+	int32 nodeSize = (int32)_childNodes.size();
 	int32 i = 0;
 	for (; i < nodeSize; i++){
 		if (!_childNodes[i]->enter(pKernel, object, level + 1))
@@ -41,7 +41,7 @@ bool Selector::onEnter(sl::api::IKernel* pKernel, IObject* object, int32 level){
 }
 
 AINode::AIState Selector::onTick(sl::api::IKernel* pKernel, IObject* object, int32 level){
-	int32 index = getParam(object, level, 0) - 1;
+	int32 index = (int32)getParam(object, level, 0) - 1;
 	if (index < 0 || index >= _childNodes.size()){
 		SLASSERT(false, "params index is invailed");
 		return AIState::AINODE_FAILTURE;
@@ -51,7 +51,7 @@ AINode::AIState Selector::onTick(sl::api::IKernel* pKernel, IObject* object, int
 }
 
 void Selector::onLeave(sl::api::IKernel* pKernel, IObject* object, int32 level){
-	int32 index = getParam(object, level, 0) - 1;
+	int32 index = (int32)getParam(object, level, 0) - 1;
 	SLASSERT(index >= 0 && index < _childNodes.size(), "index is invailed");
 	if (index >= 0 && index < _childNodes.size())
 		_childNodes[index]->leave(pKernel, object, level + 1);

@@ -140,7 +140,7 @@ void SceneMgr::onLogicLeaveScene(sl::api::IKernel* pKernel, const int32 nodeType
 	DEL_TABLE_ROW(_objects, row);
 }
 
-void SceneMgr::appearObjectToScene(sl::api::IKernel* pKernel, const char* scene, int32 id, int32 gate){
+void SceneMgr::appearObjectToScene(sl::api::IKernel* pKernel, const char* scene, int64 id, int32 gate){
 	const IRow* row = _scenes->findRow(scene);
 	SLASSERT(row, "wtf");
 
@@ -152,7 +152,7 @@ void SceneMgr::appearObjectToScene(sl::api::IKernel* pKernel, const char* scene,
 	_harbor->send(NodeType::SCENE, nodeId, NodeProtocol::SCENEMGR_MSG_APPEAR_SCENE, args.out());
 }
 
-void SceneMgr::removeObjectFromScene(sl::api::IKernel* pKernel, const char* scene, int32 id){
+void SceneMgr::removeObjectFromScene(sl::api::IKernel* pKernel, const char* scene, int64 id){
 	const IRow* row = _scenes->findRow(scene);
 	SLASSERT(row, "wtf");
 

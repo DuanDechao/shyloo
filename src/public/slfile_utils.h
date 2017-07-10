@@ -53,12 +53,10 @@ public:
 		if(pszFileName == NULL){
 			return -1;
 		}
-			
 		FILE* pstFile = fopen(pszFileName, "rb");
-		if(pstFile == NULL){
+		if (pstFile == NULL){
 			return -2;
 		}
-
 		int iRet = 0;
 		do{
 			//获取文件长度
@@ -147,16 +145,10 @@ public:
 			return -1;
 		}
 
-		FILE* pstFile = NULL;
-		if(bAppend){
-			pstFile = fopen(pszFileName, "a+b");
-		}
-		else{
-			pstFile = fopen(pszFileName, "w+b");
-		}
-		if(pstFile == NULL){
+		const char* mode = bAppend ? "a+b" : "w+b";
+		FILE* pstFile = fopen(pszFileName, mode);
+		if (pstFile == NULL)
 			return -2;
-		}
 
 		size_t iLeft  = iBufLen;
 		size_t iWrite = 0;

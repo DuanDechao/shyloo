@@ -45,8 +45,8 @@ public:
 	virtual bool setTempFloat(const IProp* prop, const float data){ return setData(prop, true, DTYPE_FLOAT, &data, sizeof(float), false); }
 	virtual bool setTempString(const IProp* prop, const char* data){
 		if (data == nullptr)
-			return setData(prop, true, DTYPE_STRING, "", strlen("") + 1, false);
-		return setData(prop, true, DTYPE_STRING, data, strlen(data) + 1, false); 
+			return setData(prop, true, DTYPE_STRING, "", (int32)strlen("") + 1, false);
+		return setData(prop, true, DTYPE_STRING, data, (int32)strlen(data) + 1, false); 
 	}
 	virtual bool setTempStruct(const IProp* prop, const void* data, const int32 size) { return setData(prop, true, DTYPE_STRUCT, data, size, false); }
 	virtual bool setTempBlob(const IProp* prop, const void* data, const int32 size) { return setData(prop, true, DTYPE_BLOB, data, size, false); }

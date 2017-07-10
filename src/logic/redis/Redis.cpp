@@ -50,7 +50,8 @@ bool Redis::launched(sl::api::IKernel * pKernel){
 	return true;
 }
 bool Redis::destory(sl::api::IKernel * pKernel){
-	_slRedisMgr->release();
+	if (_slRedisMgr)
+		_slRedisMgr->release();
 
 	DEL this;
 	return true;
@@ -67,8 +68,7 @@ bool Redis::exec(const int64 id, const char* command, const OArgs& args, const s
 
 	append(buf, args);
 
-	bool ret = true;
-	ret = redisConn->exec(buf._data, buf._size, [&](sl::db::ISLRedisResult* result){
+	 bool ret = redisConn->exec(buf._data, buf._size, [&](sl::db::ISLRedisResult* result){
 		if (f){
 			return f(_kernel, result);
 		}
@@ -95,8 +95,7 @@ bool Redis::call(const int64 id, const char* proc, const int32 keyCount, const O
 	append(buf, args);
 
 	Context& ctx = _redisContexts[(uint64)id % (uint64)_redisContexts.size()];
-	bool ret = true;
-	ret = ctx._conn->exec(buf._data, buf._size, [&](sl::db::ISLRedisResult* result){
+	bool ret = ctx._conn->exec(buf._data, buf._size, [&](sl::db::ISLRedisResult* result){
 		if (f)
 			return f(_kernel, result);
 		return true;

@@ -29,7 +29,7 @@ public:
 	jiffies_t getExpireTime() const { return m_expire; }
 	void adjustExpireTime(jiffies_t nowJiffies);
 
-	void setPauseTime(jiffies_t pause){ m_pause = m_pause; }
+	void setPauseTime(jiffies_t pause){ m_pause = pause; }
 	jiffies_t getPauseTime() const { return m_pause; }
 
 	jiffies_t getIntervalTime() const { return m_interval; }
