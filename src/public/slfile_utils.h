@@ -53,10 +53,17 @@ public:
 		if(pszFileName == NULL){
 			return -1;
 		}
-		FILE* pstFile = fopen(pszFileName, "rb");
+		FILE* pstFile = 0;
+#ifdef SL_OS_WINDOWS
+		errno_t err = fopen_s(&pstFile, pszFileName, "rb");
+		if (err || !pstFile)
+			return -2;
+#else
+		pstFile = fopen(pszFileName, "rb");
 		if (pstFile == NULL){
 			return -2;
 		}
+#endif
 		int iRet = 0;
 		do{
 			//获取文件长度
@@ -146,10 +153,16 @@ public:
 		}
 
 		const char* mode = bAppend ? "a+b" : "w+b";
-		FILE* pstFile = fopen(pszFileName, mode);
+		FILE* pstFile = 0;
+#ifdef SL_OS_WINDOWS
+		errno_t err = fopen_s(&pstFile, pszFileName, mode);
+		if (err || !pstFile)
+			return -2;
+#else
+		pstFile = fopen(pszFileName, mode);
 		if (pstFile == NULL)
 			return -2;
-
+#endif
 		size_t iLeft  = iBufLen;
 		size_t iWrite = 0;
 		size_t nWrite = 0;

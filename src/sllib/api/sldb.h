@@ -1,12 +1,9 @@
 #ifndef SL_SLDB_H
 #define SL_SLDB_H
 #include "sltype.h"
-namespace sl
-{
-namespace db
-{
-class ISLDBResult
-{
+namespace sl{
+namespace db{
+class ISLDBResult{
 public:
 	virtual bool SLAPI next() = 0;
 	virtual void SLAPI release() = 0;

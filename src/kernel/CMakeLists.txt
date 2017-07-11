@@ -132,11 +132,8 @@ ADD_EXECUTABLE(shyloo
 ENDIF(UNIX)
 
 IF(WIN32)
-TARGET_LINK_LIBRARIES(shyloo slxml.lib slnet.lib sltimer.lib slshm.lib)
-ENDIF(WIN32)
-
-IF(WIN32)
 SET(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/build/windows")
+TARGET_LINK_LIBRARIES(shyloo slxml.lib slnet.lib sltimer.lib slshm.lib)
 ENDIF(WIN32)
 
 IF(UNIX)

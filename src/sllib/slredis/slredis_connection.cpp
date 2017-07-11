@@ -74,7 +74,7 @@ bool SLRedisConnection::isActive(){
 	if (reply->type != REDIS_REPLY_STATUS) 
 		return false;
 
-	if (stricmp(reply->str, "PONG") != 0) 
+	if (_stricmp(reply->str, "PONG") != 0) 
 		return false;
 
 	freeReplyObject(reply);

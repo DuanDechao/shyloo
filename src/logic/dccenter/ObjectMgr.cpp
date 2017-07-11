@@ -5,6 +5,7 @@
 #include "MMObject.h"
 #include "TableControl.h"
 #include "IIdMgr.h"
+#include <direct.h>
 
 bool ObjectMgr::initialize(sl::api::IKernel * pKernel){
 	_self = this;
@@ -74,11 +75,15 @@ void ObjectMgr::onTime(sl::api::IKernel* pKernel, int64 timetick){
 }
 
 bool ObjectMgr::initPropDefineConfig(sl::api::IKernel * pKernel){
+	char buf[80];
+	_getcwd(buf, sizeof(buf));
+	printf("current working directory: %s\n", buf);
+
 	char path[256] = { 0 };
 	SafeSprintf(path, sizeof(path), "%s/object.xml", pKernel->getEnvirPath());
 	sl::XmlReader conf;
 	if (!conf.loadXml(path)){
-		SLASSERT(false, "can not load file %s", pKernel->getEnvirPath());
+		SLASSERT(false, "can not load file %s", path);
 		return false;
 	}
 	if (conf.root().subNodeExist("prop")){

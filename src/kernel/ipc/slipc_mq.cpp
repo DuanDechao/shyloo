@@ -123,7 +123,7 @@ bool SLIpcMq::listen(const int64 serverId){
 		return false;
 
 	SafeSprintf(_svrPipeName, sizeof(_svrPipeName), "%s/pipe/fifo_%lld", ConfigEngine::getInstance()->getIpcPath(), serverId);
-	if(access(_svrPipeName, F_OK) == -1){
+	if(_access(_svrPipeName, F_OK) == -1){
 		_svrNamePipe = mkfifo(_svrPipeName, 0777);
 	}
 #endif

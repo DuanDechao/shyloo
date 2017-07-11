@@ -193,10 +193,9 @@ void DBCall::del(const char* tableName, const DBDeleteCommandFunc& f, const DBCa
 	});
 }
 
-bool DBCall::onSuccess(sl::api::IKernel* pKernel, const int32 optType, const int32 affectedRow, const MysqlResult& result){
+bool DBCall::onSuccess(sl::api::IKernel* pKernel, const int32 optType, const int32 affectedRow, IMysqlResult* result){
 	if (_cb){
-		DBResult res(result);
-		_cb(pKernel, _id, true, affectedRow, this, &res);
+		_cb(pKernel, _id, true, affectedRow, this, result);
 	}
 
 	return true;

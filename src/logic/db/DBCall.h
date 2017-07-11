@@ -21,7 +21,7 @@ public:
 	virtual void save(const char* tableName, const DBSaveCommandFunc& f, const DBCallBack& cb);
 
 
-	virtual bool onSuccess(sl::api::IKernel* pKernel, const int32 optType, const int32 affectedRow, const MysqlResult& result);
+	virtual bool onSuccess(sl::api::IKernel* pKernel, const int32 optType, const int32 affectedRow, IMysqlResult* result);
 	virtual bool onFailed(sl::api::IKernel* pKernel, const int32 optType, const int32 errCode);
 	virtual void onRelease();
 
@@ -32,29 +32,6 @@ protected:
 	DBCallBack	_cb;
 	int64		_threadId;
 	int64		_id;
-};
-
-class DBResult : public IDBResult{
-public:
-	DBResult(const MysqlResult& root) :_root(root){}
-
-	virtual int32 rowCount() const { return (int32)_root.size(); }
-	virtual int8 getDataInt8(const int32 i, const char* key) const { return sl::CStringUtils::StringAsInt8(getData(i, key).c_str());}
-	virtual int16 getDataInt16(const int32 i, const char* key) const { return sl::CStringUtils::StringAsInt16(getData(i, key).c_str()); }
-	virtual int32 getDataInt32(const int32 i, const char* key) const { return sl::CStringUtils::StringAsInt32(getData(i, key).c_str()); }
-	virtual int64 getDataInt64(const int32 i, const char* key) const { return sl::CStringUtils::StringAsInt64(getData(i, key).c_str()); }
-	virtual const char* getDataString(const int32 i, const char* key) const { return getData(i, key).c_str(); }
-
-private:
-	const std::string& getData(const int32 i, const char* key) const {
-		SLASSERT(i >= 0 && i < (int32)_root.size(), "out of range");
-		auto itor = _root[i].find(key);
-		SLASSERT(itor != _root[i].end(), "cannot find key %s", key);
-		return itor->second;
-	}
-
-private:
-	const MysqlResult& _root;
 };
 
 template<int32 maxSize>

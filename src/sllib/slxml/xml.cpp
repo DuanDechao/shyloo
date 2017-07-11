@@ -118,7 +118,7 @@ CSLXmlReader::CSLXmlReader()
 
 CSLXmlReader::~CSLXmlReader(){
 	if (m_pRootNode)
-		delete m_pRootNode;
+		DEL m_pRootNode;
 	m_pRootNode = nullptr;
 }
 
@@ -134,7 +134,7 @@ bool CSLXmlReader::loadXmlFile(const char* path){
    //	const char* dn = xmlNode->Value();
 	if (nullptr == xmlNode)
 		return false;
-	m_pRootNode = new CSLXmlNode(xmlNode);
+	m_pRootNode = NEW CSLXmlNode(xmlNode);
 	if (nullptr == m_pRootNode)
 		return false;
 

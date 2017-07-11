@@ -64,11 +64,11 @@ public:
 		return *this;
 	}
 
-	SLString(const SLString & buff){
-		int32 ilen = (int32)strlen(buff.getString());
-		ilen = (ilen > SIZE) ? (SIZE) : ilen;
-		safeMemcpy(m_szBuf, sizeof(m_szBuf), buff.m_szBuf, ilen);
-	}
+	//SLString(const SLString & buff){
+	//	int32 ilen = (int32)strlen(buff.getString());
+	//	ilen = (ilen > SIZE) ? (SIZE) : ilen;
+	//	safeMemcpy(m_szBuf, sizeof(m_szBuf), buff.m_szBuf, ilen);
+	//}
 
 	SLString& operator << (const char* str){
 		int32 ilen = (int32)strlen(m_szBuf);

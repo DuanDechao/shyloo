@@ -10,7 +10,7 @@ using namespace sl::db;
 
 class TestHandler : public IMysqlHandler{
 public:
-	virtual bool onSuccess(sl::api::IKernel* pKernel, const int32 optType, const int32 affectedRow, const MysqlResult& result){
+	virtual bool onSuccess(sl::api::IKernel* pKernel, const int32 optType, const int32 affectedRow, IMysqlResult* result){
 		return true;
 	}
 	virtual bool onFailed(sl::api::IKernel* pKernel, const int32 optType, const int32 errCode){

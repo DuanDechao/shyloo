@@ -1,6 +1,7 @@
 #ifndef _SL_IDBMGR_H__
 #define _SL_IDBMGR_H__
 #include "slimodule.h"
+#include "IMysqlMgr.h"
 #include <functional>
 class IDBCallCondition{
 public:
@@ -80,18 +81,7 @@ public:
 	virtual const void* getContext(const int32 size = 0) const = 0;
 };
 
-class IDBResult{
-public:
-	virtual ~IDBResult() {}
-
-	virtual int32 rowCount() const = 0;
-	virtual int8 getDataInt8(const int32 i, const char* key) const = 0;
-	virtual int16 getDataInt16(const int32 i, const char* key) const = 0;
-	virtual int32 getDataInt32(const int32 i, const char* key) const = 0;
-	virtual int64 getDataInt64(const int32 i, const char* key) const = 0;
-	virtual const char* getDataString(const int32 i, const char* key) const = 0;
-};
-
+typedef IMysqlResult IDBResult;
 typedef std::function<void(sl::api::IKernel* pKernel, const int64 id, const bool success, const int32 affectedRow, const IDBCallSource* source, const IDBResult* result)> DBCallBack;
 
 class IDBCall{

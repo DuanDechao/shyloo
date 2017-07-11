@@ -189,33 +189,56 @@ namespace sl{
 
 		struct tm* GetGmtTm(struct tm* ptm = NULL) const{
 			if(ptm != NULL){
+#ifdef SL_OS_WINDOWS
+				gmtime_s(ptm, &m_time);
+#else
 				ptm = gmtime(&m_time);
+#endif
 				return ptm;
 			}
 			else{
 				struct tm* ptmTemp;
+#ifdef SL_OS_WINDOWS
+				gmtime_s(ptmTemp, &m_time);
+#else
 				ptmTemp = gmtime(&m_time);
+#endif
 				return ptmTemp;
 			}
 		}
 
 		struct tm* GetLocalTm(struct tm* ptm = NULL) const{
 			if(ptm != NULL){
+#ifdef SL_OS_WINDOWS
+				localtime_s(ptm, &m_time);
+#else
 				ptm = localtime(&m_time);
+#endif
 				return ptm;
 			}
 			else{
 				struct tm* ptmTemp;
+#ifdef SL_OS_WINDOWS
+				localtime_s(ptmTemp, &m_time);
+#else
 				ptmTemp = localtime(&m_time);
+#endif
 				return ptmTemp;
 			}
 		}
 
 		static bool IsSameDay(time_t time1, time_t time2){
-			struct tm *t1,*t2;
+#ifdef SL_OS_WINDOWS
+			struct tm t1, t2;
+			localtime_s(&t1, &time1);
+			localtime_s(&t2, &time2);
+			return (t1.tm_year == t2.tm_year && t1.tm_mon == t2.tm_mon && t1.tm_mday == t2.tm_mday);
+#else
+			struct tm *t1, *t2;
 			t1 = localtime(&time1);
 			t2 = localtime(&time2);
 			return (t1->tm_year == t2->tm_year && t1->tm_mon == t2->tm_mon && t1->tm_mday == t2->tm_mday);
+#endif
 		}
 
 		static bool CompareTime(int time1, int time2, int iDay){
@@ -223,8 +246,17 @@ namespace sl{
 			time_t day1 = static_cast<time_t>(time1);
 			time_t day2 = static_cast<time_t>(time2);
 			struct tm *t1, *t2;
+#ifdef SL_OS_WINDOWS
+			struct tm tempT1, tempT2;
+			localtime_s(&tempT1, &day1);
+			localtime_s(&tempT2, &day2);
+			t1 = &tempT1;
+			t2 = &tempT2;
+#else
 			t1 = localtime(&day1);
 			t2 = localtime(&day2);
+#endif
+
 			if (t1->tm_year > t2->tm_year){
 				return true;
 			}
@@ -267,7 +299,13 @@ namespace sl{
 		char* Format(char* pszBuffer, int iMaxLen, const char* pszFormat) const{
 			time_t time = m_time;
 			struct tm *ptmTemp = nullptr;
+#ifdef SL_OS_WINDOWS
+			struct tm ptm;
+			localtime_s(&ptm, &time);
+			ptmTemp = &ptm;
+#else
 			ptmTemp = localtime(&time);
+#endif
 			if(!strftime(pszBuffer, iMaxLen, pszFormat, ptmTemp)){
 				pszBuffer[0] = '\0';
 			}
@@ -288,17 +326,30 @@ namespace sl{
 
 	inline const std::string getCurrentTimeStr(const char* format = "%4d-%02d-%02d %02d:%02d:%02d"){
 		time_t tmp = time(nullptr);
-		tm* t = localtime(&tmp);
 		char info[128];
+#ifdef SL_OS_WINDOWS
+		tm t;
+		localtime_s(&t, &tmp);
+		SafeSprintf(info, sizeof(info), format, t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec);
+#else
+		tm* t = localtime(&tmp);
 		SafeSprintf(info, sizeof(info), format, t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
+#endif
 		return info;
 	}
 
 	inline const std::string getTimeStr(const int64 tick, const char* format = "%4d-%02d-%02d %02d:%02d:%02d"){
 		time_t tmp = (time_t)(tick / 1000);
-		tm* t = localtime(&tmp);
 		char info[128];
+#ifdef SL_OS_WINDOWS
+		tm t;
+		localtime_s(&t, &tmp);
+		SafeSprintf(info, sizeof(info), format, t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec);
+#else
+		tm* t = localtime(&tmp);
 		SafeSprintf(info, sizeof(info), format, t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
+#endif
+		
 		return info;
 	}
 

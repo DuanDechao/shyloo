@@ -137,7 +137,19 @@ public:
 	virtual ~IMysqlBase(){}
 };
 
-typedef std::vector<std::unordered_map<string,string>> MysqlResult;
+class IMysqlResult{
+public:
+	virtual ~IMysqlResult() {}
+	virtual int32 rowCount() const = 0;
+	virtual int32 columnCount() const = 0;
+	virtual bool columnExist(const char* column) const = 0;
+	virtual int8 getDataInt8(const int32 row, const char* column) const = 0;
+	virtual int16 getDataInt16(const int32 row, const char* column) const = 0;
+	virtual int32 getDataInt32(const int32 row, const char* column) const = 0;
+	virtual int64 getDataInt64(const int32 row, const char* column) const = 0;
+	virtual const char* getDataString(const int32 row, const char* column) const = 0;
+};
+
 class IMysqlHandler{
 public:
 	IMysqlHandler() :_base(nullptr){}
@@ -146,7 +158,7 @@ public:
 	inline void setBase(IMysqlBase* base) { _base = base; }
 	inline IMysqlBase* getBase() const { return _base; }
 	
-	virtual bool onSuccess(sl::api::IKernel* pKernel, const int32 optType, const int32 affectedRow, const MysqlResult& result) = 0;
+	virtual bool onSuccess(sl::api::IKernel* pKernel, const int32 optType, const int32 affectedRow, IMysqlResult* result) = 0;
 	virtual bool onFailed(sl::api::IKernel* pKernel, const int32 optType, const int32 errCode) = 0;
 	virtual void onRelease() = 0;
 private:

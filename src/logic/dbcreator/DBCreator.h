@@ -12,7 +12,6 @@ class OArgs;
 class IEventEngine;
 class DBCreator :public sl::api::IModule{
 public:
-	typedef unordered_map<string, string> DBFieldInfo;
 	struct FieldInfo{
 		string _fieldName;
 		DBType _fieldType;
@@ -64,13 +63,13 @@ public:
 
 	void updateDBTables();
 
-	static void tablesShowCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, const MysqlResult& result);
-	static void tableDropCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, const MysqlResult& result);
-	static void tableDescCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, const MysqlResult& result);
-	static void tableCreateCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, const MysqlResult& result);
-	static void tableShowIndexCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, const MysqlResult& result);
-	static void tableShowPartitionCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, const MysqlResult& result);
-	static void tableAddPartitionCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, const MysqlResult& result);
+	static void tablesShowCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, IMysqlResult* result);
+	static void tableDropCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, IMysqlResult* result);
+	static void tableDescCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, IMysqlResult* result);
+	static void tableCreateCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, IMysqlResult* result);
+	static void tableShowIndexCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, IMysqlResult* result);
+	static void tableShowPartitionCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, IMysqlResult* result);
+	static void tableAddPartitionCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, IMysqlResult* result);
 
 	static IMysqlMgr* getMysqlMgr() { return s_mysqlMgr; }
 
@@ -82,29 +81,29 @@ private:
 	bool showPartitionDBTable(const char* tableName);
 
 	bool createDBTable(const char* tableName);
-	bool updateDBTable(const char* tableName, const MysqlResult& result);
+	bool updateDBTable(const char* tableName, IMysqlResult* result);
 	bool dropDBTable(const char* tableName);
 
 	bool dropDBTableField(const char* tableName, const char* field);
 	bool addDBTableField(const char* tableName, const char* field, FieldInfo& confInfo);
-	bool updateDBTableField(const char* tableName, const char* field, FieldInfo& confInfo, const DBFieldInfo& dbInfo);
-	bool checkFieldChanged(FieldInfo& confInfo, const DBFieldInfo& dbInfo);
+	bool updateDBTableField(const char* tableName, const char* field, FieldInfo& confInfo, const int32 tableIdx, IMysqlResult* result);
+	bool checkFieldChanged(FieldInfo& confInfo, const int32 tableIdx, IMysqlResult* result);
 	void appendFieldProp(ostringstream& os, FieldInfo& confInfo, bool sep = true);
 
-	bool updateDBTableIndexs(const char* tableName, const MysqlResult& result);
+	bool updateDBTableIndexs(const char* tableName, IMysqlResult* result);
 	bool dropDBTableIndex(const char* tableName, const char* indexName);
 	bool addDBTableIndex(const char* tableName, const char* indexName, const IndexInfo& indexInfo);
-	bool updateDBTablePrimaryKey(const char* tableName, const MysqlResult& result);
+	bool updateDBTablePrimaryKey(const char* tableName, IMysqlResult* result);
 	bool dropDBTablePrimaryKey(const char* tableName, vector<string>& autoIncdbPriKeys);
 	void appendIndexProp(ostringstream& os, const char* indexName, const IndexInfo& indexInfo, bool sep = true);
 
-	bool updateDBTablePartition(const char* tableName, const MysqlResult& result);
+	bool updateDBTablePartition(const char* tableName, IMysqlResult* result);
 	bool addDBTablePartition(const char* tableName, FieldInfo& fieldInfo, PartitionInfo& partInfo, bool isAdd);
 	bool dropDBTablePartition(const char* tableName, const string& partIdx);
 	void appendDBTablePartition(const char* tableName, ostringstream& os, FieldInfo& fieldInfo, PartitionInfo& partInfo, bool isAdd);
 	void setDayPartitionValue(PartitionInfo& partInfo, int64 tick);
 
-	void setLastUpdateTable(const MysqlResult& result);
+	void setLastUpdateTable(IMysqlResult* result);
 	void broadcastDBUpdateFinished();
 
 private:

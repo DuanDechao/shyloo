@@ -202,22 +202,20 @@ bool DBCreator::loadDBPartitionsConfig(TableConfig& tableConfig, const sl::ISLXm
 	return true;
 }
 
-void DBCreator::setLastUpdateTable(const MysqlResult& result){
+void DBCreator::setLastUpdateTable(IMysqlResult* result){
 	string dbTableName("Tables_in_");
 	dbTableName += s_dbConfig._dbName;
 
 	string lastDBTable = "";
 	TablesMap tablesInfo = s_dbConfig._tables;
-	for (auto& dbTable : result){
-		auto tableItor = dbTable.find(dbTableName);
-		if (tableItor == dbTable.end())
-			continue;
-
-		auto confItor = tablesInfo.find(tableItor->second.c_str());
+	const int32 rowCount = result->rowCount();
+	for (int32 i = 0; i < rowCount; i++){
+		const char* tableName = result->getDataString(i, dbTableName.c_str());
+		auto confItor = tablesInfo.find(tableName);
 		if (confItor != tablesInfo.end()){
 			tablesInfo.erase(confItor);
 		}
-		lastDBTable = tableItor->second.c_str();
+		lastDBTable = tableName;
 	}
 
 	string lastCreateTable = "";
@@ -229,23 +227,19 @@ void DBCreator::setLastUpdateTable(const MysqlResult& result){
 	s_lastUpdateTable = lastCreateTable == "" ? lastDBTable : lastCreateTable;
 }
 
-void DBCreator::tablesShowCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, const MysqlResult& result){
+void DBCreator::tablesShowCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, IMysqlResult* result){
 	s_self->setLastUpdateTable(result);
 
 	std::string dbTablesName("Tables_in_");
 	dbTablesName += s_dbConfig._dbName;
 
 	TablesMap tablesInfo = s_dbConfig._tables;
-	for (auto& dbTable : result){
-		auto tableItor = dbTable.find(dbTablesName);
-		if (tableItor == dbTable.end()){
-			SLASSERT(false, "wrong database name");
-			continue;
-		}
-
-		auto confItor = tablesInfo.find(tableItor->second.c_str());
+	const int32 rowCount = result->rowCount();
+	for (int32 i = 0; i < rowCount; i++){
+		const char* tableName = result->getDataString(i, dbTablesName.c_str());
+		auto confItor = tablesInfo.find(tableName);
 		if (confItor == tablesInfo.end())
-			s_self->dropDBTable(tableItor->second.c_str());
+			s_self->dropDBTable(tableName);
 		else{
 			s_self->descDBTable(confItor->first.c_str());
 			s_self->showIndexDBTable(confItor->first.c_str());
@@ -267,35 +261,35 @@ void DBCreator::tablesShowCB(sl::api::IKernel* pKernel, const char* tableName, c
 
 }
 
-void DBCreator::tableDropCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, const MysqlResult& result){
+void DBCreator::tableDropCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, IMysqlResult* result){
 	if (strcmp(s_lastUpdateTable.c_str(), tableName) == 0)
 		s_self->broadcastDBUpdateFinished();
 }
 
-void DBCreator::tableDescCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, const MysqlResult& result){
+void DBCreator::tableDescCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, IMysqlResult* result){
 	if (success)
 		s_self->updateDBTable(tableName, result);
 }
 
-void DBCreator::tableCreateCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, const MysqlResult& result){
+void DBCreator::tableCreateCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, IMysqlResult* result){
 	if (strcmp(s_lastUpdateTable.c_str(), tableName) == 0)
 		s_self->broadcastDBUpdateFinished();
 }
 
-void DBCreator::tableShowIndexCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, const MysqlResult& result){
+void DBCreator::tableShowIndexCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, IMysqlResult* result){
 	if (success){
 		s_self->updateDBTableIndexs(tableName, result);
 		s_self->updateDBTablePrimaryKey(tableName, result);
 	}
 }
 
-void DBCreator::tableShowPartitionCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, const MysqlResult& result){
+void DBCreator::tableShowPartitionCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, IMysqlResult* result){
 	if (success){
 		s_self->updateDBTablePartition(tableName, result);
 	}
 }
 
-void DBCreator::tableAddPartitionCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, const MysqlResult& result){
+void DBCreator::tableAddPartitionCB(sl::api::IKernel* pKernel, const char* tableName, const bool success, IMysqlResult* result){
 	if (strcmp(s_lastUpdateTable.c_str(), tableName) == 0)
 		s_self->broadcastDBUpdateFinished();
 }
@@ -379,24 +373,20 @@ bool DBCreator::createDBTable(const char* tableName){
 	return true;
 }
 
-bool DBCreator::updateDBTable(const char* tableName, const MysqlResult& result){
+bool DBCreator::updateDBTable(const char* tableName, IMysqlResult* result){
 	if (s_dbConfig._tables.find(tableName) == s_dbConfig._tables.end())
 		return false;
 
 	FieldsMap fieldsInfo = s_dbConfig._tables[tableName]._fields;
-	for (auto& dbField : result){
-		auto dbfItor = dbField.find("Field");
-		if (dbfItor == dbField.end()){
-			SLASSERT(false, "wtf");
-			continue;
-		}
-
-		auto confItor = fieldsInfo.find(dbfItor->second.c_str());
+	const int32 rowCount = result->rowCount();
+	for (int32 i = 0; i < rowCount; i++){
+		const char* fieldName = result->getDataString(i, "Field");
+		auto confItor = fieldsInfo.find(fieldName);
 		if (confItor == fieldsInfo.end()){
-			s_self->dropDBTableField(tableName, dbfItor->second.c_str());
+			s_self->dropDBTableField(tableName, fieldName);
 		}
 		else{
-			updateDBTableField(tableName, confItor->first.c_str(), confItor->second, dbField);
+			updateDBTableField(tableName, confItor->first.c_str(), confItor->second, i, result);
 			fieldsInfo.erase(confItor);
 		}
 	}
@@ -429,8 +419,8 @@ bool DBCreator::addDBTableField(const char* tableName, const char* field, FieldI
 	return true;
 }
 
-bool DBCreator::updateDBTableField(const char* tableName, const char* field, FieldInfo& confInfo, const DBFieldInfo& dbInfo){
-	if (!checkFieldChanged(confInfo, dbInfo))
+bool DBCreator::updateDBTableField(const char* tableName, const char* field, FieldInfo& confInfo, const int32 tableIdx, IMysqlResult* result){
+	if (!checkFieldChanged(confInfo, tableIdx, result))
 		return true;
 
 	ostringstream updateStr;
@@ -442,29 +432,25 @@ bool DBCreator::updateDBTableField(const char* tableName, const char* field, Fie
 	return true;
 }
 
-bool DBCreator::checkFieldChanged(FieldInfo& confInfo, const DBFieldInfo& dbInfo){
-	if (dbInfo.empty())
+bool DBCreator::checkFieldChanged(FieldInfo& confInfo, const int32 tableIdx, IMysqlResult* result){
+	if (!result)
 		return true;
 
-	auto dbTypeInfo = dbInfo.find("Type");
-	auto dbNullInfo = dbInfo.find("Null");
-	auto dbDefaultInfo = dbInfo.find("Default");
-	auto dbExtraInfo = dbInfo.find("Extra");
-	if (dbTypeInfo == dbInfo.end() || dbNullInfo == dbInfo.end() || dbDefaultInfo == dbInfo.end() || dbExtraInfo == dbInfo.end()){
-		SLASSERT(false, "wtf");
-		return true;
-	}
+	const char* typeInfo = result->getDataString(tableIdx, "Type");
+	const char* nullInfo = result->getDataString(tableIdx, "Null");
+	const char* defaultInfo = result->getDataString(tableIdx, "Default");
+	const char* extraInfo = result->getDataString(tableIdx, "Extra");
 
-	bool needUpdate = confInfo._fieldType != DBType().convert(dbTypeInfo->second.c_str()) ? true : false;
-	if (strcmp(confInfo._null.c_str(), dbNullInfo->second.c_str()) != 0){
+	bool needUpdate = confInfo._fieldType != DBType().convert(typeInfo) ? true : false;
+	if (strcmp(confInfo._null.c_str(), nullInfo) != 0){
 		needUpdate = true;
 	}
 
-	if (stricmp(confInfo._extra.c_str(), dbExtraInfo->second.c_str()) != 0){
+	if (_stricmp(confInfo._extra.c_str(), extraInfo) != 0){
 		needUpdate = true;
 	}
 
-	if (strcmp(confInfo._defaultValue.c_str(), dbDefaultInfo->second.c_str()) != 0){
+	if (strcmp(confInfo._defaultValue.c_str(), defaultInfo) != 0){
 		needUpdate = true;
 	}
 
@@ -492,28 +478,24 @@ void DBCreator::appendFieldProp(ostringstream& os, FieldInfo& confInfo, bool sep
 		os << " " << confInfo._extra;
 }
 
-bool DBCreator::updateDBTableIndexs(const char* tableName, const MysqlResult& result){
+bool DBCreator::updateDBTableIndexs(const char* tableName, IMysqlResult* result){
 	if (s_dbConfig._tables.find(tableName) == s_dbConfig._tables.end())
 		return false;
 
 	IndexsMap indexsConf = s_dbConfig._tables[tableName]._indexs;
 	FieldsMap fieldsConf = s_dbConfig._tables[tableName]._fields;
 
-	for (auto& dbIndex : result){
-		auto dbIndexKeyName = dbIndex.find("Key_name");
-		auto dbSeqInIndex = dbIndex.find("Seq_in_index");
-		auto dbIndexColumnName = dbIndex.find("Column_name");
-		auto dbNoUnique = dbIndex.find("Non_unique");
-		if (dbIndexKeyName == dbIndex.end() || dbSeqInIndex == dbIndex.end() || dbIndexColumnName == dbIndex.end() || dbNoUnique == dbIndex.end()){
-			SLASSERT(false, "wtf");
-			return false;
-		}
-
-		if (strcmp(dbIndexKeyName->second.c_str(), "PRIMARY") != 0 && strcmp(dbSeqInIndex->second.c_str(), "1") == 0){
-			auto confItor = indexsConf.find(dbIndexKeyName->second.c_str());
-			if (confItor == indexsConf.end() || (confItor->second._indexType == "UNIQUE" && (strcmp(dbNoUnique->second.c_str(), "1") == 0)) ||
-				(confItor->second._indexType == "NORMAL" && (strcmp(dbNoUnique->second.c_str(), "0") == 0))){
-				s_self->dropDBTableIndex(tableName, dbIndexKeyName->second.c_str());
+	const int32 rowCount = result->rowCount();
+	for (int32 i = 0; i < rowCount; i++){
+		const char* indexKeyName = result->getDataString(i, "Key_name");
+		const char* seqInIndex = result->getDataString(i, "Seq_in_index");
+		const char* indexColumnName = result->getDataString(i, "Column_name");
+		const char* noUnique = result->getDataString(i, "Non_unique");
+		if (strcmp(indexKeyName, "PRIMARY") != 0 && strcmp(seqInIndex, "1") == 0){
+			auto confItor = indexsConf.find(indexKeyName);
+			if (confItor == indexsConf.end() || (confItor->second._indexType == "UNIQUE" && (strcmp(noUnique, "1") == 0)) ||
+				(confItor->second._indexType == "NORMAL" && (strcmp(noUnique, "0") == 0))){
+				s_self->dropDBTableIndex(tableName, indexKeyName);
 			}
 			else{
 				indexsConf.erase(confItor);
@@ -551,7 +533,7 @@ bool DBCreator::addDBTableIndex(const char* tableName, const char* indexName, co
 	return true;
 }
 
-bool DBCreator::updateDBTablePrimaryKey(const char* tableName, const MysqlResult& result){
+bool DBCreator::updateDBTablePrimaryKey(const char* tableName, IMysqlResult* result){
 	if (s_dbConfig._tables.find(tableName) == s_dbConfig._tables.end())
 		return false;
 
@@ -569,16 +551,13 @@ bool DBCreator::updateDBTablePrimaryKey(const char* tableName, const MysqlResult
 	bool needUpdatePriKeys = false;
 	vector<string> autoIncdbPriKeys;
 
-	for (auto& dbIndex : result){
-		auto dbIndexKeyName = dbIndex.find("Key_name");
-		auto dbSeqInIndx = dbIndex.find("Seq_in_index");
-		auto dbIndexColumnName = dbIndex.find("Column_name");
-		if (dbIndexKeyName == dbIndex.end() || dbSeqInIndx == dbIndex.end() || dbIndexColumnName == dbIndex.end()){
-			SLASSERT(false, "wtf");
-			return false;
-		}
-
-		if (strcmp(dbIndexKeyName->second.c_str(), "PRIMARY") != 0)
+	const int32 rowCount = result->rowCount();
+	for (int32 i = 0; i < rowCount; i++){
+		const char* indexKeyName = result->getDataString(i, "Key_name");
+		const char* seqInIndex = result->getDataString(i, "Seq_in_index");
+		const char* IndexColumnName = result->getDataString(i, "Column_name");
+		
+		if (strcmp(indexKeyName, "PRIMARY") != 0)
 			continue;
 
 		auto priKeyItor = indexsInfo.find("PRIMARY");
@@ -590,13 +569,13 @@ bool DBCreator::updateDBTablePrimaryKey(const char* tableName, const MysqlResult
 			if (dbPriKeysNum > (int32)priKeys.size()){
 				needUpdatePriKeys = true;
 			}
-			else if (strcmp(priKeys[dbPriKeysNum - 1].c_str(), dbIndexColumnName->second.c_str()) != 0){
+			else if (strcmp(priKeys[dbPriKeysNum - 1].c_str(), IndexColumnName) != 0){
 				needUpdatePriKeys = true;
 			}
 
-			SLASSERT(fieldsInfo.find(dbIndexColumnName->second.c_str()) != fieldsInfo.end(), "wtf");
-			if (fieldsInfo[dbIndexColumnName->second]._extra == "AUTO_INCREMENT"){
-				autoIncdbPriKeys.push_back(dbIndexColumnName->second);
+			SLASSERT(fieldsInfo.find(IndexColumnName) != fieldsInfo.end(), "wtf");
+			if (fieldsInfo[IndexColumnName]._extra == "AUTO_INCREMENT"){
+				autoIncdbPriKeys.push_back(IndexColumnName);
 			}
 		}
 	}
@@ -624,8 +603,7 @@ bool DBCreator::updateDBTablePrimaryKey(const char* tableName, const MysqlResult
 		}
 		if (updateCol){
 			fieldsInfo[autoIncKey]._extra = "AUTO_INCREMENT";
-			unordered_map<string, string> dbColInfo;
-			updateDBTableField(tableName, autoIncKey.c_str(), fieldsInfo[autoIncKey], dbColInfo);
+			updateDBTableField(tableName, autoIncKey.c_str(), fieldsInfo[autoIncKey], 0, nullptr);
 		}
 	}
 	return true;
@@ -640,8 +618,7 @@ bool DBCreator::dropDBTablePrimaryKey(const char* tableName, vector<string>& aut
 	//先去掉字段的AUTO_INCREMENT属性
 	for (auto& autoIncKey : autoIncdbPriKeys){
 		fieldInfo[autoIncKey]._extra = "";
-		DBFieldInfo dbFieldInfo;
-		updateDBTableField(tableName, autoIncKey.c_str(), fieldInfo[autoIncKey], dbFieldInfo);
+		updateDBTableField(tableName, autoIncKey.c_str(), fieldInfo[autoIncKey], 0, nullptr);
 	}
 
 	ostringstream delStr;
@@ -669,7 +646,7 @@ void DBCreator::appendIndexProp(ostringstream& os, const char* indexName, const 
 		os << " USING " << indexInfo._func;
 }
 
-bool DBCreator::updateDBTablePartition(const char* tableName, const MysqlResult& result){
+bool DBCreator::updateDBTablePartition(const char* tableName, IMysqlResult* result){
 	auto tableItor = s_dbConfig._tables.find(tableName);
 	if (tableItor == s_dbConfig._tables.end()){
 		SLASSERT(false, "config not has table %s", tableName);
@@ -693,19 +670,15 @@ bool DBCreator::updateDBTablePartition(const char* tableName, const MysqlResult&
 		}
 
 		bool dbHasPartitions = false;
-		for (auto& dbPartInfo : result){
-			auto dbPartNameItor = dbPartInfo.find("partition_name");
-			if (dbPartNameItor == dbPartInfo.end()){
-				SLASSERT(false, "wtf");
-				return false;
-			}
-
-			if (dbPartNameItor->second == "")
+		const int32 rowCount = result->rowCount();
+		for (int32 i = 0; i < rowCount; i++){
+			const char* partName = result->getDataString(i, "partition_name");
+			if (strcmp(partName, "") == 0)
 				continue;
 
 			dbHasPartitions = true;
 
-			auto valItor = partitionInfo._defaultValue.find(dbPartNameItor->second.c_str());
+			auto valItor = partitionInfo._defaultValue.find(partName);
 			if (valItor != partitionInfo._defaultValue.end()){
 				partitionInfo._defaultValue.erase(valItor);
 			}
@@ -718,13 +691,12 @@ bool DBCreator::updateDBTablePartition(const char* tableName, const MysqlResult&
 
 		//删除多余分区
 		if (partitionInfo._partByDay && partitionInfo._limit > 0){
-			int32 more = (int32)result.size() + (int32)partitionInfo._defaultValue.size() - partitionInfo._limit;
-			SLASSERT(more < (int32)result.size(), "wtf");
+			int32 more = rowCount + (int32)partitionInfo._defaultValue.size() - partitionInfo._limit;
+			SLASSERT(more < rowCount, "wtf");
 			if (more > 0){
 				for (int32 i = 0; i < more; i++){
-					auto partItor = result[i].find("partition_name");
-					SLASSERT(partItor != result[i].end(), "wtf");
-					dropDBTablePartition(tableName, partItor->second);
+					const char* partName = result->getDataString(i, "partition_name");
+					dropDBTablePartition(tableName, partName);
 				}
 			}
 		}
@@ -732,20 +704,18 @@ bool DBCreator::updateDBTablePartition(const char* tableName, const MysqlResult&
 	else if (partitionInfo._type == "hash"){
 		SLASSERT(partitionInfo._defaultValue.size() == 1, "wtf");
 		auto valItor = partitionInfo._defaultValue.begin();
-		int32 dbPartNum = (int32)result.size(); 
+		int32 dbPartNum = result->rowCount();
 		if (dbPartNum == 1){
-			auto dbName = result[0].find("partition_name");
-			SLASSERT(dbName != result[0].end(), "wtf");
-			if (dbName->second == "")
+			const char* partName = result->getDataString(0, "partition_name");
+			if (strcmp(partName, "") == 0)
 				dbPartNum = 0;
 		}
 
 		//如果分区字段改变
 		if (dbPartNum > 0){
-			auto dbExpr = result[0].find("partition_expression");
-			SLASSERT(dbExpr != result[0].end(), "wtff");
+			const char* dbExpr = result->getDataString(0, "partition_expression");
 			string confField = "`" + partitionInfo._field + "`";
-			SLASSERT(strcmp(dbExpr->second.c_str(), confField.c_str()) == 0, "please del table %s self", tableName);
+			SLASSERT(strcmp(dbExpr, confField.c_str()) == 0, "please del table %s self", tableName);
 		}
 
 		int32 confPartNum = sl::CStringUtils::StringAsInt32(valItor->second.c_str());

@@ -391,7 +391,7 @@ public:
 		char szNewFile[SL_PATH_MAX];
 
 		SafeSprintf(SL_STRSIZE(szTempBuf), "%s.%d", pszFilePath, iMaxLogNum - 1);
-		if(access(szTempBuf, 0) == 0){
+		if(_access(szTempBuf, 0) == 0){
 			if(remove(szTempBuf) < 0){
 				return -4;		///< 删除最后一个日志文件失败
 			}
@@ -405,7 +405,7 @@ public:
 				SafeSprintf(SL_STRSIZE(szTempBuf), "%s.%d", pszFilePath, i);
 			}
 
-			if(access(szTempBuf, 0) == 0){
+			if(_access(szTempBuf, 0) == 0){
 				SafeSprintf(SL_STRSIZE(szNewFile), "%s.%d", pszFilePath, i + 1);
 				if(rename(szTempBuf, szNewFile) < 0){
 					return -5;  ///< 重命名日志文件失败

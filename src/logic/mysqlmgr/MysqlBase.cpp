@@ -24,16 +24,10 @@ bool MysqlBase::onExecute(sl::api::IKernel* pKernel){
 			SLASSERT(false, "sql command exec %s failed, error:%s", _sqlCommand->toString(), _dbConnection->getLastError());
 			return false;
 		}
+		_result.setColumns(dbResult);
 
 		while (dbResult->next()){
-			int32 fieldNum = (int32)dbResult->fieldNum();
-			unordered_map<string, string> rowResult;
-			for (int32 i = 0; i < fieldNum; i++){
-			//	const char* field = dbResult->fieldValue(i);
-			//	int32 length = dbResult->fieldLength(i) + 1;
-				rowResult.insert(make_pair(dbResult->fieldName(i), string(dbResult->fieldValue(i), dbResult->fieldLength(i) + 1)));
-			}
-			_result.push_back(std::move(rowResult));
+			_result.setColData(dbResult);
 		}
 	}
 	else{
@@ -53,7 +47,7 @@ void MysqlBase::Exec(IMysqlHandler* handler){
 }
 
 bool MysqlBase::onSuccess(sl::api::IKernel* pKernel){
-	return _handler->onSuccess(pKernel, _sqlCommand->optType(), _affectedRow, _result);
+	return _handler->onSuccess(pKernel, _sqlCommand->optType(), _affectedRow, &_result);
 }
 
 bool MysqlBase::onFailed(sl::api::IKernel* pKernel, bool nonviolent){
