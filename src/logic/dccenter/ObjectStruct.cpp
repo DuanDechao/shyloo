@@ -25,15 +25,15 @@ ObjectPropInfo::~ObjectPropInfo(){
 	_objName = "";
 	_size = 0;
 
-	for (auto tableInfo : _tables){
+	/*for (auto tableInfo : _tables){
 		if (tableInfo._tableColumn)
-			DEL tableInfo._tableColumn;
-	}
+		DEL tableInfo._tableColumn;
+		}*/
 
-	for (auto* layout : _layouts){
+	/*for (auto* layout : _layouts){
 		if (layout)
-			DEL layout;
-	}
+		DEL layout;
+		}*/
 
 	_layouts.clear();
 	_props.clear();

@@ -42,6 +42,7 @@ struct ATTR_API attr_def{
 	static const IProp* mp;
 	static const IProp* name;
 	static const IProp* occupation;
+	static const IProp* offlineTime;
 	static const IProp* oldX;
 	static const IProp* oldY;
 	static const IProp* oldZ;
@@ -62,7 +63,9 @@ struct ATTR_API attr_def{
 struct ATTR_API OCTempProp{
 	static const IProp* AITIMER;
 	static const IProp* AI_REF;
+	static const IProp* DAY_CHANGE_TIMER;
 	static const IProp* IS_APPEAR;
+	static const IProp* MONTH_CHANGE_TIMER;
 	static const IProp* PROP_UPDATE_TIMER;
 	static const IProp* RGS_SHADOW;
 	static const IProp* SCENE_X_NODE;
@@ -71,6 +74,7 @@ struct ATTR_API OCTempProp{
 	static const IProp* SHADOW_SYNC_TIMER;
 	static const IProp* SYNCTOSCENE;
 	static const IProp* SYNCTOSCENE_TIMER;
+	static const IProp* WEEK_CHANGE_TIMER;
 };
 
 namespace OCTableMacro {

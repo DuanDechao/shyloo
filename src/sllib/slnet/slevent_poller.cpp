@@ -35,6 +35,7 @@ bool EventPoller::registerForWrite(int fd, OutputNotificationHandler* handler)
 }
 
 bool EventPoller::deregisterForRead(int fd){
+	_fdWriteHandlers[fd] = nullptr;
 	_fdReadHandlers.erase(fd);
 	return this->doDeregisterForRead(fd);
 }

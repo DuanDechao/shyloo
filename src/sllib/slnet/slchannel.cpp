@@ -190,6 +190,8 @@ void Channel::destroy(bool notify){
 		return;
 	}
 
+	_flags |= FLAG_DESTROYED;
+
 	if (nullptr != _pSession && notify){
 		_pSession->onTerminate();
 	}
@@ -197,9 +199,6 @@ void Channel::destroy(bool notify){
 	_pNetworkInterface->deregisterChannel(this);
 
 	finalise();
-	
-	_flags |= FLAG_DESTROYED;
-	
 	release();
 }
 

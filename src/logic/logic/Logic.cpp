@@ -27,6 +27,8 @@ bool Logic::launched(sl::api::IKernel * pKernel){
 	RGS_NODE_HANDLER(_harbor, NodeProtocol::GATE_MSG_TRANSMIT_MSG_TO_LOGIC, Logic::onTransforMsgToLogic);
 
 	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_SHUTDOWN_NOTIFY, Logic::onShutdownNotify);
+	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_LOGIC_PLAYER_DESTROY, Logic::onPlayerDestroy);
+	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_NEW_MINUTE, Logic::NewMinuteComing);
 
 	return true;
 }
@@ -99,6 +101,7 @@ void Logic::onClose(sl::api::IKernel* pKernel, const int32 nodeType, const int32
 		for (auto actorId : _gateActors[nodeId]){
 			_playerMgr->deActive(actorId, nodeId, false);
 		}
+		_capacityPublisher->decreaseLoad((int32)_gateActors[nodeId].size());
 		_gateActors[nodeId].clear();
 	}
 }
@@ -118,8 +121,28 @@ void Logic::sendSceneMgrBindNotify(sl::api::IKernel* pKernel, int64 accountId, i
 	_harbor->send(NodeType::SCENEMGR, 1, NodeProtocol::LOGIC_MSG_NOTIFY_ADD_PLAYER, notify.out());
 }
 
+void Logic::sendRemovePlayer(int64 id){
+	IArgs<1, 64> notify;
+	notify << id;
+	notify.fix();
+	_harbor->send(NodeType::SCENEMGR, 1, NodeProtocol::LOGIC_MSG_NOTIFY_REMOVE_PLAYER, notify.out());
+}
+
+void Logic::onPlayerDestroy(sl::api::IKernel* pKernel, const void* context, const int32 size){
+	SLASSERT(sizeof(logic_event::Biology) == size, "invaild event");
+	logic_event::Biology* info = (logic_event::Biology*)context;
+	sendRemovePlayer(info->object->getID());
+}
+
 void Logic::onShutdownNotify(sl::api::IKernel* pKernel, const void* context, const int32 size){
 	SLASSERT(size == sizeof(logic_event::ShutDown), "wtf");
 	logic_event::ShutDown* evt = (logic_event::ShutDown*)context;
 	_eventEngine->execEvent(logic_event::EVENT_SHUTDOWN_COMPLETE, evt, size);
+}
+
+void Logic::NewMinuteComing(sl::api::IKernel* pKernel, const void* context, const int32 size){
+	SLASSERT(size == sizeof(logic_event::NewMinute), "wtf");
+	logic_event::NewMinute* evt = (logic_event::NewMinute*)context;
+
+	ECHO_TRACE("new minute coming....");
 }

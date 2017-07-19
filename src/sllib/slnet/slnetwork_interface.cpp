@@ -158,6 +158,10 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 		pSvrChannel->setPacketSender(TCPPacketSender::create(pSvrChannel, this));
 	}
 
+	if (pSvrChannel->getPacketReceiver() == nullptr){
+		pSvrChannel->setPacketReceiver(TCPPacketReceiver::create(pSvrChannel, this));
+	}
+
 	if (ret != -1){
 		ISLSession* poSession = pSvrChannel->getSession();
 		poSession->onEstablish();
@@ -165,6 +169,7 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 	}
 	else{
 		getDispatcher().registerWriteFileDescriptor((int32)(*pSvrEndPoint), pSvrChannel->getPacketSender());
+		//getDispatcher().registerReadFileDescriptor((int32)(*pSvrEndPoint), pSvrChannel->getPacketReceiver());
 	}
 
 	return true;

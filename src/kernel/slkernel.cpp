@@ -40,22 +40,22 @@ bool Kernel::initialize(int32 argc, char ** argv){
 	parse(argc, argv);
 
 	return ConfigEngine::getInstance()->initialize() &&
+		LogEngine::getInstance()->initialize() &&
 		TimerEngine::getInstance()->initialize() &&
 		NetEngine::getInstance()->initialize() &&
 		IPCEngine::getInstance()->initialize() &&
 		AsyncEngine::getInstance()->initialize() &&
-		LogicEngine::getInstance()->initialize() &&
-		LogEngine::getInstance()->initialize();
+		LogicEngine::getInstance()->initialize();
 }
 
 bool Kernel::destory(){
-	ConfigEngine::getInstance()->destory();
+	AsyncEngine::getInstance()->destory();
+	LogicEngine::getInstance()->destory();
 	TimerEngine::getInstance()->destory();
 	NetEngine::getInstance()->destory();
 	IPCEngine::getInstance()->destory();
-	AsyncEngine::getInstance()->destory();
-	LogicEngine::getInstance()->destory();
 	LogEngine::getInstance()->destory();
+	ConfigEngine::getInstance()->destory();
 
 	DEL this;
 	return true;

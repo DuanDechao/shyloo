@@ -39,6 +39,8 @@ public:
 	void onTransforMsgToLogic(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args);
 
 	void onShutdownNotify(sl::api::IKernel* pKernel, const void* context, const int32 size);
+	void onPlayerDestroy(sl::api::IKernel* pKernel, const void* context, const int32 size);
+	void NewMinuteComing(sl::api::IKernel* pKernel, const void* context, const int32 size);
 
 protected:
 	virtual void rgsProtocolHandler(int32 messageId, IProtocolHandler* handler, const char* debug);
@@ -46,6 +48,7 @@ protected:
 private:
 	void sendGateBindAck(sl::api::IKernel* pKernel, int32 nodeId, int64 accountId, int64 actorId, int32 errorCode);
 	void sendSceneMgrBindNotify(sl::api::IKernel* pKernel, int64 accountId, int64 actorId, int32 errorCode);
+	void sendRemovePlayer(int64 id);
 
 private:
 	Logic*		_self;

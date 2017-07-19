@@ -37,6 +37,8 @@ int PacketSender::handleOutputNotification(int fd){
 		}
 		else{
 			SLASSERT(false, "wtf");
+			ISLSession* poSession = _channel->getSession();
+			poSession->onTerminate();
 			_channel->destroy();
 			return -2;
 		}
