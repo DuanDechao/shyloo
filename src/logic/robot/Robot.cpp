@@ -8,7 +8,7 @@
 bool Robot::initialize(sl::api::IKernel * pKernel){
 	_kernel = pKernel;
 	_self = this;
-	_robot = {"", 0, false};
+	_robot = { "", 0 };
 
 	return true;
 }
@@ -27,7 +27,6 @@ bool Robot::launched(sl::api::IKernel * pKernel){
 	_svrIp = pKernel->getCmdArg("server_ip");
 	_svrPort = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("server_port"));
 	_client->connect(_svrIp.c_str(), _svrPort);
-	
 	return true;
 }
 
@@ -37,18 +36,9 @@ bool Robot::destory(sl::api::IKernel * pKernel){
 }
 
 void Robot::onServerConnected(sl::api::IKernel* pKernel){
-	if (!_robot.canLogin)
-		return;
-
-	IBStream<128> args;
-	args << _robot.name.c_str() << _robot.ticket;
-	sendToSvr(pKernel, ClientMsgID::CLIENT_MSG_LOGIN_REQ, args.out());
 }
 
 void Robot::onServerDisConnected(sl::api::IKernel* pKernel){
-	_robot.canLogin = false;
-	_robot.name = "";
-	_robot.ticket = 0;
 }
 
 int32 Robot::onServerMsg(sl::api::IKernel* pKernel, const void* context, const int32 size){
@@ -99,8 +89,14 @@ void Robot::onServerGiveGateAddressAck(sl::api::IKernel* pKernel, const OBStream
 
 	_client->close();
 
-	_robot = { pKernel->getCmdArg("account"), ticket, true };
+	_robot.name = pKernel->getCmdArg("account");
+	_robot.ticket = ticket;
+
 	_client->connect("127.0.0.1", gatePort);
+	
+	IBStream<128> outArgs;
+	outArgs << _robot.name.c_str() << _robot.ticket;
+	sendToSvr(pKernel, ClientMsgID::CLIENT_MSG_LOGIN_REQ, outArgs.out());
 }
 
 void Robot::onServerLoginAck(sl::api::IKernel* pKernel, const OBStream& args){

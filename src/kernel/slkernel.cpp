@@ -68,8 +68,8 @@ void Kernel::loop() {
 		int64 startTick = sl::getTimeMilliSecond();
 		int64 netTick = NetEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sNetlooptick);
 		int64 ipcTick = IPCEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sIpclooptick);
-		int64 asyncTick = AsyncEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sAsynclooptick);
 		int64 timerTick = TimerEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sTimerlooptick);
+		int64 asyncTick = AsyncEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sAsynclooptick);
 		LogEngine::getInstance()->loop(0);
 
 		int64 useTick = sl::getTimeMilliSecond() - startTick;

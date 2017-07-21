@@ -35,13 +35,11 @@ bool EventPoller::registerForWrite(int fd, OutputNotificationHandler* handler)
 }
 
 bool EventPoller::deregisterForRead(int fd){
-	_fdWriteHandlers[fd] = nullptr;
 	_fdReadHandlers.erase(fd);
 	return this->doDeregisterForRead(fd);
 }
 
 bool EventPoller::deregisterForWrite(int fd){
-	_fdWriteHandlers[fd] = nullptr;
 	_fdWriteHandlers.erase(fd);
 	//printf("deregister write fd[%d]-------------\n", fd);
 	return this->doDeregisterForWrite(fd);

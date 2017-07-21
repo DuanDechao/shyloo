@@ -65,7 +65,13 @@ void Client::connect(const char* ip, const int32 port){
 }
 
 void Client::close(){
+	if (!_session){
+		SLASSERT(false, "has no connect session");
+		return;
+	}
 	_session->close();
+	DEL _session;
+	_session = nullptr;
 }
 
 void Client::send(const void* pBuf, const int32 size){

@@ -12,7 +12,6 @@ class Robot : public sl::api::IModule, public IClientListener{
 	struct RobotInfo{
 		string name;
 		int64 ticket;
-		bool canLogin;
 	};
 
 	typedef void(Robot::*svr_args_cb)(sl::api::IKernel* pKernel, const OBStream& args);

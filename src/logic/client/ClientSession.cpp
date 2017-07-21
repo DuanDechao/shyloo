@@ -11,7 +11,6 @@ void ClientSession::onConnected(sl::api::IKernel* pKernel){
 
 void ClientSession::onDisconnect(sl::api::IKernel* pKernel){
 	_client->onClose();
-	DEL this;
 }
 
 void ClientSession::onTime(sl::api::IKernel* pKernel, int64 timetick){

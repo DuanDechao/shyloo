@@ -228,6 +228,8 @@ bool NetworkInterface::deregisterChannel(Channel* pChannel){
 	const Address& addr = pChannel->addr();
 	SLASSERT(pChannel->getEndPoint() != NULL, "wtf");
 
+	_destoryChannel.insert(pChannel);
+	
 	if(_channelMap.erase(addr)){
 		return false;
 	}
@@ -257,6 +259,15 @@ void NetworkInterface::onChannelTimeOut(Channel* pChannel){
 
 int32 NetworkInterface::numExtChannels() const{
 	return _numExtChannels;
+}
+
+void NetworkInterface::recoverDestroyChannel(){
+	if (!_destoryChannel.empty()){
+		for (auto itor = _destoryChannel.begin(); itor != _destoryChannel.end(); ++itor){
+			(*itor)->release();
+		}
+		_destoryChannel.clear();
+	}
 }
 
 
