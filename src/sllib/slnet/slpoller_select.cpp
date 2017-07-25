@@ -78,7 +78,7 @@ int SelectPoller::processPendingEvents(int64 maxWait){
 	return countReady;
 }
 
-bool SelectPoller::doRegisterForRead(int fd){
+bool SelectPoller::doRegisterForRead(int fd, InputNotificationHandler* handler){
 #ifdef SL_OS_WINDOWS
 	if(_fdReadSet.fd_count >= FD_SETSIZE){
 		return false;
@@ -102,7 +102,7 @@ bool SelectPoller::doRegisterForRead(int fd){
 	return true;
 }
 
-bool SelectPoller::doRegisterForWrite(int fd){
+bool SelectPoller::doRegisterForWrite(int fd, OutputNotificationHandler* handler){
 #ifdef SL_OS_WINDOWS
 	if(_fdWriteSet.fd_count >= FD_SETSIZE){
 		return false;

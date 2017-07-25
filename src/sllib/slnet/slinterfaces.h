@@ -6,14 +6,19 @@ class Channel;
 class MessageHandler;
 
 //此类接口用于接收普通的Network输入消息
-class InputNotificationHandler{
+class NotificationHandler{
+public:
+	virtual ~NotificationHandler(){}
+};
+
+class InputNotificationHandler : public NotificationHandler{
 public:
 	virtual ~InputNotificationHandler(){};
 	virtual int handleInputNotification(int fd) = 0;
 };
 
 //此类接口用于接收普通的Network输出消息
-class OutputNotificationHandler{
+class OutputNotificationHandler : public NotificationHandler{
 public:
 	virtual ~OutputNotificationHandler(){};
 	virtual int handleOutputNotification(int fd) = 0;

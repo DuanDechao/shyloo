@@ -12,8 +12,8 @@ public:
 	SelectPoller();
 
 protected:
-	virtual bool doRegisterForRead(int fd);
-	virtual bool doRegisterForWrite(int fd);
+	virtual bool doRegisterForRead(int fd, InputNotificationHandler* handler);
+	virtual bool doRegisterForWrite(int fd, OutputNotificationHandler* handler);
 
 	virtual bool doDeregisterForRead(int fd);
 	virtual bool doDeregisterForWrite(int fd);

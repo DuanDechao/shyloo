@@ -32,8 +32,8 @@ public:
 	OutputNotificationHandler* findForWrite(int32 fd);
 
 protected:
-	virtual bool doRegisterForRead(int32 fd) = 0;
-	virtual bool doRegisterForWrite(int32 fd) = 0;
+	virtual bool doRegisterForRead(int32 fd, InputNotificationHandler* handler) = 0;
+	virtual bool doRegisterForWrite(int32 fd, OutputNotificationHandler* handler) = 0;
 
 	virtual bool doDeregisterForRead(int32 fd) = 0;
 	virtual bool doDeregisterForWrite(int32 fd) = 0;

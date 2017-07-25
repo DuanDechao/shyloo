@@ -16,7 +16,7 @@ EventPoller::~EventPoller()
 {}
 
 bool EventPoller::registerForRead(int fd, InputNotificationHandler* handler){
-	if(!this->doRegisterForRead(fd)){
+	if (!this->doRegisterForRead(fd, handler)){
 		return false;
 	}
 
@@ -24,9 +24,8 @@ bool EventPoller::registerForRead(int fd, InputNotificationHandler* handler){
 	return true;
 }
 
-bool EventPoller::registerForWrite(int fd, OutputNotificationHandler* handler)
-{
-	if(!this->doRegisterForWrite(fd)){
+bool EventPoller::registerForWrite(int fd, OutputNotificationHandler* handler){
+	if (!this->doRegisterForWrite(fd, handler)){
 		return false;
 	}
 	_fdWriteHandlers[fd] = handler;
