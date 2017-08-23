@@ -19,13 +19,13 @@ void SelectPoller::handleNotifications(int& countReady, fd_set& readFDs, fd_set&
 	for (unsigned i = 0; i < readFDs.fd_count; i++){
 		int32 fd = (int32)readFDs.fd_array[i];
 		--countReady;
-		this->triggerRead(fd);
+		this->triggerRead(fd, nullptr);
 	}
 
 	for (unsigned i = 0; i < writeFDs.fd_count; i++){
 		int32 fd = (int32)writeFDs.fd_array[i];
 		--countReady;
-		this->triggerWrite(fd);
+		this->triggerWrite(fd, nullptr);
 	}
 #else
 	for (int fd = 0; fd <= _fdLargest && countReady > 0; ++fd){
@@ -78,7 +78,7 @@ int SelectPoller::processPendingEvents(int64 maxWait){
 	return countReady;
 }
 
-bool SelectPoller::doRegisterForRead(int fd, InputNotificationHandler* handler){
+bool SelectPoller::doRegisterForRead(int fd, void* handler){
 #ifdef SL_OS_WINDOWS
 	if(_fdReadSet.fd_count >= FD_SETSIZE){
 		return false;
@@ -102,7 +102,7 @@ bool SelectPoller::doRegisterForRead(int fd, InputNotificationHandler* handler){
 	return true;
 }
 
-bool SelectPoller::doRegisterForWrite(int fd, OutputNotificationHandler* handler){
+bool SelectPoller::doRegisterForWrite(int fd, void* handler){
 #ifdef SL_OS_WINDOWS
 	if(_fdWriteSet.fd_count >= FD_SETSIZE){
 		return false;

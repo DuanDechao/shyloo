@@ -13,8 +13,8 @@ public:
 	virtual ~EpollPoller();
 
 protected:
-	virtual bool doRegisterForRead(int fd, InputNotificationHandler* handler){return doRegister(fd, true, true, handler);}
-	virtual bool doRegisterForWrite(int fd, OutputNotificationHandler* handler){return doRegister(fd, false, true, handler);}
+	virtual bool doRegisterForRead(int fd, void* handler){return doRegister(fd, true, true, handler);}
+	virtual bool doRegisterForWrite(int fd, void* handler){return doRegister(fd, false, true, handler);}
 
 	virtual bool doDeregisterForRead(int fd){return doRegister(fd, true, false, nullptr);}
 	virtual bool doDeregisterForWrite(int fd){return doRegister(fd, false, false, nullptr);}
@@ -22,7 +22,7 @@ protected:
 	virtual int processPendingEvents(int64 maxWait);
 
 private:
-	bool doRegister(int fd, bool isRead, bool isRegister, NotificationHandler* handler);
+	bool doRegister(int fd, bool isRead, bool isRegister, void* handler);
 
 private:
 	int				_epFd;
