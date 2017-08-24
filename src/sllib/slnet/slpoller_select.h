@@ -6,17 +6,16 @@
 namespace sl{
 namespace network{
 
-#ifndef HAS_EPOLL
 class SelectPoller: public EventPoller{
 public:
 	SelectPoller();
 
 protected:
-	virtual bool doRegisterForRead(int fd);
-	virtual bool doRegisterForWrite(int fd);
+	virtual bool doRegisterForRead(int fd, void* handler);
+	virtual bool doRegisterForWrite(int fd, void* handler);
 
-	virtual bool doDeregisterForRead(int fd);
-	virtual bool doDeregisterForWrite(int fd);
+	virtual bool doDeregisterForRead(int fd, void* handler);
+	virtual bool doDeregisterForWrite(int fd, void* handler);
 
 	virtual int processPendingEvents(int64 maxWait);
 
@@ -31,7 +30,6 @@ private:
 	int					_fdLargest;
 	int					_fdWriteCount;
 };
-#endif // !HAS_EPOLL
 
 }
 }

@@ -38,6 +38,7 @@ const IProp* attr_def::maxMp = nullptr;
 const IProp* attr_def::mp = nullptr;
 const IProp* attr_def::name = nullptr;
 const IProp* attr_def::occupation = nullptr;
+const IProp* attr_def::offlineTime = nullptr;
 const IProp* attr_def::oldX = nullptr;
 const IProp* attr_def::oldY = nullptr;
 const IProp* attr_def::oldZ = nullptr;
@@ -56,7 +57,9 @@ const IProp* attr_def::z = nullptr;
 
 const IProp* OCTempProp::AITIMER = nullptr;
 const IProp* OCTempProp::AI_REF = nullptr;
+const IProp* OCTempProp::DAY_CHANGE_TIMER = nullptr;
 const IProp* OCTempProp::IS_APPEAR = nullptr;
+const IProp* OCTempProp::MONTH_CHANGE_TIMER = nullptr;
 const IProp* OCTempProp::PROP_UPDATE_TIMER = nullptr;
 const IProp* OCTempProp::RGS_SHADOW = nullptr;
 const IProp* OCTempProp::SCENE_X_NODE = nullptr;
@@ -65,6 +68,7 @@ const IProp* OCTempProp::SCENE_Z_NODE = nullptr;
 const IProp* OCTempProp::SHADOW_SYNC_TIMER = nullptr;
 const IProp* OCTempProp::SYNCTOSCENE = nullptr;
 const IProp* OCTempProp::SYNCTOSCENE_TIMER = nullptr;
+const IProp* OCTempProp::WEEK_CHANGE_TIMER = nullptr;
 
 void getAttrProp(IObjectMgr* objectMgr){
 	attr_def::account = objectMgr->getPropByName("account");
@@ -83,6 +87,7 @@ void getAttrProp(IObjectMgr* objectMgr){
 	attr_def::mp = objectMgr->getPropByName("mp");
 	attr_def::name = objectMgr->getPropByName("name");
 	attr_def::occupation = objectMgr->getPropByName("occupation");
+	attr_def::offlineTime = objectMgr->getPropByName("offlineTime");
 	attr_def::oldX = objectMgr->getPropByName("oldX");
 	attr_def::oldY = objectMgr->getPropByName("oldY");
 	attr_def::oldZ = objectMgr->getPropByName("oldZ");
@@ -101,7 +106,9 @@ void getAttrProp(IObjectMgr* objectMgr){
 
 	OCTempProp::AITIMER = objectMgr->getTempPropByName("AITIMER");
 	OCTempProp::AI_REF = objectMgr->getTempPropByName("AI_REF");
+	OCTempProp::DAY_CHANGE_TIMER = objectMgr->getTempPropByName("DAY_CHANGE_TIMER");
 	OCTempProp::IS_APPEAR = objectMgr->getTempPropByName("IS_APPEAR");
+	OCTempProp::MONTH_CHANGE_TIMER = objectMgr->getTempPropByName("MONTH_CHANGE_TIMER");
 	OCTempProp::PROP_UPDATE_TIMER = objectMgr->getTempPropByName("PROP_UPDATE_TIMER");
 	OCTempProp::RGS_SHADOW = objectMgr->getTempPropByName("RGS_SHADOW");
 	OCTempProp::SCENE_X_NODE = objectMgr->getTempPropByName("SCENE_X_NODE");
@@ -110,5 +117,6 @@ void getAttrProp(IObjectMgr* objectMgr){
 	OCTempProp::SHADOW_SYNC_TIMER = objectMgr->getTempPropByName("SHADOW_SYNC_TIMER");
 	OCTempProp::SYNCTOSCENE = objectMgr->getTempPropByName("SYNCTOSCENE");
 	OCTempProp::SYNCTOSCENE_TIMER = objectMgr->getTempPropByName("SYNCTOSCENE_TIMER");
+	OCTempProp::WEEK_CHANGE_TIMER = objectMgr->getTempPropByName("WEEK_CHANGE_TIMER");
 }
 

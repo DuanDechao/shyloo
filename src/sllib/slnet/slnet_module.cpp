@@ -60,6 +60,7 @@ ISLConnector* CSLNetModule::createConnector(){
 
 bool CSLNetModule::run(int64 overtime){
 	_dispatcher.processOnce(overtime);
+	_networkInterface->recoverDestroyChannel();
 	return true;
 }
 

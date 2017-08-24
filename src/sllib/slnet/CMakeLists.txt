@@ -42,6 +42,8 @@ SET(SL_LIB_NET
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slpacket_sender.cpp"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slpoller_select.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slpoller_select.cpp"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slpoller_epoll.h"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slpoller_epoll.cpp"
 	#"${PROJECT_SOURCE_DIR}/src/sllib/slnet/sltcp_packet.h"
 	#"${PROJECT_SOURCE_DIR}/src/sllib/slnet/sltcp_packet.cpp"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/sltcp_packet_receiver.h"

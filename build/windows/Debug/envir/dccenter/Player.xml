@@ -13,9 +13,13 @@
 	<prop name="gate" type="int32" visible="false" share="false" save="false" blob="false" />
 	<prop name="logic" type="int32" visible="false" share="false" save="false" blob="false" />
 	<prop name="firstLogin" type="int8" visible="false" share="false" save="true" blob="false" />
+	<prop name="offlineTime" type="int64" visible="false" share="false" save="true" blob="false" />
 	
 	<temp name="AI_REF" type="int32" />
 	<temp name="PROP_UPDATE_TIMER" type="int64" />
+	<temp name="DAY_CHANGE_TIMER" type="int64" />
+	<temp name="WEEK_CHANGE_TIMER" type="int64" />
+	<temp name="MONTH_CHANGE_TIMER" type="int64" />
 	
 	<table name="PROP_SELF_TABLE">
 		<column name="PROP" type="int64" key="true"/>

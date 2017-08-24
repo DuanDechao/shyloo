@@ -4,7 +4,7 @@
 	<envir path="./envir" />
 	<ipc path="./ipc" />
 	<client send="1024" recv="1024"/>
-	<harbor send="1048576" recv="1048576" useIpc="true" >
+	<harbor send="1048576" recv="1048576" useIpc="false" >
 		<node type="-3" name="slave" hidden="true"/>
 		<node type="-2" name="master" />
 		<node type="1" name="gate" />
@@ -82,7 +82,7 @@
 		<slave ip="127.0.0.1" port="6379"/>
 	</redis>
 	<loadbroad interval="1000" />
-	<save player="120000" />
+	<player_mgr save="120000" recover="300000" foreach_count="10" />
 	<sync_rate scene="500" shadow="500" />
 	<balance max_tickets="2000" max_clients="5000" />
 </core>

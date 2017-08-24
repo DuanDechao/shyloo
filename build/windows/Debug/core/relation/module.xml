@@ -5,6 +5,7 @@
 	<module name="Capacity" />
 	<module name="Monitor" />
 	<module name="EventEngine" />
+	<module name="Online" />
 	<module name="ObjectLocator" />
 	<module name="Command" />
 	<module name="Relation" />

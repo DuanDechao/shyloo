@@ -1,14 +1,11 @@
 #include "slevent_poller.h"
 #include "slpoller_select.h"
+#include "slpoller_epoll.h"
 namespace sl{
 namespace network{
-#ifdef SL_OS_LINUX
-#define HAS_EPOLL
-#endif // SL_OS_LINUX
 
 EventPoller::EventPoller()
-	:_fdReadHandlers(),
-	 _fdWriteHandlers(),
+	:_fdHandlers(),
 	 _spareTime(0)
 {}
 
@@ -16,82 +13,106 @@ EventPoller::~EventPoller()
 {}
 
 bool EventPoller::registerForRead(int fd, InputNotificationHandler* handler){
-	if(!this->doRegisterForRead(fd)){
+	_fdHandlers[fd].fd = fd;
+	_fdHandlers[fd].readHandler = handler;
+	if (!this->doRegisterForRead(fd, &_fdHandlers[fd])){
 		return false;
 	}
-
-	_fdReadHandlers[fd] = handler;
 	return true;
 }
 
-bool EventPoller::registerForWrite(int fd, OutputNotificationHandler* handler)
-{
-	if(!this->doRegisterForWrite(fd)){
+bool EventPoller::registerForWrite(int fd, OutputNotificationHandler* handler){
+	_fdHandlers[fd].fd = fd;
+	_fdHandlers[fd].writeHandler = handler;
+	if (!this->doRegisterForWrite(fd, &_fdHandlers[fd])){
 		return false;
 	}
-	_fdWriteHandlers[fd] = handler;
 
 	return true;
 }
 
 bool EventPoller::deregisterForRead(int fd){
-	_fdReadHandlers.erase(fd);
-	return this->doDeregisterForRead(fd);
+	_fdHandlers[fd].readHandler = nullptr;
+	return this->doDeregisterForRead(fd, &_fdHandlers[fd]);
 }
 
 bool EventPoller::deregisterForWrite(int fd){
-	_fdWriteHandlers[fd] = nullptr;
-	_fdWriteHandlers.erase(fd);
-	//printf("deregister write fd[%d]-------------\n", fd);
-	return this->doDeregisterForWrite(fd);
+	_fdHandlers[fd].writeHandler = nullptr;
+	return this->doDeregisterForWrite(fd, &_fdHandlers[fd]);
 }
 
-bool EventPoller::triggerRead(int fd){
-	FDReadHandlers::iterator iter = _fdReadHandlers.find(fd);
-	if(iter == _fdReadHandlers.end())
-		return false;
+bool EventPoller::triggerRead(int fd, void* handler){
+	FDHandler* fdHandler = nullptr;
+	if (handler != nullptr){
+		fdHandler = (FDHandler*)handler;
+	}
+	else{
+		FDHandlerMap::iterator iter = _fdHandlers.find(fd);
+		if (iter == _fdHandlers.end())
+			return false;
+
+		fdHandler = &(iter->second);
+	}
 	
-	iter->second->handleInputNotification(fd);
+	if (fdHandler->readHandler == nullptr){
+		return false;
+	}
+	
+	fdHandler->readHandler->handleInputNotification(fdHandler->fd);
 	return true;
 }
 
-bool EventPoller::triggerWrite(int fd){
-	FDWriteHandlers::iterator iter = _fdWriteHandlers.find(fd);
+bool EventPoller::triggerWrite(int fd, void* handler){
+	FDHandler* fdHandler = nullptr;
+	if (handler != nullptr){
+		fdHandler = (FDHandler*)handler;
+	}
+	else{
+		FDHandlerMap::iterator iter = _fdHandlers.find(fd);
+		if (iter == _fdHandlers.end())
+			return false;
 
-	if(iter == _fdWriteHandlers.end())
+		fdHandler = &(iter->second);
+	}
+
+	if (fdHandler->writeHandler == nullptr){
 		return false;
-	
-	//printf("trigger write fd[%d %p]+++++++++\n",fd, iter->second);
-	iter->second->handleOutputNotification(fd);
+	}
+
+	fdHandler->writeHandler->handleOutputNotification(fdHandler->fd);
 	return true;
 }
 
-bool EventPoller::triggerError(int fd){
-	if(!this->triggerRead(fd)){
-		return this->triggerError(fd);
+bool EventPoller::triggerError(int fd, void* handler){
+	if (!this->triggerRead(fd, handler)){
+		return this->triggerWrite(fd, handler);
 	}
 	return true;
 }
 
 bool EventPoller::isRegistered(int fd, bool isForRead) const{
-	return isForRead ? (_fdReadHandlers.find(fd) !=_fdReadHandlers.end()) :
-		(_fdWriteHandlers.find(fd) != _fdWriteHandlers.end());
+	auto itor = _fdHandlers.find(fd);
+	if (itor == _fdHandlers.end())
+		return false;
+
+	return isForRead ? (itor->second.readHandler != nullptr) :
+		(itor->second.writeHandler != nullptr);
 }
 
 InputNotificationHandler* EventPoller::findForRead(int fd){
-	FDReadHandlers::iterator iter = _fdReadHandlers.find(fd);
-	if(iter == _fdReadHandlers.end())
+	FDHandlerMap::iterator iter = _fdHandlers.find(fd);
+	if (iter == _fdHandlers.end())
 		return NULL;
 
-	return iter->second;
+	return iter->second.readHandler;
 }
 
 OutputNotificationHandler* EventPoller::findForWrite(int fd){
-	FDWriteHandlers::iterator iter = _fdWriteHandlers.find(fd);
-	if(iter == _fdWriteHandlers.end())
+	FDHandlerMap::iterator iter = _fdHandlers.find(fd);
+	if (iter == _fdHandlers.end())
 		return NULL;
 
-	return iter->second;
+	return iter->second.writeHandler;
 }
 
 int EventPoller::getFileDescriptor() const{
@@ -99,36 +120,25 @@ int EventPoller::getFileDescriptor() const{
 }
 
 int EventPoller::maxFD() const{
-	int readMaxFD = -1;
-	FDReadHandlers::const_iterator iFDReadHandler = _fdReadHandlers.begin();
-	while(iFDReadHandler != _fdReadHandlers.end()){
-		if(iFDReadHandler->first > readMaxFD){
-			readMaxFD = iFDReadHandler->first;
+	int MaxFD = -1;
+	FDHandlerMap::const_iterator iFDReadHandler = _fdHandlers.begin();
+	while (iFDReadHandler != _fdHandlers.end()){
+		if (iFDReadHandler->first > MaxFD){
+			MaxFD = iFDReadHandler->first;
 		}
 
 		++iFDReadHandler;
 	}
-
-	int writeMaxFD = -1;
-	FDWriteHandlers::const_iterator iFDWriteHandler = _fdWriteHandlers.begin();
-	while(iFDWriteHandler != _fdWriteHandlers.end()){
-		if(iFDWriteHandler->first > writeMaxFD){
-			writeMaxFD = iFDWriteHandler->first;
-		}
-		++iFDWriteHandler;
-	}
-
-	return readMaxFD > writeMaxFD ? readMaxFD : writeMaxFD;
+	return MaxFD;
 }
 
 EventPoller* EventPoller::create()
 {
-/*#ifdef HAS_EPOLL
-	return NEW EventPoller();
+#ifdef HAS_EPOLL
+	return NEW EpollPoller();
 #else
 	return NEW SelectPoller();
-#endif // HAS_EPOLL*/
-	return NEW SelectPoller();
+#endif // HAS_EPOLL
 }
 
 }

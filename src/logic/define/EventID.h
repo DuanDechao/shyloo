@@ -9,6 +9,15 @@ namespace logic_event{
 		EVENT_SHUTDOWN_CLOSE,
 		EVENT_SHUTDOWN_COMPLETE,
 
+		EVENT_NEW_MINUTE,
+		EVENT_NEW_HOUR,
+		EVENT_NEW_DAY,
+		EVENT_NEW_WEEK,
+		EVENT_NEW_MONTH,
+		EVENT_DAY_CHANGED,
+		EVENT_WEEK_CHANGED,
+		EVENT_MONTH_CHANGED,
+
 		EVENT_LOGIC_PLAYER_RECONNECT = 1000,
 		EVENT_LOGIC_PLAYER_ONLINE,
 		EVENT_LOGIC_PLAYER_FIRST_ONLINE,
@@ -29,6 +38,7 @@ namespace logic_event{
 		EVENT_LOGIC_LEAVE_VISION,
 		EVENT_LOGIC_SEE_SOMEONE,
 		EVENT_LOGIC_MISS_SOMEONE,
+		EVENT_LOGIC_PLAYER_GATE_LOST,
 
 		EVENT_SCENE_ENTER_SCENE = 2000,
 		EVENT_SCENE_APPEAR_SCENE,
@@ -77,5 +87,28 @@ namespace logic_event{
 	};
 
 	struct PreShutDown{};
+
+	struct NewMinute{
+		int64 tick;
+		int32 time;
+	};
+
+	struct NewHour{
+		int64 tick;
+		int32 time;
+	};
+
+	struct NewDay{
+		int64 tick;
+		int32 time;
+	};
+
+	struct NewWeek{
+		int32 week;
+	};
+
+	struct NewMonth{
+		int32 month;
+	};
 }
 #endif

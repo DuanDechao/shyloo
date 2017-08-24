@@ -4,6 +4,7 @@
 #include "slnetbase.h"
 #include "slendpoint.h"
 #include "slnet.h"
+#include <set>
 namespace sl{
 namespace network{
 class Address;
@@ -56,9 +57,12 @@ public:
 
 	inline int32 numExtChannels() const;
 
+	void recoverDestroyChannel();
+
 private:
 
 	ChannelMap						_channelMap;
+	std::set<Channel*>				_destoryChannel;
 
 	EventDispatcher*				_pDispatcher;
 

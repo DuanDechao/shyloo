@@ -14,6 +14,7 @@
 #include "ILogic.h"
 #include "ProtocolID.pb.h"
 #include "IPropDelaySender.h"
+#define FOREACH_DELAY 100
 
 class RemoveObjectTimer : public sl::api::ITimer{
 public:
@@ -31,9 +32,9 @@ private:
 	int64 _objectId;
 };
 
-PlayerMgr* PlayerMgr::s_self = nullptr;
+IEventEngine* PlayerMgr::s_eventEngine = nullptr;
 bool PlayerMgr::initialize(sl::api::IKernel * pKernel){
-	s_self = this;
+	_self = this;
 	_kernel = pKernel;
 
 	sl::XmlReader svrConf;
@@ -41,7 +42,9 @@ bool PlayerMgr::initialize(sl::api::IKernel * pKernel){
 		SLASSERT(false, "cant load core file");
 		return false;
 	}
-	_savePlayerInterval = svrConf.root()["save"][0].getAttributeInt64("player");
+	_savePlayerInterval = svrConf.root()["player_mgr"][0].getAttributeInt64("save");
+	_recoverInterval = svrConf.root()["player_mgr"][0].getAttributeInt64("recover");
+	_foreachCount = svrConf.root()["player_mgr"][0].getAttributeInt64("foreach_count");
 	
 	return true;
 }
@@ -49,7 +52,7 @@ bool PlayerMgr::initialize(sl::api::IKernel * pKernel){
 bool PlayerMgr::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
 	FIND_MODULE(_objectMgr, ObjectMgr);
-	FIND_MODULE(_eventEngine, EventEngine);
+	FIND_MODULE(s_eventEngine, EventEngine);
 	FIND_MODULE(_roleMgr, RoleMgr);
 	FIND_MODULE(_cacheDB, CacheDB);
 	FIND_MODULE(_objectTimer, ObjectTimer);
@@ -58,12 +61,39 @@ bool PlayerMgr::launched(sl::api::IKernel * pKernel){
 
 	RGS_PROTO_HANDLER(_logic, ClientMsgID::CLIENT_MSG_TEST, PlayerMgr::onClientTestReq);
 
+	RGS_EVENT_HANDLER(s_eventEngine, logic_event::EVENT_NEW_DAY, PlayerMgr::OnNewDayComing);
+	RGS_EVENT_HANDLER(s_eventEngine, logic_event::EVENT_NEW_WEEK, PlayerMgr::OnNewWeekComing);
+	RGS_EVENT_HANDLER(s_eventEngine, logic_event::EVENT_NEW_MONTH, PlayerMgr::OnNewMonthComing);
+
 	return true;
 }
 
 bool PlayerMgr::destory(sl::api::IKernel * pKernel){
 	DEL this;
 	return true;
+}
+
+IObject* PlayerMgr::findPlayer(const char* name){
+	auto itor = _onlines.find(name);
+	if (itor == _onlines.end())
+		return nullptr;
+
+	return findPlayer(itor->second);
+}
+
+IObject* PlayerMgr::findPlayer(const int64 id){
+	IObject* player = _objectMgr->findObject(id);
+	if (player == nullptr)
+		return nullptr;
+
+	if (player->getPropInt32(attr_def::gate) == game::INVAILD_GATE_NODE_ID)
+		return nullptr;
+
+	return player;
+}
+
+void PlayerMgr::save(IObject* object){
+	startSavePlayerTimer(_kernel, object);
 }
 
 bool PlayerMgr::active(int64 actorId, int32 nodeId, int64 accountId, const std::function<void(sl::api::IKernel* pKernel, IObject* object, bool isReconnect)>& f){
@@ -75,7 +105,7 @@ bool PlayerMgr::active(int64 actorId, int32 nodeId, int64 accountId, const std::
 		f(_kernel, player, true);
 
 		logic_event::Biology info{ player };
-		_eventEngine->execEvent(logic_event::EVENT_LOGIC_PLAYER_RECONNECT, &info, sizeof(info));
+		s_eventEngine->execEvent(logic_event::EVENT_LOGIC_PLAYER_RECONNECT, &info, sizeof(info));
 
 		SLASSERT(player->getPropInt64(attr_def::recoverTimer) != 0, "wtf");
 		RemoveObjectTimer* recoverTimer = (RemoveObjectTimer*)player->getPropInt64(attr_def::recoverTimer);
@@ -107,12 +137,19 @@ bool PlayerMgr::active(int64 actorId, int32 nodeId, int64 accountId, const std::
 void PlayerMgr::onProcessPlayerOnline(sl::api::IKernel* pKernel, IObject* object){
 	logic_event::Biology info{ object };
 
+	const char* name = object->getPropString(attr_def::name);
+	SLASSERT(_onlines.find(name) == _onlines.end(), "player[%lld] is already online", object->getID());
+	_onlines[name] = object->getID();
+
+
 	if (object->getPropInt8(attr_def::firstLogin) == 1){
-		_eventEngine->execEvent(logic_event::EVENT_LOGIC_PLAYER_FIRST_ONLINE, &info, sizeof(info));
+		s_eventEngine->execEvent(logic_event::EVENT_LOGIC_PLAYER_FIRST_ONLINE, &info, sizeof(info));
 		object->setPropInt8(attr_def::firstLogin, 0);
+
+		_self->savePlayer(pKernel, object);
 	}
 
-	_eventEngine->execEvent(logic_event::EVENT_LOGIC_PLAYER_ONLINE, &info, sizeof(info));
+	s_eventEngine->execEvent(logic_event::EVENT_LOGIC_PLAYER_ONLINE, &info, sizeof(info));
 
 	allDataLoadComplete(pKernel, object);
 }
@@ -122,9 +159,15 @@ void PlayerMgr::allDataLoadComplete(sl::api::IKernel* pKernel, IObject* object){
 	//TODO 向客户端首次同步属性
 
 	logic_event::Biology info{ object };
-	_eventEngine->execEvent(logic_event::EVENT_LOGIC_DATA_LOAD_COMPLETED, &info, sizeof(info));
+	s_eventEngine->execEvent(logic_event::EVENT_LOGIC_DATA_LOAD_COMPLETED, &info, sizeof(info));
 
 	RGS_PROP_CHANGER(object, ANY_CALL, PlayerMgr::propSync);
+}
+
+void PlayerMgr::startSavePlayerTimer(sl::api::IKernel* pKernel, IObject* object){
+	if (object->getTempInt64(OCTempProp::PROP_UPDATE_TIMER) == 0){
+		START_OBJECT_TIMER(_objectTimer, object, OCTempProp::PROP_UPDATE_TIMER, 0, 1, _savePlayerInterval, PlayerMgr::onSavePlayerStart, PlayerMgr::onSavePlayerTime, PlayerMgr::onSavePlayerTerminate);
+	}
 }
 
 void PlayerMgr::propSync(sl::api::IKernel* pKernel, IObject* object, const char* name, const IProp* prop, const bool sync){
@@ -134,15 +177,13 @@ void PlayerMgr::propSync(sl::api::IKernel* pKernel, IObject* object, const char*
 			savePlayer(pKernel, object);
 		}
 		else{
-			if (object->getTempInt64(OCTempProp::PROP_UPDATE_TIMER) == 0){
-				START_OBJECT_TIMER(_objectTimer, object, OCTempProp::PROP_UPDATE_TIMER, 0, 1, _savePlayerInterval, PlayerMgr::onSavePlayerStart, PlayerMgr::onSavePlayerTime, PlayerMgr::onSavePlayerTerminate);
-			}
+			startSavePlayerTimer(pKernel, object);
 		}
 	}
 }
 
 void PlayerMgr::onSavePlayerTime(sl::api::IKernel* pKernel, IObject* object, int64 tick){
-	s_self->savePlayer(pKernel, object);
+	_self->savePlayer(pKernel, object);
 }
 
 bool PlayerMgr::savePlayer(sl::api::IKernel* pKernel, IObject* player){
@@ -192,7 +233,7 @@ bool PlayerMgr::deActive(int64 actorId, int32 nodeId, bool isPlayerOpt){
 		object->setPropInt32(attr_def::gate, game::INVAILD_GATE_NODE_ID);
 
 		logic_event::Biology info{ object };
-		_eventEngine->execEvent(logic_event::EVENT_LOGIC_PLAYER_LOST, &info, sizeof(info));
+		s_eventEngine->execEvent(logic_event::EVENT_LOGIC_PLAYER_LOST, &info, sizeof(info));
 
 		SLASSERT(object->getPropInt64(attr_def::recoverTimer) == 0, "wtf");
 		RemoveObjectTimer * recoverTimer = NEW RemoveObjectTimer(object);
@@ -210,20 +251,80 @@ bool PlayerMgr::deActive(int64 actorId, int32 nodeId, bool isPlayerOpt){
 void PlayerMgr::recoverObject(sl::api::IKernel* pKernel, const int64 id){
 	IObject* object = _objectMgr->findObject(id);
 	SLASSERT(object, "wtd");
-	if (object){
-		object->setPropInt64(attr_def::recoverTimer, 0);
+	if (!object)
+		return;
 
-		logic_event::Biology info{ object };
-		_eventEngine->execEvent(logic_event::EVENT_LOGIC_PLAYER_DESTROY, &info, sizeof(info));
+	if (object->getPropInt32(attr_def::gate) == game::INVAILD_GATE_NODE_ID)
+		return;
 
-		_roleMgr->recoverPlayer(object);
-		_objectMgr->recover(object);
+	object->setPropInt32(attr_def::gate, game::INVAILD_GATE_NODE_ID);
+	object->setPropInt64(attr_def::recoverTimer, 0);
 
-		IArgs<1, 32> notify;
-		notify << id;
-		notify.fix();
-		_harbor->send(NodeType::SCENEMGR, 1, NodeProtocol::LOGIC_MSG_NOTIFY_REMOVE_PLAYER, notify.out());
+	logic_event::Biology info{ object };
+	s_eventEngine->execEvent(logic_event::EVENT_LOGIC_PLAYER_GATE_LOST, &info, sizeof(info));
+
+	object->setPropInt64(attr_def::offlineTime, sl::getTimeMilliSecond());
+
+	if (strcmp(object->getPropString(attr_def::name), "") != 0){
+		_onlines.erase(object->getPropString(attr_def::name));
 	}
+
+	if (object->getTempInt64(OCTempProp::PROP_UPDATE_TIMER)){
+		savePlayer(pKernel, object);
+		_objectTimer->stopTimer(object, OCTempProp::PROP_UPDATE_TIMER);
+	}
+
+	s_eventEngine->execEvent(logic_event::EVENT_LOGIC_PLAYER_DESTROY, &info, sizeof(info));
+	_roleMgr->recoverPlayer(object);
+	_objectMgr->recover(object);
+}
+
+void PlayerMgr::foreach(const IProp* prop, const std::function<void(sl::api::IKernel* pKernel, IObject* object, int64 tick)>& f){
+	sl::api::IKernel* pKernel = _kernel;
+	int32 idx = 0;
+	if (_onlines.empty())
+		return;
+
+	for (auto itor = _onlines.begin(); itor != _onlines.end(); ++itor){
+		IObject* player = _objectMgr->findObject(itor->second);
+		SLASSERT(player, "where is online player[%lld]", itor->second);
+		if (player){
+			_objectTimer->stopTimer(player, prop);
+
+			_objectTimer->startTimer(player, prop, 0, 1, (idx++ / _foreachCount) * FOREACH_DELAY, nullptr, f, nullptr, __FILE__, __LINE__);
+		}
+	}
+}
+
+void PlayerMgr::OnNewDayComing(sl::api::IKernel* pKernel, const void* context, const int32 size){
+	SLASSERT(sizeof(logic_event::NewDay) == size, "wtf");
+	_self->foreach(OCTempProp::DAY_CHANGE_TIMER, PlayerMgr::OnDayChange);
+}
+
+void PlayerMgr::OnNewWeekComing(sl::api::IKernel* pKernel, const void* context, const int32 size){
+	SLASSERT(sizeof(logic_event::NewWeek) == size, "wtf");
+	_self->foreach(OCTempProp::WEEK_CHANGE_TIMER, PlayerMgr::OnWeekChange);
+}
+
+void PlayerMgr::OnNewMonthComing(sl::api::IKernel* pKernel, const void* context, const int32 size){
+	SLASSERT(sizeof(logic_event::NewMonth) == size, "wtf");
+	_self->foreach(OCTempProp::MONTH_CHANGE_TIMER, PlayerMgr::OnMonthChange);
+}
+
+void PlayerMgr::OnDayChange(sl::api::IKernel* pKernel, IObject* object, int64 tick){
+	logic_event::Biology evt{ object };
+	s_eventEngine->execEvent(logic_event::EVENT_DAY_CHANGED, &evt, sizeof(evt));
+	ECHO_TRACE("player new day event.....");
+}
+
+void PlayerMgr::OnWeekChange(sl::api::IKernel* pKernel, IObject* object, int64 tick){
+	logic_event::Biology evt{ object };
+	s_eventEngine->execEvent(logic_event::EVENT_WEEK_CHANGED, &evt, sizeof(evt));
+}
+
+void PlayerMgr::OnMonthChange(sl::api::IKernel* pKernel, IObject* object, int64 tick){
+	logic_event::Biology evt{ object };
+	s_eventEngine->execEvent(logic_event::EVENT_MONTH_CHANGED, &evt, sizeof(evt));
 }
 
 bool PlayerMgr::onClientTestReq(sl::api::IKernel* pKernel, IObject* object, const sl::OBStream& args){

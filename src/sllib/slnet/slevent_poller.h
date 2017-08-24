@@ -6,11 +6,21 @@
 namespace sl{
 namespace network{
 
-typedef std::map<int32, InputNotificationHandler *> FDReadHandlers;
-typedef std::map<int32, OutputNotificationHandler *> FDWriteHandlers;
+#ifdef SL_OS_LINUX
+#define HAS_EPOLL
+#endif // SL_OS_LINUX
 
 class EventPoller{
 public:
+	typedef struct tagFDHandler{
+		tagFDHandler() :fd(0),readHandler(nullptr), writeHandler(nullptr){}
+		int32 fd;
+		InputNotificationHandler* readHandler;
+		OutputNotificationHandler* writeHandler;
+	}FDHandler;
+
+	typedef std::map<int32, FDHandler> FDHandlerMap;
+
 	EventPoller();
 	virtual ~EventPoller();
 
@@ -32,23 +42,22 @@ public:
 	OutputNotificationHandler* findForWrite(int32 fd);
 
 protected:
-	virtual bool doRegisterForRead(int32 fd) = 0;
-	virtual bool doRegisterForWrite(int32 fd) = 0;
+	virtual bool doRegisterForRead(int32 fd, void* handler) = 0;
+	virtual bool doRegisterForWrite(int32 fd, void* handler) = 0;
 
-	virtual bool doDeregisterForRead(int32 fd) = 0;
-	virtual bool doDeregisterForWrite(int32 fd) = 0;
+	virtual bool doDeregisterForRead(int32 fd, void* handler) = 0;
+	virtual bool doDeregisterForWrite(int32 fd, void* handler) = 0;
 
-	bool triggerRead(int32 fd);
-	bool triggerWrite(int32 fd);
-	bool triggerError(int32 fd);
+	bool triggerRead(int32 fd, void* handler);
+	bool triggerWrite(int32 fd, void* handler);
+	bool triggerError(int32 fd, void* handler);
 
 	bool isRegistered(int32 fd, bool isForRead) const;
 
 	int32 maxFD() const;
 
 private:
-	FDReadHandlers			_fdReadHandlers;
-	FDWriteHandlers			_fdWriteHandlers;
+	FDHandlerMap			_fdHandlers;
 
 protected:
 	uint64					_spareTime;

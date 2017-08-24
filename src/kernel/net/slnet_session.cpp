@@ -29,7 +29,6 @@ NetSession::NetSession(ITcpSession* pTcpSession)
 }
 
 NetSession::~NetSession(){
-	//m_pTcpSession->close();
 }
 
 void NetSession::onRecv(const char* pBuf, uint32 dwLen){

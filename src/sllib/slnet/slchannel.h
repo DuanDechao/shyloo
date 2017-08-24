@@ -70,6 +70,7 @@ public:
 	inline PacketSender* getPacketSender() const { return _pPacketSender; }
 	inline void setPacketSender(PacketSender* pPacketSender){ _pPacketSender = pPacketSender; }
 	inline PacketReceiver* getPacketReceiver() const{ return _pPacketReceiver; }
+	inline void setPacketReceiver(PacketReceiver* pPacketReceiver) { _pPacketReceiver = pPacketReceiver; }
 	void processPackets();
 	void destroy(bool notify = true);
 

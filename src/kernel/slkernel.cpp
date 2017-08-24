@@ -40,22 +40,22 @@ bool Kernel::initialize(int32 argc, char ** argv){
 	parse(argc, argv);
 
 	return ConfigEngine::getInstance()->initialize() &&
+		LogEngine::getInstance()->initialize() &&
 		TimerEngine::getInstance()->initialize() &&
 		NetEngine::getInstance()->initialize() &&
 		IPCEngine::getInstance()->initialize() &&
 		AsyncEngine::getInstance()->initialize() &&
-		LogicEngine::getInstance()->initialize() &&
-		LogEngine::getInstance()->initialize();
+		LogicEngine::getInstance()->initialize();
 }
 
 bool Kernel::destory(){
-	ConfigEngine::getInstance()->destory();
+	AsyncEngine::getInstance()->destory();
+	LogicEngine::getInstance()->destory();
 	TimerEngine::getInstance()->destory();
 	NetEngine::getInstance()->destory();
 	IPCEngine::getInstance()->destory();
-	AsyncEngine::getInstance()->destory();
-	LogicEngine::getInstance()->destory();
 	LogEngine::getInstance()->destory();
+	ConfigEngine::getInstance()->destory();
 
 	DEL this;
 	return true;
@@ -68,8 +68,8 @@ void Kernel::loop() {
 		int64 startTick = sl::getTimeMilliSecond();
 		int64 netTick = NetEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sNetlooptick);
 		int64 ipcTick = IPCEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sIpclooptick);
-		int64 asyncTick = AsyncEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sAsynclooptick);
 		int64 timerTick = TimerEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sTimerlooptick);
+		int64 asyncTick = AsyncEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sAsynclooptick);
 		LogEngine::getInstance()->loop(0);
 
 		int64 useTick = sl::getTimeMilliSecond() - startTick;

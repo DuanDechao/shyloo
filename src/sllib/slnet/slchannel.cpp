@@ -88,19 +88,19 @@ Channel::~Channel(){
 
 	_recvBuf = nullptr;
 	_sendBuf = nullptr;
+
+	if (_pPacketReceiver)
+	_pPacketReceiver->release();
+
+	if (_pPacketSender)
+	_pPacketSender->release();
+
+	_pPacketReceiver = NULL;
+	_pPacketSender = NULL;
 }
 
 bool Channel::finalise(){
 	this->clearState();
-
-	if (_pPacketReceiver)
-		_pPacketReceiver->release();
-
-	if (_pPacketSender)
-		_pPacketSender->release();
-
-	_pPacketReceiver = NULL;
-	_pPacketSender = NULL;
 	return true;
 }
 
@@ -189,18 +189,16 @@ void Channel::destroy(bool notify){
 	if(isDestroyed()){
 		return;
 	}
-
 	if (nullptr != _pSession && notify){
 		_pSession->onTerminate();
 	}
+	_pSession->release();
 
 	_pNetworkInterface->deregisterChannel(this);
-
 	finalise();
-	
+
 	_flags |= FLAG_DESTROYED;
-	
-	release();
+	//release();
 }
 
 void Channel::setConnected() { 

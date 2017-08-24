@@ -158,6 +158,10 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 		pSvrChannel->setPacketSender(TCPPacketSender::create(pSvrChannel, this));
 	}
 
+	if (pSvrChannel->getPacketReceiver() == nullptr){
+		pSvrChannel->setPacketReceiver(TCPPacketReceiver::create(pSvrChannel, this));
+	}
+
 	if (ret != -1){
 		ISLSession* poSession = pSvrChannel->getSession();
 		poSession->onEstablish();
@@ -165,6 +169,7 @@ bool NetworkInterface::createConnectingSocket(const char* serverIp, uint16 serve
 	}
 	else{
 		getDispatcher().registerWriteFileDescriptor((int32)(*pSvrEndPoint), pSvrChannel->getPacketSender());
+		//getDispatcher().registerReadFileDescriptor((int32)(*pSvrEndPoint), pSvrChannel->getPacketReceiver());
 	}
 
 	return true;
@@ -223,6 +228,8 @@ bool NetworkInterface::deregisterChannel(Channel* pChannel){
 	const Address& addr = pChannel->addr();
 	SLASSERT(pChannel->getEndPoint() != NULL, "wtf");
 
+	_destoryChannel.insert(pChannel);
+	
 	if(_channelMap.erase(addr)){
 		return false;
 	}
@@ -252,6 +259,15 @@ void NetworkInterface::onChannelTimeOut(Channel* pChannel){
 
 int32 NetworkInterface::numExtChannels() const{
 	return _numExtChannels;
+}
+
+void NetworkInterface::recoverDestroyChannel(){
+	if (!_destoryChannel.empty()){
+		for (auto itor = _destoryChannel.begin(); itor != _destoryChannel.end(); ++itor){
+			(*itor)->release();
+		}
+		_destoryChannel.clear();
+	}
 }
 
 

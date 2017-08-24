@@ -2,7 +2,6 @@
 
 namespace sl{
 namespace network{
-
 SelectPoller::SelectPoller()
 	:EventPoller(),
 	 _fdReadSet(),
@@ -19,24 +18,24 @@ void SelectPoller::handleNotifications(int& countReady, fd_set& readFDs, fd_set&
 	for (unsigned i = 0; i < readFDs.fd_count; i++){
 		int32 fd = (int32)readFDs.fd_array[i];
 		--countReady;
-		this->triggerRead(fd);
+		this->triggerRead(fd, nullptr);
 	}
 
 	for (unsigned i = 0; i < writeFDs.fd_count; i++){
 		int32 fd = (int32)writeFDs.fd_array[i];
 		--countReady;
-		this->triggerWrite(fd);
+		this->triggerWrite(fd, nullptr);
 	}
 #else
 	for (int fd = 0; fd <= _fdLargest && countReady > 0; ++fd){
 		if(FD_ISSET(fd, &readFDs)){
 			--countReady;
-			this->triggerRead(fd);
+			this->triggerRead(fd, nullptr);
 		}
 
 		if(FD_ISSET(fd, &writeFDs)){
 			--countReady;
-			this->triggerWrite(fd);
+			this->triggerWrite(fd, nullptr);
 		}
 	}
 #endif // SL_OS_WINDOWS
@@ -78,7 +77,7 @@ int SelectPoller::processPendingEvents(int64 maxWait){
 	return countReady;
 }
 
-bool SelectPoller::doRegisterForRead(int fd){
+bool SelectPoller::doRegisterForRead(int fd, void* handler){
 #ifdef SL_OS_WINDOWS
 	if(_fdReadSet.fd_count >= FD_SETSIZE){
 		return false;
@@ -102,7 +101,7 @@ bool SelectPoller::doRegisterForRead(int fd){
 	return true;
 }
 
-bool SelectPoller::doRegisterForWrite(int fd){
+bool SelectPoller::doRegisterForWrite(int fd, void* handler){
 #ifdef SL_OS_WINDOWS
 	if(_fdWriteSet.fd_count >= FD_SETSIZE){
 		return false;
@@ -127,7 +126,7 @@ bool SelectPoller::doRegisterForWrite(int fd){
 	return true;
 }
 
-bool SelectPoller::doDeregisterForRead(int fd){
+bool SelectPoller::doDeregisterForRead(int fd, void* handler){
 #ifdef SL_OS_LINUX
 	if(fd < 0 || FD_SETSIZE <= fd){
 		return false;
@@ -144,7 +143,7 @@ bool SelectPoller::doDeregisterForRead(int fd){
 	return true;
 }
 
-bool SelectPoller::doDeregisterForWrite(int fd){
+bool SelectPoller::doDeregisterForWrite(int fd, void* handler){
 #ifdef SL_OS_LINUX
 	if(fd < 0 || FD_SETSIZE <= fd){
 		return false;
