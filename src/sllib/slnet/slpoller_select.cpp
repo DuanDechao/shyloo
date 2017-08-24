@@ -2,7 +2,6 @@
 
 namespace sl{
 namespace network{
-
 SelectPoller::SelectPoller()
 	:EventPoller(),
 	 _fdReadSet(),
@@ -31,12 +30,12 @@ void SelectPoller::handleNotifications(int& countReady, fd_set& readFDs, fd_set&
 	for (int fd = 0; fd <= _fdLargest && countReady > 0; ++fd){
 		if(FD_ISSET(fd, &readFDs)){
 			--countReady;
-			this->triggerRead(fd);
+			this->triggerRead(fd, nullptr);
 		}
 
 		if(FD_ISSET(fd, &writeFDs)){
 			--countReady;
-			this->triggerWrite(fd);
+			this->triggerWrite(fd, nullptr);
 		}
 	}
 #endif // SL_OS_WINDOWS
@@ -127,7 +126,7 @@ bool SelectPoller::doRegisterForWrite(int fd, void* handler){
 	return true;
 }
 
-bool SelectPoller::doDeregisterForRead(int fd){
+bool SelectPoller::doDeregisterForRead(int fd, void* handler){
 #ifdef SL_OS_LINUX
 	if(fd < 0 || FD_SETSIZE <= fd){
 		return false;
@@ -144,7 +143,7 @@ bool SelectPoller::doDeregisterForRead(int fd){
 	return true;
 }
 
-bool SelectPoller::doDeregisterForWrite(int fd){
+bool SelectPoller::doDeregisterForWrite(int fd, void* handler){
 #ifdef SL_OS_LINUX
 	if(fd < 0 || FD_SETSIZE <= fd){
 		return false;

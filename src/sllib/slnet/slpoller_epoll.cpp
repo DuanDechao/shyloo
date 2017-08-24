@@ -20,9 +20,9 @@ EpollPoller::~EpollPoller(){
 }
 
 int EpollPoller::processPendingEvents(int64 maxWait){
-	const int MAX_EVENTS = 10;
+	const int MAX_EVENTS = 50;
 	struct epoll_event events[MAX_EVENTS];
-	int maxWaitInMilliseconds = int(ceil(maxWait * 1000));
+	int maxWaitInMilliseconds = int(maxWait * 1000);
 
 	int nfds = epoll_wait(_epFd, events, MAX_EVENTS, maxWaitInMilliseconds);
 
@@ -33,23 +33,21 @@ int EpollPoller::processPendingEvents(int64 maxWait){
 		else{
 			if (events[i].events & EPOLLIN){
 				this->triggerRead(events[i].data.fd, events[i].data.ptr);
-			}
+            }
 
 			if (events[i].events & EPOLLOUT){
 				this->triggerWrite(events[i].data.fd, events[i].data.ptr);
 			}
 		}
 	}
-
+	return nfds;
 }
 
 bool EpollPoller::doRegister(int fd, bool isRead, bool isRegister, void* handler){
 	struct epoll_event evt;
 	memset(&evt, 0, sizeof(evt));
-
-	evt.data.fd = fd;
-	evt.data.ptr = handler;
-
+    evt.data.ptr = handler;
+	
 	int32 op;
 	if(this->isRegistered(fd, !isRead)){
 		op = EPOLL_CTL_MOD;

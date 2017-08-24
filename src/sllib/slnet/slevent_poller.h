@@ -6,6 +6,10 @@
 namespace sl{
 namespace network{
 
+#ifdef SL_OS_LINUX
+#define HAS_EPOLL
+#endif // SL_OS_LINUX
+
 class EventPoller{
 public:
 	typedef struct tagFDHandler{
@@ -41,8 +45,8 @@ protected:
 	virtual bool doRegisterForRead(int32 fd, void* handler) = 0;
 	virtual bool doRegisterForWrite(int32 fd, void* handler) = 0;
 
-	virtual bool doDeregisterForRead(int32 fd) = 0;
-	virtual bool doDeregisterForWrite(int32 fd) = 0;
+	virtual bool doDeregisterForRead(int32 fd, void* handler) = 0;
+	virtual bool doDeregisterForWrite(int32 fd, void* handler) = 0;
 
 	bool triggerRead(int32 fd, void* handler);
 	bool triggerWrite(int32 fd, void* handler);

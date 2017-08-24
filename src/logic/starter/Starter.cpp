@@ -45,7 +45,7 @@ bool Starter::launched(sl::api::IKernel * pKernel){
 
 		RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_PRE_SHUTDOWN, Starter::preShutDown);
 		
-		START_TIMER(_self, 0, 1, 2000);
+		START_TIMER(_self, 0, 1, 5000);
 	}
 	
 	

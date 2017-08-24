@@ -1,10 +1,8 @@
 #include "slevent_poller.h"
 #include "slpoller_select.h"
+#include "slpoller_epoll.h"
 namespace sl{
 namespace network{
-#ifdef SL_OS_LINUX
-#define HAS_EPOLL
-#endif // SL_OS_LINUX
 
 EventPoller::EventPoller()
 	:_fdHandlers(),
@@ -15,12 +13,8 @@ EventPoller::~EventPoller()
 {}
 
 bool EventPoller::registerForRead(int fd, InputNotificationHandler* handler){
-	SLASSERT(_fdHandlers[fd].fd == 0 || _fdHandlers[fd].fd == fd, "wtf");
-	if (_fdHandlers[fd].fd == 0)
-		_fdHandlers[fd].fd = fd;
-
+	_fdHandlers[fd].fd = fd;
 	_fdHandlers[fd].readHandler = handler;
-	
 	if (!this->doRegisterForRead(fd, &_fdHandlers[fd])){
 		return false;
 	}
@@ -28,12 +22,8 @@ bool EventPoller::registerForRead(int fd, InputNotificationHandler* handler){
 }
 
 bool EventPoller::registerForWrite(int fd, OutputNotificationHandler* handler){
-	SLASSERT(_fdHandlers[fd].fd == 0 || _fdHandlers[fd].fd == fd, "wtf");
-	if (_fdHandlers[fd].fd == 0)
-		_fdHandlers[fd].fd = fd;
-
+	_fdHandlers[fd].fd = fd;
 	_fdHandlers[fd].writeHandler = handler;
-	
 	if (!this->doRegisterForWrite(fd, &_fdHandlers[fd])){
 		return false;
 	}
@@ -43,22 +33,18 @@ bool EventPoller::registerForWrite(int fd, OutputNotificationHandler* handler){
 
 bool EventPoller::deregisterForRead(int fd){
 	_fdHandlers[fd].readHandler = nullptr;
-	return this->doDeregisterForRead(fd);
+	return this->doDeregisterForRead(fd, &_fdHandlers[fd]);
 }
 
 bool EventPoller::deregisterForWrite(int fd){
 	_fdHandlers[fd].writeHandler = nullptr;
-	return this->doDeregisterForWrite(fd);
+	return this->doDeregisterForWrite(fd, &_fdHandlers[fd]);
 }
 
 bool EventPoller::triggerRead(int fd, void* handler){
 	FDHandler* fdHandler = nullptr;
 	if (handler != nullptr){
 		fdHandler = (FDHandler*)handler;
-		if (fd != fdHandler->fd){
-			SLASSERT(false, "wtf");
-			return false;
-		}
 	}
 	else{
 		FDHandlerMap::iterator iter = _fdHandlers.find(fd);
@@ -68,10 +54,11 @@ bool EventPoller::triggerRead(int fd, void* handler){
 		fdHandler = &(iter->second);
 	}
 	
-	if (fdHandler->readHandler == nullptr)
+	if (fdHandler->readHandler == nullptr){
 		return false;
+	}
 	
-	fdHandler->readHandler->handleInputNotification(fd);
+	fdHandler->readHandler->handleInputNotification(fdHandler->fd);
 	return true;
 }
 
@@ -79,10 +66,6 @@ bool EventPoller::triggerWrite(int fd, void* handler){
 	FDHandler* fdHandler = nullptr;
 	if (handler != nullptr){
 		fdHandler = (FDHandler*)handler;
-		if (fd != fdHandler->fd){
-			SLASSERT(false, "wtf");
-			return false;
-		}
 	}
 	else{
 		FDHandlerMap::iterator iter = _fdHandlers.find(fd);
@@ -92,10 +75,11 @@ bool EventPoller::triggerWrite(int fd, void* handler){
 		fdHandler = &(iter->second);
 	}
 
-	if (fdHandler->writeHandler == nullptr)
+	if (fdHandler->writeHandler == nullptr){
 		return false;
+	}
 
-	fdHandler->writeHandler->handleOutputNotification(fd);
+	fdHandler->writeHandler->handleOutputNotification(fdHandler->fd);
 	return true;
 }
 
@@ -151,7 +135,7 @@ int EventPoller::maxFD() const{
 EventPoller* EventPoller::create()
 {
 #ifdef HAS_EPOLL
-	return NEW EventPoller();
+	return NEW EpollPoller();
 #else
 	return NEW SelectPoller();
 #endif // HAS_EPOLL

@@ -16,8 +16,8 @@ protected:
 	virtual bool doRegisterForRead(int fd, void* handler){return doRegister(fd, true, true, handler);}
 	virtual bool doRegisterForWrite(int fd, void* handler){return doRegister(fd, false, true, handler);}
 
-	virtual bool doDeregisterForRead(int fd){return doRegister(fd, true, false, nullptr);}
-	virtual bool doDeregisterForWrite(int fd){return doRegister(fd, false, false, nullptr);}
+	virtual bool doDeregisterForRead(int fd, void* handler){return doRegister(fd, true, false, handler);}
+	virtual bool doDeregisterForWrite(int fd, void* handler){return doRegister(fd, false, false, handler);}
 
 	virtual int processPendingEvents(int64 maxWait);
 
