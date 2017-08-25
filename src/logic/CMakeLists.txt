@@ -30,6 +30,7 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IRelation.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IClient.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IMonitor.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IStarter.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/DBType.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/SQLBase.h"
 )
@@ -82,4 +83,5 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/balance)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/monitor)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/monitorclient)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/online)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/startnodestrategy)
 

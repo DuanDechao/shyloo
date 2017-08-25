@@ -16,6 +16,8 @@ public:
 
 	virtual int32 choose(int32 nodeType);
 
+	virtual bool checkOverLoad(const int32 nodeType, const int32 overload);
+
 private:
 	int32 chooseStrategy1(int32 nodeType);
 	int32 chooseStrategy2(int32 nodeType);

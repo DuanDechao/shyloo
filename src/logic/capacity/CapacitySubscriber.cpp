@@ -45,6 +45,15 @@ void CapacitySubscriber::nodeLoadReport(sl::api::IKernel* pKernel, const int32 n
 	//ECHO_ERROR("node[%d:%d] load updated: %f", nodeType, nodeId, nodeLoad);
 }
 
+bool CapacitySubscriber::checkOverLoad(const int32 nodeType, const int32 overload){
+	float sum = 0;
+	for (auto itor = _allNodeLoad[nodeType].begin(); itor != _allNodeLoad[nodeType].end(); ++itor){
+		sum += itor->second.real;
+	}
+
+	return (int32)sum > overload;
+}
+
 int32 CapacitySubscriber::chooseStrategy1(int32 nodeType){
 	int32 findId = game::NODE_INVALID_ID;
 	auto nodeItor = _allNodeLoad[nodeType].begin();

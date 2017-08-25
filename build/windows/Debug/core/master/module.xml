@@ -9,4 +9,5 @@
 	<module name="Starter" />
 	<module name="IdMgr" />
 	<module name="Agent" />
+	<module name="StartNodeStrategy" />
 </modules>

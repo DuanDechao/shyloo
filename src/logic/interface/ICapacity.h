@@ -15,5 +15,6 @@ public:
 	virtual ~ICapacitySubscriber() {}
 
 	virtual int32 choose(int32 nodeType) = 0;
+	virtual bool checkOverLoad(const int32 nodeType, const int32 overload) = 0;
 };
 #endif
