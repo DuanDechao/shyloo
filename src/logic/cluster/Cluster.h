@@ -4,6 +4,7 @@
 #include "slmulti_sys.h"
 #include "IHarbor.h"
 #include <set>
+#include "slstring.h"
 class Cluster : public sl::api::IModule, public sl::api::ITimer{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
@@ -22,7 +23,9 @@ private:
 	bool isSameDeivce(const char* localIp, const char* remoteIp);
 
 private:
-	IHarbor* _harbor;
-	std::set<int64> _openNodes;
+	IHarbor*			_harbor;
+	std::set<int64>		_openNodes;
+	sl::SLString<128>	_masterIp;
+	int32				_masterPort;
 };
 #endif

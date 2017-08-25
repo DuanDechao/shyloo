@@ -17,10 +17,8 @@ bool Cluster::launched(sl::api::IKernel * pKernel){
 			SLASSERT(false, "can't load core file %s", pKernel->getCoreFile());
 			return false;
 		}
-		/*const char* ip = server_conf.root()["master"][0].getAttributeString("ip");
-		const int32 port = server_conf.root()["master"][0].getAttributeInt32("port");
-		_harbor->connect(ip, port, -2, 1);*/
-
+		_masterIp = server_conf.root()["master"][0].getAttributeString("ip");
+		_masterPort = server_conf.root()["master"][0].getAttributeInt32("port");
 		START_TIMER(this, 0, 1, 1000);
 	}
 	return true;
@@ -53,7 +51,7 @@ void Cluster::newNodeComing(sl::api::IKernel* pKernel, const int32 nodeType, con
 
 
 void Cluster::onTime(sl::api::IKernel* pKernel, int64 timetick){
-	_harbor->connect("127.0.0.1", 7700, -2, 1);
+	_harbor->connect(_masterIp.c_str(), _masterPort, -2, 1);
 }
 
 bool Cluster::isSameDeivce(const char* localIp, const char* remoteIp){
