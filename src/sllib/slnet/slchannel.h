@@ -30,13 +30,13 @@ public:
 	virtual void SLAPI send(const char* pBuf, uint32 dwLen);
 	virtual void SLAPI disconnect(void);
 
-	virtual const uint32 SLAPI getRemoteIP(void){return _pEndPoint ? _pEndPoint->addr().ip() : 0;}
-	virtual const char* SLAPI getRemoteIPStr(void) {return _pEndPoint ? _pEndPoint->addr().ipAsString() : "";}
-	virtual const uint16 SLAPI getRemotePort(void) { return _pEndPoint ? _pEndPoint->addr().port() : 0; }
+	virtual const uint32 SLAPI getRemoteIP(void){ return _pEndPoint ? _pEndPoint->getremoteAddress().ip() : 0; }
+	virtual const char* SLAPI getRemoteIPStr(void) { return _pEndPoint ? _pEndPoint->getremoteAddress().ipAsString() : ""; }
+	virtual const uint16 SLAPI getRemotePort(void) { return _pEndPoint ? _pEndPoint->getremoteAddress().port() : 0; }
 
-	virtual const uint32 SLAPI getLocalIP(void) {return 0;}
-	virtual const char* SLAPI getLocalIPStr(void) {return "";}
-	virtual const uint16 SLAPI getLocalPort(void) {return 0;}
+	virtual const uint32 SLAPI getLocalIP(void) { return _pEndPoint ? _pEndPoint->getlocalAddress().ip() : 0; }
+	virtual const char* SLAPI getLocalIPStr(void) { return _pEndPoint ? _pEndPoint->getlocalAddress().ipAsString() : ""; }
+	virtual const uint16 SLAPI getLocalPort(void) { return _pEndPoint ? _pEndPoint->getlocalAddress().port() : 0;; }
 
 	virtual void SLAPI adjustSendBuffSize(const int32 size);
 	virtual void SLAPI adjustRecvBuffSize(const int32 size);
