@@ -58,7 +58,7 @@ int32 IPCSession::procRecv(){
 		}
 		data = _shmQueue->peekData(temp, msgSize);
 		if (data == nullptr)
-			break;
+			break; 
 
 		onRecv(data, msgSize);
 		_shmQueue->skip(msgSize);
