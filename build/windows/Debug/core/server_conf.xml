@@ -96,5 +96,5 @@
 	<loadbroad interval="1000" />
 	<player_mgr save="120000" recover="300000" foreach_count="10" />
 	<sync_rate scene="500" shadow="500" />
-	<balance max_tickets="2000" max_clients="5000" />
+	<balance max_tickets="2000" max_clients="5000"/>
 </core>

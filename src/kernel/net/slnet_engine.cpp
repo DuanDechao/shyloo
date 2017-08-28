@@ -165,7 +165,7 @@ void NetEngine::readInternetIp(){
 					first = false;
 				}
 				else{
-					if(isLocalIp(ip)){
+					if(!isLocalIp(ip)){
 						SafeSprintf(m_ip, sizeof(m_ip), "%s", ip);
 					}
 				}

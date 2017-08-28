@@ -92,7 +92,7 @@ void Robot::onServerGiveGateAddressAck(sl::api::IKernel* pKernel, const OBStream
 	_robot.name = pKernel->getCmdArg("account");
 	_robot.ticket = ticket;
 
-	_client->connect("127.0.0.1", gatePort);
+	_client->connect(gateIp, gatePort);
 	
 	IBStream<128> outArgs;
 	outArgs << _robot.name.c_str() << _robot.ticket;
