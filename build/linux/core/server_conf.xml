@@ -4,6 +4,7 @@
 	<envir path="./envir" />
 	<ipc path="./ipc" />
 	<client send="1024" recv="1024"/>
+	<server pubIp="" />
 	<harbor send="1048576" recv="1048576" useIpc="false" >
 		<node type="-3" name="slave" hidden="true"/>
 		<node type="-2" name="master" />
@@ -36,15 +37,27 @@
 		<port node="1" start="7241" end="7299" />
 		<out_port node="1" start="7200" end="7210" />
 		<define balance_port="7100" />
-		<node name="gate" type="1" min="2" max="2" delay="1000" cmd=" --name=gate --harbor=$port$ --agent=$out_port$ --node_id=$id$" />
-		<node name="logic" type="2" min="2" max="2" delay="5000" cmd=" --name=logic --harbor=$port$ --node_id=$id$" />
-		<node name="scene" type="3" min="1" max="1" delay="5000" cmd=" --name=scene --harbor=$port$ --node_id=$id$" />
-		<node name="relation" type="4" min="1" max="1" delay="5000" cmd=" --name=relation --harbor=$port$ --node_id=$id$" />
-		<node name="account" type="5" min="1" max="1" delay="5000" cmd=" --name=account --harbor=$port$ --node_id=$id$" />
-		<node name="scenemgr" type="6" min="1" max="1" delay="5000" cmd=" --name=scenemgr --harbor=$port$ --node_id=$id$" />
-		<node name="db" type="8" min="1" max="1" delay="5000" cmd=" --name=db --harbor=$port$ --node_id=$id$" /> 
-		<node name="balance" type="9" min="1" max="1" delay="15000" cmd=" --name=balance --harbor=$port$ --agent=$balance_port$ --node_id=$id$" />
+		<node name="gate" type="1" min="2" max="2" rate="90" delay="1000" cmd=" --name=gate --harbor=$port$ --agent=$out_port$ --node_id=$id$" />
+		<node name="logic" type="2" min="2" max="2" rate="90" delay="5000" cmd=" --name=logic --harbor=$port$ --node_id=$id$" />
+		<node name="scene" type="3" min="1" max="1" rate="90" delay="5000" cmd=" --name=scene --harbor=$port$ --node_id=$id$" />
+		<node name="relation" type="4" min="1" max="1" rate="90" delay="5000" cmd=" --name=relation --harbor=$port$ --node_id=$id$" />
+		<node name="account" type="5" min="1" max="1" rate="90" delay="5000" cmd=" --name=account --harbor=$port$ --node_id=$id$" />
+		<node name="scenemgr" type="6" min="1" max="1" rate="90" delay="5000" cmd=" --name=scenemgr --harbor=$port$ --node_id=$id$" />
+		<node name="db" type="8" min="1" max="1" rate="90" delay="5000" cmd=" --name=db --harbor=$port$ --node_id=$id$" /> 
+		<node name="balance" type="9" min="1" max="1" rate="90" delay="15000" cmd=" --name=balance --harbor=$port$ --agent=$balance_port$ --node_id=$id$" />
 	</starter>
+	
+	<start_strategy>
+		<score type="1" forcenode="0" bandwidth="1" overload="5" />
+		<score type="2" forcenode="0" bandwidth="0" overload="5" />
+		<score type="3" forcenode="1" bandwidth="0" overload="3" />
+		<score type="4" forcenode="0" bandwidth="0" overload="1" />
+		<score type="5" forcenode="1" bandwidth="0" overload="1" />
+		<score type="6" forcenode="1" bandwidth="0" overload="1" />
+		<score type="8" forcenode="0" bandwidth="0" overload="6" />
+		<score type="9" forcenode="1" bandwidth="0" overload="1" />
+	</start_strategy>
+	
 	<shutdown>
 		<step close="false" desc="notify random one logic">
 			<node type="2" select="random" />
@@ -77,12 +90,12 @@
 	</shutdown>
 	<master ip="127.0.0.1" port="7700" />
 	<id multiProc="true" server="-2" area="1" poolSize="1000" />
-	<db host="192.168.56.1" port="3306" user="root" pwd="" db="shyloo" charset="utf8" />
+	<db host="127.0.0.1" port="3306" user="root" pwd="" db="shyloo" charset="utf8" />
 	<redis>
 		<slave ip="127.0.0.1" port="6379"/>
 	</redis>
 	<loadbroad interval="1000" />
-	<save player="120000" />
+	<player_mgr save="120000" recover="300000" foreach_count="10" />
 	<sync_rate scene="500" shadow="500" />
-	<balance max_tickets="2000" max_clients="5000" />
+	<balance max_tickets="2000" max_clients="5000"/>
 </core>

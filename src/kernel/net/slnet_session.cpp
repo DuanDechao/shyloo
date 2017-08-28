@@ -46,21 +46,41 @@ void NetSession::onTerminate(){
 }
 
 void NetSession::send(const void* pContext, int dwLen){
+	if (!_channel){
+		SLASSERT(false, "wtf");
+		return;
+	}
 	_channel->send((const char*)pContext, dwLen);
 }
 
 void NetSession::close(){
+	if (!_channel){
+		SLASSERT(false, "wtf");
+		return;
+	}
 	return _channel->disconnect();
 }
 
 const char* NetSession::getRemoteIP(){
+	if (!_channel){
+		SLASSERT(false, "wtf");
+		return "";
+	}
 	return _channel->getRemoteIPStr();
 }
 
 void NetSession::adjustSendBuffSize(const int32 size){
+	if (!_channel){
+		SLASSERT(false, "wtf");
+		return;
+	}
 	_channel->adjustSendBuffSize(size);
 }
 void NetSession::adjustRecvBuffSize(const int32 size){
+	if (!_channel){
+		SLASSERT(false, "wtf");
+		return;
+	}
 	_channel->adjustRecvBuffSize(size);
 }
 
