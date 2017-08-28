@@ -4,6 +4,7 @@
 	<envir path="./envir" />
 	<ipc path="./ipc" />
 	<client send="1024" recv="1024"/>
+	<server pubIp="" />
 	<harbor send="1048576" recv="1048576" useIpc="false" >
 		<node type="-3" name="slave" hidden="true"/>
 		<node type="-2" name="master" />

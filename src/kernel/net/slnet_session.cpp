@@ -22,13 +22,15 @@ int32 NetPacketParser::parsePacket(const char* pDataBuf, int32 len){
 
 sl::SLPool<NetSession> NetSession::s_pool;
 NetSession::NetSession(ITcpSession* pTcpSession)
-	:_channel(NULL),
+	:_channel(nullptr),
 	_tcpSession(pTcpSession)
 {
 	_tcpSession->_pipe = this;
 }
 
 NetSession::~NetSession(){
+	_tcpSession = nullptr;
+	_channel = nullptr;
 }
 
 void NetSession::onRecv(const char* pBuf, uint32 dwLen){

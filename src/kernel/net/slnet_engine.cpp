@@ -1,7 +1,7 @@
 #include "slnet_engine.h"
 #include "slnet_session.h"
 #include "sltime.h"
-
+#include "slxml_reader.h"
 #ifdef SL_OS_WINDOWS
 #include <IPHlpApi.h>
 #else
@@ -42,7 +42,22 @@ NetEngine::~NetEngine(){
 }
 
 bool NetEngine::initialize(){
-	readInternetIp();
+	char path[MAX_PATH] = { 0 };
+	SafeSprintf(path, sizeof(path), "%s/core/server_conf.xml", sl::getAppPath());
+	XmlReader server_conf;
+	if (!server_conf.loadXml(path)){
+		SLASSERT(false, "not find core file %s", path);
+		return false;
+	}
+
+	if (server_conf.root()["server"][0].hasAttribute("pubIp")){
+		const char* pubIp = server_conf.root()["server"][0].getAttributeString("pubIp");
+		SafeSprintf(m_ip, sizeof(m_ip), "%s", pubIp);
+	}
+
+	if (strcmp(m_ip, "") == 0)
+		readInternetIp();
+
 	m_pSLNetModule = getSLNetModule();
 	if(nullptr == m_pSLNetModule)
 		return false;
