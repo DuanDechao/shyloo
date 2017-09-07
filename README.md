@@ -23,7 +23,7 @@ NetEngine(网络层): 处理网络消息
 
 TimerEngine(定时器): 采用时间轮算法实现定时事件触发
 
-AsyncEngine(异步任务层): 处理异步任务
+AsyncEngine(异步任务层): 多线程处理异步任务
 
 IPCEngine(进程间通信):主要以共享内存处理同一物理机的进程间的通信
 
