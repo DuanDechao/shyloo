@@ -45,6 +45,8 @@ namespace logic_event{
 		EVENT_SCENE_LEAVE_SCENE,
 
 		EVENT_DB_UPDATE_FINISHED = 3000,
+
+		EVENT_RELATION_SYNC_CHAT_CHANNEL_ADDRESS = 4000,
 	};
 	
 	struct Biology{
@@ -109,6 +111,11 @@ namespace logic_event{
 
 	struct NewMonth{
 		int32 month;
+	};
+
+	struct ChatAddress{
+		const char* ip;
+		int32 port;
 	};
 }
 #endif

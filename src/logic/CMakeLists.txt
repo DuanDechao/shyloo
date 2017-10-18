@@ -31,6 +31,7 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IClient.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IMonitor.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IStarter.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IChat.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/DBType.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/SQLBase.h"
 )
@@ -38,6 +39,7 @@ SET(SL_LOGIC_INTERFACE
 SET(SL_LOGIC_DEFINE
 	"${PROJECT_SOURCE_DIR}/src/logic/define/NodeDefine.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/define/NodeProtocol.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/define/ChatProtocol.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/define/GameDefine.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/define/Attr.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/define/DBDef.h"
@@ -84,4 +86,5 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/monitor)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/monitorclient)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/online)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/startnodestrategy)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/chat)
 

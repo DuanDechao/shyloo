@@ -63,6 +63,7 @@ struct ATTR_API attr_def{
 struct ATTR_API OCTempProp{
 	static const IProp* AITIMER;
 	static const IProp* AI_REF;
+	static const IProp* CHAT_TOKEN_TIMER;
 	static const IProp* DAY_CHANGE_TIMER;
 	static const IProp* IS_APPEAR;
 	static const IProp* MONTH_CHANGE_TIMER;

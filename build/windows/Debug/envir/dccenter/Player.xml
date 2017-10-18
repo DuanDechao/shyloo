@@ -20,6 +20,7 @@
 	<temp name="DAY_CHANGE_TIMER" type="int64" />
 	<temp name="WEEK_CHANGE_TIMER" type="int64" />
 	<temp name="MONTH_CHANGE_TIMER" type="int64" />
+	<temp name="CHAT_TOKEN_TIMER" type="int64" />
 	
 	<table name="PROP_SELF_TABLE">
 		<column name="PROP" type="int64" key="true"/>

@@ -57,6 +57,7 @@ const IProp* attr_def::z = nullptr;
 
 const IProp* OCTempProp::AITIMER = nullptr;
 const IProp* OCTempProp::AI_REF = nullptr;
+const IProp* OCTempProp::CHAT_TOKEN_TIMER = nullptr;
 const IProp* OCTempProp::DAY_CHANGE_TIMER = nullptr;
 const IProp* OCTempProp::IS_APPEAR = nullptr;
 const IProp* OCTempProp::MONTH_CHANGE_TIMER = nullptr;
@@ -106,6 +107,7 @@ void getAttrProp(IObjectMgr* objectMgr){
 
 	OCTempProp::AITIMER = objectMgr->getTempPropByName("AITIMER");
 	OCTempProp::AI_REF = objectMgr->getTempPropByName("AI_REF");
+	OCTempProp::CHAT_TOKEN_TIMER = objectMgr->getTempPropByName("CHAT_TOKEN_TIMER");
 	OCTempProp::DAY_CHANGE_TIMER = objectMgr->getTempPropByName("DAY_CHANGE_TIMER");
 	OCTempProp::IS_APPEAR = objectMgr->getTempPropByName("IS_APPEAR");
 	OCTempProp::MONTH_CHANGE_TIMER = objectMgr->getTempPropByName("MONTH_CHANGE_TIMER");

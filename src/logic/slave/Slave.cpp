@@ -64,12 +64,27 @@ bool Slave::initialize(sl::api::IKernel * pKernel){
 	const sl::xml::ISLXmlNode& outPort = server_conf.root()["starter"][0]["out_port"][0];
 	_startOutPort = outPort.getAttributeInt32("start");
 	_endOutPort = outPort.getAttributeInt32("end");
-	_balancePort = server_conf.root()["starter"][0]["define"][0].getAttributeInt32("balance_port");
+
+	std::unordered_map<std::string, std::string> defines;
+	const sl::xml::ISLXmlNode& defs = server_conf.root()["starter"][0]["define"];
+	for (int32 i = 0; i < defs.count(); i++){
+		defines[defs[i].getAttributeString("name")] = defs[i].getAttributeString("value");
+	}
+
 	const sl::xml::ISLXmlNode& nodes = server_conf.root()["starter"][0]["node"];
 	for (int32 i = 0; i < nodes.count(); i++){
 		int32 type = nodes[i].getAttributeInt32("type");
 		SafeSprintf(_executes[type].name, sizeof(_executes[type].name), "%s", nodes[i].getAttributeString("name"));
-		SafeSprintf(_executes[type].cmd, sizeof(_executes[type].cmd), "%s", nodes[i].getAttributeString("cmd"));
+
+		std::string cmd = nodes[i].getAttributeString("cmd");
+		for (auto itr = defines.begin(); itr != defines.end(); ++itr){
+			std::string::size_type pos = cmd.find(itr->first);
+			while (pos != std::string::npos){
+				cmd.replace(pos, itr->first.size(), itr->second.c_str());
+				pos = cmd.find(itr->first);
+			}
+		}
+		SafeSprintf(_executes[type].cmd, sizeof(_executes[type].cmd), "%s", cmd.c_str());
 	}
 
 	return true;
@@ -145,12 +160,12 @@ void Slave::startNewNode(sl::api::IKernel* pKernel, const char* name, const char
 		pos = tmp.find(EXECUTE_CMD_OUT_PORT);
 	}
 
-	pos = tmp.find(EXECUTE_CMD_BALANCE_PORT);
+	/*pos = tmp.find(EXECUTE_CMD_BALANCE_PORT);
 	if (pos != std::string::npos){
-		char balancePort[64];
-		SafeSprintf(balancePort, sizeof(balancePort), "%d", _balancePort);
-		tmp.replace(pos, EXECUTE_CMD_BALANCE_PORT_SIZE, balancePort);
-	}
+	char balancePort[64];
+	SafeSprintf(balancePort, sizeof(balancePort), "%d", _balancePort);
+	tmp.replace(pos, EXECUTE_CMD_BALANCE_PORT_SIZE, balancePort);
+	}*/
 
 	pos = tmp.find(EXECUTE_CMD_ID);
 	if (pos != std::string::npos){

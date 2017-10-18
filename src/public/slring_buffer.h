@@ -136,8 +136,8 @@ private:
 private:
 	int32			_offset;
 	int32			_size;
-	int32			_read;		//已用的数据开始
-	int32			_write;		//已用数据的结束
+	volatile int32	_read;		//已用的数据开始
+	volatile int32	_write;		//已用数据的结束
 
 
 	//////////////////////

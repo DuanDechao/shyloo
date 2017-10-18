@@ -14,6 +14,8 @@
 #include "ILogic.h"
 #include "ProtocolID.pb.h"
 #include "IPropDelaySender.h"
+#include "Protocol.pb.h"
+
 #define FOREACH_DELAY 100
 
 class RemoveObjectTimer : public sl::api::ITimer{
@@ -116,6 +118,7 @@ bool PlayerMgr::active(int64 actorId, int32 nodeId, int64 accountId, const std::
 		player = CREATE_OBJECT_BYID(_objectMgr, "Player", actorId);
 		SLASSERT(player, "wtf");
 
+		player->setPropInt8(attr_def::type, protocol::ObjectType::OBJECT_TYPE_PLAYER);
 		player->setPropInt64(attr_def::account, accountId);
 		player->setPropInt32(attr_def::gate, nodeId);
 		player->setPropInt32(attr_def::logic, _harbor->getNodeId());
