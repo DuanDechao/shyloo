@@ -29,6 +29,7 @@ bool ObjectMgr::launched(sl::api::IKernel * pKernel){
 	_objectStatus = _self->getPropByName("status");
 
 	//START_TIMER(_self, 30000, TIMER_BEAT_FOREVER, 2000);
+	//test();
 	return true;
 }
 
@@ -62,6 +63,12 @@ bool ObjectMgr::destory(sl::api::IKernel * pKernel){
 			DEL itor->second;
 	}
 	_allTables.clear();
+
+	for (auto itor = _rowPools.begin(); itor != _rowPools.end(); ++itor){
+		if (itor->second)
+			DEL itor->second;
+	}
+	_rowPools.clear();
 
 	DEL this;
 	return true;
@@ -240,7 +247,9 @@ IObject* ObjectMgr::createById(const char* file, const int32 line, const char* n
 		return nullptr;
 	}
 
-	MMObject* object = NEW MMObject(name, itor1->second);
+
+	MMObject* object = itor1->second->create();
+	SLASSERT(object, "wtf");
 	object->setID(id);
 	object->setShadow(isShadow);
 
@@ -258,9 +267,8 @@ void ObjectMgr::recover(IObject* object){
 		return;
 	}
 	SLASSERT(object == itor->second, "wtf");
-
+	itor->second->release();
 	_allObjects.erase(itor);
-	DEL object;
 }
 
 IObject* ObjectMgr::findObject(const uint64 id){
@@ -292,4 +300,19 @@ ITableControl* ObjectMgr::createStaticTable(const char* name, const char* model,
 void ObjectMgr::recoverStaticTable(ITableControl* table){
 	SLASSERT(!table->getHost(), "wtf");
 	_allTables.erase(((TableControl*)table)->getName());
+}
+
+sl::SLOjbectPool<TableRow>* ObjectMgr::findRowPool(int32 size, int32 poolInit){
+	auto itor = _rowPools.find(size);
+	if (itor != _rowPools.end()){
+		return itor->second;
+	}
+
+	auto ret = _rowPools.insert(std::make_pair(size, NEW sl::SLOjbectPool<TableRow>(poolInit)));
+	return ret.first->second;
+}
+
+void ObjectMgr::test(){
+	IObject* object = createById(__FILE__, __LINE__, "Player", 324534546456, false);
+	int32 i = 0;
 }

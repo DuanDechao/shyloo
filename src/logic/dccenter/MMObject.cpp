@@ -32,6 +32,23 @@ MMObject::~MMObject(){
 	if (_objectFSM)
 		DEL _objectFSM;
 	_objectFSM = nullptr;
+
+	_propCBPool.Clear();
+}
+
+void MMObject::reset(){
+	_objectId = 0;
+	_memory->clear();
+
+	if (!_isShadow){
+		for (auto table = _tables.begin(); table != _tables.end(); ++table){
+			table->second->reset();
+		}
+
+		_objectFSM->clear();
+	}
+
+	_isShadow = false;
 }
 
 const std::vector<const IProp*>& MMObject::getObjProps(bool noParent) const{

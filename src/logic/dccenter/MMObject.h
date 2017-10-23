@@ -12,6 +12,10 @@ class MMObject : public IObject{
 public:
 	MMObject(const char* name, const ObjectPropInfo* pPropInfo);
     virtual ~MMObject();
+
+	inline void release() { _poPropInfo->recover(this); }
+
+	void reset();
 		
 	virtual const char* getObjTypeString() const { return _name.c_str(); }
 	inline const ObjectPropInfo* getObjectPropInfo() const { return _poPropInfo; }

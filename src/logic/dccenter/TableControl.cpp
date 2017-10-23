@@ -3,7 +3,9 @@
 
 TableControl::TableControl(const int32 name, const TableColumn* pTableColumn, IObject* pHost)
 	:_name(name), _pTableColumn(pTableColumn), _pHost(pHost)
-{}
+{
+	_pTableColumn->poolInit(this);
+}
 
 TableControl::~TableControl(){
 	for (auto* row : _tableRows){
@@ -11,6 +13,17 @@ TableControl::~TableControl(){
 			DEL row;
 	}
 	_tableRows.clear();
+	_strToColIdx.clear();
+	_keyToColIdx.clear();
+}
+
+void TableControl::reset(){
+	for (auto* row : _tableRows){
+		if (row)
+			row->release();
+	}
+	_tableRows.clear();
+
 	_strToColIdx.clear();
 	_keyToColIdx.clear();
 }
@@ -59,7 +72,7 @@ void TableControl::clearRows(){
 IRow* TableControl::addRow(){
 	SLASSERT(_pTableColumn->getKeyType() == DTYPE_CANT_BE_KEY, "wtf");
 	if (_pTableColumn->getKeyType() == DTYPE_CANT_BE_KEY){
-		TableRow* row = NEW TableRow(this, _pTableColumn);
+		TableRow* row = _pTableColumn->createRow(this);
 		row->setRowIndex((int32)_tableRows.size());
 		_tableRows.push_back(row);
 		return row;
@@ -70,7 +83,7 @@ IRow* TableControl::addRow(){
 IRow* TableControl::addRowKey(const int8 type, const void * data, const int32 size, const int64 key){
 	SLASSERT(_pTableColumn->getKeyType() == type, "wtf");
 	if (_pTableColumn->getKeyType() == type){
-		TableRow* row = NEW TableRow(this, _pTableColumn);
+		TableRow* row = _pTableColumn->createRow(this);
 		_keyToColIdx.insert(make_pair(key, (int32)_tableRows.size()));
 		row->setData(_pTableColumn->getKeyColumn(), type, data, size, false);
 		row->setRowIndex((int32)_tableRows.size());
@@ -83,7 +96,7 @@ IRow* TableControl::addRowKey(const int8 type, const void * data, const int32 si
 IRow* TableControl::addRowKeyString(const char* key){
 	SLASSERT(_pTableColumn->getKeyType() == DTYPE_STRING, "wtf");
 	if (_pTableColumn->getKeyType() == DTYPE_STRING){
-		TableRow* row = NEW TableRow(this, _pTableColumn);
+		TableRow* row = _pTableColumn->createRow(this);
 		_strToColIdx.insert(make_pair(key, (int32)_tableRows.size()));
 		row->setData(_pTableColumn->getKeyColumn(), DTYPE_STRING, key, (int32)strlen(key) + 1, false);
 		row->setRowIndex((int32)_tableRows.size());
@@ -198,8 +211,8 @@ bool TableControl::delRow(const int32 index){
 	}
 
 	auto itor = _tableRows.begin() + index;
+	_pTableColumn->recoverRow(*itor);
 	_tableRows.erase(itor);
-	DEL row;
 	updateRowKeyIndex(index);
 	
 	return true;

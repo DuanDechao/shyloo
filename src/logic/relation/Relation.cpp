@@ -17,20 +17,15 @@ bool Relation::initialize(sl::api::IKernel * pKernel){
 }
 
 bool Relation::launched(sl::api::IKernel * pKernel){
-	FIND_MODULE(_harbor, Harbor);
-	if (_harbor->getNodeType() != NodeType::RELATION)
+	if (SLMODULE(Harbor)->getNodeType() != NodeType::RELATION)
 		return true;
-
-	FIND_MODULE(_objectLocator, ObjectLocator);
-	FIND_MODULE(_packetSender, PacketSender);
-	FIND_MODULE(_eventEngine, EventEngine);
 
 	_chatBalanceIp = pKernel->getCmdArg("chat_balance_ip");
 	_chatBalancePort = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("chat_balance_port"));
-	if (!pKernel->startTcpClient(this, _chatBalanceIp.c_str(), _chatBalancePort, 64 * 1024, 64 * 1024)){
+	/*if (!pKernel->startTcpClient(this, _chatBalanceIp.c_str(), _chatBalancePort, 64 * 1024, 64 * 1024)){
 		ECHO_ERROR("connect chat balancer %s:%d error", _chatBalanceIp.c_str(), _chatBalancePort);
 		return false;
-	}
+		}*/
 
 	_channelIp = "";
 	_channelPort = 0;
@@ -46,11 +41,11 @@ bool Relation::destory(sl::api::IKernel * pKernel){
 }
 
 void Relation::sendToClient(int64 actorId, int32 messageId, const sl::OBStream& args){
-	int32 gate = _objectLocator->findObjectGate(actorId);
+	int32 gate = SLMODULE(ObjectLocator)->findObjectGate(actorId);
 	if (gate == game::NODE_INVALID_ID)
 		return;
 
-	_packetSender->send(gate, actorId, messageId, args);
+	SLMODULE(PacketSender)->send(gate, actorId, messageId, args);
 }
 
 int32 Relation::onRecv(sl::api::IKernel* pKernel, const char* pContext, int dwLen){
@@ -77,12 +72,12 @@ int32 Relation::onRecv(sl::api::IKernel* pKernel, const char* pContext, int dwLe
 			IArgs<2, 512> args;
 			args << _channelIp.getString() << _channelPort;
 			args.fix();
-			_harbor->broadcast(NodeProtocol::RELATION_MSG_SYNC_CHAT_CHANNEL_ADDRESS, args.out());
+			SLMODULE(Harbor)->broadcast(NodeProtocol::RELATION_MSG_SYNC_CHAT_CHANNEL_ADDRESS, args.out());
 
 			logic_event::ChatAddress evt;
 			evt.ip = _channelIp.getString();
 			evt.port = _channelPort;
-			_eventEngine->execEvent(logic_event::EVENT_RELATION_SYNC_CHAT_CHANNEL_ADDRESS, &evt, sizeof(evt));
+			SLMODULE(EventEngine)->execEvent(logic_event::EVENT_RELATION_SYNC_CHAT_CHANNEL_ADDRESS, &evt, sizeof(evt));
 		}
 		default:
 			SLASSERT(false, "wtf");

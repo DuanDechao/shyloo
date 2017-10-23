@@ -74,6 +74,7 @@
 #define stricmp strcasecmp
 #define _stricmp strcasecmp
 #define _access access
+#define KERNEL_API
 #endif
 
 #endif

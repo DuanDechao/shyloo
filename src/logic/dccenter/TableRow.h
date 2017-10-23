@@ -4,34 +4,41 @@
 #include "IDCCenter.h"
 #include "slxml_reader.h"
 #include <vector>
+#include "slobject_pool.h"
 struct TableLayout : public MemLayout{
 	int8 _type;
 	bool _isKey;
 };
 
+class TableControl;
+class TableRow;
 class TableColumn{
 public:
-	TableColumn() :m_keyType(DTYPE_CANT_BE_KEY), m_keyColIdx(-1), m_size(0){}
+	TableColumn() :_keyType(DTYPE_CANT_BE_KEY), _keyColIdx(-1), _size(0){}
 	~TableColumn(){}
 
 	bool loadColumnConfig(const sl::ISLXmlNode& root);
 
-	inline int8 getKeyType() const { return m_keyType; }
-	inline int32 getKeyColumn() const { return m_keyColIdx; }
-	inline int32 getMemSize() const { return m_size; }
+	inline int8 getKeyType() const { return _keyType; }
+	inline int32 getKeyColumn() const { return _keyColIdx; }
+	inline int32 getMemSize() const { return _size; }
 
 	const TableLayout* query(const int32 col, const int8 type, const int32 size) const{
-		if (col < 0 || col >= (int32)m_columns.size()){
+		if (col < 0 || col >= (int32)_columns.size()){
 			SLASSERT(false, "invalid params col idx");
 			return nullptr;
 		}
-		const TableLayout& layout = m_columns[col];
+		const TableLayout& layout = _columns[col];
 		if (layout._type != type || layout._size < size){
 			SLASSERT(false, "invaild params type or size");
 			return nullptr;
 		}
 		return &layout;
 	}
+
+	void poolInit(TableControl* table) const;
+	TableRow* createRow(TableControl* table) const;
+	void recoverRow(TableRow* row) const;
 
 private:
 	void addColumn(const int8 type, int32 offset, int32 size, bool isKey){
@@ -42,18 +49,19 @@ private:
 		layout._isKey = isKey;
 
 		if (isKey){
-			SLASSERT(m_keyType == DTYPE_CANT_BE_KEY, "key has been set");
-			m_keyType = type;
-			m_keyColIdx = (int32)m_columns.size();
+			SLASSERT(_keyType == DTYPE_CANT_BE_KEY, "key has been set");
+			_keyType = type;
+			_keyColIdx = (int32)_columns.size();
 		}
-		m_columns.push_back(layout);
-		m_size += size;
+		_columns.push_back(layout);
+		_size += size;
 	}
 private:
-	std::vector<TableLayout> m_columns;
-	int8 m_keyType;
-	int32 m_keyColIdx;
-	int32 m_size;
+	std::vector<TableLayout> _columns;
+	int8 _keyType;
+	int32 _keyColIdx;
+	int32 _size;
+	sl::SLOjbectPool<TableRow>* _pool;
 };
 
 class TableControl;
@@ -61,6 +69,9 @@ class TableRow : public IRow{
 public:
 	TableRow(TableControl* pTable, const TableColumn* pTableCol);
 	virtual ~TableRow();
+
+	void reset(TableControl* table, const TableColumn* pTableCol);
+	inline void release(){ _pTableColumn->recoverRow(this); }
 
 	int32 getRowIndex() const { return _rowIndex; }
 	void setRowIndex(const int32 index) { _rowIndex = index; }

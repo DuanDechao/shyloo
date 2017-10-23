@@ -20,6 +20,8 @@ public:
 	TableControl(const int32 name, const TableColumn* pTableColumn, IObject* pHost = nullptr);
     virtual	~TableControl();
 
+	void reset();
+
 	int32 getName() const { return _name; }
 	virtual IObject* getHost() const { return _pHost; }
 	virtual int32 rowCount() const { return (int32)_tableRows.size(); }

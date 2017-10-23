@@ -39,6 +39,10 @@ public:
 
 	sl::api::IKernel* getKernel() { return _kernel; }
 
+	sl::SLOjbectPool<TableRow>* findRowPool(int32 size, int32 poolInit);
+
+	void test();
+
 private:
 	bool initPropDefineConfig(sl::api::IKernel * pKernel);
 	bool loadObjectPropConfig(sl::api::IKernel * pKernel);
@@ -67,8 +71,6 @@ private:
 	unordered_map<uint64, MMObject*> _allObjects;
     unordered_map<int32, TableColumn*>  _tablesInfo;
 	unordered_map<int32, TableControl*>  _allTables;
-
-	
-
+	unordered_map<int32, sl::SLOjbectPool<TableRow>*> _rowPools;
 };
 #endif

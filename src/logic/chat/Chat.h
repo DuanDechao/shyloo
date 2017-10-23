@@ -3,6 +3,7 @@
 #include "IChat.h"
 #include "slstring.h"
 #include <unordered_map>
+#include "GameDefine.h"
 
 class IEventEngine;
 class IHarbor;
@@ -20,7 +21,7 @@ public:
 
 	void onRelationChatChannelSync(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 
-	virtual int32 onRecv(sl::api::IKernel* pKernel, const char* pContext, int dwLen);
+	virtual int32 onRecv(sl::api::IKernel* pKernel, const char* pContext, int dwLen){ return 0; }
 	virtual void onConnected(sl::api::IKernel* pKernel);
 	virtual void onDisconnect(sl::api::IKernel* pKernel);
 

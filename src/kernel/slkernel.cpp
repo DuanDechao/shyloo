@@ -12,6 +12,11 @@ namespace sl
 {
 namespace core
 {
+
+extern "C" KERNEL_API sl::api::IKernel* getCore(){
+	return Kernel::getInstance();
+}
+
 api::IKernel* Kernel::getInstance(){
 	static api::IKernel* p = nullptr;
 	if (!p){

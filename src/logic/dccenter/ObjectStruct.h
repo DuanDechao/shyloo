@@ -6,6 +6,7 @@
 #include "slxml_reader.h"
 #include <unordered_map>
 #include <functional>
+#include "slobject_pool.h"
 struct PropLayout : public MemLayout{
 	bool    _isTemp;
 	int8	_type;
@@ -15,7 +16,7 @@ struct PropLayout : public MemLayout{
 };
 
 typedef std::unordered_map<sl::SLString<MAX_PROP_NAME_LEN>, int32> PROP_DEFDINE_MAP;
-
+class MMObject;
 class ObjectPropInfo{
 	struct TableInfo{
 		int32 _name;
@@ -31,6 +32,9 @@ public:
 	inline const vector<const IProp*>& getObjectProp(bool parenter = false) const { return parenter ? _props : _selfProps; }
 
 	bool loadFrom(const sl::ISLXmlNode& root, PROP_DEFDINE_MAP& defines);
+
+	MMObject* create() const;
+	void recover(MMObject* object) const;
 
 	inline void queryTables(const std::function<void(const int32 name, const TableColumn* pTableColumn)> &f) const{
 		for (auto& table : _tables){
@@ -52,6 +56,7 @@ private:
 	sl::SLString<MAX_OBJECT_NAME_LEN>	_objName;
 	int32								_size;
 	vector<TableInfo>					_tables;
+	sl::SLOjbectPool<MMObject>*			_objectPool;
 };
 
 #endif

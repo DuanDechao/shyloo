@@ -23,8 +23,8 @@ public:
 	virtual void sendToClient(int64 actorId, int32 messageId, const sl::OBStream& args);
 
 	virtual int32 onRecv(sl::api::IKernel* pKernel, const char* pContext, int dwLen);
-	virtual void onConnected(sl::api::IKernel* pKernel);
-	virtual void onDisconnect(sl::api::IKernel* pKernel);
+	virtual void onConnected(sl::api::IKernel* pKernel){}
+	virtual void onDisconnect(sl::api::IKernel* pKernel){}
 
 	virtual void onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* ip, const int32 port);
 	virtual void onClose(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId);
@@ -32,10 +32,6 @@ public:
 private:
 	Relation*			_self;
 	sl::api::IKernel*	_kernel;
-	IHarbor*			_harbor;
-	IObjectLocator*		_objectLocator;
-	IPacketSender*		_packetSender;
-	IEventEngine*		_eventEngine;
 	sl::SLString<game::MAX_IP_LEN> _chatBalanceIp;
 	int32				_chatBalancePort;
 	sl::SLString<game::MAX_IP_LEN> _channelIp;

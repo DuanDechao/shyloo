@@ -62,6 +62,12 @@
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_INTENSITY);	\
 }
 
+#ifdef KERNEL_EXPORT
+#define KERNEL_API __declspec (dllexport)
+#else
+#define KERNEL_API __declspec (dllimport)
+#endif
+
 #endif
 
 #endif

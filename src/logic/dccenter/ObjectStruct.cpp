@@ -1,8 +1,13 @@
 #include "ObjectStruct.h"
 #include "ObjectMgr.h"
 #include "sltools.h"
+#include "MMObject.h"
 ObjectPropInfo::ObjectPropInfo(int32 objTypeId, const char* objName, ObjectPropInfo* parenter)
-	:_objTypeId(objTypeId), _objName(objName), _size(0){
+	:_objTypeId(objTypeId), 
+	_objName(objName), 
+	_size(0),
+	_objectPool(nullptr)
+{
 	if (parenter){
 		_layouts = parenter->_layouts;
 		for (auto& layout : _layouts){
@@ -18,6 +23,8 @@ ObjectPropInfo::ObjectPropInfo(int32 objTypeId, const char* objName, ObjectPropI
 		_tables = parenter->_tables;
 		_size = parenter->_size;
 	}
+
+	_objectPool = NEW sl::SLOjbectPool<MMObject>(100);
 }
 
 ObjectPropInfo::~ObjectPropInfo(){
@@ -39,6 +46,9 @@ ObjectPropInfo::~ObjectPropInfo(){
 	_props.clear();
 	_selfProps.clear();
 	_tables.clear();
+
+	DEL _objectPool;
+	_objectPool = nullptr;
 }
 
 bool ObjectPropInfo::loadFrom(const sl::ISLXmlNode& root, PROP_DEFDINE_MAP& defines){
@@ -56,6 +66,8 @@ bool ObjectPropInfo::loadFrom(const sl::ISLXmlNode& root, PROP_DEFDINE_MAP& defi
 	if (root.subNodeExist("table") && !loadTables(root["table"])){
 		return false;
 	}
+
+	_objectPool->init(_objName.getString(), this);
 	return true;
 }
 
@@ -149,4 +161,14 @@ bool ObjectPropInfo::loadPropConfig(const sl::ISLXmlNode& prop, PropLayout& layo
 		return false;
 	}
 	return true;
+}
+
+MMObject* ObjectPropInfo::create() const {
+	MMObject* ret = _objectPool->create(_objName.getString(), this);
+	ret->reset();
+	return ret;
+}
+
+void ObjectPropInfo::recover(MMObject* object) const {
+	_objectPool->recover(object);
 }

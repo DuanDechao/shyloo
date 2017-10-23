@@ -15,6 +15,7 @@ enum game{
 	MAX_PROP_VALUE_LEN = 64,
 	MAX_OBJECT_TYPE_LEN = 64,
 	MAX_IP_LEN = 128,
+	MAX_TOKEN_LEN = 128,
 };
 
 enum logFilter{

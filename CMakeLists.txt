@@ -77,6 +77,8 @@ SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/sllist.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slring_buffer.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slshm_create.h"
+	"${PROJECT_SOURCE_DIR}/src/public/slobject_allocator.h"
+	"${PROJECT_SOURCE_DIR}/src/public/slobject_pool.h"
 )
 
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/sllib)

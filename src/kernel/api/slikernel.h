@@ -168,6 +168,20 @@ public:
 	virtual bool isShutdown() = 0;
 
 };
+
+extern "C" KERNEL_API sl::api::IKernel* getCore();
+
+template <typename T>
+struct SLModule{
+	inline static T * instance(const char* module){
+		static T* g_instance = nullptr;
+		if (!g_instance){
+			g_instance = (T*)getCore()->findModule(module);
+			SLASSERT(g_instance, "where is module %s", module);
+		}
+		return g_instance;
+	}
+};
 }
 }
 
@@ -179,7 +193,10 @@ public:
 	m = (I##name *)pKernel->findModule(#name); \
 	SLASSERT(m, "where is %s", #name); \
 }
+
 #define TIMER_BEAT_FOREVER	-1
+
+#define SLMODULE(name) (sl::api::SLModule<I##name>::instance(#name))
 
 #define INFO_LOG(format, ...) { \
 	char log[8192]; \

@@ -1,5 +1,6 @@
 #include "TableRow.h"
 #include "TableControl.h"
+#include "ObjectMgr.h"
 
 bool TableColumn::loadColumnConfig(const sl::ISLXmlNode& root){
 	const sl::ISLXmlNode& columns = root["column"];
@@ -8,30 +9,47 @@ bool TableColumn::loadColumnConfig(const sl::ISLXmlNode& root){
 		bool isKey = columns[i].getAttributeBoolean("key");
 
 		if (!strcmp(type, "int8")){
-			addColumn(DTYPE_INT8, m_size, sizeof(int8), isKey);
+			addColumn(DTYPE_INT8, _size, sizeof(int8), isKey);
 		}
 		else if (!strcmp(type, "int16")){
-			addColumn(DTYPE_INT16, m_size, sizeof(int16), isKey);
+			addColumn(DTYPE_INT16, _size, sizeof(int16), isKey);
 		}
 		else if (!strcmp(type, "int32")){
-			addColumn(DTYPE_INT32, m_size, sizeof(int32), isKey);
+			addColumn(DTYPE_INT32, _size, sizeof(int32), isKey);
 		}
 		else if (!strcmp(type, "int64")){
-			addColumn(DTYPE_INT64, m_size, sizeof(int64), isKey);
+			addColumn(DTYPE_INT64, _size, sizeof(int64), isKey);
 		}
 		else if (!strcmp(type, "float")){
-			addColumn(DTYPE_FLOAT, m_size, sizeof(float), isKey);
+			addColumn(DTYPE_FLOAT, _size, sizeof(float), isKey);
 		}
 		else if (!strcmp(type, "string")){
 			int32 size = columns[i].getAttributeInt32("size");
-			addColumn(DTYPE_STRING, m_size, size, isKey);
+			addColumn(DTYPE_STRING, _size, size, isKey);
 		}
 		else{
 			SLASSERT(false, "invalid type");
 			return false;
 		}
 	}
+
+
+	_pool = ObjectMgr::getInstance()->findRowPool(_size, 100);
 	return true;
+}
+
+void TableColumn::poolInit(TableControl* table) const{
+	_pool->init(table, this);
+}
+
+TableRow* TableColumn::createRow(TableControl* table) const{
+	TableRow* ret = _pool->create(table, this);
+	ret->reset(table, this);
+	return ret;
+}
+
+void TableColumn::recoverRow(TableRow* row) const{
+	_pool->recover(row);
 }
 
 TableRow::TableRow(TableControl* pTable,const TableColumn* pTableCol)
@@ -48,6 +66,14 @@ TableRow::~TableRow(){
 	_pRowData = nullptr;
 	_pTable = nullptr;
 	_pTableColumn = nullptr;
+}
+
+void TableRow::reset(TableControl* table, const TableColumn* pTableCol){
+	_pTable = table;
+	_pTableColumn = pTableCol;
+	SLASSERT(_pRowData, "wtf");
+	_pRowData->clear();
+	_rowIndex = 0;
 }
 
 const void* TableRow::getData(const int32 col, const int8 type, int32 & size) const{

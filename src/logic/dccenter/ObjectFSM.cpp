@@ -31,3 +31,13 @@ bool ObjectFSM::EntryStatus(IKernel* pKernel, IObject* object, int32 status, con
 	}
 	return true;
 }
+
+void ObjectFSM::clear(){
+	_status = 0;
+	_entryStatusCBPool.Clear();
+	_changeStatusCBPool.Clear();
+	_leaveStatusCBPool.Clear();
+	_entryJudgeCBPool.Clear();
+	_changeJudgeCBPool.Clear();
+	_leaveJudgeCBPool.Clear();
+}

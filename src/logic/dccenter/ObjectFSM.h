@@ -20,6 +20,8 @@ public:
 	ObjectFSM();
 	~ObjectFSM();
 
+	void clear();
+
 	void RgsEntryJudgeCB(int32 status, const StatusJudgeCallBack& f, const char* debug) { _entryJudgeCBPool.Register(status, f, debug); }
 	void RgsChangeJudgeCB(int32 from, int32 to, const StatusJudgeCallBack& f, const char* debug) { _changeJudgeCBPool.Register( ((((int64)from) << 32) | (int64)to), f, debug); }
 	void RgsLeaveJudgeCB(int32 status, const StatusJudgeCallBack& f, const char* debug) { _leaveJudgeCBPool.Register(status, f, debug); }
