@@ -49,11 +49,12 @@ enum ClientMsgID {
   CLIENT_MSG_SELECT_ROLE_REQ = 2,
   CLIENT_MSG_CREATE_ROLE_REQ = 3,
   CLIENT_MSG_ENTER_SCENE_REQ = 4,
-  CLIENT_MSG_TEST = 5
+  CLIENT_MSG_TEST = 5,
+  CLIENT_MSG_GD_COMMAND = 6
 };
 bool ClientMsgID_IsValid(int value);
 const ClientMsgID ClientMsgID_MIN = CLIENT_MSG_LOGIN_REQ;
-const ClientMsgID ClientMsgID_MAX = CLIENT_MSG_TEST;
+const ClientMsgID ClientMsgID_MAX = CLIENT_MSG_GD_COMMAND;
 const int ClientMsgID_ARRAYSIZE = ClientMsgID_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* ClientMsgID_descriptor();
@@ -74,11 +75,12 @@ enum ServerMsgID {
   SERVER_MSG_NEW_ROLE_NOTIFY = 5,
   SERVER_MSG_REMOVE_ROLE_NOTIFY = 6,
   SERVER_MSG_GIVE_GATE_ADDRESS_RSP = 7,
-  SERVER_MSG_NOTIFY_TICKET_INFO_RSP = 8
+  SERVER_MSG_NOTIFY_TICKET_INFO_RSP = 8,
+  SERVER_MSG_GD_COMMAND_RSP = 9
 };
 bool ServerMsgID_IsValid(int value);
 const ServerMsgID ServerMsgID_MIN = SERVER_MSG_LOGIN_RSP;
-const ServerMsgID ServerMsgID_MAX = SERVER_MSG_NOTIFY_TICKET_INFO_RSP;
+const ServerMsgID ServerMsgID_MAX = SERVER_MSG_GD_COMMAND_RSP;
 const int ServerMsgID_ARRAYSIZE = ServerMsgID_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* ServerMsgID_descriptor();

@@ -29,7 +29,10 @@ namespace ProtocolID
       CLIENT_MSG_ENTER_SCENE_REQ = 4,
             
       [global::ProtoBuf.ProtoEnum(Name=@"CLIENT_MSG_TEST", Value=5)]
-      CLIENT_MSG_TEST = 5
+      CLIENT_MSG_TEST = 5,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"CLIENT_MSG_GD_COMMAND", Value=6)]
+      CLIENT_MSG_GD_COMMAND = 6
     }
   
     [global::ProtoBuf.ProtoContract(Name=@"ServerMsgID")]
@@ -58,7 +61,10 @@ namespace ProtocolID
       SERVER_MSG_GIVE_GATE_ADDRESS_RSP = 7,
             
       [global::ProtoBuf.ProtoEnum(Name=@"SERVER_MSG_NOTIFY_TICKET_INFO_RSP", Value=8)]
-      SERVER_MSG_NOTIFY_TICKET_INFO_RSP = 8
+      SERVER_MSG_NOTIFY_TICKET_INFO_RSP = 8,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SERVER_MSG_GD_COMMAND_RSP", Value=9)]
+      SERVER_MSG_GD_COMMAND_RSP = 9
     }
   
 }

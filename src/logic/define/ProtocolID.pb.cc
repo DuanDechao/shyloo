@@ -81,21 +81,22 @@ void InitDefaults() {
 void AddDescriptorsImpl() {
   InitDefaults();
   static const char descriptor[] = {
-      "\n\020ProtocolID.proto*\234\001\n\013ClientMsgID\022\030\n\024CL"
+      "\n\020ProtocolID.proto*\267\001\n\013ClientMsgID\022\030\n\024CL"
       "IENT_MSG_LOGIN_REQ\020\001\022\036\n\032CLIENT_MSG_SELEC"
       "T_ROLE_REQ\020\002\022\036\n\032CLIENT_MSG_CREATE_ROLE_R"
       "EQ\020\003\022\036\n\032CLIENT_MSG_ENTER_SCENE_REQ\020\004\022\023\n\017"
-      "CLIENT_MSG_TEST\020\005*\223\002\n\013ServerMsgID\022\030\n\024SER"
-      "VER_MSG_LOGIN_RSP\020\001\022\036\n\032SERVER_MSG_SELECT"
-      "_ROLE_RSP\020\002\022\036\n\032SERVER_MSG_CREATE_ROLE_RS"
-      "P\020\003\022\032\n\026SERVER_MSG_ATTRIB_SYNC\020\004\022\036\n\032SERVE"
-      "R_MSG_NEW_ROLE_NOTIFY\020\005\022!\n\035SERVER_MSG_RE"
-      "MOVE_ROLE_NOTIFY\020\006\022$\n SERVER_MSG_GIVE_GA"
-      "TE_ADDRESS_RSP\020\007\022%\n!SERVER_MSG_NOTIFY_TI"
-      "CKET_INFO_RSP\020\010"
+      "CLIENT_MSG_TEST\020\005\022\031\n\025CLIENT_MSG_GD_COMMA"
+      "ND\020\006*\262\002\n\013ServerMsgID\022\030\n\024SERVER_MSG_LOGIN"
+      "_RSP\020\001\022\036\n\032SERVER_MSG_SELECT_ROLE_RSP\020\002\022\036"
+      "\n\032SERVER_MSG_CREATE_ROLE_RSP\020\003\022\032\n\026SERVER"
+      "_MSG_ATTRIB_SYNC\020\004\022\036\n\032SERVER_MSG_NEW_ROL"
+      "E_NOTIFY\020\005\022!\n\035SERVER_MSG_REMOVE_ROLE_NOT"
+      "IFY\020\006\022$\n SERVER_MSG_GIVE_GATE_ADDRESS_RS"
+      "P\020\007\022%\n!SERVER_MSG_NOTIFY_TICKET_INFO_RSP"
+      "\020\010\022\035\n\031SERVER_MSG_GD_COMMAND_RSP\020\t"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 455);
+      descriptor, 513);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "ProtocolID.proto", &protobuf_RegisterTypes);
   ::google::protobuf::internal::OnShutdown(&TableStruct::Shutdown);
@@ -125,6 +126,7 @@ bool ClientMsgID_IsValid(int value) {
     case 3:
     case 4:
     case 5:
+    case 6:
       return true;
     default:
       return false;
@@ -145,6 +147,7 @@ bool ServerMsgID_IsValid(int value) {
     case 6:
     case 7:
     case 8:
+    case 9:
       return true;
     default:
       return false;

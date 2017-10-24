@@ -32,6 +32,7 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IMonitor.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IStarter.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IChat.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IGD.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/DBType.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/SQLBase.h"
 )
@@ -87,4 +88,5 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/monitorclient)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/online)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/startnodestrategy)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/chat)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/gd)
 
