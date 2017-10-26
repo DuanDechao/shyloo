@@ -9,6 +9,7 @@ bool GD::initialize(sl::api::IKernel * pKernel){
 
 bool GD::launched(sl::api::IKernel * pKernel){
 	RGS_PROTO_HANDLER(SLMODULE(Logic), ClientMsgID::CLIENT_MSG_GD_COMMAND, GD::dispatchGDCommand);
+	RSG_GD(SLMODULE(GD), gdTest);
 	return true;
 }
 
@@ -47,7 +48,7 @@ int32 GD::dealCommand(sl::api::IKernel* pKernel, IObject* object, const char* ar
 	if (subStrings.size() > 1){
 		for (int32 i = 1; i < subStrings.size(); i++){
 			int32 curEndPos = strlen(gdArgs);
-			SafeSprintf(gdArgs + curEndPos, sizeof(gdArgs), subStrings[i].c_str(), subStrings[i].length());
+			sl::SafeMemcpy(gdArgs + curEndPos, sizeof(gdArgs), subStrings[i].c_str(), subStrings[i].length());
 			gdArgs[strlen(gdArgs)] = ' ';
 		}
 		gdArgs[strlen(gdArgs) - 1] = '\0';
@@ -68,7 +69,7 @@ void GD::splitString(const char* commandStr, std::vector<std::string>& cmdString
 	int32 strLen = strlen(commandStr);
 	sl::SafeMemcpy(temp, sizeof(temp), commandStr, strLen);
 	char* p = temp;
-	for (int32 i = 0; i < strLen; i++){
+	for (int32 i = 0; i <= strLen; i++){
 		if (temp[i] == ' ' || i == strLen){
 			temp[i] = '\0';
 			string subString = p;
@@ -86,4 +87,10 @@ void GD::rsgGDInner(const char* command, IGDCommandHandler* handler){
 	SafeSprintf(tmp + 2, sizeof(tmp) - 2, "%s", command);
 	std::transform(tmp, tmp + strlen(tmp), tmp, ::tolower);
 	_gdCommands[tmp] = handler;
+}
+
+int32 GD::gdTest(sl::api::IKernel* pKernel, IObject* object, int32 type){
+	int32 i = 0;
+	i = 7;
+	return 0;
 }

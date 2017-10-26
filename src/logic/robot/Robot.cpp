@@ -176,5 +176,7 @@ void Robot::onServerAttribSync(sl::api::IKernel* pKernel, const OBStream& args){
 
 void Robot::test(sl::api::IKernel* pKernel){
 	IBStream<64> ask;
-	sendToSvr(pKernel, ClientMsgID::CLIENT_MSG_TEST, ask.out());
+	const char* gdStr = "&&gdtest 1";
+	ask << gdStr;
+	sendToSvr(pKernel, ClientMsgID::CLIENT_MSG_GD_COMMAND, ask.out());
 }

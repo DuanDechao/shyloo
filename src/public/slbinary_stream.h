@@ -50,8 +50,8 @@ private:
 	}
 
 	const void* getData(const int32 size) const{
-		SLASSERT(_offset + size < _size, "buffer size over flow");
-		if (_offset + size < _size){
+		SLASSERT(_offset + size <= _size, "buffer size over flow");
+		if (_offset + size <= _size){
 			const void* p = _buffer + _offset;
 			_offset += size;
 			return p;

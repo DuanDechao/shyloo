@@ -7,6 +7,7 @@
 	<module name="DCCenter" />
 	<module name="AttrGetter" />
 	<module name="Logic" />
+	<module name="GD" />
 	<module name="Online" />
 	<module name="IdMgr" />
 	<module name="Redis" />
