@@ -1,0 +1,11 @@
+﻿生成启动时间为 2017/11/28 20:00:56。
+     1>项目“E:\shyloo\src\sllib\python\PCbuild\_msi.vcxproj”在节点 2 上(Build 个目标)。
+     1>Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"E:\shyloo\src\sllib\python\PCbuild\amd64\_msi.pyd" /NOLOGO /LIBPATH:E:\shyloo\src\sllib\python\PCbuild\amd64\ fci.lib msi.lib rpcrt4.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST:NO /DEBUG /PDB:"E:\shyloo\src\sllib\python\PCbuild\amd64\_msi.pdb" /SUBSYSTEM:WINDOWS /LTCG /TLBID:1 /BASE:"0x1D160000" /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\shyloo\src\sllib\python\PCbuild\amd64\_msi.lib" /MACHINE:X64 /DLL "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_msi\_msi.obj"
+         E:\shyloo\src\sllib\python\PCbuild\amd64\python34.lib
+     1>LINK : fatal error LNK1181: 无法打开输入文件“fci.lib”
+     1>已完成生成项目“E:\shyloo\src\sllib\python\PCbuild\_msi.vcxproj”(Build 个目标)的操作 - 失败。
+
+生成失败。
+
+已用时间 00:00:00.18

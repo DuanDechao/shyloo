@@ -1,0 +1,33 @@
+﻿生成启动时间为 2017/11/28 20:00:41。
+     1>项目“E:\shyloo\src\sllib\python\PCbuild\pyexpat.vcxproj”在节点 4 上(Build 个目标)。
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I.\..\Modules\expat /I..\Include /I..\PC /Zi /nologo /W3 /WX- /O2 /Ob1 /Oi /GL /D PYEXPAT_EXPORTS /D HAVE_EXPAT_H /D XML_NS /D XML_DTD /D BYTEORDER=1234 /D XML_CONTEXT_BYTES=1024 /D XML_STATIC /D HAVE_MEMMOVE /D _WIN64 /D _M_X64 /D Py_BUILD_CORE_MODULE /D _WIN32 /D NDEBUG /D _WINDLL /GF /Gm- /MD /GS- /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\pyexpat\\" /Fd"E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\pyexpat\vc120.pdb" /Gd /TC /errorReport:prompt ..\Modules\pyexpat.c ..\Modules\expat\xmlparse.c ..\Modules\expat\xmlrole.c ..\Modules\expat\xmltok.c
+         pyexpat.c
+         xmlparse.c
+     1>e:\shyloo\src\sllib\python\modules\expat\winconfig.h(34): warning C4005: “HAVE_MEMMOVE”: 宏重定义
+                 命令行参数: 参见前面的“HAVE_MEMMOVE”定义
+     1>e:\shyloo\src\sllib\python\modules\expat\siphash.h(201): warning C4244: “初始化”: 从“__int64”转换到“char”，可能丢失数据
+     1>e:\shyloo\src\sllib\python\modules\expat\siphash.h(316): warning C4267: “=”: 从“size_t”转换到“unsigned char”，可能丢失数据
+     1>..\Modules\expat\xmlparse.c(796): warning C4996: 'getenv': This function or variable may be unsafe. Consider using _dupenv_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include\stdlib.h(462) : 参见“getenv”的声明
+         xmlrole.c
+     1>e:\shyloo\src\sllib\python\modules\expat\winconfig.h(34): warning C4005: “HAVE_MEMMOVE”: 宏重定义
+                 命令行参数: 参见前面的“HAVE_MEMMOVE”定义
+         xmltok.c
+     1>e:\shyloo\src\sllib\python\modules\expat\winconfig.h(34): warning C4005: “HAVE_MEMMOVE”: 宏重定义
+                 命令行参数: 参见前面的“HAVE_MEMMOVE”定义
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"E:\shyloo\src\sllib\python\PCbuild\amd64\pyexpat.pyd" /NOLOGO /LIBPATH:E:\shyloo\src\sllib\python\PCbuild\amd64\ kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST:NO /DEBUG /PDB:"E:\shyloo\src\sllib\python\PCbuild\amd64\pyexpat.pdb" /SUBSYSTEM:WINDOWS /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\shyloo\src\sllib\python\PCbuild\amd64\pyexpat.lib" /MACHINE:X64 /DLL "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\pyexpat\pyexpat.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\pyexpat\xmlparse.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\pyexpat\xmlrole.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\pyexpat\xmltok.obj"
+         E:\shyloo\src\sllib\python\PCbuild\amd64\python34.lib
+            正在创建库 E:\shyloo\src\sllib\python\PCbuild\amd64\pyexpat.lib 和对象 E:\shyloo\src\sllib\python\PCbuild\amd64\pyexpat.exp
+         正在生成代码
+         已完成代码的生成
+         pyexpat.vcxproj -> E:\shyloo\src\sllib\python\PCbuild\amd64\pyexpat.pyd
+     1>已完成生成项目“E:\shyloo\src\sllib\python\PCbuild\pyexpat.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:03.45

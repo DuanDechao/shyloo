@@ -1,0 +1,48 @@
+﻿生成启动时间为 2017/11/28 13:27:39。
+     1>项目“E:\shyloo\src\sllib\python\PCbuild\_decimal.vcxproj”在节点 4 上(Build 个目标)。
+     1>CustomBuild:
+         Performing Custom Build Tools
+          Assembling: E:\shyloo\src\sllib\python\Modules\_decimal\libmpdec\vcdiv64.asm
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I..\Modules\_decimal /I..\Modules\_decimal\libmpdec /I..\Include /I..\PC /Zi /nologo /W3 /WX- /Od /D _WIN64 /D _M_X64 /D Py_BUILD_CORE_MODULE /D _WIN32 /D _DEBUG /D _WINDLL /GF /Gm- /MDd /GS- /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_decimal\\" /Fd"E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_decimal\vc120.pdb" /Gd /TC /errorReport:prompt /D_CRT_SECURE_NO_WARNINGS /DCONFIG_64 /DMASM ..\Modules\_decimal\_decimal.c ..\Modules\_decimal\libmpdec\basearith.c ..\Modules\_decimal\libmpdec\constants.c ..\Modules\_decimal\libmpdec\context.c ..\Modules\_decimal\libmpdec\convolute.c ..\Modules\_decimal\libmpdec\crt.c ..\Modules\_decimal\libmpdec\difradix2.c ..\Modules\_decimal\libmpdec\fnt.c ..\Modules\_decimal\libmpdec\fourstep.c ..\Modules\_decimal\libmpdec\io.c ..\Modules\_decimal\libmpdec\memory.c ..\Modules\_decimal\libmpdec\mpdecimal.c ..\Modules\_decimal\libmpdec\numbertheory.c ..\Modules\_decimal\libmpdec\sixstep.c ..\Modules\_decimal\libmpdec\transpose.c
+         _decimal.c
+         basearith.c
+         constants.c
+         context.c
+         convolute.c
+         crt.c
+         difradix2.c
+         fnt.c
+         fourstep.c
+         io.c
+         memory.c
+         mpdecimal.c
+         numbertheory.c
+         sixstep.c
+         transpose.c
+         正在生成代码...
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"E:\shyloo\src\sllib\python\PCbuild\amd64\_decimal_d.pyd" /INCREMENTAL:NO /NOLOGO /LIBPATH:E:\shyloo\src\sllib\python\PCbuild\amd64\ kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST:NO /DEBUG /PDB:"E:\shyloo\src\sllib\python\PCbuild\amd64\_decimal_d.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /BASE:"0x1D1A0000" /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\shyloo\src\sllib\python\PCbuild\amd64\_decimal_d.lib" /MACHINE:X64 /DLL "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_decimal\vcdiv64.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_decimal\_decimal.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_decimal\basearith.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_decimal\constants.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_decimal\context.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_decimal\convolute.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_decimal\crt.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_decimal\difradix2.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_decimal\fnt.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_decimal\fourstep.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_decimal\io.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_decimal\memory.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_decimal\mpdecimal.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_decimal\numbertheory.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_decimal\sixstep.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_decimal\transpose.obj"
+         E:\shyloo\src\sllib\python\PCbuild\amd64\python34_d.lib
+            正在创建库 E:\shyloo\src\sllib\python\PCbuild\amd64\_decimal_d.lib 和对象 E:\shyloo\src\sllib\python\PCbuild\amd64\_decimal_d.exp
+         _decimal.vcxproj -> E:\shyloo\src\sllib\python\PCbuild\amd64\_decimal_d.pyd
+     1>已完成生成项目“E:\shyloo\src\sllib\python\PCbuild\_decimal.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:01.87

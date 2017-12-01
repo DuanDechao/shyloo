@@ -1,0 +1,18 @@
+﻿生成启动时间为 2017/11/28 19:59:50。
+     1>项目“E:\shyloo\src\sllib\python\PCbuild\make_versioninfo.vcxproj”在节点 2 上(Build 个目标)。
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I..\Include /I..\PC /Zi /nologo /W3 /WX- /O2 /Ob1 /Oi /Oy- /D _CONSOLE /D NDEBUG /D _WIN32 /D _MBCS /GF /Gm- /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"E:\shyloo\src\sllib\python\PCbuild\Win32-temp-Release\make_versioninfo\\" /Fd"E:\shyloo\src\sllib\python\PCbuild\Win32-temp-Release\make_versioninfo\vc120.pdb" /Gd /TC /analyze- /errorReport:prompt ..\PC\make_versioninfo.c
+         make_versioninfo.c
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"E:\shyloo\src\sllib\python\PCbuild\make_versioninfo.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:E:\shyloo\src\sllib\python\PCbuild\ kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:\shyloo\src\sllib\python\PCbuild\make_versioninfo.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /BASE:"0x1d000000" /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\shyloo\src\sllib\python\PCbuild\make_versioninfo.lib" /MACHINE:X86 /SAFESEH "E:\shyloo\src\sllib\python\PCbuild\Win32-temp-Release\make_versioninfo\make_versioninfo.obj"
+         make_versioninfo.vcxproj -> E:\shyloo\src\sllib\python\PCbuild\make_versioninfo.exe
+       CustomBuildStep:
+         cd E:\shyloo\src\sllib\python\PCbuild\
+         make_versioninfo.exe > ..\PC\pythonnt_rc.h
+         
+         :VCEnd
+     1>已完成生成项目“E:\shyloo\src\sllib\python\PCbuild\make_versioninfo.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:04.81

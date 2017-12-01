@@ -1,0 +1,20 @@
+﻿生成启动时间为 2017/11/28 13:27:39。
+     1>项目“E:\shyloo\src\sllib\python\PCbuild\_ctypes.vcxproj”在节点 2 上(Build 个目标)。
+     1>Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"E:\shyloo\src\sllib\python\PCbuild\amd64\_ctypes_d.pyd" /INCREMENTAL:NO /NOLOGO /LIBPATH:E:\shyloo\src\sllib\python\PCbuild\amd64\ kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST:NO /DEBUG /PDB:"E:\shyloo\src\sllib\python\PCbuild\amd64\_ctypes_d.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /BASE:"0x1D1A0000" /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\shyloo\src\sllib\python\PCbuild\amd64\_ctypes_d.lib" /MACHINE:X64 /DLL "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_ctypes\win64.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_ctypes\_ctypes.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_ctypes\callbacks.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_ctypes\callproc.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_ctypes\cfield.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_ctypes\ffi.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_ctypes\malloc_closure.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_ctypes\prep_cif.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\_ctypes\stgdict.obj"
+         E:\shyloo\src\sllib\python\PCbuild\amd64\python34_d.lib
+            正在创建库 E:\shyloo\src\sllib\python\PCbuild\amd64\_ctypes_d.lib 和对象 E:\shyloo\src\sllib\python\PCbuild\amd64\_ctypes_d.exp
+         _ctypes.vcxproj -> E:\shyloo\src\sllib\python\PCbuild\amd64\_ctypes_d.pyd
+     1>已完成生成项目“E:\shyloo\src\sllib\python\PCbuild\_ctypes.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:00.39

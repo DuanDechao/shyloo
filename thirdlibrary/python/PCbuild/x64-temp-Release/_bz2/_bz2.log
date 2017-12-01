@@ -1,0 +1,35 @@
+﻿生成启动时间为 2017/11/28 20:00:40。
+     1>项目“E:\shyloo\src\sllib\python\PCbuild\_bz2.vcxproj”在节点 4 上(Build 个目标)。
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I"..\externals\bzip2-1.0.6" /I..\Include /I..\PC /Zi /nologo /W3 /WX- /O2 /Ob1 /Oi /GL /D WIN32 /D _FILE_OFFSET_BITS=64 /D _CRT_SECURE_NO_DEPRECATE /D _CRT_NONSTDC_NO_DEPRECATE /D _WIN64 /D _M_X64 /D Py_BUILD_CORE_MODULE /D _WIN32 /D NDEBUG /D _WINDLL /GF /Gm- /MD /GS- /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_bz2\\" /Fd"E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_bz2\vc120.pdb" /Gd /TC /errorReport:prompt ..\Modules\_bz2module.c "..\externals\bzip2-1.0.6\blocksort.c" "..\externals\bzip2-1.0.6\bzlib.c" "..\externals\bzip2-1.0.6\compress.c" "..\externals\bzip2-1.0.6\crctable.c" "..\externals\bzip2-1.0.6\decompress.c" "..\externals\bzip2-1.0.6\huffman.c" "..\externals\bzip2-1.0.6\randtable.c"
+         _bz2module.c
+         blocksort.c
+         bzlib.c
+     1>..\externals\bzip2-1.0.6\bzlib.c(997): warning C4267: “=”: 从“size_t”转换到“Int32”，可能丢失数据
+     1>..\externals\bzip2-1.0.6\bzlib.c(1056): warning C4267: “=”: 从“size_t”转换到“Int32”，可能丢失数据
+     1>..\externals\bzip2-1.0.6\bzlib.c(1191): warning C4267: “=”: 从“size_t”转换到“Int32”，可能丢失数据
+         compress.c
+     1>..\externals\bzip2-1.0.6\compress.c(205): warning C4244: “=”: 从“__int64”转换到“Int32”，可能丢失数据
+         crctable.c
+         decompress.c
+         huffman.c
+         randtable.c
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"E:\shyloo\src\sllib\python\PCbuild\amd64\_bz2.pyd" /NOLOGO /LIBPATH:E:\shyloo\src\sllib\python\PCbuild\amd64\ kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST:NO /DEBUG /PDB:"E:\shyloo\src\sllib\python\PCbuild\amd64\_bz2.pdb" /SUBSYSTEM:WINDOWS /LTCG /TLBID:1 /BASE:"0x1D170000" /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\shyloo\src\sllib\python\PCbuild\amd64\_bz2.lib" /MACHINE:X64 /DLL "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_bz2\_bz2module.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_bz2\blocksort.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_bz2\bzlib.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_bz2\compress.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_bz2\crctable.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_bz2\decompress.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_bz2\huffman.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_bz2\randtable.obj"
+         E:\shyloo\src\sllib\python\PCbuild\amd64\python34.lib
+            正在创建库 E:\shyloo\src\sllib\python\PCbuild\amd64\_bz2.lib 和对象 E:\shyloo\src\sllib\python\PCbuild\amd64\_bz2.exp
+         正在生成代码
+         已完成代码的生成
+         _bz2.vcxproj -> E:\shyloo\src\sllib\python\PCbuild\amd64\_bz2.pyd
+     1>已完成生成项目“E:\shyloo\src\sllib\python\PCbuild\_bz2.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:04.46

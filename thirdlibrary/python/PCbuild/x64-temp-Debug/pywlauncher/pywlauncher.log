@@ -1,0 +1,16 @@
+﻿生成启动时间为 2017/11/28 13:27:10。
+     1>项目“E:\shyloo\src\sllib\python\PCbuild\pywlauncher.vcxproj”在节点 5 上(Build 个目标)。
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I..\Include /I..\PC /Zi /nologo /W3 /WX- /Od /Ob1 /Oi /D _WINDOWS /D _WIN64 /D _M_X64 /D _DEBUG /D _WIN32 /D _UNICODE /D UNICODE /GF /Gm /RTC1 /MT /GS- /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\pywlauncher\\" /Fd"E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\pywlauncher\vc120.pdb" /Gd /TC /errorReport:prompt ..\PC\launcher.c
+         launcher.c
+       ResourceCompile:
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\rc.exe /D _DEBUG /l"0x0409" /I..\PC /I..\Include /nologo /fo"E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\pywlauncher\pylauncher.res" ..\PC\pylauncher.rc 
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"E:\shyloo\src\sllib\python\PCbuild\amd64\pyw_d.exe" /INCREMENTAL /NOLOGO /LIBPATH:E:\shyloo\src\sllib\python\PCbuild\amd64\ version.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:\shyloo\src\sllib\python\PCbuild\amd64\pyw_d.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\shyloo\src\sllib\python\PCbuild\amd64\pyw_d.lib" /MACHINE:X64 "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\pywlauncher\pylauncher.res"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Debug\pywlauncher\launcher.obj"
+         pywlauncher.vcxproj -> E:\shyloo\src\sllib\python\PCbuild\amd64\pyw_d.exe
+     1>已完成生成项目“E:\shyloo\src\sllib\python\PCbuild\pywlauncher.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:04.04

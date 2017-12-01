@@ -1,0 +1,37 @@
+﻿生成启动时间为 2017/11/28 20:00:35。
+     1>项目“E:\shyloo\src\sllib\python\PCbuild\_ctypes.vcxproj”在节点 2 上(Build 个目标)。
+     1>CustomBuild:
+         Performing Custom Build Tools
+          Assembling: E:\shyloo\src\sllib\python\Modules\_ctypes\libffi_msvc\win64.asm
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I..\Modules\_ctypes\libffi_msvc /I..\Include /I..\PC /Zi /nologo /W3 /WX- /O2 /Ob1 /Oi /GL /D _WIN64 /D _M_X64 /D Py_BUILD_CORE_MODULE /D _WIN32 /D NDEBUG /D _WINDLL /GF /Gm- /MD /GS- /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_ctypes\\" /Fd"E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_ctypes\vc120.pdb" /Gd /TC /errorReport:prompt ..\Modules\_ctypes\_ctypes.c ..\Modules\_ctypes\callbacks.c ..\Modules\_ctypes\callproc.c ..\Modules\_ctypes\cfield.c ..\Modules\_ctypes\libffi_msvc\ffi.c ..\Modules\_ctypes\malloc_closure.c ..\Modules\_ctypes\libffi_msvc\prep_cif.c ..\Modules\_ctypes\stgdict.c
+         _ctypes.c
+     1>..\Modules\_ctypes\_ctypes.c(309): warning C4267: “+=”: 从“size_t”转换到“int”，可能丢失数据
+         callbacks.c
+         callproc.c
+         cfield.c
+         ffi.c
+         malloc_closure.c
+         prep_cif.c
+     1>..\Modules\_ctypes\libffi_msvc\prep_cif.c(170): warning C4267: “+=”: 从“size_t”转换到“unsigned int”，可能丢失数据
+         stgdict.c
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"E:\shyloo\src\sllib\python\PCbuild\amd64\_ctypes.pyd" /NOLOGO /LIBPATH:E:\shyloo\src\sllib\python\PCbuild\amd64\ kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST:NO /DEBUG /PDB:"E:\shyloo\src\sllib\python\PCbuild\amd64\_ctypes.pdb" /LTCG /TLBID:1 /BASE:"0x1D1A0000" /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\shyloo\src\sllib\python\PCbuild\amd64\_ctypes.lib" /MACHINE:X64 /EXPORT:DllGetClassObject,PRIVATE /EXPORT:DllCanUnloadNow,PRIVATE /DLL "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_ctypes\win64.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_ctypes\_ctypes.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_ctypes\callbacks.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_ctypes\callproc.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_ctypes\cfield.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_ctypes\ffi.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_ctypes\malloc_closure.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_ctypes\prep_cif.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_ctypes\stgdict.obj"
+         E:\shyloo\src\sllib\python\PCbuild\amd64\python34.lib
+            正在创建库 E:\shyloo\src\sllib\python\PCbuild\amd64\_ctypes.lib 和对象 E:\shyloo\src\sllib\python\PCbuild\amd64\_ctypes.exp
+         正在生成代码
+         已完成代码的生成
+         _ctypes.vcxproj -> E:\shyloo\src\sllib\python\PCbuild\amd64\_ctypes.pyd
+     1>已完成生成项目“E:\shyloo\src\sllib\python\PCbuild\_ctypes.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:03.62

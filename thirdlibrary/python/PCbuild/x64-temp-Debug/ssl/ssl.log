@@ -1,0 +1,92 @@
+﻿生成启动时间为 2017/11/28 13:27:40。
+     1>项目“E:\shyloo\src\sllib\python\PCbuild\ssl.vcxproj”在节点 5 上(Build 个目标)。
+     1>Build:
+         cd "E:\shyloo\src\sllib\python\PCbuild\"
+         "E:\shyloo\src\sllib\python\PCbuild\amd64\python_d.exe" build_ssl.py Release x64 -a
+         
+         Found a working perl at 'C:\perl\bin\perl.exe'
+         NASM was not found, make sure it is on PATH
+         Creating the makefiles...
+         Configuring for VC-WIN64A
+             no-ec_nistp_64_gcc_128 [default]  OPENSSL_NO_EC_NISTP_64_GCC_128 (skip dir)
+             no-gmp          [default]  OPENSSL_NO_GMP (skip dir)
+             no-idea         [option]   OPENSSL_NO_IDEA (skip dir)
+             no-jpake        [experimental] OPENSSL_NO_JPAKE (skip dir)
+             no-krb5         [krb5-flavor not specified] OPENSSL_NO_KRB5
+             no-libunbound   [experimental] OPENSSL_NO_LIBUNBOUND (skip dir)
+             no-md2          [default]  OPENSSL_NO_MD2 (skip dir)
+             no-mdc2         [option]   OPENSSL_NO_MDC2 (skip dir)
+             no-rc5          [default]  OPENSSL_NO_RC5 (skip dir)
+             no-rfc3779      [default]  OPENSSL_NO_RFC3779 (skip dir)
+             no-sctp         [default]  OPENSSL_NO_SCTP (skip dir)
+             no-shared       [default] 
+             no-ssl-trace    [default]  OPENSSL_NO_SSL_TRACE (skip dir)
+             no-ssl2         [default]  OPENSSL_NO_SSL2 (skip dir)
+             no-store        [experimental] OPENSSL_NO_STORE (skip dir)
+             no-unit-test    [default]  OPENSSL_NO_UNIT_TEST (skip dir)
+             no-weak-ssl-ciphers [default]  OPENSSL_NO_WEAK_SSL_CIPHERS (skip dir)
+             no-zlib         [default] 
+             no-zlib-dynamic [default] 
+         IsMK1MF=1
+         CC            =cl
+         CFLAG         =-DOPENSSL_THREADS  -DDSO_WIN32 -W3 -Gs0 -Gy -nologo -DOPENSSL_SYSNAME_WIN32 -DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_MONT5 -DOPENSSL_BN_ASM_GF2m -DRC4_ASM -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DAES_ASM -DVPAES_ASM -DBSAES_ASM -DWHIRLPOOL_ASM -DGHASH_ASM -DECP_NISTZ256_ASM
+         EX_LIBS       =
+         CPUID_OBJ     =x86_64cpuid.o
+         BN_ASM        =bn_asm.o x86_64-mont.o x86_64-mont5.o x86_64-gf2m.o rsaz_exp.o rsaz-x86_64.o rsaz-avx2.o
+         EC_ASM        =ecp_nistz256.o ecp_nistz256-x86_64.o
+         DES_ENC       =des_enc.o fcrypt_b.o
+         AES_ENC       =aes-x86_64.o vpaes-x86_64.o bsaes-x86_64.o aesni-x86_64.o aesni-sha1-x86_64.o aesni-sha256-x86_64.o aesni-mb-x86_64.o
+         BF_ENC        =bf_enc.o
+         CAST_ENC      =c_enc.o
+         RC4_ENC       =rc4-x86_64.o rc4-md5-x86_64.o
+         RC5_ENC       =rc5_enc.o
+         MD5_OBJ_ASM   =md5-x86_64.o
+         SHA1_OBJ_ASM  =sha1-x86_64.o sha256-x86_64.o sha512-x86_64.o sha1-mb-x86_64.o sha256-mb-x86_64.o
+         RMD160_OBJ_ASM=
+         CMLL_ENC      =cmll-x86_64.o cmll_misc.o
+         MODES_OBJ     =ghash-x86_64.o aesni-gcm-x86_64.o
+         ENGINES_OBJ   =
+         PROCESSOR     =
+         RANLIB        =true
+         ARFLAGS       =
+         PERL          =perl
+         SIXTY_FOUR_BIT mode
+         DES_INT used
+         RC4_CHUNK is unsigned long long
+         
+         Configured for VC-WIN64A.
+         
+         E:\shyloo\src\sllib\python\externals\openssl-1.0.2j>perl util\mkfiles.pl  1>MINFO 
+         
+         E:\shyloo\src\sllib\python\externals\openssl-1.0.2j>cmd /c "nasm -f win64 -v"  1>NUL 2>&1 
+         
+         E:\shyloo\src\sllib\python\externals\openssl-1.0.2j>if 1 NEQ 0 goto ml64 
+         
+         E:\shyloo\src\sllib\python\externals\openssl-1.0.2j>perl ms\uplink-x86_64.pl masm  1>ms\uptable.asm 
+         
+         E:\shyloo\src\sllib\python\externals\openssl-1.0.2j>ml64 -c -Foms\uptable.obj ms\uptable.asm 
+          Assembling: ms\uptable.asm
+         Microsoft (R) Macro Assembler (x64) Version 12.00.21005.1
+         Copyright (C) Microsoft Corporation.  All rights reserved.
+         
+         
+         E:\shyloo\src\sllib\python\externals\openssl-1.0.2j>perl util\mk1mf.pl VC-WIN64A  1>ms\nt.mak 
+         
+         E:\shyloo\src\sllib\python\externals\openssl-1.0.2j>perl util\mk1mf.pl dll VC-WIN64A  1>ms\ntdll.mak 
+         
+         E:\shyloo\src\sllib\python\externals\openssl-1.0.2j>perl util\mkdef.pl 32 libeay  1>ms\libeay32.def 
+         
+         E:\shyloo\src\sllib\python\externals\openssl-1.0.2j>perl util\mkdef.pl 32 ssleay  1>ms\ssleay32.def 
+         'nasm' 不是内部或外部命令，也不是可运行的程序
+         或批处理文件。
+         perl Configure VC-WIN64A no-idea no-mdc2
+         ms\do_win64a
+         nasm assembler has failed.
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.MakeFile.Targets(38,5): error MSB3073: 命令“cd "E:\shyloo\src\sllib\python\PCbuild\"
+C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.MakeFile.Targets(38,5): error MSB3073: "E:\shyloo\src\sllib\python\PCbuild\amd64\python_d.exe" build_ssl.py Release x64 -a
+C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.MakeFile.Targets(38,5): error MSB3073: ”已退出，代码为 1。
+     1>已完成生成项目“E:\shyloo\src\sllib\python\PCbuild\ssl.vcxproj”(Build 个目标)的操作 - 失败。
+
+生成失败。
+
+已用时间 00:00:04.86

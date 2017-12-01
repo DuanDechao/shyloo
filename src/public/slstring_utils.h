@@ -192,6 +192,24 @@ public:
 		else
 			return "false";
 	}
+
+	static wchar_t* char2wchar(const char* cs, size_t* outlen = NULL){
+		int len = (int)((strlen(cs) + 1) * sizeof(wchar_t));
+		wchar_t* ccattr = (wchar_t *)malloc(len);
+		memset(ccattr, 0, len);
+
+		size_t slen = mbstowcs(ccattr, cs, len);
+
+		if (outlen)
+		{
+			if ((size_t)-1 != slen)
+				*outlen = slen;
+			else
+				*outlen = 0;
+		}
+
+		return ccattr;
+	};
 };
 
 }//namespace sl

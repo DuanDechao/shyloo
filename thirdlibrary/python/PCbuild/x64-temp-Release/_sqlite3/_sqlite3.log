@@ -1,0 +1,35 @@
+﻿生成启动时间为 2017/11/28 20:00:38。
+     1>项目“E:\shyloo\src\sllib\python\PCbuild\_sqlite3.vcxproj”在节点 3 上(Build 个目标)。
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I"..\externals\sqlite-3.8.11.0" /I..\Include /I..\PC /Zi /nologo /W3 /WX- /O2 /Ob1 /Oi /GL /D "MODULE_NAME=\"sqlite3\"" /D _WIN64 /D _M_X64 /D Py_BUILD_CORE_MODULE /D _WIN32 /D NDEBUG /D _WINDLL /GF /Gm- /MD /GS- /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_sqlite3\\" /Fd"E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_sqlite3\vc120.pdb" /Gd /TC /errorReport:prompt ..\Modules\_sqlite\cache.c ..\Modules\_sqlite\connection.c ..\Modules\_sqlite\cursor.c ..\Modules\_sqlite\microprotocols.c ..\Modules\_sqlite\module.c ..\Modules\_sqlite\prepare_protocol.c ..\Modules\_sqlite\row.c ..\Modules\_sqlite\statement.c ..\Modules\_sqlite\util.c
+         cache.c
+         connection.c
+         cursor.c
+         microprotocols.c
+         module.c
+         prepare_protocol.c
+         row.c
+     1>..\Modules\_sqlite\row.c(168): warning C4244: “=”: 从“Py_ssize_t”转换到“int”，可能丢失数据
+         statement.c
+         util.c
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"E:\shyloo\src\sllib\python\PCbuild\amd64\_sqlite3.pyd" /NOLOGO /LIBPATH:E:\shyloo\src\sllib\python\PCbuild\amd64\ kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST:NO /DEBUG /PDB:"E:\shyloo\src\sllib\python\PCbuild\amd64\_sqlite3.pdb" /SUBSYSTEM:WINDOWS /LTCG /TLBID:1 /BASE:"0x1e180000" /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\shyloo\src\sllib\python\PCbuild\amd64\_sqlite3.lib" /MACHINE:X64 /DLL "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_sqlite3\cache.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_sqlite3\connection.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_sqlite3\cursor.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_sqlite3\microprotocols.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_sqlite3\module.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_sqlite3\prepare_protocol.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_sqlite3\row.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_sqlite3\statement.obj"
+         "E:\shyloo\src\sllib\python\PCbuild\x64-temp-Release\_sqlite3\util.obj"
+         E:\shyloo\src\sllib\python\PCbuild\amd64\python34.lib
+         E:\shyloo\src\sllib\python\PCbuild\amd64\sqlite3.lib
+            正在创建库 E:\shyloo\src\sllib\python\PCbuild\amd64\_sqlite3.lib 和对象 E:\shyloo\src\sllib\python\PCbuild\amd64\_sqlite3.exp
+         正在生成代码
+         已完成代码的生成
+         _sqlite3.vcxproj -> E:\shyloo\src\sllib\python\PCbuild\amd64\_sqlite3.pyd
+     1>已完成生成项目“E:\shyloo\src\sllib\python\PCbuild\_sqlite3.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:02.11

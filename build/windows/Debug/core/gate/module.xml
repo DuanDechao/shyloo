@@ -13,4 +13,5 @@
 	<module name="DB" />
 	<module name="IdMgr" />
 	<module name="Gate" />
+	<module name="PythonEngine" />
 </modules>
