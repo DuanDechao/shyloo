@@ -1,6 +1,6 @@
 #ifndef SL_LIB_SCRIPT_OBJECT_H
 #define SL_LIB_SCRIPT_OBJECT_H
-#include "Include/Python.h"
+#include "python3.4m/Python.h"
 #include <unordered_map>
 #include "slmulti_sys.h"
 #include "slpymacros.h"

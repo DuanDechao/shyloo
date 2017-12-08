@@ -2,7 +2,7 @@
 #define SL_PY_SCRIPT_SCRIPT_H
 #include "slsingleton.h"
 #include <string>
-#include "Include/Python.h"
+#include "python3.4m/Python.h"
 namespace sl{
 namespace script{
 class PyScript : public sl::CSingleton<PyScript>{

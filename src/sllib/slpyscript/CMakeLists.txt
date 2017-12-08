@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 INCLUDE_DIRECTORIES(
 	"${PROJECT_SOURCE_DIR}/src/public"
 	"${PROJECT_SOURCE_DIR}/src/sllib/api"
+	"${PROJECT_SOURCE_DIR}/thirdlibrary/python/linux/include"
 )
 
 IF(WIN32)
