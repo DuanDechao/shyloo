@@ -6,14 +6,14 @@ bool PythonEngine::initialize(sl::api::IKernel * pKernel){
 	_kernel = pKernel;
 	_self = this;
 	const char* slResPath = "./shyloo";
-	const char* slPyPath = "E:/shyloo/src/sllib/slpyscript/Lib;E:/server/res";
+	const char* slPyPath = "E:/shyloo/src/sllib/slpyscript/Lib;E:/svr/res;E:/svr/res/entities/base";
 	installPyScript(slResPath, slPyPath);
 	return true;
 }
 
 bool PythonEngine::launched(sl::api::IKernel * pKernel){
-	APPEND_SCRIPT_MODULE_METHOD(this, "testPyCall", &PythonEngine::__py_testPyCall);
-	test();
+	INSTALL_SCRIPT_MODULE_METHOD(this, "testPyCall", &PythonEngine::__py_testPyCall);
+	//test();
 	return true;
 }
 
@@ -27,9 +27,22 @@ bool PythonEngine::installPyScript(const char* resPath, const char* userPath){
 	return true;
 }
 
-void PythonEngine::appendScriptModuleMethod(PyCFunction f, const char* funcName){
+void PythonEngine::installScriptModuleMethod(PyCFunction f, const char* funcName){
 	_scriptMethods[funcName] = { funcName, f, METH_VARARGS, NULL };
 	PyModule_AddObject(getScript().getModule(), funcName, PyCFunction_New(&_scriptMethods[funcName], 0));
+}
+
+void PythonEngine::installScriptModuleType(PyTypeObject* scriptType, const char* typeName){
+	if (PyType_Ready(scriptType) < 0){
+		ECHO_ERROR("PyType_Ready %s is error", typeName);
+		PyErr_Print();
+		return;
+	}
+	Py_INCREF(scriptType);
+	if (PyModule_AddObject(getScript().getModule(), typeName, (PyObject*)scriptType) < 0){
+		ECHO_ERROR("PyModule_AddObject(%s) is error!", typeName);
+	}																				
+	SCRIPT_ERROR_CHECK();															
 }
 
 PyObject* PythonEngine::__py_testPyCall(PyObject* self, PyObject* args){

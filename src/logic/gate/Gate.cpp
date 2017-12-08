@@ -1,4 +1,4 @@
-#include "Gate.h"
+	#include "Gate.h"
 #include "IAgent.h"
 #include "NodeDefine.h"
 #include "NodeProtocol.h"

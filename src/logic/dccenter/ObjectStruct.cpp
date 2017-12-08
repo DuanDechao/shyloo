@@ -9,15 +9,21 @@ ObjectPropInfo::ObjectPropInfo(int32 objTypeId, const char* objName, ObjectPropI
 	_objectPool(nullptr)
 {
 	if (parenter){
-		_layouts = parenter->_layouts;
-		for (auto& layout : _layouts){
-			if (!layout->_isTemp){
-				const IProp* prop = ObjectMgr::getInstance()->setObjectProp(layout->_name.c_str(), _objTypeId, layout);
+		_propLayouts = parenter->_propLayouts;
+		for (auto& propLayout : _propLayouts){
+			if (!propLayout->_isTemp){
+				const IProp* prop = ObjectMgr::getInstance()->setObjectProp(propLayout->_name.c_str(), _objTypeId, propLayout);
 				_props.push_back(prop);
 			}
 			else{
-				ObjectMgr::getInstance()->setObjectTempProp(layout->_name.c_str(), _objTypeId, layout);
+				ObjectMgr::getInstance()->setObjectTempProp(propLayout->_name.c_str(), _objTypeId, propLayout);
 			}
+		}
+
+		_methodLayouts = parenter->_methodLayouts;
+		for (auto& methodLayout : _methodLayouts){
+			const IMethod* method = ObjectMgr::getInstance()->setObjectMethod(methodLayout->_name.c_str(), _objTypeId, methodLayout);
+			_methods.push_back(method);
 		}
 
 		_tables = parenter->_tables;
@@ -42,7 +48,7 @@ ObjectPropInfo::~ObjectPropInfo(){
 		DEL layout;
 		}*/
 
-	_layouts.clear();
+	_propLayouts.clear();
 	_props.clear();
 	_selfProps.clear();
 	_tables.clear();
@@ -89,12 +95,50 @@ bool ObjectPropInfo::loadProps(const sl::ISLXmlNode& props, PROP_DEFDINE_MAP& de
 			}
 		}
 
-		_layouts.push_back(layout);
+		_propLayouts.push_back(layout);
 
-		const IProp * prop = ObjectMgr::getInstance()->setObjectProp(layout->_name.c_str(), _objTypeId, (*_layouts.rbegin()));
+		const IProp * prop = ObjectMgr::getInstance()->setObjectProp(layout->_name.c_str(), _objTypeId, (*_propLayouts.rbegin()));
 		_props.push_back(prop);
 		_selfProps.push_back(prop);
 	}
+	return true;
+}
+
+const IProp* ObjectPropInfo::loadProp(const char* name, const int8 type, const int32 size, const int32 setting, const int32 index){
+	PropLayout* layout = NEW PropLayout();
+	layout->_name = name;
+	layout->_offset = _size;
+	layout->_type = type;
+	layout->_size = size;
+
+	_size += layout->_size;
+	layout->_isTemp = false;
+	layout->_index = index;
+	layout->_setting = setting;
+
+	_propLayouts.push_back(layout);
+
+	const IProp * prop = ObjectMgr::getInstance()->setObjectProp(layout->_name.c_str(), _objTypeId, (*_propLayouts.rbegin()));
+	_props.push_back(prop);
+	_selfProps.push_back(prop);
+
+	return prop;
+}
+
+bool ObjectPropInfo::loadMethod(const char* name, const int8 type, const int32 setting, const int32 index, vector<uint8>& argsType){
+	MethodLayout* layout = NEW MethodLayout();
+	layout->_name = name;
+	layout->_type = type;
+
+	layout->_index = index;
+	layout->_setting = setting;
+
+	_methodLayouts.push_back(layout);
+
+	const IMethod * prop = ObjectMgr::getInstance()->setObjectMethod(layout->_name.c_str(), _objTypeId, (*_methodLayouts.rbegin()));
+	_methods.push_back(prop);
+	_selfMethods.push_back(prop);
+
 	return true;
 }
 
@@ -107,9 +151,9 @@ bool ObjectPropInfo::loadTemps(const sl::ISLXmlNode& temps){
 		_size += layout->_size;
 		layout->_setting = 0;
 		layout->_isTemp = true;
-		_layouts.push_back(layout);
+		_propLayouts.push_back(layout);
 
-		ObjectMgr::getInstance()->setObjectTempProp(layout->_name.c_str(), _objTypeId, (*_layouts.rbegin()));
+		ObjectMgr::getInstance()->setObjectTempProp(layout->_name.c_str(), _objTypeId, (*_propLayouts.rbegin()));
 	}
 	return true;
 }

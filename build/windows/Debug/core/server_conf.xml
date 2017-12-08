@@ -91,7 +91,7 @@
 		</step>
 	</shutdown>
 	<master ip="127.0.0.1" port="7700" />
-	<id multiProc="true" server="-2" area="1" poolSize="1000" />
+	<id multiProc="false" server="-2" area="1" poolSize="1000" />
 	<db host="127.0.0.1" port="3306" user="root" pwd="" db="shyloo" charset="utf8" />
 	<redis>
 		<slave ip="127.0.0.1" port="6379"/>

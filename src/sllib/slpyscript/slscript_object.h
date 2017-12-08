@@ -13,6 +13,13 @@ namespace script{
 		CLASS::s_objectType.tp_free(self);													\
 	}																						\
 
+#define BASE_SCRIPT_HEADER(CLASS, SUPERCLASS)												\
+	SCRIPT_HREADER_BASE(CLASS, SUPERCLASS);													\
+	static void _tp_dealloc(PyObject* self){												\
+		static_cast<CLASS*>(self)->~CLASS();												\
+		CLASS::s_objectType.tp_free(self);													\
+	}																						\
+
 #define SCRIPT_HREADER_BASE(CLASS, SUPERCLASS)												\
 	static PyTypeObject		s_objectType;													\
 	typedef CLASS ThisClass;																\
@@ -178,11 +185,19 @@ public:																						\
 			*(pGsdf++) = *pgs;																\
 		}																					\
 																							\
+		if (strcmp(#CLASS, #SUPERCLASS) == 0){											\
+			*(pPymdf) = *pmf;																\
+			*(pMdf) = *pmd;																	\
+			*(pGsdf) = *pgs;																\
+			return;																			\
+		}																					\
+																							\
+																							\
 		SUPERCLASS::setupScriptMethodAndAttribute(pPymdf, pMdf, pGsdf);						\
 	}																						\
 																							\
 	/*安装当前脚本模块*/																	\
-	static void installScript(PyObject* mod, const char* name){								\
+	static void refreshObjectType(const char* name){										\
 		int iMethodCount = CLASS::calcTotalMethodCount();									\
 		int iMemberCount = CLASS::calcTotalMemberCount();									\
 		int iGetsetCount = CLASS::calcTotalGetSetCount();									\
@@ -198,21 +213,6 @@ public:																						\
 		s_objectType.tp_members = s_##CLASS##_pScriptMembers;								\
 		s_objectType.tp_getset = s_##CLASS##_pScriptGetseters;								\
 																							\
-		CLASS::onInstallScript(mod);														\
-		if (PyType_Ready(&s_objectType) < 0){												\
-			ECHO_ERROR("PyType_Ready(" #CLASS ") is error");								\
-			PyErr_Print();																	\
-			return;																			\
-		}																					\
-																							\
-		if (mod){																			\
-			Py_INCREF(&s_objectType);														\
-			if (PyModule_AddObject(mod, name, (PyObject*)&s_objectType) < 0){				\
-				ECHO_ERROR("PyModule_AddObject(%s) is error!", name);						\
-			}																				\
-		}																					\
-																							\
-		SCRIPT_ERROR_CHECK();																\
 		s_##CLASS##_pyInstalled = true;														\
 																							\
 		ScriptObject::s_allObjectTypes[name] = &s_objectType;								\
@@ -229,10 +229,70 @@ public:																						\
 			Py_DECREF(&s_objectType);														\
 	}																						\
 
+/** 这个宏正式的初始化一个脚本模块， 将一些必要的信息填充到python的type对象中
+*/
 #define SCRIPT_INIT(CLASS, CALL, SEQ, MAP, ITER, ITERNEXT)									\
-	PyTypeObject CLASS::s_objectType =														\
+	TEMPLATE_SCRIPT_INIT(;, CLASS, CLASS, CALL, SEQ, MAP, ITER, ITERNEXT)					\
+
+
+#define TEMPLATE_SCRIPT_INIT(TEMPLATE_HEADER, TEMPLATE_CLASS,								\
+	CLASS, CALL, SEQ, MAP, ITER, ITERNEXT)													\
+	TEMPLATE_HEADER PyMethodDef* TEMPLATE_CLASS::s_##CLASS##_pScriptMethods = NULL;			\
+	TEMPLATE_HEADER PyMemberDef* TEMPLATE_CLASS::s_##CLASS##_pScriptMembers = NULL;			\
+	TEMPLATE_HEADER PyGetSetDef* TEMPLATE_CLASS::s_##CLASS##_pScriptGetseters = NULL;		\
+																							\
+	TEMPLATE_HEADER																			\
+	PyTypeObject TEMPLATE_CLASS::s_objectType =												\
 	{																						\
 		PyVarObject_HEAD_INIT(&PyType_Type, 0)												\
+		#CLASS,													/* tp_name            */	\
+		sizeof(TEMPLATE_CLASS),									/* tp_basicsize       */	\
+		0,														/* tp_itemsize        */	\
+		(destructor)TEMPLATE_CLASS::_tp_dealloc,				/* tp_dealloc         */	\
+		0,														/* tp_print           */	\
+		0,														/* tp_getattr         */	\
+		0,														/* tp_setattr         */	\
+		0,														/* tp_compare         */	\
+		TEMPLATE_CLASS::_tp_repr,								/* tp_repr            */	\
+		0,														/* tp_as_number       */	\
+		SEQ,													/* tp_as_sequence     */	\
+		MAP,													/* tp_as_mapping      */	\
+		0,														/* tp_hash            */	\
+		CALL,													/* tp_call            */	\
+		TEMPLATE_CLASS::_tp_str,								/* tp_str             */	\
+		(getattrofunc)CLASS::_tp_getattro,						/* tp_getattro        */	\
+		(setattrofunc)CLASS::_tp_setattro,						/* tp_setattro        */	\
+		0,														/* tp_as_buffer       */	\
+		Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,				/* tp_flags           */	\
+		"KBEngine::" #CLASS " objects.",						/* tp_doc             */	\
+		0,														/* tp_traverse        */	\
+		0,														/* tp_clear           */	\
+		0,														/* tp_richcompare     */	\
+		0,														/* tp_weaklistoffset  */	\
+		ITER,													/* tp_iter            */	\
+		ITERNEXT,												/* tp_iternext        */	\
+		0,														/* tp_methods         */	\
+		0,														/* tp_members         */	\
+		0,														/* tp_getset          */	\
+		TEMPLATE_CLASS::getBaseScriptType(),					/* tp_base            */	\
+		0,														/* tp_dict            */	\
+		0,														/* tp_descr_get       */	\
+		0,														/* tp_descr_set       */	\
+		TEMPLATE_CLASS::calcDictOffset(),						/* tp_dictoffset      */	\
+		(initproc)TEMPLATE_CLASS::_tp_init,						/* tp_init            */	\
+		0,														/* tp_alloc           */	\
+		TEMPLATE_CLASS::_tp_new,								/* tp_new             */	\
+		PyObject_GC_Del,										/* tp_free            */	\
+	};																						\
+
+#define BASE_SCRIPT_INIT(CLASS, CALL, SEQ, MAP, ITER, ITERNEXT)								\
+	PyMethodDef* CLASS::s_##CLASS##_pScriptMethods = NULL;									\
+	PyMemberDef* CLASS::s_##CLASS##_pScriptMembers = NULL;									\
+	PyGetSetDef* CLASS::s_##CLASS##_pScriptGetseters = NULL;								\
+																							\
+	PyTypeObject CLASS::s_objectType =														\
+	{																						\
+		PyVarObject_HEAD_INIT(NULL, 0)														\
 		#CLASS,																				\
 		sizeof(CLASS),									/*tp_basesize		*/				\
 		0,												/*tp_itemsize		*/				\
@@ -267,11 +327,19 @@ public:																						\
 		0,												/*tp_descr_get		*/				\
 		0,												/*tp_descr_set		*/				\
 		CLASS::calcDictOffset(),						/*tp_dictoffset		*/				\
-		(initproc)CLASS::_tp_init,						/*tp_init			*/				\
+		0,												/*tp_init			*/				\
 		0,												/*tp_alloc			*/				\
-		CLASS::_tp_new,									/*tp_new			*/				\
+		0,												/*tp_new			*/				\
 		PyObject_GC_Del,								/*tp_free			*/				\
+		0,												/* tp_is_gc           */			\
+		0,												/* tp_bases           */			\
+		0,												/* tp_mro             */			\
+		0,												/* tp_cache           */			\
+		0,												/* tp_subclasses      */			\
+		0,												/* tp_weaklist        */			\
+		0,												/* tp_del			  */			\
 	};																						\
+
 
 class ScriptObject :public PyObject{
 	SCRIPT_OBJECT_HEADER(ScriptObject, ScriptObject)
