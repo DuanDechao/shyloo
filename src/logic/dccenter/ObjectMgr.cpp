@@ -5,20 +5,22 @@
 #include "MMObject.h"
 #include "TableControl.h"
 #include "IIdMgr.h"
+#include "ObjectMethod.h"
 
 bool ObjectMgr::initialize(sl::api::IKernel * pKernel){
 	_self = this;
 	_kernel = pKernel;
 	_nextObjTypeId = 1;
+	_objectTypeSize = 0;
 
-	if (!initPropDefineConfig(pKernel) || !loadObjectPropConfig(pKernel)){
+	/*if (!initPropDefineConfig(pKernel) || !loadObjectPropConfig(pKernel)){
 		SLASSERT(false, "init config failed");
 		return false;
-	}
+		}
 
-	for (auto itor = _allProps.begin(); itor != _allProps.end(); ++itor){
+		for (auto itor = _allProps.begin(); itor != _allProps.end(); ++itor){
 		_allPropsId[itor->second->getName()] = itor->second;
-	}
+		}*/
 
 	return true;
 }
@@ -26,7 +28,7 @@ bool ObjectMgr::initialize(sl::api::IKernel * pKernel){
 bool ObjectMgr::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_idMgr, IdMgr);
 
-	_objectStatus = _self->getPropByName("status");
+	//_objectStatus = _self->getPropByName("status");
 
 	//START_TIMER(_self, 30000, TIMER_BEAT_FOREVER, 2000);
 	//test();
@@ -174,6 +176,21 @@ ObjectPropInfo* ObjectMgr::queryTemplate(sl::api::IKernel* pKernel, const char* 
 	return createTemplate(pKernel, objectName);
 }
 
+
+const IProp* ObjectMgr::appendObjectProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index){
+	ObjectPropInfo* propInfo = nullptr;
+	auto itor = _objPropInfo.find(objectName);
+	if (itor != _objPropInfo.end()){
+		propInfo = itor->second;
+	}
+	else{
+		propInfo = NEW ObjectPropInfo(_nextObjTypeId++, objectName, nullptr);
+		_objPropInfo[objectName] = propInfo;
+	}
+
+	return propInfo->loadProp(propName, type, size, setting, index);
+}
+
 const IProp* ObjectMgr::setObjectProp(const char* propName, const int32 objTypeId, PropLayout* layout){
 	ObjectProp * prop = nullptr;
 	auto itor = _allProps.find(propName);
@@ -181,7 +198,7 @@ const IProp* ObjectMgr::setObjectProp(const char* propName, const int32 objTypeI
 		prop = itor->second;
 	}
 	else{
-		prop = NEW ObjectProp(sl::CalcStringUniqueId(propName), (int32)_propConfigsPath.size());
+		prop = NEW ObjectProp(sl::CalcStringUniqueId(propName), (int32)_objectTypeSize);
 		_allProps[propName] = prop;
 	}
 	prop->setLayout(objTypeId, layout);
@@ -195,7 +212,7 @@ const IProp* ObjectMgr::setObjectTempProp(const char* propName, const int32 objT
 		prop = itor->second;
 	}
 	else{
-		prop = NEW ObjectProp(sl::CalcStringUniqueId(propName), (int32)_propConfigsPath.size());
+		prop = NEW ObjectProp(sl::CalcStringUniqueId(propName), (int32)_objectTypeSize);
 		_allTempProps[propName] = prop;
 	}
 	prop->setLayout(objTypeId, layout);
@@ -227,6 +244,39 @@ const IProp* ObjectMgr::getPropByNameId(const int32 name) const{
 		return itor->second;
 	}
 	return nullptr;
+}
+
+bool ObjectMgr::appendObjectMethod(const char* objectName, const char* methodName, const int8 type, const int32 setting, const int32 index, vector<uint8>& argsType){
+	ObjectPropInfo* propInfo = nullptr;
+	auto itor = _objPropInfo.find(objectName);
+	if (itor != _objPropInfo.end()){
+		propInfo = itor->second;
+	}
+	else{
+		propInfo = NEW ObjectPropInfo(_nextObjTypeId++, objectName, nullptr);
+		_objPropInfo[objectName] = propInfo;
+	}
+
+	if (!propInfo->loadMethod(methodName, type, setting, index, argsType)){
+		SLASSERT(false, "wtf");
+		return false;
+	}
+
+	return true;
+}
+
+const IMethod* ObjectMgr::setObjectMethod(const char* methodName, const int32 objTypeId, MethodLayout* layout){
+	ObjectMethod * method = nullptr;
+	auto itor = _allMethods.find(methodName);
+	if (itor != _allMethods.end()){
+		method = itor->second;
+	}
+	else{
+		method = NEW ObjectMethod(sl::CalcStringUniqueId(methodName), (int32)_objectTypeSize);
+		_allMethods[methodName] = method;
+	}
+	method->setLayout(objTypeId, layout);
+	return method;
 }
 
 

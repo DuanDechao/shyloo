@@ -18,6 +18,8 @@ SET(SL_LIB_PYSCRIPT
 	"${PROJECT_SOURCE_DIR}/src/sllib/slpyscript/slscript_object.cpp"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slpyscript/slpyscript.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slpyscript/slpyscript.cpp"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slpyscript/slpy_gc.h"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slpyscript/slpy_gc.cpp"
 )
 
 SOURCE_GROUP(api FILES ${SL_LIB_API})

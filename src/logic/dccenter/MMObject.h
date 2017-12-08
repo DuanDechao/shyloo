@@ -33,6 +33,12 @@ public:
 	virtual bool setPropInt16(const IProp* prop, const int16 data, const bool sync){ return setData(prop, false, DTYPE_INT16, &data, sizeof(int16), sync); }
 	virtual bool setPropInt32(const IProp* prop, const int32 data, const bool sync){ return setData(prop, false, DTYPE_INT32, &data, sizeof(int32), sync); }
 	virtual bool setPropInt64(const IProp* prop, const int64 data, const bool sync){ return setData(prop, false, DTYPE_INT64, &data, sizeof(int64), sync); }
+
+	virtual bool setPropUint8(const IProp* prop, const uint8 data, const bool sync){ return setData(prop, false, DTYPE_UINT8, &data, sizeof(uint8), sync); }
+	virtual bool setPropUint16(const IProp* prop, const uint16 data, const bool sync){ return setData(prop, false, DTYPE_UINT16, &data, sizeof(uint16), sync); }
+	virtual bool setPropUint32(const IProp* prop, const uint32 data, const bool sync){ return setData(prop, false, DTYPE_UINT32, &data, sizeof(uint32), sync); }
+	virtual bool setPropUint64(const IProp* prop, const uint64 data, const bool sync){ return setData(prop, false, DTYPE_UINT64, &data, sizeof(uint64), sync); }
+	
 	virtual bool setPropFloat(const IProp* prop, const float data, const bool sync){ return setData(prop, false, DTYPE_FLOAT, &data, sizeof(float), sync); }
 	virtual bool setPropString(const IProp* prop, const char* data, const bool sync){
 		if (data == nullptr)
@@ -61,6 +67,12 @@ public:
 	virtual int16 getPropInt16(const IProp* prop) const { int32 size = sizeof(int16); return *(int16*)getData(prop, false, DTYPE_INT16, size); }
 	virtual int32 getPropInt32(const IProp* prop) const { int32 size = sizeof(int32); return *(int32*)getData(prop, false, DTYPE_INT32, size); }
 	virtual int64 getPropInt64(const IProp* prop) const { int32 size = sizeof(int64); return *(int64*)getData(prop, false, DTYPE_INT64, size); }
+
+	virtual uint8 getPropUint8(const IProp* prop) const { int32 size = sizeof(uint8); return *(uint8*)getData(prop, false, DTYPE_UINT8, size); }
+	virtual uint16 getPropUint16(const IProp* prop) const { int32 size = sizeof(uint16); return *(uint16*)getData(prop, false, DTYPE_UINT16, size); }
+	virtual uint32 getPropUint32(const IProp* prop) const { int32 size = sizeof(uint32); return *(uint32*)getData(prop, false, DTYPE_UINT32, size); }
+	virtual uint64 getPropUint64(const IProp* prop) const { int32 size = sizeof(uint64); return *(uint64*)getData(prop, false, DTYPE_UINT64, size); }
+
 	virtual float getPropFloat(const IProp* prop) const { int32 size = sizeof(float); return *(float*)getData(prop, false, DTYPE_FLOAT, size); }
 	virtual const char* getPropString(const IProp* prop) const { int32 size = 0; return (const char*)getData(prop, false, DTYPE_STRING, size); }
 	virtual const void* getPropStruct(const IProp* prop, int32& size) const {size = 0; return getData(prop, false, DTYPE_STRUCT, size); }

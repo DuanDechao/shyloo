@@ -14,7 +14,8 @@ public:
 	virtual bool destory(sl::api::IKernel * pKernel);
 
 	bool installPyScript(const char* resPath, const char* userPath);
-	virtual void appendScriptModuleMethod(PyCFunction f, const char* funcName);
+	virtual void installScriptModuleMethod(PyCFunction f, const char* funcName);
+	virtual void installScriptModuleType(PyTypeObject* scriptType, const char* typeName);
 
 	inline script::PyScript& getScript() { return _script; }
 

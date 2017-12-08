@@ -36,6 +36,8 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IPythonEngine.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/DBType.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/SQLBase.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IEntityDef.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IEntityMgr.h"
 )
 
 SET(SL_LOGIC_DEFINE
@@ -91,4 +93,6 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/startnodestrategy)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/chat)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/gd)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/pythonengine)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/entitydef)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/entitymgr)
 

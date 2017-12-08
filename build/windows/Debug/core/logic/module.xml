@@ -5,7 +5,9 @@
 	<module name="Capacity" />
 	<module name="Monitor" />
 	<module name="DCCenter" />
-	<module name="AttrGetter" />
+	<module name="PythonEngine" />
+	<module name="EntityDef" />
+	<module name="EntityMgr" />
 	<module name="Logic" />
 	<module name="GD" />
 	<module name="Online" />

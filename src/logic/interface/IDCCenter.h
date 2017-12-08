@@ -8,11 +8,18 @@
 #include <vector>
 #define MAX_PROP_NAME_LEN 64
 #define MAX_OBJECT_NAME_LEN 64
+#define MAX_METHOD_NAME_LEN 128
 enum{
-	DTYPE_INT8 = 0,
+	DTYPE_INT8 = 1,
 	DTYPE_INT16,
 	DTYPE_INT32,
 	DTYPE_INT64,
+
+	DTYPE_UINT8,
+	DTYPE_UINT16,
+	DTYPE_UINT32,
+	DTYPE_UINT64,
+
 	DTYPE_STRING,
 
 	DTYPE_CANT_BE_KEY,
@@ -28,6 +35,15 @@ public:
 	virtual const int8 getType(IObject* object) const = 0;
 	virtual const int32 getSetting(IObject* object) const = 0;
 	virtual const int32 getIndex(IObject* object) const = 0;
+};
+
+class IMethod{
+public:
+	virtual const int32 getName() const = 0;
+	virtual const int8 getType(IObject* object) const = 0;
+	virtual const int32 getSetting(IObject* object) const = 0;
+	virtual const int32 getIndex(IObject* object) const = 0;
+	virtual std::vector<uint8> getArgs(IObject* object) const = 0; //只支持最多8个参数
 };
 
 class IRow{
@@ -99,6 +115,11 @@ public:
 	virtual bool setPropInt16(const IProp* prop, const int16 data, const bool sync = true) = 0;
 	virtual bool setPropInt32(const IProp* prop, const int32 data, const bool sync = true) = 0;
 	virtual bool setPropInt64(const IProp* prop, const int64 data, const bool sync = true) = 0;
+	virtual bool setPropUint8(const IProp* prop, const uint8 data, const bool sync = true) = 0;
+	virtual bool setPropUint16(const IProp* prop, const uint16 data, const bool sync = true) = 0;
+	virtual bool setPropUint32(const IProp* prop, const uint32 data, const bool sync = true) = 0;
+	virtual bool setPropUint64(const IProp* prop, const uint64 data, const bool sync = true) = 0;
+
 	virtual bool setPropFloat(const IProp* prop, const float data, const bool sync = true) = 0;
 	virtual bool setPropString(const IProp* prop, const char* data, const bool sync = true) = 0;
 	virtual bool setPropStruct(const IProp* prop, const void* data, const int32 size, const bool sync = true) = 0;
@@ -117,6 +138,12 @@ public:
 	virtual int16 getPropInt16(const IProp* prop) const = 0;
 	virtual int32 getPropInt32(const IProp* prop) const = 0;
 	virtual int64 getPropInt64(const IProp* prop) const = 0;
+
+	virtual uint8 getPropUint8(const IProp* prop) const = 0;
+	virtual uint16 getPropUint16(const IProp* prop) const = 0;
+	virtual uint32 getPropUint32(const IProp* prop) const = 0;
+	virtual uint64 getPropUint64(const IProp* prop) const = 0;
+
 	virtual float getPropFloat(const IProp* prop) const = 0;
 	virtual const char* getPropString(const IProp* prop) const = 0;
 	virtual const void* getPropStruct(const IProp* prop, int32& size) const = 0;
@@ -136,7 +163,6 @@ public:
 	virtual bool rgsPropChangeCB(const IProp* prop, const PropCallBack& cb, const char* info) = 0;
 };
 
-
 class IObjectMgr : public sl::api::IModule
 {
 public:
@@ -150,6 +176,9 @@ public:
 	virtual void recover(IObject* object) = 0;
 	virtual IObject* findObject(const uint64 id) = 0;
 	virtual ITableControl* createStaticTable(const char* name, const char* model, const char* file, const int32 line) = 0;
+	virtual const IProp* appendObjectProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index) = 0;
+	virtual bool appendObjectMethod(const char* objectName, const char* methodName, const int8 type, const int32 setting, const int32 index, vector<uint8>& argsType) = 0;
+	virtual void setObjectTypeSize(const int32 size) = 0;
 };
 
 #define CREATE_OBJECT(mgr, ...) mgr->create(__FILE__, __LINE__, __VA_ARGS__)
