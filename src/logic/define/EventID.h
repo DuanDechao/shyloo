@@ -18,6 +18,14 @@ namespace logic_event{
 		EVENT_WEEK_CHANGED,
 		EVENT_MONTH_CHANGED,
 
+        EVENT_NEW_OBJECT_CREATED,
+        EVENT_CREATE_CELL_ENTITY,
+        EVENT_CELL_ENTITY_CREATED,
+        
+        EVENT_GATE_LOGINED,
+        EVENT_PROXY_ENTITY_CREATED,
+        EVENT_ENTITY_CREATED_FROM_DB_CALLBACK,
+
 		EVENT_LOGIC_PLAYER_RECONNECT = 1000,
 		EVENT_LOGIC_PLAYER_ONLINE,
 		EVENT_LOGIC_PLAYER_FIRST_ONLINE,
@@ -52,6 +60,38 @@ namespace logic_event{
 	struct Biology{
 		IObject* object;
 	};
+
+    struct CreateCellEntity{
+        const char* entityType;
+        uint64 entityId;
+        int32 remoteNodeId;
+    };
+
+    struct CellEntityCreated{
+        uint64 entityId;
+        int32 remoteNodeId;
+    };
+
+    struct GateLoginedInfo{
+        const char* proxyType;
+        uint64 proxyId;
+        int64 agentId;
+    };
+
+    struct ProxyEntityCreated{
+        uint64 proxyId;
+        int64 agentId;
+    };
+
+    struct EntityCreatedFromDBCallBack{
+        const char* entityType;
+        uint64 dbid;
+        uint64 callbackId;
+        uint64 entityId;
+        bool success;
+        bool wasActive;        
+    };
+
 
 	struct DBUpdateFinished{
 

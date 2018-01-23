@@ -5,6 +5,7 @@ INCLUDE_DIRECTORIES(
 	"${PROJECT_SOURCE_DIR}/src/logic/define"
 	"${PROJECT_SOURCE_DIR}/src/sllib/api"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slpyscript"
+	"${PROJECT_SOURCE_DIR}/thirdlibrary/python/linux/include"
 )
 
 SET(ENTITYDEF
@@ -14,12 +15,9 @@ SET(ENTITYDEF
 	"${PROJECT_SOURCE_DIR}/src/logic/entitydef/DataTypeMgr.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/entitydef/EntityDef.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/entitydef/EntityDef.cpp"
-	#"${PROJECT_SOURCE_DIR}/src/logic/entitydef/EntityProp.h"
 	#"${PROJECT_SOURCE_DIR}/src/logic/entitydef/EntityProp.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/entitydef/ScriptDefModule.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/entitydef/ScriptDefModule.cpp"
-	#"${PROJECT_SOURCE_DIR}/src/logic/entitydef/Property.h"
-	#"${PROJECT_SOURCE_DIR}/src/logic/entitydef/Property.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/entitydef/main.cpp"
 )
 
@@ -40,5 +38,9 @@ ADD_LIBRARY(EntityDef SHARED
 IF(WIN32)
 TARGET_LINK_LIBRARIES(EntityDef slxml.lib shyloo.lib)
 ENDIF(WIN32)
+
+IF(UNIX)
+TARGET_LINK_LIBRARIES(EntityDef libpython3.4m.so)
+ENDIF(UNIX)
 
 SET_PROPERTY(TARGET EntityDef PROPERTY FOLDER "logic")

@@ -32,7 +32,7 @@ bool DBCreator::initialize(sl::api::IKernel * pKernel){
 bool DBCreator::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(s_harbor, Harbor);
 	FIND_MODULE(s_eventEngine, EventEngine);
-	if (s_harbor->getNodeType() == NodeType::DATEBASE){
+	if (s_harbor->getNodeType() == NodeType::DATABASE){
 		FIND_MODULE(s_mysqlMgr, MysqlMgr);
 
 		updateDBTables();

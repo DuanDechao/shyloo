@@ -104,7 +104,7 @@ bool ObjectPropInfo::loadProps(const sl::ISLXmlNode& props, PROP_DEFDINE_MAP& de
 	return true;
 }
 
-const IProp* ObjectPropInfo::loadProp(const char* name, const int8 type, const int32 size, const int32 setting, const int32 index){
+const IProp* ObjectPropInfo::loadProp(const char* name, const int8 type, const int32 size, const int32 setting, const int32 index, const int64 extra){
 	PropLayout* layout = NEW PropLayout();
 	layout->_name = name;
 	layout->_offset = _size;
@@ -115,6 +115,7 @@ const IProp* ObjectPropInfo::loadProp(const char* name, const int8 type, const i
 	layout->_isTemp = false;
 	layout->_index = index;
 	layout->_setting = setting;
+    layout->_extra = extra;
 
 	_propLayouts.push_back(layout);
 
@@ -125,7 +126,7 @@ const IProp* ObjectPropInfo::loadProp(const char* name, const int8 type, const i
 	return prop;
 }
 
-bool ObjectPropInfo::loadMethod(const char* name, const int8 type, const int32 setting, const int32 index, vector<uint8>& argsType){
+const IMethod* ObjectPropInfo::loadMethod(const char* name, const int8 type, const int32 setting, const int32 index, vector<uint8>& argsType){
 	MethodLayout* layout = NEW MethodLayout();
 	layout->_name = name;
 	layout->_type = type;
@@ -139,7 +140,7 @@ bool ObjectPropInfo::loadMethod(const char* name, const int8 type, const int32 s
 	_methods.push_back(prop);
 	_selfMethods.push_back(prop);
 
-	return true;
+	return prop;
 }
 
 bool ObjectPropInfo::loadTemps(const sl::ISLXmlNode& temps){

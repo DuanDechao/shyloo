@@ -104,6 +104,11 @@ public:
 		return str;
 	}
 
+	static string& MakeUpper(string& str){
+		transform(str.begin(), str.end(), str.begin(), static_cast<int(*)(int)>(toupper));
+		return str;
+	}
+
 	static string & RepleaceAll(string& str, const string& oldstr, const string& newstr){
 		do{
 			string::size_type pos(0);

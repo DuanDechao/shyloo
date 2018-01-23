@@ -36,6 +36,9 @@ bool Robot::destory(sl::api::IKernel * pKernel){
 }
 
 void Robot::onServerConnected(sl::api::IKernel* pKernel){
+	IBStream<128> outArgs;
+	outArgs << pKernel->getCmdArg("account") << 12;
+	sendToSvr(pKernel, ClientMsgID::CLIENT_MSG_LOGIN_REQ, outArgs.out());
 }
 
 void Robot::onServerDisConnected(sl::api::IKernel* pKernel){

@@ -80,8 +80,9 @@ PyObject* DataTypeMgr::getPyAttrValue(IObject* object, const IProp* prop){
 		PyErr_PrintEx(0);
 
 		S_RELEASE(pyValue);
-		return PyLong_FromLongLong(0);
+		return nullptr;
 	}
+
 	return pyValue;
 }
 

@@ -78,7 +78,12 @@ public:
 	IBStream& operator <<(const int64& val) { return write(val); }
 	IBStream& operator <<(const float& val) { return write(val); }
 
-	IBStream& operator <<(const char* val){
+	IBStream& operator <<(const uint8& val) { return write(val); }
+	IBStream& operator <<(const uint16& val) { return write(val); }
+	IBStream& operator <<(const uint32& val) { return write(val); }
+	IBStream& operator <<(const uint64& val) { return write(val); }
+	
+    IBStream& operator <<(const char* val){
 		int32 size = (int32)strlen(val);
 		if (_offset + size + sizeof(int32)+1 <= maxSize){
 			*this << size;

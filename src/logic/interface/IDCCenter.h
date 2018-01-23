@@ -35,6 +35,7 @@ public:
 	virtual const int8 getType(IObject* object) const = 0;
 	virtual const int32 getSetting(IObject* object) const = 0;
 	virtual const int32 getIndex(IObject* object) const = 0;
+    virtual const int64 getExtra(IObject* object) const = 0;
 };
 
 class IMethod{
@@ -105,10 +106,11 @@ typedef std::function<void(sl::api::IKernel *, IObject *, const char *, const IP
 class IObject{
 public:
     virtual ~IObject() {}
-	virtual const int64 getID() const = 0;
+	virtual const uint64 getID() const = 0;
 
 	virtual const std::vector<const IProp*>& getObjProps(bool noParent = false) const = 0;
 	virtual const char* getObjTypeString() const = 0;
+    virtual const int32 getObjectType() const = 0;
 	virtual bool isShadow() const = 0;
 
 	virtual bool setPropInt8(const IProp* prop, const int8 data, const bool sync = true) = 0;
@@ -176,9 +178,10 @@ public:
 	virtual void recover(IObject* object) = 0;
 	virtual IObject* findObject(const uint64 id) = 0;
 	virtual ITableControl* createStaticTable(const char* name, const char* model, const char* file, const int32 line) = 0;
-	virtual const IProp* appendObjectProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index) = 0;
-	virtual bool appendObjectMethod(const char* objectName, const char* methodName, const int8 type, const int32 setting, const int32 index, vector<uint8>& argsType) = 0;
+	virtual const IProp* appendObjectProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index, const int64 extra) = 0;
+	virtual const IMethod*  appendObjectMethod(const char* objectName, const char* methodName, const int8 type, const int32 setting, const int32 index, vector<uint8>& argsType) = 0;
 	virtual void setObjectTypeSize(const int32 size) = 0;
+    virtual const int32 getObjectType(const char* objectName) = 0;
 };
 
 #define CREATE_OBJECT(mgr, ...) mgr->create(__FILE__, __LINE__, __VA_ARGS__)

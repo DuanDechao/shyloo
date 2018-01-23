@@ -12,6 +12,7 @@ struct PropLayout : public MemLayout{
 	int8	_type;
 	int32	_setting;
 	int32   _index;
+    int64   _extra;
 	sl::SLString<MAX_PROP_NAME_LEN> _name;
 };
 
@@ -26,7 +27,7 @@ struct MethodLayout{
 
 	inline void setArgsType(std::vector<uint8>& argsVec){
 		uint8* args = (uint8*)(_argsType);
-		for (int32 i = 0; i < argsVec.size(); i++){
+		for (int32 i = 0; i < (int32)argsVec.size(); i++){
 			args[i] = argsVec[i];
 		}
 	}
@@ -61,8 +62,8 @@ public:
 	inline const vector<const IProp*>& getObjectProp(bool parenter = false) const { return parenter ? _props : _selfProps; }
 
 	bool loadFrom(const sl::ISLXmlNode& root, PROP_DEFDINE_MAP& defines);
-	const IProp* loadProp(const char* name, const int8 type, const int32 size, const int32 setting, const int32 index);
-	bool loadMethod(const char* name, const int8 type, const int32 setting, const int32 index, vector<uint8>& argsType);
+	const IProp* loadProp(const char* name, const int8 type, const int32 size, const int32 setting, const int32 index, const int64 extra);
+	const IMethod* loadMethod(const char* name, const int8 type, const int32 setting, const int32 index, vector<uint8>& argsType);
 
 	MMObject* create() const;
 	void recover(MMObject* object) const;

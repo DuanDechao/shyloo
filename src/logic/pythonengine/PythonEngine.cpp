@@ -1,13 +1,20 @@
 #include "PythonEngine.h"
 #include "slstring_utils.h"
 #include "slpymacros.h"
+#include "IHarbor.h"
+#include "NodeDefine.h"
 #define ENGINE_MODULE "shyloo"
 bool PythonEngine::initialize(sl::api::IKernel * pKernel){
 	_kernel = pKernel;
 	_self = this;
-	const char* slResPath = "./shyloo";
-	const char* slPyPath = "E:/shyloo/src/sllib/slpyscript/Lib;E:/svr/res;E:/svr/res/entities/base";
-	installPyScript(slResPath, slPyPath);
+	const char* slResPath = "/home/duandechao/shyloo/build/linux";
+	const char* slPyPath = nullptr;
+    if(SLMODULE(Harbor)->getNodeType() == NodeType::LOGIC)
+        slPyPath = "/home/duandechao/shyloo/build/linux/Lib:/home/duandechao/shyloo/build/server/res:/home/duandechao/shyloo/build/server/res/entities/base";
+    if(SLMODULE(Harbor)->getNodeType() == NodeType::SCENE)
+        slPyPath = "/home/duandechao/shyloo/build/linux/Lib:/home/duandechao/shyloo/build/server/res/entities/cell";
+	
+    installPyScript(slResPath, slPyPath);
 	return true;
 }
 

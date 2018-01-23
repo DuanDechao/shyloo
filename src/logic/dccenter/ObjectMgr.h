@@ -16,12 +16,13 @@ public:
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
 
-	virtual const IProp* appendObjectProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index);
+	virtual const IProp* appendObjectProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index, const int64 extra);
 	virtual const IProp* getPropByName(const char* name) const;
 	virtual const IProp* getTempPropByName(const char* name) const;
 	virtual const IProp* getPropByNameId(const int32 name) const;
+    virtual const int32 getObjectType(const char* objectType);
 
-	virtual bool appendObjectMethod(const char* objectName, const char* methodName, const int8 type, const int32 setting, const int32 index, vector<uint8>& argsType);
+	virtual const IMethod* appendObjectMethod(const char* objectName, const char* methodName, const int8 type, const int32 setting, const int32 index, vector<uint8>& argsType);
 
 	virtual void setObjectTypeSize(const int32 size){ _objectTypeSize = size; }
 

@@ -1,24 +1,33 @@
 #ifndef SL_LOGIC_BASE_H
 #define SL_LOGIC_BASE_H
 #include "slikernel.h"
-#include "slscript_object.h"
+#include "ScriptObject.h"
 #include "IEntityMgr.h"
 class IScriptDefModule;
-class Base: public sl::script::ScriptObject{
+class EntityMailBox;
+class Base: public ScriptObject{
 	BASE_SCRIPT_HEADER(Base, ScriptObject)
 public:
-	Base(int32 entityId, IScriptDefModule* pScriptModule, PyTypeObject* pyType = getScriptType(), bool isInitialised = true);
+	Base(uint64 entityId, IScriptDefModule* pScriptModule, PyTypeObject* pyType = getScriptType(), bool isInitialised = true);
 	~Base();
+
+    const uint64 getID() {return _id;}
 	
 	PyObject * onScriptGetAttribute(PyObject* attr);
 	int onScriptSetAttribute(PyObject* attr, PyObject* value);
 
 	static void installScript(const char* name);
+    
+    DECLARE_PY_GET_METHOD(pyGetCellMailBox);
+    DECLARE_PY_MOTHOD_ARG1(createCellEntity, PyObject_ptr);
+    DECLARE_PY_MOTHOD_ARG1(createInNewSpace, PyObject_ptr);
 
-	void initializeScript();
+    void onGetCell(const int32 cellId);
 
 private:
-	int32											_id;
-	IScriptDefModule*								_pScriptModule;
+	uint64											_id;
+    IScriptDefModule*								_pScriptModule;
+    EntityMailBox*                                  _cellMailBox;
+    EntityMailBox*                                  _clientMailBox;
 };
 #endif

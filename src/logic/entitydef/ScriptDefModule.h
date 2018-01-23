@@ -11,16 +11,28 @@
 #define MAX_PROP_NAME_LEN 64
 #define MAX_OBJECT_NAME_LEN 64
 
-struct PropLayout{
+struct PropDefInfo{
 	int8	_type;
 	int32	_flags;
 	int32   _index;
 	int32   _size;
+    int64   _extra;
 	sl::SLString<MAX_PROP_NAME_LEN> _name;
+};
+
+struct MethodDefInfo{
+    int8   _type;
+    int32  _flags;
+    int32  _index;
+    vector<uint8> _argsType;
+    sl::SLString<MAX_PROP_NAME_LEN> _name; 
 };
 
 class IProp;
 class IObject;
+class IMethod;
+class RemoteEntityMethod;
+class EntityMailBox;
 class ScriptDefModule: public IScriptDefModule{
 public:
 	//entity 的数据传输特性标记
@@ -45,6 +57,12 @@ public:
 		ED_FLAG1_MASK = 0xFFFF0000,							//flags掩码
 	};
 
+    enum RemoteMethodType{
+        RMT_CLIENT = 0,
+        RMT_BASE,
+        RMT_CELL,
+    };
+
 	//
 	enum EntityDataFlagRelation{
 		//所有与baseapp有关系的标志
@@ -67,15 +85,20 @@ public:
 	inline bool hasBase() const { return _hasBase; }
 	inline bool hasCell() const { return _hasCell; }
 	inline bool hasClient() const { return _hasClient; }
-	inline const std::vector<PropLayout*>& propLayouts() { return _layouts; }
+	inline const std::vector<PropDefInfo*>& propsDefInfo() { return _propsDefInfo; }
+    inline const std::vector<PropDefInfo*>& methodsDefInfo() {return _methodsDefInfo;}
 
 	inline void setScriptType(PyTypeObject* pyType) { _scriptType = pyType; }
+   
+    virtual PyTypeObject* getScriptType() {return _scriptType;}
+	virtual PyObject* scriptGetObjectAttribute(IObject* object, PyObject* attr);
+	virtual int32 scriptSetObjectAttribute(IObject* object, PyObject* attr, PyObject* value);
+    virtual const IProp* getMethodProp(const int8 mailBoxType, PyObject* attr);
+    
+    bool checkMethodArgs(IObject* object, const IProp* methodProp, PyObject* args);
 
-	virtual PyObject* scriptGetObjectAttribute(PyObject* object, PyObject* attr);
-	virtual int32 scriptSetObjectAttribute(PyObject* object, PyObject* attr, PyObject* value);
-	virtual PyObject* createObject(void);
 	virtual const char* getModuleName() const { return _moduleName.c_str(); }
-	virtual IObject* getMMObject(PyObject* object);
+    virtual PyObject* createPyObject(const uint64 entityId, bool isInitializeScript, bool initProperty);
 
 private:
 	bool loadAllDefDescriptions(const char* moduleName, const sl::ISLXmlNode& root);
@@ -86,21 +109,25 @@ private:
 	bool loadDefMethods(const char* moduleName, const int8 type, const sl::ISLXmlNode& root);
 
 	const IProp* getProp(PyObject* attr);
-	bool appendObjectProp(PropLayout* layout);
-	PyObject* getAttributeValue(IObject* object, const IProp* prop);
-
+	bool appendObjectProp(PropDefInfo* layout, bool isMethod = false);
+    
 private:
 	typedef std::unordered_map<std::string, EntityDataFlags> ENTITY_FLAGS_MAP;
 	//脚本类别
-	PyTypeObject*						_scriptType;
+    PyTypeObject*						_scriptType;
 	sl::SLString<MAX_OBJECT_NAME_LEN>	_moduleName;
-	static ENTITY_FLAGS_MAP				_entityFlagMapping;
+	static ENTITY_FLAGS_MAP				s_entityFlagMapping;
 	bool								_hasBase;
 	bool								_hasCell;
 	bool								_hasClient;
-	std::vector<PropLayout*>			_layouts;
-
+	std::vector<PropDefInfo*>			_propsDefInfo;
+    std::vector<PropDefInfo*>           _methodsDefInfo;
 	//属性字典
 	PyObject*							_propDict;
+    //method Dict:
+    PyObject*                           _cellMethodDict;
+    PyObject*                           _baseMethodDict;
+    PyObject*                           _clientMethodDict;
+    RemoteEntityMethod*                 _remoteEntityMethod;
 };
 #endif

@@ -1,17 +1,22 @@
 #ifndef _SL_INTERFACE_ENTITY_DEF_H__
 #define _SL_INTERFACE_ENTITY_DEF_H__
 #include "slimodule.h"
-#include "slpyscript.h"
+#include "python3.4m/Python.h"
 class IObject;
+class IProp;
 class IScriptDefModule{
 public:
 	virtual ~IScriptDefModule() {}
 
-	virtual PyObject* scriptGetObjectAttribute(PyObject* object, PyObject* attr) = 0;
-	virtual int32 scriptSetObjectAttribute(PyObject* object, PyObject* attr, PyObject* value) = 0;
-	virtual PyObject* createObject(void) = 0;
+	virtual PyObject* scriptGetObjectAttribute(IObject* object, PyObject* attr) = 0;
+	virtual int32 scriptSetObjectAttribute(IObject* object, PyObject* attr, PyObject* value) = 0;
 	virtual const char* getModuleName() const = 0;
-	virtual IObject* getMMObject(PyObject* object) = 0;
+    virtual PyTypeObject* getScriptType() = 0;
+    virtual const IProp* getMethodProp(const int8 mailBoxType, PyObject* attr) = 0;
+    virtual PyObject* createPyObject(const uint64 entityId) = 0;
+    virtual bool hasBase() const  = 0;
+    virtual bool hasCell() const = 0;
+    virtual bool hasClient() const = 0;
 };
 
 class IEntityDef : public sl::api::IModule{
@@ -20,5 +25,6 @@ public:
 
 	virtual void rgsBaseScriptModule(PyTypeObject* type) = 0;
 	virtual IScriptDefModule* findScriptDefModule(const char* moduleName) = 0;
+	virtual IScriptDefModule* findScriptDefModule(const int32 moduleType) = 0;
 };
 #endif

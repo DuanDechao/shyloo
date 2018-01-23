@@ -4,12 +4,13 @@ INCLUDE_DIRECTORIES(
 	"${PROJECT_SOURCE_DIR}/src/logic/interface"
 	"${PROJECT_SOURCE_DIR}/src/logic/define"
 	"${PROJECT_SOURCE_DIR}/src/sllib/api"
-	"${PROJECT_SOURCE_DIR}/src/sllib/slpyscript"
-	"${PROJECT_SOURCE_DIR}/src/sllib/python/Include"
-	"${PROJECT_SOURCE_DIR}/src/sllib/python/PC"
+	"${PROJECT_SOURCE_DIR}/thirdlibrary/python/linux/include"
 )
 
 SET(PYTHON_ENGINE
+    "${PROJECT_SOURCE_DIR}/src/logic/pythonengine/slpymacros.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/pythonengine/slpyscript.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/pythonengine/slpyscript.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/pythonengine/PythonEngine.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/pythonengine/PythonEngine.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/pythonengine/main.cpp"
@@ -32,6 +33,10 @@ ADD_LIBRARY(PythonEngine SHARED
 IF(WIN32)
 TARGET_LINK_LIBRARIES(PythonEngine slxml.lib slpyscript.lib)
 ENDIF(WIN32)
+
+IF(UNIX)
+TARGET_LINK_LIBRARIES(PythonEngine libpython3.4m.so)
+ENDIF(UNIX)
 
 #SET_PROPERTY(TARGET Gate PROPERTY FOLDER "core")
 #SET_PROPERTY(TARGET Gate PROPERTY FOLDER "framework")

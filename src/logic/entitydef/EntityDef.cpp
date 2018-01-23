@@ -5,8 +5,10 @@
 #include "Property.h"
 #include "IDCCenter.h"
 #include "NodeDefine.h"
-#include "slpymacros.h"
+//#include "slpymacros.h"
 #include "IDCCenter.h"
+#include "IHarbor.h"
+#include "NodeProtocol.h"
 
 bool EntityDef::initialize(sl::api::IKernel * pKernel){
 	_self = this;
@@ -25,7 +27,8 @@ bool EntityDef::launched(sl::api::IKernel * pKernel){
 		SLASSERT(false, "wtf");
 		return false;
 	}
-	return true;
+
+    return true;
 }
 
 bool EntityDef::destory(sl::api::IKernel * pKernel){
@@ -34,7 +37,7 @@ bool EntityDef::destory(sl::api::IKernel * pKernel){
 }
 
 bool EntityDef::loadEntitiesConfig(sl::api::IKernel* pKernel){
-	char path[256] = "E:/svr/res/entities/entities.xml";
+	char path[256] = "/home/duandechao/shyloo/build/server/res/entities/entities.xml";
 	sl::XmlReader conf;
 	if (!conf.loadXml(path)){
 		SLASSERT(false, "can not load file %s", path);
@@ -43,7 +46,7 @@ bool EntityDef::loadEntitiesConfig(sl::api::IKernel* pKernel){
 
 	SCRIPT_TYPE_UID uType = 1;
 
-	char defPath[256] = "E:/svr/res/entities/defs";
+	char defPath[256] = "/home/duandechao/shyloo/build/server/res/entities/defs";
 	sl::CFileUtils::ListFileInDirection(defPath, ".xml", [this](const char * name, const char * path) {
 		if (_propConfigsPath.end() != _propConfigsPath.find(name)) {
 			SLASSERT(false, "prop xml name repeated");
@@ -58,7 +61,7 @@ bool EntityDef::loadEntitiesConfig(sl::api::IKernel* pKernel){
 		if (_modelDefMap.find(entity->value()) != _modelDefMap.end())
 			continue;
 
-		//加载module文件的定义
+		//录脫脭脴module脦脛录镁碌脛露篓脪氓
 		loadModuleDef(pKernel, entity->value());
 	}
 
@@ -117,6 +120,12 @@ ScriptDefModule* EntityDef::loadModuleDef(sl::api::IKernel* pKernel, const char*
 		return nullptr;
 	}
 	_modelDefMap[moduleName] = defModule;
+    const int32 modelType = SLMODULE(ObjectMgr)->getObjectType(moduleName);
+    if(modelType < 0 || _typeModelDefMap.find(modelType) != _typeModelDefMap.end()){
+        printf("invaild module type[%s]\n", moduleName);
+    }else{
+        _typeModelDefMap[modelType] = defModule;
+    }
 	return defModule;
 }
 
@@ -129,7 +138,7 @@ ScriptDefModule* EntityDef::queryModuleDef(sl::api::IKernel* pKernel, const char
 }
 
 bool EntityDef::loadAllScriptModules(sl::api::IKernel* pKernel, std::vector<PyTypeObject*>& scriptBaseTypes){
-	char path[256] = "E:/svr/res/entities/entities.xml";
+	char path[256] = "/home/duandechao/shyloo/build/server/res/entities/entities.xml";
 	sl::XmlReader conf;
 	if (!conf.loadXml(path)){
 		SLASSERT(false, "can not load file %s", path);
@@ -140,16 +149,28 @@ bool EntityDef::loadAllScriptModules(sl::api::IKernel* pKernel, std::vector<PyTy
 	for (auto entity : allEntities){
 		std::string moduleName = entity->value();
 		ScriptDefModule* pScriptModule = (ScriptDefModule*)findScriptDefModule(moduleName.c_str());
+
+        if(!pScriptModule){
+            printf("module[%s] not found", moduleName.c_str());
+        }
 		
 		PyObject* pyModule = PyImport_ImportModule(const_cast<char*>(moduleName.c_str()));
 
-		//检查该模块路径是否在脚本目录下
+		//录矛虏茅赂脙脛拢驴茅脗路戮露脢脟路帽脭脷陆脜卤戮脛驴脗录脧脗
 		if (pyModule){
 
 		}
 
 		if (pyModule == NULL){
+           if(isLoadScriptModule(pScriptModule)){
+               ERROR_LOG("could not load module[%s]", moduleName.c_str());
+               PyErr_Print();
+               return false;
+           }
 
+           PyErr_Clear();
+
+           continue; 
 		}
 
 		PyObject* pyClass = PyObject_GetAttrString(pyModule, const_cast<char*>(moduleName.c_str()));
@@ -187,6 +208,27 @@ bool EntityDef::loadAllScriptModules(sl::api::IKernel* pKernel, std::vector<PyTy
 	return true;
 }
 
+bool EntityDef::isLoadScriptModule(ScriptDefModule* defModule){
+    const int32 nodeType = SLMODULE(Harbor)->getNodeType();
+    switch(nodeType){
+    case NodeType::LOGIC:
+        {
+            if(!defModule->hasBase())
+                return false;
+            break;
+        }
+    case NodeType::SCENE:
+        {
+            if(!defModule->hasCell())
+                return false;
+
+            break;
+        }
+    }
+
+    return true;
+}
+
 void EntityDef::rgsBaseScriptModule(PyTypeObject* type){
 	_scriptBaseTypes.push_back(type);
 }
@@ -198,3 +240,12 @@ IScriptDefModule* EntityDef::findScriptDefModule(const char* moduleName){
 	}
 	return itor->second;
 }
+
+IScriptDefModule* EntityDef::findScriptDefModule(const int32 moduleType){
+	auto itor = _typeModelDefMap.find(moduleType);
+	if (itor == _typeModelDefMap.end()){
+		return NULL;
+	}
+	return itor->second;
+}
+

@@ -20,3 +20,10 @@ const int32 ObjectProp::getIndex(IObject* object) const{
 
 	return _layouts[objTypeId - 1]->_index;
 }
+
+const int64 ObjectProp::getExtra(IObject* object) const{
+	int32 objTypeId = ((MMObject*)object)->getObjectPropInfo()->getObjTypeId();
+	SLASSERT(objTypeId > 0 && objTypeId <= _size && _layouts[objTypeId - 1], "wtf");
+    
+    return _layouts[objTypeId -1]->_index;
+}

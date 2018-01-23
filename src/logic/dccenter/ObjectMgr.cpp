@@ -176,8 +176,14 @@ ObjectPropInfo* ObjectMgr::queryTemplate(sl::api::IKernel* pKernel, const char* 
 	return createTemplate(pKernel, objectName);
 }
 
+const int32 ObjectMgr::getObjectType(const char* objectType){
+    auto itor = _objPropInfo.find(objectType);
+    if(itor == _objPropInfo.end())
+        return -1;
+    return itor->second->getObjTypeId();
+}
 
-const IProp* ObjectMgr::appendObjectProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index){
+const IProp* ObjectMgr::appendObjectProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index, const int64 extra){
 	ObjectPropInfo* propInfo = nullptr;
 	auto itor = _objPropInfo.find(objectName);
 	if (itor != _objPropInfo.end()){
@@ -188,7 +194,7 @@ const IProp* ObjectMgr::appendObjectProp(const char* objectName, const char* pro
 		_objPropInfo[objectName] = propInfo;
 	}
 
-	return propInfo->loadProp(propName, type, size, setting, index);
+	return propInfo->loadProp(propName, type, size, setting, index, extra);
 }
 
 const IProp* ObjectMgr::setObjectProp(const char* propName, const int32 objTypeId, PropLayout* layout){
@@ -246,7 +252,7 @@ const IProp* ObjectMgr::getPropByNameId(const int32 name) const{
 	return nullptr;
 }
 
-bool ObjectMgr::appendObjectMethod(const char* objectName, const char* methodName, const int8 type, const int32 setting, const int32 index, vector<uint8>& argsType){
+const IMethod* ObjectMgr::appendObjectMethod(const char* objectName, const char* methodName, const int8 type, const int32 setting, const int32 index, vector<uint8>& argsType){
 	ObjectPropInfo* propInfo = nullptr;
 	auto itor = _objPropInfo.find(objectName);
 	if (itor != _objPropInfo.end()){
@@ -257,12 +263,7 @@ bool ObjectMgr::appendObjectMethod(const char* objectName, const char* methodNam
 		_objPropInfo[objectName] = propInfo;
 	}
 
-	if (!propInfo->loadMethod(methodName, type, setting, index, argsType)){
-		SLASSERT(false, "wtf");
-		return false;
-	}
-
-	return true;
+    return propInfo->loadMethod(methodName, type, setting, index, argsType);
 }
 
 const IMethod* ObjectMgr::setObjectMethod(const char* methodName, const int32 objTypeId, MethodLayout* layout){

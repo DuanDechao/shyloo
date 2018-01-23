@@ -43,6 +43,7 @@ public:
 
 	static PyObject* getPyAttrValue(IObject* object, const IProp* prop);
 	static int32 setPyAttrValue(IObject* object, const IProp* prop, PyObject* value);
+    static bool isDataType(PyObject* args, int8 type){return true;}
 
 private:
 	static DATATYPE_MAP _dataTypes;

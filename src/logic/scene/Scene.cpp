@@ -537,5 +537,4 @@ void Scene::printSceneNodePos(){
 		//ECHO_ERROR("y[%d]:object[%lld:%d] pos[%f, %f, %f]", i,curr->object->getID(), curr->object->getPropInt32(attr_def::logic), curr->object->getPropFloat(attr_def::x), curr->object->getPropFloat(attr_def::y), curr->object->getPropFloat(attr_def::z));
 		curr = curr->next;
 	}
-
 }

@@ -1,7 +1,8 @@
 #ifndef __SL_INTERFACE_PYTHON_ENGINE_H__
 #define __SL_INTERFACE_PYTHON_ENGINE_H__
+#include "python3.4m/Python.h"
+//#include "slpyscript.h"
 #include "slimodule.h"
-#include "slpyscript.h"
 class IPythonEngine : public sl::api::IModule{
 public:
 	virtual ~IPythonEngine() {}
