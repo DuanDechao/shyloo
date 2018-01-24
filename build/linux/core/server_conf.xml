@@ -36,15 +36,12 @@
 	<starter check="2000" dead="10000">
 		<port node="1" start="7241" end="7299" />
 		<out_port node="1" start="7200" end="7210" />
-		<define balance_port="7100" />
-		<node name="gate" type="1" min="2" max="2" rate="90" delay="1000" cmd=" --name=gate --harbor=$port$ --agent=$out_port$ --node_id=$id$" />
-		<node name="logic" type="2" min="2" max="2" rate="90" delay="5000" cmd=" --name=logic --harbor=$port$ --node_id=$id$" />
+		<define name="$balance_port$" value="7100" />
+		<define name="$chat_balance_ip$" value="127.0.0.1" />
+		<define name="$chat_balance_port$" value="17902" />
+		<node name="logic" type="2" min="1" max="1" rate="90" delay="5000" cmd=" --name=logic --harbor=$port$ --node_id=$id$ --agent=$out_port$ " />
 		<node name="scene" type="3" min="1" max="1" rate="90" delay="5000" cmd=" --name=scene --harbor=$port$ --node_id=$id$" />
-		<node name="relation" type="4" min="1" max="1" rate="90" delay="5000" cmd=" --name=relation --harbor=$port$ --node_id=$id$" />
-		<node name="account" type="5" min="1" max="1" rate="90" delay="5000" cmd=" --name=account --harbor=$port$ --node_id=$id$" />
-		<node name="scenemgr" type="6" min="1" max="1" rate="90" delay="5000" cmd=" --name=scenemgr --harbor=$port$ --node_id=$id$" />
 		<node name="db" type="8" min="1" max="1" rate="90" delay="5000" cmd=" --name=db --harbor=$port$ --node_id=$id$" /> 
-		<node name="balance" type="9" min="1" max="1" rate="90" delay="15000" cmd=" --name=balance --harbor=$port$ --agent=$balance_port$ --node_id=$id$" />
 	</starter>
 	
 	<start_strategy>
@@ -89,13 +86,13 @@
 		</step>
 	</shutdown>
 	<master ip="127.0.0.1" port="7700" />
-	<id multiProc="true" server="-2" area="1" poolSize="1000" />
-	<db host="127.0.0.1" port="3306" user="root" pwd="" db="shyloo" charset="utf8" />
+	<id multiProc="false" server="-2" area="1" poolSize="1000" />
+	<db host="10.246.52.235" port="3306" user="mybwaccount" pwd="mybwaccount" db="shyloo" charset="utf8" />
 	<redis>
 		<slave ip="127.0.0.1" port="6379"/>
 	</redis>
 	<loadbroad interval="1000" />
 	<player_mgr save="120000" recover="300000" foreach_count="10" />
 	<sync_rate scene="500" shadow="500" />
-	<balance max_tickets="2000" max_clients="5000"/>
+	<balance max_tickets="0" max_clients="5000"/>
 </core>

@@ -5,5 +5,6 @@
 	<ipc tick="20" />
 	<timer tick="10" />
 	<async tick="10" threadNum="5" />
+	<agent send="163840" recv="163840" />
 	<harbor type="2" />
 </config>

@@ -10,11 +10,13 @@
 //#include "IMmoServer.h"
 #include "GameDefine.h"
 #include "ScriptObject.h"
+#include "IHarbor.h"
 
 ScriptDefModule::ENTITY_FLAGS_MAP	ScriptDefModule::s_entityFlagMapping;
 ScriptDefModule::ScriptDefModule(const char* moduleName, ScriptDefModule* parentModule)
 	:_moduleName(moduleName),
 	_propDict(PyDict_New()),
+    _cellDataDict(nullptr),
     _cellMethodDict(PyDict_New()),
     _baseMethodDict(PyDict_New()),
     _clientMethodDict(PyDict_New()),
@@ -28,6 +30,9 @@ ScriptDefModule::ScriptDefModule(const char* moduleName, ScriptDefModule* parent
 
 ScriptDefModule::~ScriptDefModule(){
 	Py_DECREF(_propDict);
+    Py_DECREF(_cellMethodDict);
+    Py_DECREF(_baseMethodDict);
+    Py_DECREF(_clientMethodDict);
 }
 
 bool ScriptDefModule::initialize(){
@@ -166,6 +171,16 @@ bool ScriptDefModule::loadDefPropertys(const char* moduleName, const sl::ISLXmlN
 				flags |= ED_FLAG1_IDENTIFIER;
 		}
 
+	    int32 nodeType = SLMODULE(Harbor)->getNodeType();
+        if(nodeType == NodeType::SCENE && !_hasCell)
+            continue;
+
+        if(nodeType == NodeType::LOGIC && _hasCell)
+            addToCellDataDict(propName);
+
+        if(nodeType == NodeType::LOGIC && !_hasBase)
+            continue;
+
 		PropDefInfo* info = NEW PropDefInfo();
 		info->_name = propName;
 		info->_size = sizeof(uint64);
@@ -261,21 +276,31 @@ bool ScriptDefModule::appendObjectProp(PropDefInfo* defInfo, bool isMethod){
     return true;
 }
 
-PyObject* ScriptDefModule::scriptGetObjectAttribute(IObject* object, PyObject* attr){
-	const IProp* prop = getProp(attr);
+void ScriptDefModule::addToCellDataDict(const char* propName){
+    if(!_cellDataDict)
+        _cellDataDict = PyDict_New();
+    
+    PyObject* pyValue = PyLong_FromLong(0);
+    PyDict_SetItemString(_cellDataDict, propName, pyValue);
+}
+
+PyObject* ScriptDefModule::scriptGetObjectAttribute(PyObject* object, PyObject* attr){
+	ScriptObject* scriptObject = static_cast<ScriptObject*>(object);
+    const IProp* prop = getProp(attr);
 	if (!prop){
 		return nullptr;
 	}
 
-	return DataTypeMgr::getPyAttrValue(object, prop);
+	return DataTypeMgr::getPyAttrValue(scriptObject->getInnerObject(), prop);
 }
 
-int32 ScriptDefModule::scriptSetObjectAttribute(IObject* object, PyObject* attr, PyObject* value){
-	const IProp* prop = getProp(attr);
+int32 ScriptDefModule::scriptSetObjectAttribute(PyObject* object, PyObject* attr, PyObject* value){
+	ScriptObject* scriptObject = static_cast<ScriptObject*>(object);
+    const IProp* prop = getProp(attr);
 	if (!prop){
 		return -1;
 	}
-	return DataTypeMgr::setPyAttrValue(object, prop, value);
+	return DataTypeMgr::setPyAttrValue(scriptObject->getInnerObject(), prop, value);
 }
 
 const IProp* ScriptDefModule::getProp(PyObject* attr){
@@ -347,5 +372,54 @@ PyObject* ScriptDefModule::createPyObject(const uint64 entityId){
     SCRIPT_ERROR_CHECK();
 
     return obj;
+}
+
+void ScriptDefModule::initializeEntity(PyObject* object, PyObject* dictData){
+    createNameSpace(object, dictData);
+    initializeScript(object);
+}
+
+void ScriptDefModule::createNameSpace(PyObject* object, PyObject* dictData){
+    if(dictData == NULL)
+        return;
+
+    if(!PyDict_Check(dictData)){
+        PyErr_Format(PyExc_AssertionError, "createNameSpace: create failed, args is not dict\n");
+        PyErr_PrintEx(0);
+        return;
+    }
+
+    Py_ssize_t pos = 0;
+    PyObject *key, *value;
+    PyObject * cellDataDict = PyObject_GetAttrString(object, "cellData");
+    if(cellDataDict == NULL)
+        PyErr_Clear();
+
+    while(PyDict_Next(dictData, &pos, &key, &value)){
+        PyObject* val = scriptGetObjectAttribute(object, key);
+        if(val != nullptr){
+            scriptSetObjectAttribute(object, key, value);
+            continue;
+        }
+
+        if(cellDataDict != NULL && PyDict_Contains(cellDataDict, key) > 0)
+            PyDict_SetItem(cellDataDict, key, value);
+        else
+            PyObject_SetAttr(object, key, value);
+    }
+
+    SCRIPT_ERROR_CHECK();
+    Py_XDECREF(cellDataDict);
+}
+
+void ScriptDefModule::initializeScript(PyObject* object){
+	if (PyObject_HasAttrString(object, "__init__")){																									
+		PyObject* pyResult = PyObject_CallMethod(object, const_cast<char*>("__init__"), 
+		const_cast<char*>(""));											
+		if (pyResult != NULL)																			
+			Py_DECREF(pyResult);																		
+		else																							
+			SCRIPT_ERROR_CHECK();																		
+	}																									
 }
 

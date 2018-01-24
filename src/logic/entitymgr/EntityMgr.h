@@ -18,7 +18,7 @@ public:
 	 Base* createBase(const char* entityType, PyObject* params, bool initializeScript = true, const uint64 entityId = 0, bool initProperty = true);
      Entity* createCellEntity(const char* entityType, PyObject* params, bool initializeScript = true, const uint64 entityId = 0, bool initProperty = true);
      Proxy* createProxy(const char* entityType, PyObject* params, bool initializeScript = true, const uint64 entityId = 0, bool initProperty = true);
-	
+
     virtual bool createBaseFromDB(const char* entityType, const uint64 dbid, PyObject* pyCallback);
 
 	static PyObject* __py__createBase(PyObject* self, PyObject* args);
@@ -37,9 +37,8 @@ public:
     void onCreateCellEntityOnCell(sl::api::IKernel* pKernel, const void* context, const int32 size);
     
     void onBaseEventCellEntityCreated(sl::api::IKernel* pKernel, const void* context, const int32 size);
-
-    void onNewPlayerLogined(sl::api::IKernel* pKernel, const void* context, const int32 size);
     void onEntityCreatedFromDB(sl::api::IKernel* pKernel, const void* context, const int32 size);
+    void onNewPlayerLogined(sl::api::IKernel* pKernel, const void* context, const int32 size);
 	void test();
 
     static inline uint64 allocCallbackId(){

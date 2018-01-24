@@ -26,8 +26,11 @@ Base::Base(uint64 entityId, IScriptDefModule* pScriptModule, PyTypeObject* pyTyp
 	_pScriptModule(pScriptModule),
     _cellMailBox(nullptr),
     _clientMailBox(nullptr),
+    _cellDataDict(nullptr),
 	ScriptObject(pyType, pScriptModule->getModuleName(), entityId, isInitialised)
-{}
+{
+    createCellData();
+}
 
 Base::~Base(){
 	SLASSERT(false, "wtf");
@@ -39,7 +42,7 @@ void Base::installScript(const char* name){
 }
 
 PyObject* Base::onScriptGetAttribute(PyObject* attr){
-	PyObject* pyValue = _pScriptModule->scriptGetObjectAttribute(getInnerObject(), attr);
+	PyObject* pyValue = _pScriptModule->scriptGetObjectAttribute(this, attr);
 	if (!pyValue)
 		return ScriptObject::onScriptGetAttribute(attr);
 	return pyValue;
@@ -47,7 +50,7 @@ PyObject* Base::onScriptGetAttribute(PyObject* attr){
 
 int Base::onScriptSetAttribute(PyObject* attr, PyObject* value){
 	int32 ret = 0;
-	if (!_pScriptModule || (ret = _pScriptModule->scriptSetObjectAttribute(getInnerObject(), attr, value)) < 0)
+	if (!_pScriptModule || (ret = _pScriptModule->scriptSetObjectAttribute(this, attr, value)) < 0)
 		return ScriptObject::onScriptSetAttribute(attr, value);
 	return ret;
 }
@@ -102,4 +105,41 @@ void Base::onGetCell(const int32 cellId){
     Py_INCREF(static_cast<PyObject*>(_cellMailBox));
 
     SCRIPT_OBJECT_CALL_ARGS0(this, const_cast<char*>("onGetCell"));   
+}
+
+void Base::createCellData(){
+    if(!_pScriptModule->hasCell() || !installCellDataAttr())
+        return;
+    
+    PyObject* defaultCellData = _pScriptModule->getDefaultCellData(); 
+    Py_ssize_t pos = 0;
+    PyObject *key, *value;
+    while(PyDict_Next(defaultCellData, &pos, &key, &value)){
+        PyDict_SetItem(_cellDataDict, key, value);
+    }
+    SCRIPT_ERROR_CHECK();
+}
+
+bool Base::installCellDataAttr(PyObject* dictData, bool installpy){
+    if(dictData != NULL){
+        if(_cellDataDict != dictData){
+            if(_cellDataDict != NULL)
+                Py_DECREF(_cellDataDict);
+
+            _cellDataDict = dictData;
+            Py_INCREF(_cellDataDict);
+        }
+    }
+
+    if(installpy){
+        if(_cellDataDict == NULL){
+            _cellDataDict = PyDict_New();
+        }
+
+        if(PyObject_SetAttrString(this, "cellData", _cellDataDict) == -1){
+            SCRIPT_ERROR_CHECK();
+            return false;
+        }
+    }
+    return true;
 }

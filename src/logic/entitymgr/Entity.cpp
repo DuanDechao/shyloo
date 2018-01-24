@@ -35,7 +35,7 @@ void Entity::installScript(const char* name){
 }
 
 PyObject* Entity::onScriptGetAttribute(PyObject* attr){
-	PyObject* pyValue = _pScriptModule->scriptGetObjectAttribute(getInnerObject(), attr);
+	PyObject* pyValue = _pScriptModule->scriptGetObjectAttribute(this, attr);
 	if (!pyValue)
 		return ScriptObject::onScriptGetAttribute(attr);
 	return pyValue;
@@ -43,7 +43,7 @@ PyObject* Entity::onScriptGetAttribute(PyObject* attr){
 
 int Entity::onScriptSetAttribute(PyObject* attr, PyObject* value){
 	int32 ret = 0;
-	if (!_pScriptModule || (ret = _pScriptModule->scriptSetObjectAttribute(getInnerObject(), attr, value)) < 0)
+	if (!_pScriptModule || (ret = _pScriptModule->scriptSetObjectAttribute(this, attr, value)) < 0)
 		return ScriptObject::onScriptSetAttribute(attr, value);
 	return ret;
 }

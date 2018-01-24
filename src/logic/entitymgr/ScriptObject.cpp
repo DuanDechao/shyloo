@@ -69,13 +69,3 @@ int ScriptObject::onScriptDelAttribute(PyObject* attr){
 	return this->onScriptSetAttribute(attr, NULL);
 }
 
-void ScriptObject::initializeScript(){
-	if (PyObject_HasAttrString(this, "__init__")){																									
-		PyObject* pyResult = PyObject_CallMethod(this, const_cast<char*>("__init__"), 
-		const_cast<char*>(""));											
-		if (pyResult != NULL)																			
-			Py_DECREF(pyResult);																		
-		else																							
-			SCRIPT_ERROR_CHECK();																		
-	}																									
-}

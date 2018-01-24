@@ -5,6 +5,8 @@
 	<module name="Capacity" />
 	<module name="Monitor" />
 	<module name="EventEngine" />
+	<module name="Account" />
+	<module name="MmoServer" />
 	<module name="MysqlMgr" />
 	<module name="Redis" />
 	<module name="DBCreator" />

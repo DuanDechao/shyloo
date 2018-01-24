@@ -1,0 +1,119 @@
+<root>
+	<ClientName> 		LoginProxy 				</ClientName>
+	<Properties>
+		<avatarInfo>
+			<Type>			PYTHON					</Type>
+			<Flags>			BASE					</Flags>
+			<Persistent>	true					</Persistent>
+			<Default>		{}						</Default>
+		</avatarInfo>
+		<aid>
+			<Type>			STRING					</Type>
+			<Flags>			BASE_AND_CLIENT			</Flags>
+			<Persistent>	true					</Persistent>
+			<Identifier>    true					</Identifier>
+		</aid>
+		<password>
+			<Type>		STRING					</Type>
+			<Flags>		BASE					</Flags>
+		</password>
+		<session>
+			<Type>		STRING					</Type>
+			<Flags>		BASE					</Flags>
+		</session>
+		<lastSessions>
+			<Type>		PYTHON					</Type>
+			<Flags>		BASE					</Flags>
+		</lastSessions>
+		<reservation>
+			<Type>		UINT8					</Type>
+			<Flags>		BASE_AND_CLIENT			</Flags>
+			<Persistent>	true				</Persistent>
+		</reservation>
+		<phone_number>
+			<Type>			STRING				</Type>
+			<Flags>			BASE				</Flags>
+			<Persistent>	true				</Persistent>
+		</phone_number>
+		<phone_number_reward>
+			<Type>			PYTHON				</Type>
+			<Flags>			BASE_AND_CLIENT		</Flags>
+			<Default>		{}					</Default>
+			<Persistent>	true				</Persistent>
+		</phone_number_reward>
+		<marketing_account_reward>
+			<Type>			PYTHON				</Type>
+			<Flags>			BASE				</Flags>
+			<Default>		[]					</Default>
+			<Persistent>	true				</Persistent>
+		</marketing_account_reward>
+		<marketing_prize_record>
+			<Type>			PYTHON				</Type>
+			<Flags>			BASE				</Flags>
+			<Default>		[]					</Default>
+			<Persistent>	true				</Persistent>
+		</marketing_prize_record>
+		<reserved>
+			<Type>			UINT8				</Type>
+			<Flags>			BASE				</Flags>
+			<Persistent>	true				</Persistent>
+			<Default>		0					</Default>
+		</reserved>
+
+		<recruited>
+			<Type>			UINT8				</Type>
+			<Flags>			BASE				</Flags>
+			<Persistent>	true				</Persistent>
+			<Default>		0					</Default>
+		</recruited>
+
+		<invited>
+			<Type>			UINT8				</Type>
+			<Flags>			BASE				</Flags>
+			<Persistent>	true				</Persistent>
+			<Default>		0					</Default>	
+		</invited>
+
+	</Properties>
+	
+	<BaseMethods>
+		<onCopyAvatar>
+			<Arg>		STRING					</Arg>	<!-- playerName -->
+			<Arg>		BLOB					</Arg>	<!-- data -->
+		</onCopyAvatar>
+		
+		<handshake> <Exposed/>
+			<Arg>			STRING				</Arg><!--transferFromServer-->
+			<Arg>			STRING				</Arg><!--session-->
+		</handshake>
+
+		<onBillboard>
+			<Arg>		STRING				</Arg>
+		</onBillboard>
+		
+		<onDuplicateLogin>
+		</onDuplicateLogin>
+		<onCheckReservation> 
+			<Arg>		UINT8					</Arg>	<!-- status -->
+			<Arg>		STRING					</Arg>
+			<Arg>		PYTHON					</Arg>
+		</onCheckReservation>
+
+    </BaseMethods>
+
+	<ClientMethods>
+		<onBillboard>
+			<Arg>		STRING				</Arg>
+		</onBillboard>
+
+		<onNotice>
+			<Arg>		UINT8				</Arg>
+			<Arg>		STRING				</Arg>
+		</onNotice>
+		
+		<onReserved>
+			<Arg>		UINT8					</Arg>
+			<Arg>		STRING					</Arg>
+		</onReserved>
+	</ClientMethods>
+</root>

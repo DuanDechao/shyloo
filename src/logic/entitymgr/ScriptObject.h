@@ -384,8 +384,6 @@ public:
 	//Ω≈±æ±ª–∂‘ÿ ±
 	static void onUninstallScript() {}
 
-    void initializeScript();
-
     inline void setInnerObject(IObject* object) {_innerObject = object;}
     inline IObject* getInnerObject() {return _innerObject;}
 

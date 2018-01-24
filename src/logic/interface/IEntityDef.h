@@ -8,12 +8,15 @@ class IScriptDefModule{
 public:
 	virtual ~IScriptDefModule() {}
 
-	virtual PyObject* scriptGetObjectAttribute(IObject* object, PyObject* attr) = 0;
-	virtual int32 scriptSetObjectAttribute(IObject* object, PyObject* attr, PyObject* value) = 0;
+	virtual PyObject* scriptGetObjectAttribute(PyObject* object, PyObject* attr) = 0;
+	virtual int32 scriptSetObjectAttribute(PyObject* object, PyObject* attr, PyObject* value) = 0;
 	virtual const char* getModuleName() const = 0;
     virtual PyTypeObject* getScriptType() = 0;
     virtual const IProp* getMethodProp(const int8 mailBoxType, PyObject* attr) = 0;
     virtual PyObject* createPyObject(const uint64 entityId) = 0;
+    virtual void initializeEntity(PyObject* object, PyObject* dictData) = 0;
+    virtual PyObject* getDefaultCellData() = 0;
+
     virtual bool hasBase() const  = 0;
     virtual bool hasCell() const = 0;
     virtual bool hasClient() const = 0;

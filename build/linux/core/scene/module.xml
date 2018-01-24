@@ -5,8 +5,12 @@
 	<module name="Capacity" />
 	<module name="Monitor" />
 	<module name="DCCenter" />
-	<module name="AttrGetter" />
-	<module name="IdMgr" />
-	<module name="Scene" />
 	<module name="EventEngine" />
+    <!--<module name="AttrGetter" />-->
+
+	<module name="PythonEngine" />
+	<module name="EntityMgr" />
+	<module name="IdMgr" />
+	<module name="MmoServer" />
+    <!--<module name="Scene" /> -->
 </modules>

@@ -91,14 +91,16 @@ public:
 	inline void setScriptType(PyTypeObject* pyType) { _scriptType = pyType; }
    
     virtual PyTypeObject* getScriptType() {return _scriptType;}
-	virtual PyObject* scriptGetObjectAttribute(IObject* object, PyObject* attr);
-	virtual int32 scriptSetObjectAttribute(IObject* object, PyObject* attr, PyObject* value);
+	virtual PyObject* scriptGetObjectAttribute(PyObject* object, PyObject* attr);
+	virtual int32 scriptSetObjectAttribute(PyObject* object, PyObject* attr, PyObject* value);
     virtual const IProp* getMethodProp(const int8 mailBoxType, PyObject* attr);
     
     bool checkMethodArgs(IObject* object, const IProp* methodProp, PyObject* args);
 
 	virtual const char* getModuleName() const { return _moduleName.c_str(); }
     virtual PyObject* createPyObject(const uint64 entityId);
+    virtual void initializeEntity(PyObject* object, PyObject* dictData);
+    virtual PyObject* getDefaultCellData() {return _cellDataDict;}
 
 private:
 	bool loadAllDefDescriptions(const char* moduleName, const sl::ISLXmlNode& root);
@@ -111,6 +113,10 @@ private:
 	const IProp* getProp(PyObject* attr);
 	bool appendObjectProp(PropDefInfo* layout, bool isMethod = false);
     
+    void createNameSpace(PyObject* object, PyObject* dictData);
+    void initializeScript(PyObject* object);
+    void addToCellDataDict(const char* propName);
+
 private:
 	typedef std::unordered_map<std::string, EntityDataFlags> ENTITY_FLAGS_MAP;
 	//脚本类别
@@ -124,6 +130,7 @@ private:
     std::vector<PropDefInfo*>           _methodsDefInfo;
 	//属性字典
 	PyObject*							_propDict;
+    PyObject*                           _cellDataDict;
     //method Dict:
     PyObject*                           _cellMethodDict;
     PyObject*                           _baseMethodDict;

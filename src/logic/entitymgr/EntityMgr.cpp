@@ -47,8 +47,8 @@ bool EntityMgr::launched(sl::api::IKernel * pKernel){
     }
 
     if(SLMODULE(Harbor)->getNodeType() == NodeType::LOGIC){
-        RGS_EVENT_HANDLER(SLMODULE(EventEngine), logic_event::EVENT_GATE_LOGINED, EntityMgr::onNewPlayerLogined);
         RGS_EVENT_HANDLER(SLMODULE(EventEngine), logic_event::EVENT_ENTITY_CREATED_FROM_DB_CALLBACK, EntityMgr::onEntityCreatedFromDB);
+        RGS_EVENT_HANDLER(SLMODULE(EventEngine), logic_event::EVENT_GATE_LOGINED, EntityMgr::onNewPlayerLogined);
     }
 	
     return true;
@@ -116,7 +116,7 @@ E* EntityMgr::createEntity(const char* entityType, PyObject* params, bool isInit
 	E* entity = onCreateEntity<E>(createId, obj, defModule);
     
     if(isInitializeScript)
-        entity->initializeScript();
+        defModule->initializeEntity(entity, params);
     
     const uint64 eid = entity->getID();
     _entities[eid] = entity;
@@ -273,15 +273,6 @@ void EntityMgr::onBaseEventCellEntityCreated(sl::api::IKernel* pKernel, const vo
     base->onGetCell(evt->remoteNodeId);
 }
 
-void EntityMgr::onNewPlayerLogined(sl::api::IKernel* pKernel, const void* context, const int32 size){
-	SLASSERT(size == sizeof(logic_event::GateLoginedInfo), "wtf");
-    logic_event::GateLoginedInfo* evt = (logic_event::GateLoginedInfo*)context;
-
-    Proxy* proxy = createProxy(evt->proxyType, NULL, true, evt->proxyId);
-    proxy->setAgentId(evt->agentId);
-    proxy->onEntityEnabled();
-}
-
 void EntityMgr::onEntityCreatedFromDB(sl::api::IKernel* pKernel, const void* context, const int32 size){
 	SLASSERT(size == sizeof(logic_event::EntityCreatedFromDBCallBack), "wtf");
     logic_event::EntityCreatedFromDBCallBack* evt = (logic_event::EntityCreatedFromDBCallBack*)context;
@@ -303,6 +294,17 @@ void EntityMgr::onEntityCreatedFromDB(sl::api::IKernel* pKernel, const void* con
         _pyCallbacks.erase(callbackItor);
     }
 }
+
+
+void EntityMgr::onNewPlayerLogined(sl::api::IKernel* pKernel, const void* context, const int32 size){
+	SLASSERT(size == sizeof(logic_event::GateLoginedInfo), "wtf");
+    logic_event::GateLoginedInfo* evt = (logic_event::GateLoginedInfo*)context;
+    
+    Proxy* proxy = createProxy(evt->proxyType, NULL, true, evt->proxyId); 
+    proxy->setAgentId(evt->agentId);
+    proxy->onEntityEnabled();
+}
+
 void EntityMgr::test(){
     printf("py test start++++++++++++++++++++++++++++++++++++++\n");
 	PyRun_SimpleString("from ddddtest import test\ntest()\n");

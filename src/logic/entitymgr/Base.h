@@ -5,6 +5,7 @@
 #include "IEntityMgr.h"
 class IScriptDefModule;
 class EntityMailBox;
+
 class Base: public ScriptObject{
 	BASE_SCRIPT_HEADER(Base, ScriptObject)
 public:
@@ -24,10 +25,16 @@ public:
 
     void onGetCell(const int32 cellId);
 
+    void createCellData(void);
+
+private:
+    bool installCellDataAttr(PyObject* dictData = NULL, bool installpy= true);
+
 private:
 	uint64											_id;
     IScriptDefModule*								_pScriptModule;
     EntityMailBox*                                  _cellMailBox;
     EntityMailBox*                                  _clientMailBox;
+    PyObject*                                       _cellDataDict;
 };
 #endif

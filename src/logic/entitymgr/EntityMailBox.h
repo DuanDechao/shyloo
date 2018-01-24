@@ -15,7 +15,6 @@ public:
 	
 	PyObject * onScriptGetAttribute(PyObject* attr);
 	static void installScript(const char* name){}
-	void initializeScript(){}
 
     inline int8 getType() const {return _type;}
     bool postMail(const OArgs& data);

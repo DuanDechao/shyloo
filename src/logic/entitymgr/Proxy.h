@@ -6,6 +6,7 @@
 #include "Base.h"
 class IScriptDefModule;
 class EntityMailBox;
+
 class Proxy: public Base{
 	BASE_SCRIPT_HEADER(Proxy, Base)
 public:
@@ -20,7 +21,7 @@ public:
     void onEntityEnabled();
 
 private:
-    int64       _agentId;
-    bool        _entityEnabled;
+    int64           _agentId;
+    bool            _entityEnabled;
 };
 #endif
