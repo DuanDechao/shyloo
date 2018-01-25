@@ -62,7 +62,7 @@ public:
 	inline const vector<const IProp*>& getObjectProp(bool parenter = false) const { return parenter ? _props : _selfProps; }
 
 	bool loadFrom(const sl::ISLXmlNode& root, PROP_DEFDINE_MAP& defines);
-	const IProp* loadProp(const char* name, const int8 type, const int32 size, const int32 setting, const int32 index, const int64 extra);
+	const IProp* loadProp(const char* name, const int8 type, const int32 size, const int32 setting, const int32 index, const int64 extra, bool isTemp = false);
 	const IMethod* loadMethod(const char* name, const int8 type, const int32 setting, const int32 index, vector<uint8>& argsType);
 
 	MMObject* create() const;

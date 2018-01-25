@@ -179,6 +179,7 @@ public:
 	virtual IObject* findObject(const uint64 id) = 0;
 	virtual ITableControl* createStaticTable(const char* name, const char* model, const char* file, const int32 line) = 0;
 	virtual const IProp* appendObjectProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index, const int64 extra) = 0;
+	virtual const IProp* appendObjectTempProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index, const int64 extra) = 0;
 	virtual const IMethod*  appendObjectMethod(const char* objectName, const char* methodName, const int8 type, const int32 setting, const int32 index, vector<uint8>& argsType) = 0;
 	virtual void setObjectTypeSize(const int32 size) = 0;
     virtual const int32 getObjectType(const char* objectName) = 0;

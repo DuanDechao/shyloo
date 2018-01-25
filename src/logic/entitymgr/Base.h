@@ -29,6 +29,7 @@ public:
 
 private:
     bool installCellDataAttr(PyObject* dictData = NULL, bool installpy= true);
+    void remoteCreateCellEntity(int32 cellappIdx);
 
 private:
 	uint64											_id;

@@ -123,3 +123,40 @@ int32 DataTypeMgr::setPyAttrValue(IObject* object, const IProp* prop, PyObject* 
 	}
 	return 0;
 }
+
+void DataTypeMgr::addDataToStream(IObject* object, const IProp* prop, sl::IBMap& dataStream, PyObject* value){
+    const int8 dataType = prop->getType(object);
+    switch(dataType){
+        case ScriptDataType::SDTYPE_INT8: dataStream.writeInt8(prop->getName(), (value ? (int8)PyLong_AsLong(value) : object->getPropInt8(prop))); break; 
+        case ScriptDataType::SDTYPE_INT16: dataStream.writeInt16(prop->getName(), (value ? (int16)PyLong_AsLong(value) : object->getPropInt16(prop))); break; 
+        case ScriptDataType::SDTYPE_INT32: dataStream.writeInt32(prop->getName(), (value ? (int32)PyLong_AsLong(value) : object->getPropInt32(prop))); break;
+        case ScriptDataType::SDTYPE_INT64: dataStream.writeInt64(prop->getName(), (value ? (int64)PyLong_AsLongLong(value) : object->getPropInt64(prop))); break;
+        case ScriptDataType::SDTYPE_UINT8: dataStream.writeUint8(prop->getName(), (value ? (uint8)PyLong_AsUnsignedLong(value) : object->getPropUint8(prop))); break;
+        case ScriptDataType::SDTYPE_UINT16: dataStream.writeUint16(prop->getName(), (value ? (uint16)PyLong_AsUnsignedLong(value) : object->getPropUint16(prop))); break;
+        case ScriptDataType::SDTYPE_UINT32: dataStream.writeUint32(prop->getName(), (value ? (uint32)PyLong_AsUnsignedLong(value) : object->getPropUint32(prop))); break;
+        case ScriptDataType::SDTYPE_UINT64: dataStream.writeUint64(prop->getName(), (value ? (uint64)PyLong_AsUnsignedLongLong(value) : object->getPropUint64(prop))); break;
+	
+        case ScriptDataType::SDTYPE_STRING: {
+            char* valStr = (char*)object->getPropString(prop);
+            if(value){
+		        wchar_t* wideCharString = PyUnicode_AsWideCharString(value, NULL);
+		        char* pyVal = sl::CStringUtils::wchar2char(wideCharString);
+		        PyMem_Free(wideCharString);
+		        valStr = pyVal;
+            }
+            dataStream.writeString(prop->getName(), valStr);
+		    break;
+	    }
+
+	    case ScriptDataType::SDTYPE_BLOB:{
+            int32 size = 0;
+            char* context = (char*)object->getPropBlob(prop, size);
+            if(value){
+		        size = PyBytes_GET_SIZE(value);
+		        context = PyBytes_AsString(value);
+            }
+            dataStream.writeBlob(prop->getName(), context, size);
+		    break;
+    	}
+    }    
+}

@@ -17,6 +17,7 @@ public:
 	virtual bool destory(sl::api::IKernel * pKernel);
 
 	virtual const IProp* appendObjectProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index, const int64 extra);
+	virtual const IProp* appendObjectTempProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index, const int64 extra);
 	virtual const IProp* getPropByName(const char* name) const;
 	virtual const IProp* getTempPropByName(const char* name) const;
 	virtual const IProp* getPropByNameId(const int32 name) const;

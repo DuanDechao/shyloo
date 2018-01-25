@@ -14,7 +14,7 @@ public:
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
 
-    virtual bool remoteCreateCellEntity(IObject* object, const int32 cellIdx);
+    virtual bool remoteCreateCellEntity(IObject* object, const int32 cellIdx, const void* cellData, const int32 cellDataSize);
     virtual bool createEntityFromDB(const char* entityName, const uint64 dbid, const uint64 callbackId, const uint64 entityId);
 	
     virtual void onGateLogined(sl::api::IKernel* pKernel, const int64 id);

@@ -4,6 +4,7 @@
 #include "slscript_object.h"
 #include "DataType.h"
 #include "IDCCenter.h"
+#include "slbinary_map.h"
 class IObject;
 class IProp;
 class DataTypeMgr{

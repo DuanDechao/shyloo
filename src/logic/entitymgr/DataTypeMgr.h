@@ -5,6 +5,8 @@
 #include "DataType.h"
 #include "IDCCenter.h"
 #include <unordered_map>
+#include "slbinary_map.h"
+
 class IObject;
 class IProp;
 class DataTypeMgr{
@@ -45,6 +47,7 @@ public:
 	static PyObject* getPyAttrValue(IObject* object, const IProp* prop);
 	static int32 setPyAttrValue(IObject* object, const IProp* prop, PyObject* value);
     static bool isDataType(PyObject* args, int8 type){return true;}
+    static void addDataToStream(IObject* object, const IProp* prop, sl::IBMap& dataStream, PyObject* value = NULL);
 
 private:
 	static DATATYPE_MAP _dataTypes;

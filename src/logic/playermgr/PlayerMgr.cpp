@@ -196,7 +196,7 @@ bool PlayerMgr::savePlayer(sl::api::IKernel* pKernel, IObject* player){
 		context->writeInt8("occupation", player->getPropInt8(attr_def::occupation));
 		context->writeInt8("sex", player->getPropInt8(attr_def::sex));
 
-		sl::IBMap<4096, 4096> props;
+		sl::BMap<4096, 4096> props;
 		for (const IProp* prop : player->getObjProps()){
 			int32 setting = prop->getSetting(player);
 			if ((setting & prop_def::save) && (setting & prop_def::blob)){

@@ -77,8 +77,7 @@ PyObject* Base::createCellEntity(PyObject* pyObj){
         return 0;
     }
     
-    IObject* innerObject = getInnerObject();
-    SLMODULE(BaseApp)->remoteCreateCellEntity(innerObject, cellMailBox->getRemoteNodeId());
+    remoteCreateCellEntity(cellMailBox->getRemoteNodeId());
     printf("prepare creating cell entity...................................\n");
     S_Return;
 }
@@ -88,9 +87,17 @@ PyObject* Base::createInNewSpace(PyObject* args){
     if(PyLong_Check(args))
         cellappIndex = (int32)PyLong_AsUnsignedLong(args);
     
-    IObject* innerObject = getInnerObject();
-    SLMODULE(BaseApp)->remoteCreateCellEntity(innerObject, cellappIndex);
+    remoteCreateCellEntity(cellappIndex);
     S_Return;
+}
+
+void Base::remoteCreateCellEntity(int32 cellappIdx){
+    sl::BMap<1024, 1024> cellDataStream;
+    _pScriptModule->addCellDataToStream(this, _cellDataDict, cellDataStream);
+    cellDataStream.fix();
+
+    IObject* innerObject = getInnerObject();
+    SLMODULE(BaseApp)->remoteCreateCellEntity(innerObject, cellappIdx, cellDataStream.getContext(), cellDataStream.getSize());
 }
 
 void Base::onGetCell(const int32 cellId){
@@ -110,14 +117,8 @@ void Base::onGetCell(const int32 cellId){
 void Base::createCellData(){
     if(!_pScriptModule->hasCell() || !installCellDataAttr())
         return;
-    
-    PyObject* defaultCellData = _pScriptModule->getDefaultCellData(); 
-    Py_ssize_t pos = 0;
-    PyObject *key, *value;
-    while(PyDict_Next(defaultCellData, &pos, &key, &value)){
-        PyDict_SetItem(_cellDataDict, key, value);
-    }
-    SCRIPT_ERROR_CHECK();
+   
+    _pScriptModule->setDefaultCellData(_cellDataDict); 
 }
 
 bool Base::installCellDataAttr(PyObject* dictData, bool installpy){

@@ -104,7 +104,7 @@ bool ObjectPropInfo::loadProps(const sl::ISLXmlNode& props, PROP_DEFDINE_MAP& de
 	return true;
 }
 
-const IProp* ObjectPropInfo::loadProp(const char* name, const int8 type, const int32 size, const int32 setting, const int32 index, const int64 extra){
+const IProp* ObjectPropInfo::loadProp(const char* name, const int8 type, const int32 size, const int32 setting, const int32 index, const int64 extra, bool isTemp){
 	PropLayout* layout = NEW PropLayout();
 	layout->_name = name;
 	layout->_offset = _size;
@@ -112,16 +112,20 @@ const IProp* ObjectPropInfo::loadProp(const char* name, const int8 type, const i
 	layout->_size = size;
 
 	_size += layout->_size;
-	layout->_isTemp = false;
+	layout->_isTemp = isTemp;
 	layout->_index = index;
 	layout->_setting = setting;
     layout->_extra = extra;
 
 	_propLayouts.push_back(layout);
 
-	const IProp * prop = ObjectMgr::getInstance()->setObjectProp(layout->_name.c_str(), _objTypeId, (*_propLayouts.rbegin()));
-	_props.push_back(prop);
-	_selfProps.push_back(prop);
+	const IProp * prop = isTemp ? ObjectMgr::getInstance()->setObjectTempProp(layout->_name.c_str(), _objTypeId, (*_propLayouts.rbegin())) :
+        ObjectMgr::getInstance()->setObjectProp(layout->_name.c_str(), _objTypeId, (*_propLayouts.rbegin()));
+	
+    if(!isTemp){
+        _props.push_back(prop);
+	    _selfProps.push_back(prop);
+    }
 
 	return prop;
 }

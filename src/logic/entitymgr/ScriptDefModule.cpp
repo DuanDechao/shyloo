@@ -16,7 +16,7 @@ ScriptDefModule::ENTITY_FLAGS_MAP	ScriptDefModule::s_entityFlagMapping;
 ScriptDefModule::ScriptDefModule(const char* moduleName, ScriptDefModule* parentModule)
 	:_moduleName(moduleName),
 	_propDict(PyDict_New()),
-    _cellDataDict(nullptr),
+    _cellPropDict(PyDict_New()),
     _cellMethodDict(PyDict_New()),
     _baseMethodDict(PyDict_New()),
     _clientMethodDict(PyDict_New()),
@@ -172,13 +172,7 @@ bool ScriptDefModule::loadDefPropertys(const char* moduleName, const sl::ISLXmlN
 		}
 
 	    int32 nodeType = SLMODULE(Harbor)->getNodeType();
-        if(nodeType == NodeType::SCENE && !_hasCell)
-            continue;
-
-        if(nodeType == NodeType::LOGIC && _hasCell)
-            addToCellDataDict(propName);
-
-        if(nodeType == NodeType::LOGIC && !_hasBase)
+        if(nodeType == NodeType::SCENE && !hasCellFlags)
             continue;
 
 		PropDefInfo* info = NEW PropDefInfo();
@@ -235,14 +229,15 @@ bool ScriptDefModule::loadDefMethods(const char* moduleName, const int8 type, co
         info->_extra = 0;
         _methodsDefInfo.push_back(info);
 
-        appendObjectProp(info, true);    
+        appendObjectProp(info, true, true);    
 	}
 
 	return true;
 }
 
-bool ScriptDefModule::appendObjectProp(PropDefInfo* defInfo, bool isMethod){
-	const IProp* prop = SLMODULE(ObjectMgr)->appendObjectProp(_moduleName.c_str(), defInfo->_name.c_str(), defInfo->_type, defInfo->_size, defInfo->_flags, defInfo->_index, defInfo->_extra);
+bool ScriptDefModule::appendObjectProp(PropDefInfo* defInfo, bool isMethod, bool isTemp){
+	const IProp* prop = isTemp ? SLMODULE(ObjectMgr)->appendObjectTempProp(_moduleName.c_str(), defInfo->_name.c_str(), defInfo->_type, defInfo->_size, defInfo->_flags, defInfo->_index, defInfo->_extra) : 
+        SLMODULE(ObjectMgr)->appendObjectProp(_moduleName.c_str(), defInfo->_name.c_str(), defInfo->_type, defInfo->_size, defInfo->_flags, defInfo->_index, defInfo->_extra);
 	if (!prop){
 		SLASSERT(false, "wtf");
 		return false;
@@ -272,16 +267,16 @@ bool ScriptDefModule::appendObjectProp(PropDefInfo* defInfo, bool isMethod){
 	PyDict_SetItem(dict, pykey, pyPropPtr);
 	Py_DECREF(pykey);
 	Py_DECREF(pyPropPtr);
+
+    //¿¿base¿celldata
+	uint32 hasCellFlags = defInfo->_flags & ENTITY_CELL_DATA_FLAGS;
+    if(SLMODULE(Harbor)->getNodeType() == NodeType::LOGIC && hasCellFlags && !isMethod){
+        PyDict_SetItem(_cellPropDict, pykey, pyPropPtr);
+        Py_DECREF(pykey);
+        Py_DECREF(pyPropPtr);
+    }
 	
     return true;
-}
-
-void ScriptDefModule::addToCellDataDict(const char* propName){
-    if(!_cellDataDict)
-        _cellDataDict = PyDict_New();
-    
-    PyObject* pyValue = PyLong_FromLong(0);
-    PyDict_SetItemString(_cellDataDict, propName, pyValue);
 }
 
 PyObject* ScriptDefModule::scriptGetObjectAttribute(PyObject* object, PyObject* attr){
@@ -423,3 +418,41 @@ void ScriptDefModule::initializeScript(PyObject* object){
 	}																									
 }
 
+void ScriptDefModule::setDefaultCellData(PyObject* dataDict){
+    Py_ssize_t pos = 0;
+    PyObject *key, *value;
+    while(PyDict_Next(_cellPropDict, &pos, &key, &value)){
+	    if (!value){
+            PyErr_Format(PyExc_AssertionError, "SetDefaultCellData:getCellPropData Prop is null!\n");
+            PyErr_PrintEx(0);
+		    return;
+	    }
+	    const IProp* cellProp = (const IProp*)PyLong_AsVoidPtr(value);
+        PyObject* pyValue = PyLong_FromLong(0);
+        PyDict_SetItem(dataDict, key, pyValue);
+    }
+
+    SCRIPT_ERROR_CHECK();
+}
+
+void ScriptDefModule::addCellDataToStream(PyObject* object, PyObject* cellDataDict, sl::IBMap& dataStream){
+	ScriptObject* scriptObject = static_cast<ScriptObject*>(object);
+    IObject* innerObject = scriptObject->getInnerObject();
+
+    Py_ssize_t pos = 0;
+    PyObject *key, *value;
+    while(PyDict_Next(_cellPropDict, &pos, &key, &value)){
+	    if (!value){
+            PyErr_Format(PyExc_AssertionError, "SetDefaultCellData:getCellPropData Prop is null!\n");
+            PyErr_PrintEx(0);
+		    return;
+	    }
+	    const IProp* cellProp = (const IProp*)PyLong_AsVoidPtr(value);
+        
+        PyObject* pyValue = NULL;
+        if(PyDict_Contains(cellDataDict, key) > 0)
+            pyValue = PyDict_GetItem(cellDataDict, key);
+
+        DataTypeMgr::addDataToStream(innerObject, cellProp, dataStream, pyValue);
+    }
+}

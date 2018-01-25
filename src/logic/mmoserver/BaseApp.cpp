@@ -52,14 +52,15 @@ int32 BaseApp::onGateMsgRecv(sl::api::IKernel* pKernel, const int64 id, const vo
 void BaseApp::onGateUnbind(sl::api::IKernel* pKernel, const int64 id){
 }
 
-bool BaseApp::remoteCreateCellEntity(IObject* object, const int32 cellIdx){
+bool BaseApp::remoteCreateCellEntity(IObject* object, const int32 cellIdx, const void* cellData, const int32 cellDataSize){
     if(SLMODULE(Harbor)->getNodeType() != NodeType::LOGIC)
         return false;
 
     const char* entityType = object->getObjTypeString();
-    IArgs<20, 1000> args;
+    IArgs<20, 2048> args;
     args << entityType;
     args << object->getID();
+    args.addStruct(cellData, cellDataSize);
     args.fix();
     SLMODULE(Harbor)->send(NodeType::SCENE, cellIdx, NodeProtocol::BASE_MSG_CREATE_CELL_ENTITY, args.out());
     

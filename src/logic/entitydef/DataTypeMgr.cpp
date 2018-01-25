@@ -98,7 +98,7 @@ int32 DataTypeMgr::setPyAttrValue(IObject* object, const IProp* prop, PyObject* 
 	case ScriptDataType::SDTYPE_UINT32: object->setPropUint32(prop, (uint32)PyLong_AsUnsignedLong(value)); break;
 	case ScriptDataType::SDTYPE_UINT64: object->setPropUint64(prop, (uint64)PyLong_AsUnsignedLongLong(value)); break;
 	case ScriptDataType::SDTYPE_STRING: {
-		wchar_t*wideCharString = PyUnicode_AsWideCharString(value, NULL);
+		wchar_t* wideCharString = PyUnicode_AsWideCharString(value, NULL);
 		char* valStr = sl::CStringUtils::wchar2char(wideCharString);
 		PyMem_Free(wideCharString);
 		object->setPropString(prop, valStr); 
@@ -120,4 +120,41 @@ int32 DataTypeMgr::setPyAttrValue(IObject* object, const IProp* prop, PyObject* 
 		return -3;
 	}
 	return 0;
+}
+
+void DataTypeMgr::addDataToStream(IObject* object, const IProp* prop, sl::IBMap& dataStream, PyObject* value){
+    const int8 dataType = prop->getType(object);
+    switch(dataType){
+        case ScriptDataType::SDTYPE_INT8: int8 val = (value ? (int8)PyLong_AsLong(value) : object->getPropInt8(prop)); dataStream.writeInt8(prop->getName(), val); break; 
+        case ScriptDataType::SDTYPE_INT16: int16 val = (value ? (int16)PyLong_AsLong(value) : object->getPropInt16(prop)); dataStream.writeInt16(prop->getName(), val); break; 
+        case ScriptDataType::SDTYPE_INT32: int32 val = (value ? (int32)PyLong_AsLong(value) : object->getPropInt32(prop)); dataStream.writeInt32(prop->getName(), val); break;
+        case ScriptDataType::SDTYPE_INT64: int64 val = (value ? (int64)PyLong_AsLongLong(value) : object->getPropInt64(prop)); dataStream.writeInt64(prop->getName(), val); break;
+        case ScriptDataType::SDTYPE_UINT8: uint8 val = (value ? (uint8)PyLong_AsUnsignedLong(value) : object->getPropUint8(prop)); dataStream.writeUint8(prop->getName(), val); break;
+        case ScriptDataType::SDTYPE_UINT16: uint16 val = (value ? (uint16)PyLong_AsUnsignedLong(value) : object->getPropUint16(prop)); dataStream.writeUint16(prop->getName(), val); break;
+        case ScriptDataType::SDTYPE_UINT32: uint32 val = (value ? (uint32)PyLong_AsUnsignedLong(value) : object->getPropUint32(prop)); dataStream.writeUint32(prop->getName(), val); break;
+        case ScriptDataType::SDTYPE_UINT64: uint64 val = (value ? (uint64)PyLong_AsUnsignedLongLong(value) : object->getPropUint64(prop)); dataStream.writeUint64(prop->getName(), val); break;
+	
+        case ScriptDataType::SDTYPE_STRING: {
+            char* valStr = object->getPropString(prop);
+            if(value){
+		        wchar_t* wideCharString = PyUnicode_AsWideCharString(value, NULL);
+		        char* pyVal = sl::CStringUtils::wchar2char(wideCharString);
+		        PyMem_Free(wideCharString);
+		        valStr = pyVal;
+            }
+            dataStream.writeString(prop->getName(), valStr);
+		    break;
+	    }
+
+	    case ScriptDataType::SDTYPE_BLOB:{
+            int32 size = 0;
+            char* context = (char*)object->getPropBlob(prop, size);
+            if(value){
+		        size = PyBytes_GET_SIZE(value);
+		        context = PyBytes_AsString(value);
+            }
+            dataStream.writeBlob(prop->getName(), context, size);
+		    break;
+    	}
+    }    
 }

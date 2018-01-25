@@ -100,7 +100,8 @@ public:
 	virtual const char* getModuleName() const { return _moduleName.c_str(); }
     virtual PyObject* createPyObject(const uint64 entityId);
     virtual void initializeEntity(PyObject* object, PyObject* dictData);
-    virtual PyObject* getDefaultCellData() {return _cellDataDict;}
+    virtual void setDefaultCellData(PyObject* dataDict);
+    virtual void addCellDataToStream(PyObject* object, PyObject* cellDataDict, sl::IBMap& dataStream);
 
 private:
 	bool loadAllDefDescriptions(const char* moduleName, const sl::ISLXmlNode& root);
@@ -111,11 +112,10 @@ private:
 	bool loadDefMethods(const char* moduleName, const int8 type, const sl::ISLXmlNode& root);
 
 	const IProp* getProp(PyObject* attr);
-	bool appendObjectProp(PropDefInfo* layout, bool isMethod = false);
+    bool appendObjectProp(PropDefInfo* layout, bool isMethod = false, bool isTemp = false);
     
     void createNameSpace(PyObject* object, PyObject* dictData);
     void initializeScript(PyObject* object);
-    void addToCellDataDict(const char* propName);
 
 private:
 	typedef std::unordered_map<std::string, EntityDataFlags> ENTITY_FLAGS_MAP;
@@ -130,7 +130,7 @@ private:
     std::vector<PropDefInfo*>           _methodsDefInfo;
 	//ÊôÐÔ×Öµä
 	PyObject*							_propDict;
-    PyObject*                           _cellDataDict;
+    PyObject*                           _cellPropDict;
     //method Dict:
     PyObject*                           _cellMethodDict;
     PyObject*                           _baseMethodDict;
