@@ -69,25 +69,25 @@ void PropDelaySender::onPlayerReconnect(sl::api::IKernel* pKernel, const void* c
 
 void PropDelaySender::syncToSelf(sl::api::IKernel* pKernel, IObject* object, const char* name, const IProp* prop, const bool sync){
 	int32 setting = prop->getSetting(object);
-	if (setting & prop_def::visible){
+	//if (setting & prop_def::){
 		ITableControl* propSelf = object->findTable(OCTableMacro::PROP_SELF_TABLE::TABLE_NAME);
 		SLASSERT(propSelf, "wtf");
 
 		const IRow* findRow = propSelf->findRow((int64)prop);
 		if (!findRow)
 			propSelf->addRowKeyInt64((int64)prop);
-	}
+	//}
 }
 void PropDelaySender::syncToOthers(sl::api::IKernel* pKernel, IObject* object, const char* name, const IProp* prop, const bool sync){
 	int32 setting = prop->getSetting(object);
-	if (setting & prop_def::share){
+	//if (setting & prop_def::share){
 		ITableControl* propShared = object->findTable(OCTableMacro::PROP_SHARED_TABLE::TABLE_NAME);
 		SLASSERT(propShared, "wtf");
 
 		const IRow* findRow = propShared->findRow((int64)prop);
 		if (!findRow)
 			propShared->addRowKeyInt64((int64)prop);
-	}
+	//}
 }
 
 void PropDelaySender::sendToSelf(sl::api::IKernel* pKernel, IObject* object){

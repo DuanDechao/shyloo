@@ -33,7 +33,6 @@ private:
 
 private:
 	uint64											_id;
-    IScriptDefModule*								_pScriptModule;
     EntityMailBox*                                  _cellMailBox;
     EntityMailBox*                                  _clientMailBox;
     PyObject*                                       _cellDataDict;

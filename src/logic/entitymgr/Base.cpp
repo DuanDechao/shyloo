@@ -23,11 +23,10 @@ SCRIPT_GETSET_DECLARE_END()
 BASE_SCRIPT_INIT(Base, 0, 0, 0, 0, 0)
 Base::Base(uint64 entityId, IScriptDefModule* pScriptModule, PyTypeObject* pyType, bool isInitialised)
 	:_id(entityId),
-	_pScriptModule(pScriptModule),
     _cellMailBox(nullptr),
     _clientMailBox(nullptr),
     _cellDataDict(nullptr),
-	ScriptObject(pyType, pScriptModule->getModuleName(), entityId, isInitialised)
+	ScriptObject(pyType, pScriptModule->getModuleName(), entityId, pScriptModule, isInitialised)
 {
     createCellData();
 }
@@ -106,8 +105,7 @@ void Base::onGetCell(const int32 cellId){
         return;
     }
 
-    IObject* innerObject = getInnerObject();
-    _cellMailBox = NEW EntityMailBox(EntityMailBoxType::MAILBOX_TYPE_CELL, NodeType::SCENE, cellId, innerObject->getID(), innerObject->getObjectType());
+    _cellMailBox = NEW EntityMailBox(EntityMailBoxType::MAILBOX_TYPE_CELL, NodeType::SCENE, cellId, getInnerObject(), _pScriptModule);
 
     Py_INCREF(static_cast<PyObject*>(_cellMailBox));
 

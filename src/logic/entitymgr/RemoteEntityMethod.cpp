@@ -13,7 +13,7 @@ SCRIPT_GETSET_DECLARE_END()
 
 SCRIPT_INIT(RemoteEntityMethod, tp_call, 0, 0, 0, 0)
 RemoteEntityMethod::RemoteEntityMethod(EntityMailBox* mailBox, const IProp* prop, const char* methodName)
-    :ScriptObject(getScriptType(), nullptr, 0, false),
+    :ScriptObject(getScriptType(), nullptr, 0, nullptr, false),
      _mailBox(mailBox),
      _prop(prop),
      _methodName(methodName)
@@ -23,7 +23,7 @@ PyObject * RemoteEntityMethod::tp_call(PyObject* self, PyObject* args, PyObject*
     RemoteEntityMethod* rMethod = static_cast<RemoteEntityMethod*>(self);
     EntityMailBox* mailbox = rMethod->getMailBox();
     IScriptDefModule* scriptDefModule = mailbox->getScriptDefModule();
-    IObject* object = mailbox->getMMObject();
+    IObject* object = mailbox->getInnerObject();
     const IProp* methodProp = rMethod->getMethodProp();
   //  if(scriptDefModule->checkMethodArgs(mailbox->getMMObject(), methodProp, args)){
         IArgs<10, 1000> inArgs;

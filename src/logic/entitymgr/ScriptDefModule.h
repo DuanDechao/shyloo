@@ -8,6 +8,8 @@
 #include <vector>
 #include "slxml_reader.h"
 #include "IEntityDef.h"
+#include "Attr.h"
+
 #define MAX_PROP_NAME_LEN 64
 #define MAX_OBJECT_NAME_LEN 64
 
@@ -36,26 +38,6 @@ class EntityMailBox;
 class ScriptDefModule: public IScriptDefModule{
 public:
 	//entity 的数据传输特性标记
-	enum EntityDataFlags{
-		ED_FLAG_UNKNOWN = 0x00000000,						//未定义
-		ED_FLAG_CELL_PUBLIC = 0x00000001,					//相关所有cell广播
-		ED_FLAG_CELL_PRIVATE = 0x00000002,					//当前cell
-		ED_FLAG_ALL_CLIENTS = 0x00000004,					//cell广播与所有客户端
-		ED_FLAG_CELL_PUBLIC_AND_OWN = 0x00000008,			//cell广播与自己的客户端
-		ED_FLAG_OWN_CLIENT = 0x00000010,					//当前cell和客户端
-		ED_FLAG_BASE_AND_CLIENT = 0x00000020,				//base和客户端
-		ED_FLAG_BASE = 0x00000040,							//当前base
-		ED_FLAG_OTHER_CLIENTS = 0x00000080,					//cell广播和其他客户端
-		ED_FLAG_MASK = 0x0000FFFF,							//flags掩码
-	};
-
-	//entity其他属性标记
-	enum EntityDataFlags1{
-		ED_FLAG1_UNKNOWN = 0x00000000,						//未定义
-		ED_FLAG1_PERSISTENT = 0x00010000,					//是否存储数据库
-		ED_FLAG1_IDENTIFIER = 0x00020000,					//是否是标识
-		ED_FLAG1_MASK = 0xFFFF0000,							//flags掩码
-	};
 
     enum RemoteMethodType{
         RMT_CLIENT = 0,
@@ -66,11 +48,11 @@ public:
 	//
 	enum EntityDataFlagRelation{
 		//所有与baseapp有关系的标志
-		ENTITY_BASE_DATA_FLAGS = ED_FLAG_BASE | ED_FLAG_BASE_AND_CLIENT,
+		ENTITY_BASE_DATA_FLAGS = prop_def::EntityDataFlag::BASE | prop_def::EntityDataFlag::BASE_AND_CLIENT,
 		//所有与cellapp相关的标志
-		ENTITY_CELL_DATA_FLAGS = ED_FLAG_CELL_PUBLIC | ED_FLAG_CELL_PRIVATE | ED_FLAG_ALL_CLIENTS | ED_FLAG_CELL_PUBLIC_AND_OWN | ED_FLAG_OTHER_CLIENTS | ED_FLAG_OWN_CLIENT,
+		ENTITY_CELL_DATA_FLAGS = prop_def::EntityDataFlag::CELL_PUBLIC | prop_def::EntityDataFlag::CELL_PRIVATE | prop_def::EntityDataFlag::ALL_CLIENTS | prop_def::EntityDataFlag::CELL_PUBLIC_AND_OWN | prop_def::EntityDataFlag::OTHER_CLIENTS | prop_def::EntityDataFlag::OWN_CLIENT,
 		//所有与client有关的标志
-		ENTITY_CLIENT_DATA_FLAGS = ED_FLAG_BASE_AND_CLIENT | ED_FLAG_ALL_CLIENTS | ED_FLAG_CELL_PUBLIC_AND_OWN | ED_FLAG_OTHER_CLIENTS | ED_FLAG_OWN_CLIENT,
+		ENTITY_CLIENT_DATA_FLAGS = prop_def::EntityDataFlag::BASE_AND_CLIENT | prop_def::EntityDataFlag::ALL_CLIENTS | prop_def::EntityDataFlag::CELL_PUBLIC_AND_OWN | prop_def::EntityDataFlag::OTHER_CLIENTS | prop_def::EntityDataFlag::OWN_CLIENT,
 		//
 	};
 
@@ -87,7 +69,6 @@ public:
 	virtual bool hasClient() const { return _hasClient; }
 	inline const std::vector<PropDefInfo*>& propsDefInfo() { return _propsDefInfo; }
     inline const std::vector<PropDefInfo*>& methodsDefInfo() {return _methodsDefInfo;}
-
 	inline void setScriptType(PyTypeObject* pyType) { _scriptType = pyType; }
    
     virtual PyTypeObject* getScriptType() {return _scriptType;}
@@ -102,6 +83,7 @@ public:
     virtual void initializeEntity(PyObject* object, PyObject* dictData);
     virtual void setDefaultCellData(PyObject* dataDict);
     virtual void addCellDataToStream(PyObject* object, PyObject* cellDataDict, sl::IBMap& dataStream);
+    virtual bool createCellDataFromStream(PyObject* object, const void* cellData, const int32 cellDataSize);
 
 private:
 	bool loadAllDefDescriptions(const char* moduleName, const sl::ISLXmlNode& root);
@@ -118,7 +100,7 @@ private:
     void initializeScript(PyObject* object);
 
 private:
-	typedef std::unordered_map<std::string, EntityDataFlags> ENTITY_FLAGS_MAP;
+	typedef std::unordered_map<std::string, prop_def::EntityDataFlag> ENTITY_FLAGS_MAP;
 	//脚本类别
     PyTypeObject*						_scriptType;
 	sl::SLString<MAX_OBJECT_NAME_LEN>	_moduleName;

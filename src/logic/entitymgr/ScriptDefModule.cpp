@@ -11,6 +11,7 @@
 #include "GameDefine.h"
 #include "ScriptObject.h"
 #include "IHarbor.h"
+#include "Attr.h"
 
 ScriptDefModule::ENTITY_FLAGS_MAP	ScriptDefModule::s_entityFlagMapping;
 ScriptDefModule::ScriptDefModule(const char* moduleName, ScriptDefModule* parentModule)
@@ -36,14 +37,14 @@ ScriptDefModule::~ScriptDefModule(){
 }
 
 bool ScriptDefModule::initialize(){
-	s_entityFlagMapping["CELL_PUBLIC"] = ED_FLAG_CELL_PUBLIC;
-	s_entityFlagMapping["CELL_PRIVATE"] = ED_FLAG_CELL_PRIVATE;
-	s_entityFlagMapping["ALL_CLIENTS"] = ED_FLAG_ALL_CLIENTS;
-	s_entityFlagMapping["CELL_PUBLIC_AND_OWN"] = ED_FLAG_CELL_PUBLIC_AND_OWN;
-	s_entityFlagMapping["BASE_AND_CLIENT"] = ED_FLAG_BASE_AND_CLIENT;
-	s_entityFlagMapping["BASE"] = ED_FLAG_BASE;
-	s_entityFlagMapping["OTHER_CLIENTS"] = ED_FLAG_OTHER_CLIENTS;
-	s_entityFlagMapping["OWN_CLIENT"] = ED_FLAG_OWN_CLIENT;
+	s_entityFlagMapping["CELL_PUBLIC"] = prop_def::EntityDataFlag::CELL_PUBLIC;
+	s_entityFlagMapping["CELL_PRIVATE"] = prop_def::EntityDataFlag::CELL_PRIVATE;
+	s_entityFlagMapping["ALL_CLIENTS"] = prop_def::EntityDataFlag::ALL_CLIENTS;
+	s_entityFlagMapping["CELL_PUBLIC_AND_OWN"] = prop_def::EntityDataFlag::CELL_PUBLIC_AND_OWN;
+	s_entityFlagMapping["BASE_AND_CLIENT"] = prop_def::EntityDataFlag::BASE_AND_CLIENT;
+	s_entityFlagMapping["BASE"] = prop_def::EntityDataFlag::BASE;
+	s_entityFlagMapping["OTHER_CLIENTS"] = prop_def::EntityDataFlag::OTHER_CLIENTS;
+	s_entityFlagMapping["OWN_CLIENT"] = prop_def::EntityDataFlag::OWN_CLIENT;
 	return true;
 }
 
@@ -144,31 +145,32 @@ bool ScriptDefModule::loadDefPropertys(const char* moduleName, const sl::ISLXmlN
 			return false;
 		}
 
-		bool isPersistent = false;
 		if (propConf->subNodeExist("Persistent")){
 			std::string strPersistent = (*propConf)["Persistent"][0].text();
             sl::CStringUtils::MakeLower(strPersistent);
             if (strPersistent == "true")
-				flags |= ED_FLAG1_PERSISTENT;
+				flags |= prop_def::persistent;
 		}
 
 		if (!propConf->subNodeExist("Type")){
 			ECHO_ERROR(false, "loadDefProperty error: not found Type of prop[%s] on module[%s]", propName, moduleName);
 			return false;
 		}
-
 		const char* strType = (*propConf)["Type"][0].text();
 		DATATYPE_UID dateType = DataTypeMgr::getDataTypeUid(strType);
-		if (propConf->subNodeExist("Index")){
-
+		
+        if (propConf->subNodeExist("Index")){
+			std::string strIndex = (*propConf)["Index"][0].text();
+            sl::CStringUtils::MakeLower(strIndex);
+            if (strIndex == "true")
+				flags |= prop_def::index;
 		}
 
-		bool isIdentifier = false;
 		if (propConf->subNodeExist("Identifier")){
 			std::string strIdentifier = (*propConf)["Identifier"][0].text();
             sl::CStringUtils::MakeLower(strIdentifier);
             if (strIdentifier == "true")
-				flags |= ED_FLAG1_IDENTIFIER;
+				flags |= prop_def::identifier;
 		}
 
 	    int32 nodeType = SLMODULE(Harbor)->getNodeType();
@@ -181,6 +183,7 @@ bool ScriptDefModule::loadDefPropertys(const char* moduleName, const sl::ISLXmlN
 		info->_index = 0;
 		info->_flags = flags;
 		info->_type = dateType;
+        info->_extra = 0;
 		_propsDefInfo.push_back(info);
 		appendObjectProp(info);
 	}
@@ -447,12 +450,40 @@ void ScriptDefModule::addCellDataToStream(PyObject* object, PyObject* cellDataDi
             PyErr_PrintEx(0);
 		    return;
 	    }
-	    const IProp* cellProp = (const IProp*)PyLong_AsVoidPtr(value);
+		
+        wchar_t*wideCharString = PyUnicode_AsWideCharString(key, NULL);
+		char* valStr = sl::CStringUtils::wchar2char(wideCharString);
+		PyMem_Free(wideCharString);
+        printf("current type name:%s\n", valStr);
+	    
+        const IProp* cellProp = (const IProp*)PyLong_AsVoidPtr(value);
         
         PyObject* pyValue = NULL;
         if(PyDict_Contains(cellDataDict, key) > 0)
             pyValue = PyDict_GetItem(cellDataDict, key);
 
+        pyValue = PyLong_FromLong(13);
+
         DataTypeMgr::addDataToStream(innerObject, cellProp, dataStream, pyValue);
     }
+}
+
+bool ScriptDefModule::createCellDataFromStream(PyObject* object, const void* cellData, const int32 cellDataSize){
+	ScriptObject* scriptObject = static_cast<ScriptObject*>(object);
+    IObject* entity = scriptObject->getInnerObject();
+    
+    sl::OBMap cellDataStream(cellData, cellDataSize);
+    printf("cell entity %s has attr %d, datasize:%d\n", entity->getObjTypeString(), entity->getObjProps().size(), cellDataSize);
+    Py_ssize_t pos = 0;
+    PyObject *key, *value;
+    while(PyDict_Next(_propDict, &pos, &key, &value)){
+	    if (!value){
+            PyErr_Format(PyExc_AssertionError, "createCellDataFromStream:getPropData Prop is null!\n");
+            PyErr_PrintEx(0);
+		    return false;
+	    }
+	    const IProp* prop = (const IProp*)PyLong_AsVoidPtr(value);
+        DataTypeMgr::readDataFromStream(entity, prop, cellDataStream);
+    }
+    return true;
 }

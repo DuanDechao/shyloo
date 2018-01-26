@@ -135,6 +135,7 @@ void DataTypeMgr::addDataToStream(IObject* object, const IProp* prop, sl::IBMap&
         case ScriptDataType::SDTYPE_UINT16: dataStream.writeUint16(prop->getName(), (value ? (uint16)PyLong_AsUnsignedLong(value) : object->getPropUint16(prop))); break;
         case ScriptDataType::SDTYPE_UINT32: dataStream.writeUint32(prop->getName(), (value ? (uint32)PyLong_AsUnsignedLong(value) : object->getPropUint32(prop))); break;
         case ScriptDataType::SDTYPE_UINT64: dataStream.writeUint64(prop->getName(), (value ? (uint64)PyLong_AsUnsignedLongLong(value) : object->getPropUint64(prop))); break;
+        case ScriptDataType::SDTYPE_FLOAT: dataStream.writeFloat(prop->getName(), (value ? (float)PyFloat_AsDouble(value) : object->getPropFloat(prop))); break;
 	
         case ScriptDataType::SDTYPE_STRING: {
             char* valStr = (char*)object->getPropString(prop);
@@ -158,5 +159,40 @@ void DataTypeMgr::addDataToStream(IObject* object, const IProp* prop, sl::IBMap&
             dataStream.writeBlob(prop->getName(), context, size);
 		    break;
     	}
+
+        default:{
+            PyErr_Format(PyExc_AssertionError, "addDataToStream: read unknown type data:%d", dataType);
+            PyErr_PrintEx(0);
+            break;
+        }
+
     }    
+}
+
+void DataTypeMgr::readDataFromStream(IObject* object, const IProp* prop, sl::OBMap& dataStream){
+    int8 dataType = prop->getType(object);
+	switch (dataType){
+	case ScriptDataType::SDTYPE_INT8: object->setPropInt8(prop, dataStream.getInt8(prop->getName())); break;
+    case ScriptDataType::SDTYPE_INT16: object->setPropInt16(prop, dataStream.getInt16(prop->getName())); break;
+    case ScriptDataType::SDTYPE_INT32: object->setPropInt32(prop, dataStream.getInt32(prop->getName())); break;
+    case ScriptDataType::SDTYPE_INT64: object->setPropInt64(prop, dataStream.getInt64(prop->getName())); break;
+    case ScriptDataType::SDTYPE_UINT8: object->setPropUint8(prop, dataStream.getUint8(prop->getName())); break;
+    case ScriptDataType::SDTYPE_UINT16: object->setPropUint16(prop, dataStream.getUint16(prop->getName())); break;
+    case ScriptDataType::SDTYPE_UINT32: object->setPropUint32(prop, dataStream.getUint32(prop->getName())); break;
+    case ScriptDataType::SDTYPE_UINT64: object->setPropUint64(prop, dataStream.getUint64(prop->getName())); break;
+    case ScriptDataType::SDTYPE_STRING: object->setPropString(prop, dataStream.getString(prop->getName())); break;
+    case ScriptDataType::SDTYPE_FLOAT: object->setPropFloat(prop, dataStream.getFloat(prop->getName())); break;
+	case ScriptDataType::SDTYPE_BLOB:{   
+        int32 size = 0;
+		const void* p = dataStream.getBlob(prop->getName(), size);
+		if (p)
+			object->setPropBlob(prop, p, size);
+	    break;
+        }
+    default:{
+        PyErr_Format(PyExc_AssertionError, "readDataFromStream: read unknown type data:%d", dataType);
+        PyErr_PrintEx(0);
+        break;
+        }
+    }
 }

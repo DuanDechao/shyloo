@@ -8,6 +8,7 @@
 #include "slstring.h"
 #include "GameDefine.h"
 #include "slbinary_map.h"
+#include "IEntityMgr.h"
 
 bool CellApp::initialize(sl::api::IKernel * pKernel){
 	_self = this;
@@ -34,34 +35,10 @@ void CellApp::onCreateCellEntityFromBase(sl::api::IKernel* pKernel, int32 nodeTy
     const int64 entityId = args.getInt64(1);
     int32 cellDataSize = 0;
     const void* cellData = args.getStruct(2, cellDataSize);
-    
-    logic_event::CreateCellEntity createInfo { entityType, entityId, nodeId};
-    SLMODULE(EventEngine)->execEvent(logic_event::EVENT_CREATE_CELL_ENTITY, &createInfo, sizeof(createInfo));
 
-    IObject* entity = SLMODULE(ObjectMgr)->findObject(entityId);
-    if(!entity)
-        return;
-
-    sl::OBMap cellDataStream(cellData, cellDataSize);
-    printf("cell entity %s has attr %d, datasize:%d\n", entityType, entity->getObjProps().size(), cellDataSize);
-	for (const IProp* prop : entity->getObjProps()){
-		switch (prop->getType(entity)){
-		case DTYPE_INT8: entity->setPropInt8(prop, cellDataStream.getInt8(prop->getName())); break;
-	    case DTYPE_INT16: entity->setPropInt16(prop, cellDataStream.getInt16(prop->getName())); break;
-	    case DTYPE_INT32: entity->setPropInt32(prop, cellDataStream.getInt32(prop->getName())); break;
-	    case DTYPE_INT64: entity->setPropInt64(prop, cellDataStream.getInt64(prop->getName())); break;
-	    case DTYPE_FLOAT: entity->setPropFloat(prop, cellDataStream.getFloat(prop->getName())); break;
-	    case DTYPE_STRING: entity->setPropString(prop, cellDataStream.getString(prop->getName())); break;
-	    case DTYPE_BLOB: {
-			int32 size = 0;
-			const void* p = cellDataStream.getBlob(prop->getName(), size);
-			if (p)
-				entity->setPropBlob(prop, p, size);
-
-		    } 
-		    break;
-	    }
-    }
+    //logic_event::CreateCellEntity createInfo { entityType, entityId, nodeId};
+    //SLMODULE(EventEngine)->execEvent(logic_event::EVENT_CREATE_CELL_ENTITY, &createInfo, sizeof(createInfo));
+    SLMODULE(EntityMgr)->createCellEntity(entityType, cellData, cellDataSize, nodeId, entityId);
     
     IArgs<2, 256> inArgs;
     inArgs << entityId;

@@ -12,8 +12,9 @@ SCRIPT_GETSET_DECLARE_BEGIN(ScriptObject)
 SCRIPT_GETSET_DECLARE_END()
 SCRIPT_INIT(ScriptObject, 0, 0, 0, 0, 0)
 
-ScriptObject::ScriptObject(PyTypeObject* pyType, const char* objectName, const uint64 objectId, bool isInitialised)
-    :_innerObject(nullptr)
+ScriptObject::ScriptObject(PyTypeObject* pyType, const char* objectName, const uint64 objectId, IScriptDefModule* pScriptModule, bool isInitialised)
+    :_innerObject(nullptr),
+     _pScriptModule(pScriptModule)
 {
 	if (PyType_Ready(pyType) < 0){
 		ECHO_ERROR("ScriptObject: Type %s is not ready\n", pyType->tp_name);

@@ -15,13 +15,22 @@
 class IProp;
 
 namespace prop_def {
-	enum {
-		visible = 1,
-		share = 2,
-		save = 4,
-		significant = 8,
-		blob = 16,
-		copy = 32,
+	enum EntityDBFlags{
+		persistent = 0x00000001,
+		index = 0x00000002,
+		identifier = 0x00000004,
+	};
+	
+	enum EntityDataFlag{
+		ED_FLAG_UNKNOWN = 0x00000000,						//Î´¶¨Òå
+		CELL_PUBLIC = 0x00010000,					//Ïà¹ØËùÓÐcell¹ã²¥
+		CELL_PRIVATE = 0x00020000,					//µ±Ç°cell
+		ALL_CLIENTS = 0x00040000,					//cell¹ã²¥ÓëËùÓÐ¿Í»§¶Ë
+		CELL_PUBLIC_AND_OWN = 0x00080000,			//cell¹ã²¥Óë×Ô¼ºµÄ¿Í»§¶Ë
+		OWN_CLIENT = 0x00100000,					//µ±Ç°cellºÍ¿Í»§¶Ë
+		BASE_AND_CLIENT = 0x00200000,				//baseºÍ¿Í»§¶Ë
+		BASE = 0x00400000,							//µ±Ç°base
+		OTHER_CLIENTS = 0x00800000,					//cell¹ã²¥ºÍÆäËû¿Í»§¶Ë
 	};
 }
 

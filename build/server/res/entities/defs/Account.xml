@@ -42,9 +42,9 @@
 			<Persistent>	true				</Persistent>
 		</phone_number_reward>
 		<marketing_account_reward>
-			<Type>			PYTHON				</Type>
+			<Type>			UINT8				</Type>
 			<Flags>			CELL_PUBLIC			</Flags>
-			<Default>		[]					</Default>
+			<Default>		0					</Default>
 			<Persistent>	true				</Persistent>
 		</marketing_account_reward>
 		<marketing_prize_record>

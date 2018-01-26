@@ -28,9 +28,12 @@ public:
 
     void setBaseMailBox(const int32 logic);
 
+    bool createCellDataFromStream(const void* cellData, const int32 cellDataSize){
+        return _pScriptModule->createCellDataFromStream(this, cellData, cellDataSize);
+    }
+
 private:
 	uint64											_id;
-	IScriptDefModule*								_pScriptModule;
     EntityMailBox*                                  _baseMailBox;
 };
 #endif

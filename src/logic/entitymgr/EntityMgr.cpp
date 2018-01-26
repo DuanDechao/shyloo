@@ -43,12 +43,13 @@ bool EntityMgr::launched(sl::api::IKernel * pKernel){
     if(SLMODULE(Harbor)->getNodeType() == NodeType::SCENE){
 	    RGS_NODE_ARGS_HANDLER(SLMODULE(Harbor), NodeProtocol::REMOTE_NEW_ENTITY_MAIL, EntityMgr::onRemoteNewEntityMail);
         
-        RGS_EVENT_HANDLER(SLMODULE(EventEngine), logic_event::EVENT_CREATE_CELL_ENTITY, EntityMgr::onCreateCellEntityOnCell);
+        //RGS_EVENT_HANDLER(SLMODULE(EventEngine), logic_event::EVENT_CREATE_CELL_ENTITY, EntityMgr::onCreateCellEntityOnCell);
     }
 
     if(SLMODULE(Harbor)->getNodeType() == NodeType::LOGIC){
         RGS_EVENT_HANDLER(SLMODULE(EventEngine), logic_event::EVENT_ENTITY_CREATED_FROM_DB_CALLBACK, EntityMgr::onEntityCreatedFromDB);
         RGS_EVENT_HANDLER(SLMODULE(EventEngine), logic_event::EVENT_GATE_LOGINED, EntityMgr::onNewPlayerLogined);
+        RGS_EVENT_HANDLER(SLMODULE(EventEngine), logic_event::EVENT_CELL_ENTITY_CREATED, EntityMgr::onBaseEventCellEntityCreated);
     }
 	
     return true;
@@ -72,6 +73,20 @@ Base* EntityMgr::createBase(const char* entityType, PyObject* params, bool initi
 Entity* EntityMgr::createCellEntity(const char* entityType, PyObject* params, bool initializeScript, const uint64 entityId, bool initProperty){
     Entity* cellEntity = createEntity<Entity>(entityType, params, initializeScript, entityId, initProperty);
     return cellEntity;
+}
+
+IObject* EntityMgr::createCellEntity(const char* entityType, const void* cellData, const int32 cellDataSize, const int32 baseNodeId,  const uint64 entityId){
+    Entity* cellEntity = createCellEntity(entityType, NULL, false, entityId);
+    cellEntity->setBaseMailBox(baseNodeId);
+    
+    bool ret = cellEntity->createCellDataFromStream(cellData, cellDataSize);
+    if(!ret){
+        printf("createCellData Failed\n");
+        return nullptr;
+    } 
+
+    cellEntity->initializeEntity(NULL);
+    return cellEntity->getInnerObject();
 }
 
 bool EntityMgr::createBaseFromDB(const char* entityType, const uint64 dbid, PyObject* pyCallback){
@@ -116,7 +131,7 @@ E* EntityMgr::createEntity(const char* entityType, PyObject* params, bool isInit
 	E* entity = onCreateEntity<E>(createId, obj, defModule);
     
     if(isInitializeScript)
-        defModule->initializeEntity(entity, params);
+        entity->initializeEntity(params);
     
     const uint64 eid = entity->getID();
     _entities[eid] = entity;

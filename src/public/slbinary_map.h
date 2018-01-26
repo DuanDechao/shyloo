@@ -41,6 +41,10 @@ public:
 	int16 getInt16(const int32 key) { return getData(key, Trait<int16>()); }
 	int32 getInt32(const int32 key) { return getData(key, Trait<int32>()); }
 	int64 getInt64(const int32 key) { return getData(key, Trait<int64>()); }
+	uint8 getUint8(const int32 key) { return getData(key, Trait<uint8>()); }
+	uint16 getUint16(const int32 key) { return getData(key, Trait<uint16>()); }
+	uint32 getUint32(const int32 key) { return getData(key, Trait<uint32>()); }
+	uint64 getUint64(const int32 key) { return getData(key, Trait<uint64>()); }
 	float getFloat(const int32 key) { return getData(key, Trait<float>()); }
 	const char* getString(const int32 key) {
 		const void* p = getData(key);

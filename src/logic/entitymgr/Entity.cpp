@@ -20,9 +20,8 @@ SCRIPT_GETSET_DECLARE_END()
 BASE_SCRIPT_INIT(Entity, 0, 0, 0, 0, 0)
 Entity::Entity(uint64 entityId, IScriptDefModule* pScriptModule, PyTypeObject* pyType, bool isInitialised)
 	:_id(entityId),
-	_pScriptModule(pScriptModule),
     _baseMailBox(nullptr),
-	ScriptObject(pyType, pScriptModule->getModuleName(), entityId, isInitialised)
+	ScriptObject(pyType, pScriptModule->getModuleName(), entityId, pScriptModule, isInitialised)
 {}
 
 Entity::~Entity(){
@@ -68,7 +67,7 @@ void Entity::setBaseMailBox(const int32 logic){
         return;
     }
     const int32 entityType = SLMODULE(ObjectMgr)->getObjectType(_pScriptModule->getModuleName());
-    _baseMailBox = NEW EntityMailBox(EntityMailBoxType::MAILBOX_TYPE_BASE, NodeType::LOGIC, logic, getID(), entityType);
+    _baseMailBox = NEW EntityMailBox(EntityMailBoxType::MAILBOX_TYPE_BASE, NodeType::LOGIC, logic, getInnerObject(), _pScriptModule);
 
     Py_INCREF(static_cast<PyObject*>(_baseMailBox));
 }

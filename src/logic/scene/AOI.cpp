@@ -216,8 +216,8 @@ void AOI::notifyWatcherObjectAppear(sl::api::IKernel* pKernel, int32 gate, int64
 	count = 0;
 
 	for (auto prop : object->getObjProps()){
-		if (!(prop->getSetting(object) & prop_def::share))
-			continue;
+		//if (!(prop->getSetting(object) & prop_def::))
+		//	continue;
 
 		int16 idxAndType = prop->getIndex(object);
 		switch (prop->getType(object)){

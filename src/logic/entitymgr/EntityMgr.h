@@ -15,9 +15,13 @@ public:
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
 
-	 Base* createBase(const char* entityType, PyObject* params, bool initializeScript = true, const uint64 entityId = 0, bool initProperty = true);
-     Entity* createCellEntity(const char* entityType, PyObject* params, bool initializeScript = true, const uint64 entityId = 0, bool initProperty = true);
-     Proxy* createProxy(const char* entityType, PyObject* params, bool initializeScript = true, const uint64 entityId = 0, bool initProperty = true);
+    //virtual IObject* createBase(const char* entityType, const uint64 entityId = 0);
+    //virtual IObject* createProxy(const char* entityType,)
+    virtual IObject* createCellEntity(const char* entityType, const void* cellData, const int32 cellDataSize, const int32 baseNodeId, const uint64 entityId = 0);
+
+	Base* createBase(const char* entityType, PyObject* params, bool initializeScript = true, const uint64 entityId = 0, bool initProperty = true);
+    Entity* createCellEntity(const char* entityType, PyObject* params, bool initializeScript = true, const uint64 entityId = 0, bool initProperty = true);
+    Proxy* createProxy(const char* entityType, PyObject* params, bool initializeScript = true, const uint64 entityId = 0, bool initProperty = true);
 
     virtual bool createBaseFromDB(const char* entityType, const uint64 dbid, PyObject* pyCallback);
 

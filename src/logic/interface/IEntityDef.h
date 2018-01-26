@@ -22,6 +22,7 @@ public:
     virtual bool hasClient() const = 0;
     virtual void setDefaultCellData(PyObject* dataDict) = 0;
     virtual void addCellDataToStream(PyObject* object, PyObject* cellDataDict, sl::IBMap& dataStream) = 0;
+    virtual bool createCellDataFromStream(PyObject* object, const void* cellData, const int32 cellDataSize) = 0;
 };
 
 class IEntityDef : public sl::api::IModule{

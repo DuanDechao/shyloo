@@ -21,6 +21,7 @@ public:
 		SDTYPE_UINT32 = DTYPE_UINT32,
 		SDTYPE_UINT64 = DTYPE_UINT64,
 		SDTYPE_STRING = DTYPE_STRUCT,
+		SDTYPE_FLOAT = DTYPE_FLOAT,
 		SDTYPE_BLOB = DTYPE_BLOB,
 
 		SDTYPE_OWN_TYPE = 100,
@@ -48,7 +49,7 @@ public:
 	static int32 setPyAttrValue(IObject* object, const IProp* prop, PyObject* value);
     static bool isDataType(PyObject* args, int8 type){return true;}
     static void addDataToStream(IObject* object, const IProp* prop, sl::IBMap& dataStream, PyObject* value = NULL);
-
+    static void readDataFromStream(IObject* object, const IProp* prop, sl::OBMap& dataStream);
 private:
 	static DATATYPE_MAP _dataTypes;
 	static UID_DATATYPE_MAP _uid_dataTypes;

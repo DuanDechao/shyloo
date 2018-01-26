@@ -8,6 +8,7 @@
 import shyloo
 class Account(shyloo.Entity):
     def __init__(self):
+        print("check attr value:", self.marketing_account_reward)
         pass
         #self.reservation = 1
         #print("---------------------", self.reservation)

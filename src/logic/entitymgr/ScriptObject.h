@@ -5,6 +5,8 @@
 #include "slmulti_sys.h"
 #include "slpymacros.h"
 #include "IDCCenter.h"
+#include "IEntityDef.h"
+
 #define SCRIPT_OBJECT_HEADER(CLASS, SUPERCLASS)												\
 	SCRIPT_HREADER_BASE(CLASS, SUPERCLASS);													\
 	static void _tp_dealloc(PyObject* self){												\
@@ -338,12 +340,11 @@ public:																						\
 		0,												/* tp_del			  */			\
 	};																						\
 
-
 class ScriptObject :public PyObject{
 	SCRIPT_OBJECT_HEADER(ScriptObject, ScriptObject)
 
 public:
-	ScriptObject(PyTypeObject* pyType, const char* objectName, const uint64 objectId, bool isInitialised = false);
+	ScriptObject(PyTypeObject* pyType, const char* objectName, const uint64 objectId, IScriptDefModule* pScriptModule, bool isInitialised = false);
 	~ScriptObject();
 
 	//所有的腳本類別
@@ -386,8 +387,12 @@ public:
 
     inline void setInnerObject(IObject* object) {_innerObject = object;}
     inline IObject* getInnerObject() {return _innerObject;}
+    inline IScriptDefModule* getScriptDefModule() {return _pScriptModule;}
+    
+    void initializeEntity(PyObject* dictData){ _pScriptModule->initializeEntity(this, dictData); }
 
 protected:
     IObject*    _innerObject;
+    IScriptDefModule* _pScriptModule;
 };
 #endif
