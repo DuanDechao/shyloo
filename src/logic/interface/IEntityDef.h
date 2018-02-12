@@ -3,6 +3,7 @@
 #include "slimodule.h"
 #include "python3.4m/Python.h"
 #include "slbinary_map.h"
+#include <vector>
 class IObject;
 class IProp;
 class IScriptDefModule{
@@ -32,5 +33,6 @@ public:
 	virtual void rgsBaseScriptModule(PyTypeObject* type) = 0;
 	virtual IScriptDefModule* findScriptDefModule(const char* moduleName) = 0;
 	virtual IScriptDefModule* findScriptDefModule(const int32 moduleType) = 0;
+    virtual std::vector<IScriptDefModule*>& getAllScriptDefModule() = 0;
 };
 #endif

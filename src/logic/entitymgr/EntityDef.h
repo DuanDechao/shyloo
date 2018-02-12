@@ -28,6 +28,7 @@ public:
 	virtual void rgsBaseScriptModule(PyTypeObject* type);
 	virtual IScriptDefModule* findScriptDefModule(const char* moduleName);
     virtual IScriptDefModule* findScriptDefModule(const int32 moduleType);
+    virtual std::vector<IScriptDefModule*>& getAllScriptDefModule() {return _allScriptModule;}
 
 private:
     bool isLoadScriptModule(ScriptDefModule* defModule);
@@ -55,6 +56,7 @@ private:
 	SCRIPT_TYPE_UID_MAP			_scriptTypeMappingUType;
 	SCRIPT_DEF_MODULE_VEC		_scriptModules;
 	std::vector<PyTypeObject*>  _scriptBaseTypes;
+    std::vector<IScriptDefModule*> _allScriptModule;
 
 };
 #endif

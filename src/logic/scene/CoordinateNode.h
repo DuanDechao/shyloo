@@ -1,23 +1,40 @@
 #ifndef __SL_FRAMEWORK_COORDINATENODE_H__
 #define __SL_FRAMEWORK_COORDINATENODE_H__
+#include "slmulti_sys.h"
 class CoordinateSystem;
 class CoordinateNode{
 public:
-    enum Coordinate{
-        X = 1,
-        Y = 2,
-        Z = 3,
+    enum {
+        COORDINATE_NODE_FLAG_UNKNOWN            = 0x00000000,
+        COORDINATE_NODE_FLAG_OBJECT             = 0x00000001,   //一个Object节点
+        COORDINATE_NODE_FLAG_TRIGGER            = 0x00000002,   //一个触发器节点
+        COORDINATE_NODE_FLAG_HIDE               = 0x00000004,   //一个隐藏节点
+        COORDINATE_NODE_FLAG_REMOVING           = 0x00000008,   //删除中节点
+        COORDINATE_NODE_FLAG_REMOVED            = 0x00000010,   //删除节点
+        COORDINATE_NODE_FLAG_PENDING            = 0x00000020,   //处在update操作中
+        COORDINATE_NODE_FLAG_NODE_UPDATING      = 0x00000040,   //正在执行update操作
+        COORDINATE_NODE_FLAG_INSTALLING         = 0x00000080,   //正在安装操作
+        COORDINATE_NODE_FLAG_POSITIVE_BOUNDARY  = 0x00000100,   //节点是触发器正边界
+        COORDINATE_NODE_FLAG_NEGATIVE_BOUNDARY  = 0x00000200,   //节点是触发器的负边界
     };
-    CoordinateNode(IObject* object);
-    ~CoordiateNode();
+
+
+    CoordinateNode(CoordinateSystem* pCoordinateSystem = NULL);
+    virtual ~CoordinateNode();
+
+    inline void setFlags(uint32 v) {_flags = v;}
+    inline uint32 flags() const {return _flags;}
+    inline void addFlags(uint32 v) {_flags |= v;}
+    inline void removeFlags(uint32 v) {_flags &= ~v;}
+    inline bool hasFlags(uint32 v) const {return (_flags & v) > 0; }
 
     inline float x() const {return _x;}
     inline float y() const {return _y;}
     inline float z() const {return _z;}
 
-    inline float oldx() const {return _oldx;}
-    inline float oldy() const {return _oldy;}
-    inline float oldz() const {return _oldz;}
+    inline float oldX() const {return _oldx;}
+    inline float oldY() const {return _oldy;}
+    inline float oldZ() const {return _oldz;}
 
     inline void setX(float x) {_x = x;}
     inline void setY(float y) {_y = y;}
@@ -45,30 +62,22 @@ public:
     inline void setNextY(CoordinateNode* nextY) {_nextY = nextY;} 
     inline void setNextZ(CoordinateNode* nextZ) {_nextZ = nextZ;} 
     
-    inline CoordinateNode* prevNode(Coordinate type){
-        return type == Coordinate::X ? prevX() : (type == Coordinate::Y ? prevY() : prevZ());
-    }
+    virtual void onNodePassX(CoordinateNode* pNode){}
+    virtual void onNodePassY(CoordinateNode* pNode){}
+    virtual void onNodePassZ(CoordinateNode* pNode){}
 
-    inline CoordinateNode* nextNode(Coordinate type){
-        return type == Coordinate::X ? nextX() : (type == Coordinate::Y ? nextY() : nextZ());
-    }
+    virtual void onRemove();
+    
+    virtual void update();
 
-    inline void setPrevNode(CoordinateNode* prevNode, Coordinate type){
-        type == Coordinate::X ? setPrevX(prevNode) : (type == Coordinate::Y ? setPrevY(prevNode) : setPrevZ(prevNode));
-    }
-
-    inline void setNextNode(CoordinateNode* nextNode, Coordinate type){
-        type == Coordinate::X ? setNextX(nextNode) : (type == Coordinate::Y ? setNextY(nextNode) : setNextZ(nextNode));
-    }
-
-    void resetOld(){
+    virtual void resetOld(){
         _oldx = xx();
         _oldy = yy();
         _oldz = zz();
     }
 
     void setCoordinateSystem(CoordinateSystem* sys);
-    inline CoordinateSystem* CoordinateSystem() const {return _coordinateSystem;}
+    inline CoordinateSystem* coordinateSystem() const {return _coordinateSystem;}
 
 
 protected:
@@ -83,5 +92,7 @@ protected:
     
     float   _x, _y, _z;
     float   _oldx, _oldy, _oldz;
+
+    uint32  _flags;
 };
 #endif

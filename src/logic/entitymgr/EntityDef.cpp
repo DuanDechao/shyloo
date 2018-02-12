@@ -62,7 +62,8 @@ bool EntityDef::loadEntitiesConfig(sl::api::IKernel* pKernel){
 			continue;
 
 		//¼ÓÔØmoduleÎÄ¼þµÄ¶¨Òå
-		loadModuleDef(pKernel, entity->value());
+		ScriptDefModule* pModule = loadModuleDef(pKernel, entity->value());
+        _allScriptModule.push_back(pModule);
 	}
 
 	return true;
