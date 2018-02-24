@@ -1,4 +1,5 @@
 #include "AOITrigger.h"
+#include "ObjectCoordinateNode.h"
 
 AOITrigger::AOITrigger(CoordinateNode* origin, float xz, float y)
     :RangeTrigger(origin, xz, y),
@@ -14,6 +15,7 @@ void AOITrigger::onEnter(CoordinateNode* pNode){
         return;
 
     ObjectCoordinateNode* pObjectCoordinateNode = static_cast<ObjectCoordinateNode*>(pNode);
+    printf("AOITrigger try to enter\n");
 
 }
 

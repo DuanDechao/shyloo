@@ -20,12 +20,6 @@ ObjectPropInfo::ObjectPropInfo(int32 objTypeId, const char* objName, ObjectPropI
 			}
 		}
 
-		_methodLayouts = parenter->_methodLayouts;
-		for (auto& methodLayout : _methodLayouts){
-			const IMethod* method = ObjectMgr::getInstance()->setObjectMethod(methodLayout->_name.c_str(), _objTypeId, methodLayout);
-			_methods.push_back(method);
-		}
-
 		_tables = parenter->_tables;
 		_size = parenter->_size;
 	}
@@ -130,23 +124,6 @@ const IProp* ObjectPropInfo::loadProp(const char* name, const int8 type, const i
 	return prop;
 }
 
-const IMethod* ObjectPropInfo::loadMethod(const char* name, const int8 type, const int32 setting, const int32 index, vector<uint8>& argsType){
-	MethodLayout* layout = NEW MethodLayout();
-	layout->_name = name;
-	layout->_type = type;
-
-	layout->_index = index;
-	layout->_setting = setting;
-
-	_methodLayouts.push_back(layout);
-
-	const IMethod * prop = ObjectMgr::getInstance()->setObjectMethod(layout->_name.c_str(), _objTypeId, (*_methodLayouts.rbegin()));
-	_methods.push_back(prop);
-	_selfMethods.push_back(prop);
-
-	return prop;
-}
-
 bool ObjectPropInfo::loadTemps(const sl::ISLXmlNode& temps){
 	for (int32 i = 0; i < temps.count(); i++){
 		PropLayout* layout = NEW PropLayout();
@@ -163,6 +140,8 @@ bool ObjectPropInfo::loadTemps(const sl::ISLXmlNode& temps){
 	return true;
 }
 
+//bool ObjectPropInfo::loadTable(const )
+
 bool ObjectPropInfo::loadTables(const sl::ISLXmlNode& tables){
 	for (int32 i = 0; i < tables.count(); i++){
 		const char* name = tables[i].getAttributeString("name");
@@ -175,6 +154,8 @@ bool ObjectPropInfo::loadTables(const sl::ISLXmlNode& tables){
 	}
 	return true;
 }
+
+//bool ObjectPropInfo::loadTable(const char* name, )
 
 bool ObjectPropInfo::loadPropConfig(const sl::ISLXmlNode& prop, PropLayout& layout){
 	layout._name = prop.getAttributeString("name");

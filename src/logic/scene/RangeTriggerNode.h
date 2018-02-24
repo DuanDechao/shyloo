@@ -1,8 +1,9 @@
 #ifndef __SL_FRAMEWORK_RANGETRIGGERNODE_H__
 #define __SL_FRAMEWORK_RANGETRIGGERNODE_H__
 #include "CoordinateNode.h"
+#include "RangeTrigger.h"
+
 #include <math.h>
-class RangeTrigger;
 class RangeTriggerNode: public CoordinateNode{
 public:
     RangeTriggerNode(RangeTrigger* pRangeTrigger, float xz, float y, bool positiveBoundary);

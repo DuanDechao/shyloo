@@ -1,4 +1,7 @@
 #include "Witness.h"
+#include "SceneNodeData.h"
+#include "CoordinateNode.h"
+#include "AOITrigger.h"
 
 Witness::Witness()
     :_object(NULL),
@@ -40,7 +43,7 @@ void Witness::clear(IObject* object){
     AOI_OBJECTS::iterator iterEnd = _aoiObjects.end();
     for(; iter != iterEnd; ++iter){
         if((*iter)->object()){
-            //(*iter)->object()->delWitnessed
+            SceneNodeData::delWitnessed((*iter)->object(), _object);
         }
     }
 }
@@ -49,8 +52,8 @@ void Witness::setAoiRadius(float radius){
     _aoiRadius = radius;
 
     if(_aoiRadius > 0.f && _object){
+        CoordinateNode* pObjectNode = (CoordinateNode*)_object->getPropInt64(Scene::getInstance()->getPropCoordinateNode());
         if(_aoiTrigger == NULL){
-            CoordinateNode* pObjectNode = (CoordinateNode*)_object->getPropInt64(Scene::getInstance()->getPropCoordinateNode());
             _aoiTrigger = NEW AOITrigger(pObjectNode, _aoiRadius, _aoiRadius);
 
             if(pObjectNode->coordinateSystem())
@@ -80,13 +83,18 @@ void Witness::onEnterAOI(AOITrigger* pAOITrigger, IObject* object){
                 pObjectRef->setFlags(ObjectRef::OBJECTREF_FLAG_ENTER_CLIENT_PENDING);
 
             pObjectRef->setObject(object);
-        }    
+            SceneNodeData::addWitnessed(object, _object);
+        }
+
+        return;    
     }
 
     ObjectRef* pObjectRef = ObjectRef::create(object);
     pObjectRef->setFlags(pObjectRef->flags() | ObjectRef::OBJECTREF_FLAG_ENTER_CLIENT_PENDING);
     _aoiObjects.push_back(pObjectRef);
     _aoiObjectsMap[pObjectRef->id()] = pObjectRef;
+
+    SceneNodeData::addWitnessed(object, _object);
 }
 
 void Witness::onLeaveAOI(AOITrigger* pAOITrigger, IObject* object){
@@ -101,12 +109,12 @@ void Witness::_onLeaveAOI(ObjectRef* pObjectRef){
     pObjectRef->setFlags(((pObjectRef->flags() | ObjectRef::OBJECTREF_FLAG_LEAVE_CLIENT_PENDING) & ~(ObjectRef::OBJECTREF_FLAG_ENTER_CLIENT_PENDING)));
 
     if(pObjectRef->object())
-       // pObjectRef->object()->
+       SceneNodeData::delWitnessed(pObjectRef->object(), _object);
 
     pObjectRef->setObject(NULL);
 }
 
-void Witness::installAOITrigger(){
+void Witness::uninstallAOITrigger(){
     if(_aoiTrigger)
         _aoiTrigger->uninstall();
 
@@ -114,4 +122,31 @@ void Witness::installAOITrigger(){
     AOI_OBJECTS::iterator iterEnd = _aoiObjects.end();
     for(; iter != iterEnd; ++iter)
         _onLeaveAOI((*iter));
+}
+
+void Witness::onEnterSpace(Space* pSpace){
+    installAOITrigger();
+}
+
+void Witness::onLeaveSpace(Space* pSpace){
+    uninstallAOITrigger();
+
+    _lastBasePos.z = -FLT_MAX;
+    _lastBaseDir.yaw(-FLT_MAX);
+
+
+    AOI_OBJECTS::iterator iter = _aoiObjects.begin();
+    AOI_OBJECTS::iterator iterEnd = _aoiObjects.end();
+    for(; iter != iterEnd; ++iter){
+        if((*iter)->object())
+            SceneNodeData::delWitnessed((*iter)->object(), _object);
+
+        (*iter)->release();
+    }
+
+    _aoiObjects.clear();
+    _aoiObjectsMap.clear();
+
+    _clientAOISize = 0;
+
 }

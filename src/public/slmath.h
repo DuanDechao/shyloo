@@ -7,7 +7,7 @@
 #include "g3dlite/G3D/Vector4.h"
 #include "g3dlite/G3D/Matrix3.h"
 #include "g3dlite/G3D/Quat.h"
-
+#include <vector>
 typedef G3D::Matrix3							Matrix;
 typedef G3D::Quat								Quaternion;
 typedef G3D::Vector2							Vector2;
@@ -61,7 +61,6 @@ typedef G3D::Vector4							Vector4;
 #define SLQuaternionMultiply(v)				    D3DXQuaternionMultiply
 #define SLQuaternionInverse(v)					D3DXQuaternionInverse
 #define SLClamp								    G3D::clamp
-#endif
 
 // 从2个3d向量忽略y计算出2d长度
 inline float SLVec3CalcVec2Length(const Vector3& v1, const Vector3& v2){
@@ -148,3 +147,4 @@ inline bool almostEqual(const T& c1, const T& c2, const float epsilon = 0.0004f)
 			return false;
 	return true;
 }
+#endif

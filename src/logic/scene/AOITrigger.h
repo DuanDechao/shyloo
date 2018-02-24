@@ -1,5 +1,7 @@
 #ifndef __SL_FRAMEWORK_AOITRIGGER_H__
 #define __SL_FRAMEWORK_AOITRIGGER_H__
+
+#include "RangeTrigger.h"
 class Witness;
 class AOITrigger: public RangeTrigger{
 public:

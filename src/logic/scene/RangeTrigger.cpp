@@ -51,8 +51,8 @@ bool RangeTrigger::install(){
     _positiveBoundary->setOldX(-FLT_MAX);
     _positiveBoundary->setOldY(-FLT_MAX);
     _positiveBoundary->setOldZ(-FLT_MAX);
-    _positiveBoundary->setRange(-_rangeXZ, -_rangeY);
-    _positiveBoundary->setOldRange(-_rangeXZ, -_rangeY);
+    _positiveBoundary->setRange(_rangeXZ, _rangeY);
+    _positiveBoundary->setOldRange(_rangeXZ, _rangeY);
     _positiveBoundary->update();
 
     if(!_positiveBoundary)

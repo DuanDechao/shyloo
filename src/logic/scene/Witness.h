@@ -1,8 +1,12 @@
 #ifndef __SL_FRAMEWORK_WITNESS_H__
 #define __SL_FRAMEWORK_WITNESS_H__
 #include "slmath.h"
+#include "IDCCenter.h"
+#include "Scene.h"
+#include <list>
+#include <map>
 class AOITrigger;
-
+class Space;
 class ObjectRef{
 public:
     enum {
@@ -11,27 +15,37 @@ public:
         OBJECTREF_FLAG_LEAVE_CLIENT_PENDING     =       0x00000002,
         OBJECTREF_FLAG_NORMAL                   =       0x00000004,    
     };
-    ObjectRef(IObject* object);
-    ~ObjectRef();
+
+    ObjectRef(IObject* object)
+        :_id(object->getID()),
+         _object(object),
+         _flags(OBJECTREF_FLAG_UNKNOWN)
+    {}
+
+    ~ObjectRef(){}
     
+    inline static ObjectRef* create(IObject* object){
+        return NEW ObjectRef(object);
+    }
+
+    void release(){
+        DEL this;
+    }
+    
+    inline uint64 id() const {return _id;}
+
     inline void setFlags(uint32 v) {_flags = v;}
     inline void removeFlags(uint32 v) {_flags &= ~v;}
     inline uint32 flags() const {return _flags;}
 
     inline IObject* object() const {return _object;}
-    inline void setObject(IObject* object) {_object = object;}
-    inline uint64 id() const {return _id;}
-
-
-    inline static ObjectRef* create(IObject* object){
-        return NEW ObjectRef(object);
-    }
+    inline void setObject(IObject* object) {_object = object;} 
 
 private:
     uint64      _id;
     IObject*    _object;
-    uint32      _flags;
-}
+    uint32      _flags; 
+};
 
 class Witness{
 public:
@@ -62,7 +76,7 @@ public:
 
     inline const Direction3D& baseDir() {return _lastBaseDir;}
 
-    bool upate();
+    bool update();
 
     void onEnterSpace(Space* pSpace);
     void onLeaveSpace(Space* pSpace);

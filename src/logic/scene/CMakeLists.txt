@@ -4,6 +4,7 @@ INCLUDE_DIRECTORIES(
 	"${PROJECT_SOURCE_DIR}/src/logic/interface"
 	"${PROJECT_SOURCE_DIR}/src/logic/define"
 	"${PROJECT_SOURCE_DIR}/src/sllib/api"
+	"${PROJECT_SOURCE_DIR}/thirdlibrary/python/linux/include"
 )
 
 SET(SCENE
@@ -15,6 +16,8 @@ SET(SCENE
     #"${PROJECT_SOURCE_DIR}/src/logic/scene/Scene.cpp"
     #"${PROJECT_SOURCE_DIR}/src/logic/scene/AOI.h"
     #"${PROJECT_SOURCE_DIR}/src/logic/scene/AOI.cpp"
+    "${PROJECT_SOURCE_DIR}/src/logic/scene/Scene.h"
+    "${PROJECT_SOURCE_DIR}/src/logic/scene/Scene.cpp"
     "${PROJECT_SOURCE_DIR}/src/logic/scene/CoordinateSystem.h"
     "${PROJECT_SOURCE_DIR}/src/logic/scene/CoordinateSystem.cpp"
     "${PROJECT_SOURCE_DIR}/src/logic/scene/CoordinateNode.h"
@@ -24,9 +27,15 @@ SET(SCENE
     "${PROJECT_SOURCE_DIR}/src/logic/scene/ObjectCoordinateNode.h"
     "${PROJECT_SOURCE_DIR}/src/logic/scene/ObjectCoordinateNode.cpp"
     "${PROJECT_SOURCE_DIR}/src/logic/scene/RangeTriggerNode.h"
-    "${PROJECT_SOURCE_DIR}/src/logic/scene/RangeTriggerNode.h"
+    "${PROJECT_SOURCE_DIR}/src/logic/scene/RangeTriggerNode.cpp"
+    "${PROJECT_SOURCE_DIR}/src/logic/scene/RangeTrigger.h"
     "${PROJECT_SOURCE_DIR}/src/logic/scene/RangeTrigger.cpp"
-    "${PROJECT_SOURCE_DIR}/src/logic/scene/RangeTrigger.cpp"
+    "${PROJECT_SOURCE_DIR}/src/logic/scene/Witness.h"
+    "${PROJECT_SOURCE_DIR}/src/logic/scene/Witness.cpp"
+    "${PROJECT_SOURCE_DIR}/src/logic/scene/SceneNodeData.h"
+    "${PROJECT_SOURCE_DIR}/src/logic/scene/SceneNodeData.cpp"
+    "${PROJECT_SOURCE_DIR}/src/logic/scene/AOITrigger.h"
+    "${PROJECT_SOURCE_DIR}/src/logic/scene/AOITrigger.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/scene/main.cpp"
 )
 

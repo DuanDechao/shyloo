@@ -1,4 +1,6 @@
 #include "RangeTriggerNode.h"
+#include "ObjectCoordinateNode.h"
+
 RangeTriggerNode::RangeTriggerNode(RangeTrigger* pRangeTrigger, float xz, float y, bool positiveBoundary)
     :CoordinateNode(NULL),
      _rangeXZ(xz),
@@ -8,10 +10,10 @@ RangeTriggerNode::RangeTriggerNode(RangeTrigger* pRangeTrigger, float xz, float 
      _rangeTrigger(pRangeTrigger)
 {
     if(positiveBoundary){
-        _flags(CoordinateNode::COORDINATE_NODE_FLAG_HIDE | CoordinateNode::COORDINATE_NODE_FLAG_POSITIVE_BOUNDARY);
+        setFlags(CoordinateNode::COORDINATE_NODE_FLAG_HIDE | CoordinateNode::COORDINATE_NODE_FLAG_POSITIVE_BOUNDARY);
     }
     else{
-        _flags(CoordinateNode::COORDINATE_NODE_FLAG_HIDE | CoordinateNode::COORDINATE_NODE_FLAG_NEGATIVE_BOUNDARY);
+        setFlags(CoordinateNode::COORDINATE_NODE_FLAG_HIDE | CoordinateNode::COORDINATE_NODE_FLAG_NEGATIVE_BOUNDARY);
     }
     
     static_cast<ObjectCoordinateNode*>(_rangeTrigger->origin())->addWatcherNode(this);
@@ -48,7 +50,7 @@ float RangeTriggerNode::yy() const{
         || _rangeTrigger == NULL)
         return -FLT_MAX;
 
-    return _rangeTrigger->origin()->xx() + _rangeY;
+    return _rangeTrigger->origin()->yy() + _rangeY;
 }
 
 float RangeTriggerNode::zz() const{

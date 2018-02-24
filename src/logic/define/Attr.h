@@ -178,6 +178,15 @@ namespace OCTableMacro {
 		};
 	}
 
+    namespace WITNESSES {
+        static int32 TABLE_NAME = 2543546465;
+        enum{
+            OCTM_START = 0,
+            WITNESSER = OCTM_START,
+            OCTM_END,
+        };
+    }
+
 };
 
 namespace OCStaticTableMacro {

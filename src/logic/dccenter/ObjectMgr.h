@@ -9,7 +9,6 @@
 class MMObject;
 class ObjectProp;
 class IIdMgr;
-class ObjectMethod;
 class ObjectMgr :public IObjectMgr, public sl::api::ITimer, public sl::SLHolder<ObjectMgr>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
@@ -23,8 +22,6 @@ public:
 	virtual const IProp* getPropByNameId(const int32 name) const;
     virtual const int32 getObjectType(const char* objectType);
 
-	virtual const IMethod* appendObjectMethod(const char* objectName, const char* methodName, const int8 type, const int32 setting, const int32 index, vector<uint8>& argsType);
-
 	virtual void setObjectTypeSize(const int32 size){ _objectTypeSize = size; }
 
 	virtual IObject* create(const char* file, const int32 line, const char* name, bool isShadow);
@@ -36,8 +33,6 @@ public:
 	
 	const IProp* setObjectProp(const char* propName, const int32 objTypeId, PropLayout* layout);
 	const IProp* setObjectTempProp(const char* propName, const int32 objTypeId, PropLayout* layout);
-
-	const IMethod* setObjectMethod(const char* methodName, const int32 objTypeId, MethodLayout* layout);
 
 	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick);
@@ -65,8 +60,6 @@ private:
 	typedef std::unordered_map<sl::SLString<MAX_OBJECT_NAME_LEN>, sl::SLString<game::MAX_PATH_LEN>> PROP_CONFIG_PATH_MAP;
 	typedef std::unordered_map<sl::SLString<MAX_PROP_NAME_LEN>, ObjectProp*> PROP_MAP;
 	typedef std::unordered_map<sl::SLString<MAX_OBJECT_NAME_LEN>, ObjectPropInfo *> OBJECT_MODEL_MAP;
-	typedef std::unordered_map<sl::SLString<MAX_OBJECT_NAME_LEN>, vector<MethodLayout*>> OBJECT_METHODS_MAP;
-	typedef std::unordered_map<sl::SLString<MAX_METHOD_NAME_LEN>, ObjectMethod*> METHOD_MAP;
 
 	int32			  _objectTypeSize;
 	sl::api::IKernel* _kernel;
@@ -80,9 +73,6 @@ private:
 	PROP_MAP _allTempProps;
 	std::unordered_map<int32, ObjectProp*> _allPropsId;
 	OBJECT_MODEL_MAP _objPropInfo;
-
-	OBJECT_METHODS_MAP _objToMethods;
-	METHOD_MAP	_allMethods;
 
 	int32 _nextObjTypeId;
 	unordered_map<uint64, MMObject*> _allObjects;

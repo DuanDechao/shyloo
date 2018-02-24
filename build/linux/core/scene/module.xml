@@ -8,9 +8,10 @@
 	<module name="EventEngine" />
     <!--<module name="AttrGetter" />-->
 
-	<module name="PythonEngine" />
-	<module name="EntityMgr" />
+    <!--<module name="PythonEngine" />
+    <module name="EntityMgr" />-->
 	<module name="IdMgr" />
 	<module name="MmoServer" />
-    <!--<module name="Scene" /> -->
+    <module name="Scene" />
+    <module name="ObjectTimer" />
 </modules>

@@ -5,7 +5,6 @@
 #include "MMObject.h"
 #include "TableControl.h"
 #include "IIdMgr.h"
-#include "ObjectMethod.h"
 
 bool ObjectMgr::initialize(sl::api::IKernel * pKernel){
 	_self = this;
@@ -265,35 +264,6 @@ const IProp* ObjectMgr::getPropByNameId(const int32 name) const{
 	}
 	return nullptr;
 }
-
-const IMethod* ObjectMgr::appendObjectMethod(const char* objectName, const char* methodName, const int8 type, const int32 setting, const int32 index, vector<uint8>& argsType){
-	ObjectPropInfo* propInfo = nullptr;
-	auto itor = _objPropInfo.find(objectName);
-	if (itor != _objPropInfo.end()){
-		propInfo = itor->second;
-	}
-	else{
-		propInfo = NEW ObjectPropInfo(_nextObjTypeId++, objectName, nullptr);
-		_objPropInfo[objectName] = propInfo;
-	}
-
-    return propInfo->loadMethod(methodName, type, setting, index, argsType);
-}
-
-const IMethod* ObjectMgr::setObjectMethod(const char* methodName, const int32 objTypeId, MethodLayout* layout){
-	ObjectMethod * method = nullptr;
-	auto itor = _allMethods.find(methodName);
-	if (itor != _allMethods.end()){
-		method = itor->second;
-	}
-	else{
-		method = NEW ObjectMethod(sl::CalcStringUniqueId(methodName), (int32)_objectTypeSize);
-		_allMethods[methodName] = method;
-	}
-	method->setLayout(objTypeId, layout);
-	return method;
-}
-
 
 IObject* ObjectMgr::create(const char* file, const int32 line, const char* name, bool isShadow){
 	return createById(file, line, name, _idMgr->allocID(), isShadow);
