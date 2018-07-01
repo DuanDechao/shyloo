@@ -2,6 +2,7 @@
 SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IGate.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IHarbor.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/ICluster.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IDCCenter.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IIdMgr.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IAgent.h"
@@ -33,8 +34,15 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IStarter.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IChat.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IGD.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IPythonEngine.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/DBType.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/SQLBase.h"
+    "${PROJECT_SOURCE_DIR}/src/logic/interface/IObjectDef.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IEntityMgr.h"
+    "${PROJECT_SOURCE_DIR}/src/logic/interface/IMmoServer.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IResMgr.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/INavigation.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IGlobalData.h"
 )
 
 SET(SL_LOGIC_DEFINE
@@ -89,4 +97,11 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/online)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/startnodestrategy)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/chat)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/gd)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/pythonengine)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/objectdef)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/entitymgr)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/mmoserver)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/resmgr)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/navigation)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/globaldata)
 

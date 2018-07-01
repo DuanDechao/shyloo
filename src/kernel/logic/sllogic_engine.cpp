@@ -29,10 +29,11 @@ bool LogicEngine::initialize(){
 		SafeSprintf(path, sizeof(path), "%s/%slib%s.so", sl::getAppPath(), pModuleConfig->strModulePath.c_str(), (*itor).c_str());
 		//»ñÈ¡dllÂ·¾¶
 		void* handle = dlopen(path, RTLD_LAZY);
-		SLASSERT(handle, "dlopen so %s failed", path);
+		if(!handle)
+            printf("dlopen so %s failed, error[%s]\n", path, dlerror());
 
 		GetModuleFun fun = (GetModuleFun) dlsym(handle, "GetLogicModule");
-		SLASSERT(fun, "get function:GetLogicModule error");
+		SLASSERT(fun, "get function:GetLogicModule error[%s]", (*itor).c_str());
 #endif
 
 #ifdef SL_OS_WINDOWS
@@ -43,7 +44,7 @@ bool LogicEngine::initialize(){
 #endif // SL_OS_WINDOWS
 
 		if(!fun){
-			printf("canot get dll[%s]\n", path);
+			printf("canot get dll[%s], error[%d]\n", path, SL_ERRNO);
 			return false;
 		}
 

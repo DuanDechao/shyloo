@@ -10,7 +10,7 @@ enum NodeType{
 	ACCOUNT = 5,
 	SCENEMGR = 6,
 	LOGIN = 7,
-	DATEBASE = 8,
+	DATABASE = 8,
 	BALANCE = 9,
 };
 #endif

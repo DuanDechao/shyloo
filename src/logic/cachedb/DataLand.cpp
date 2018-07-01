@@ -20,7 +20,7 @@ bool DataLand::initialize(sl::api::IKernel * pKernel){
 
 bool DataLand::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
-	if (_harbor->getNodeType() == NodeType::DATEBASE){
+	if (_harbor->getNodeType() == NodeType::DATABASE){
 		FIND_MODULE(_db, DB);
 		FIND_MODULE(_cacheDB, CacheDB);
 		FIND_MODULE(_eventEngine, EventEngine);
@@ -44,7 +44,7 @@ void DataLand::askLand(const char* table, const int32 keyCount, const OArgs& dat
 	IArgs<50, 2048> args;
 	args << opt << sync << table << key << keyCount << data;
 	args.fix();
-	_harbor->send(NodeType::DATEBASE, 1, NodeProtocol::CLUSTER_MSG_ASK_DATA_LAND, args.out());
+	_harbor->send(NodeType::DATABASE, 1, NodeProtocol::CLUSTER_MSG_ASK_DATA_LAND, args.out());
 }
 
 void DataLand::onClusterAskDataLand(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){

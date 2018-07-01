@@ -38,11 +38,8 @@ private:
 
 bool Harbor::initialize(sl::api::IKernel * pKernel){
 	_pKernel = pKernel;
-	return true;
-}
-
-bool Harbor::launched(sl::api::IKernel * pKernel){
-	XmlReader server_conf;
+	
+    XmlReader server_conf;
 	if (!server_conf.loadXml(pKernel->getCoreFile())){
 		SLASSERT(false, "can not load core file %s", pKernel->getCoreFile());
 		return false;
@@ -81,6 +78,10 @@ bool Harbor::launched(sl::api::IKernel * pKernel){
 	else
 		_port = 0;
 
+    return true;
+}
+
+bool Harbor::launched(sl::api::IKernel * pKernel){
 	_pTcpServer = NEW NodeSessionTcpServer(this);
 	if (!_pTcpServer){
 		SLASSERT(false, "wtf");
@@ -230,11 +231,13 @@ void Harbor::send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& ar
 		SLASSERT(false, "wtf");
 		return;
 	}
+
 	auto itor1 = itor->second.find(nodeId);
 	if (itor1 == itor->second.end()){
 		SLASSERT(false, "wtf");
 		return;
 	}
+
 	itor1->second->prepareSendNodeMessage(messageId, args.getSize());
 	itor1->second->send(args.getContext(), args.getSize());
 }
@@ -266,6 +269,19 @@ void Harbor::broadcast(int32 nodeType, int32 messageId, const OArgs& args){
 	}
 }
 
+void Harbor::broadcast(int32 messageId, const OArgs& args, std::unordered_map<int32, std::set<int32>>& exclude){
+	for (auto nodeType : _allNode){
+		auto excludeNodes = exclude.find(nodeType.first);
+		bool isNodeTypeExclude = (excludeNodes != exclude.end());	
+		for (auto node : nodeType.second){
+			if(isNodeTypeExclude && excludeNodes->second.find(node.first) != excludeNodes->second.end()){
+				continue;
+			}
+			node.second->prepareSendNodeMessage(messageId, args.getSize());
+			node.second->send(args.getContext(), args.getSize());
+		}
+	}
+}
 
 void Harbor::broadcast(int32 messageId, const OArgs& args){
 	for (auto nodeType : _allNode){

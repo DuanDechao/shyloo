@@ -32,7 +32,7 @@ public:
 	void onGateUnBindAccount(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 
 private:
-	void bindAccountSuccess(sl::api::IKernel* pKernel, const AccountInfo& account);
+	void bindAccountSuccess(sl::api::IKernel* pKernel, const int32 nodeType, const AccountInfo& account);
 
 private:
 	Account* _self;

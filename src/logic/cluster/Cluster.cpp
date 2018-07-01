@@ -4,6 +4,7 @@
 #include "slxml_reader.h"
 
 bool Cluster::initialize(sl::api::IKernel * pKernel){
+	_clusterReady = false;
 	return true;
 }
 
@@ -21,6 +22,8 @@ bool Cluster::launched(sl::api::IKernel * pKernel){
 		_masterPort = server_conf.root()["master"][0].getAttributeInt32("port");
 		START_TIMER(this, 0, 1, 1000);
 	}
+
+	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::MASTER_MSG_SERVER_STARTED, Cluster::onClusterIsReady);
 	return true;
 }
 
@@ -47,6 +50,10 @@ void Cluster::newNodeComing(sl::api::IKernel* pKernel, const int32 nodeType, con
 
 	_openNodes.insert(nodeIdx);
 	_harbor->connect(ip, port, newNodeType, newNodeId, isSameDeivce(pKernel->getLocalIp(), ip));
+}
+
+void Cluster::onClusterIsReady(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
+	_clusterReady = true;
 }
 
 

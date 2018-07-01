@@ -5,6 +5,9 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include "slmemorystream.h"
+#include <sstream>
+#include "slbinary_stream.h"
 using namespace std;
 namespace sl
 {
@@ -55,6 +58,31 @@ public:
 		}
 	}
 
+    static std::vector< std::string > splits(const std::string& s, const std::string& delim, const bool keep_empty = true) {
+        std::vector< std::string > result;
+
+        if (delim.empty()) {
+            result.push_back(s);
+            return result;
+        }
+
+        std::string::const_iterator substart = s.begin(), subend;
+
+        while (true) {
+            subend = std::search(substart, s.end(), delim.begin(), delim.end());
+            std::string temp(substart, subend);
+            if (keep_empty || !temp.empty()) {
+                result.push_back(temp);
+            }
+            if (subend == s.end()) {
+                break;
+            }
+            substart = subend + delim.size();
+        }
+
+        return result;
+    }
+
 	/*
 		分割name = value 串
 		@return 分割成功返回true
@@ -101,6 +129,11 @@ public:
 	//转为小写
 	static string& MakeLower(string& str){
 		transform(str.begin(), str.end(), str.begin(), static_cast<int(*)(int)>(tolower));
+		return str;
+	}
+
+	static string& MakeUpper(string& str){
+		transform(str.begin(), str.end(), str.begin(), static_cast<int(*)(int)>(toupper));
 		return str;
 	}
 
@@ -151,6 +184,16 @@ public:
 		return str;
 	}
 
+	static uint64 StringAsUint64(const char* pstr){
+		SLASSERT(pstr, "is null pointer");
+		std::stringstream sstream;
+		sstream << pstr;
+
+		uint64 val = 0;
+		sstream >> val;
+		return val;
+	}
+
 	static int16 StringAsInt16(const char* pStr){
 		SLASSERT(pStr, "is null pointer");
 		return (int16)StringAsInt32(pStr);
@@ -172,6 +215,16 @@ public:
 		SafeSprintf(str, 127, "%d", val);
 		return str;
 	}
+	
+	static double StringAsDouble(const char* pStr){
+		SLASSERT(pStr, "is null pointer");
+		std::stringstream sstream;
+		sstream << pStr;
+
+		double val = 0;
+		sstream >> val;
+		return val;
+	}
 
 	static bool StringAsBoolean(const char* pStr){
 		SLASSERT(pStr, "is null pointer");
@@ -191,6 +244,52 @@ public:
 			return "true";
 		else
 			return "false";
+	}
+
+	static wchar_t* char2wchar(const char* cs, size_t* outlen = NULL){
+		int len = (int)((strlen(cs) + 1) * sizeof(wchar_t));
+		wchar_t* ccattr = (wchar_t *)malloc(len);
+		memset(ccattr, 0, len);
+
+		size_t slen = mbstowcs(ccattr, cs, len);
+
+		if (outlen)
+		{
+			if ((size_t)-1 != slen)
+				*outlen = slen;
+			else
+				*outlen = 0;
+		}
+
+		return ccattr;
+	};
+
+	static char* wchar2char(const wchar_t* ts, size_t* outlen = NULL)
+	{
+		int len = (int)((wcslen(ts) + 1) * sizeof(wchar_t));
+		char* ccattr = (char *)malloc(len);
+		memset(ccattr, 0, len);
+
+		size_t slen = wcstombs(ccattr, ts, len);
+
+		if (outlen)
+		{
+			if ((size_t)-1 != slen)
+				*outlen = slen;
+			else
+				*outlen = 0;
+		}
+
+		return ccattr;
+	};
+
+	static void wchar2char(const wchar_t* ts, sl::IBStream& pOutStream){
+		int len = (int)((wcslen(ts) +1) * sizeof(wchar_t));
+		size_t slen = wcstombs(pOutStream.getBuffer(), ts, len);
+		if((size_t)-1 != slen){
+			*(pOutStream.getBuffer() + slen) = 0;
+			pOutStream.skip(slen + 1);
+		}
 	}
 };
 

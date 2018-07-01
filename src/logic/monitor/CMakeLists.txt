@@ -9,6 +9,8 @@ INCLUDE_DIRECTORIES(
 SET(MONITOR
 	"${PROJECT_SOURCE_DIR}/src/logic/monitor/Monitor.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/monitor/Monitor.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/monitor/StartUpHandler.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/monitor/StartUpHandler.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/monitor/ShutDown.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/monitor/ShutDown.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/monitor/ServerState.h"

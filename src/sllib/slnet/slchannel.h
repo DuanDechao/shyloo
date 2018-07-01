@@ -12,7 +12,7 @@ class NetworkInterface;
 class PacketReader;
 class PacketSender;
 class PacketReceiver;
-
+class PacketFilter;
 class Channel:public ISLChannel{
 public:
 	inline static Channel* create(NetworkInterface* networkInterface, const EndPoint* pEndPoint, ISLPacketParser* poPacketParser,
@@ -55,6 +55,10 @@ public:
 
 	inline bool isDestroyed() const {return (_flags & FLAG_DESTROYED) > 0;}
 	inline bool sending() const { return (_flags & FLAG_SENDING) > 0; }
+    inline bool hasHandshake() const {return (_flags & FLAG_HANDSHAKE) > 0;}
+
+    int32 handshake(const char* data, const int32 datalen);
+    void putSendBuffer(const char* pBuf, uint32 dwlen);
 
 	inline NetworkInterface& getNetworkInterface()	{return *_pNetworkInterface;}
 	inline NetworkInterface* getNetworkInterfacePtr() {return _pNetworkInterface;}
@@ -105,7 +109,8 @@ private:
 		FLAG_NONE		=   0x00000000,
 		FLAG_SENDING	=	0x00000001,			///< 发送信息中
 		FLAG_DESTROYED	=	0x00000002,			///< 通道已经销毁
-		FLAG_CONNECTED	=	0x00000004,			///< 通道建立连接
+        FLAG_HANDSHAKE  =   0x00000004,         ///< handshake
+		FLAG_CONNECTED	=	0x00000008,			///< 通道建立连接
 	};
 
 private:
@@ -114,6 +119,7 @@ private:
 	uint32						_flags;
 	sl::SLRingBuffer*			_recvBuf;
 	sl::SLRingBuffer*			_sendBuf;
+
 	int32						_recvSize;
 	int32						_sendSize;
 
@@ -135,6 +141,7 @@ private:
 	EndPoint*					_pEndPoint;
 	PacketReceiver*				_pPacketReceiver;
 	PacketSender*				_pPacketSender;
+    PacketFilter*               _pPacketFilter;
 	
 	static sl::SLPool<Channel>  s_pool;
 };

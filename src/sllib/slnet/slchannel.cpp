@@ -6,7 +6,8 @@
 #include "slevent_dispatcher.h"
 #include "sladdress.h"
 #include "sltcp_packet_sender.h"
-
+#include "slwebsocket_protocol.h"
+#include "slwebsocket_packet_filter.h"
 namespace sl{
 namespace network{
 
@@ -33,7 +34,8 @@ Channel::Channel(NetworkInterface* networkInterface, const EndPoint* pEndPoint, 
 
 	_pEndPoint(NULL),
 	_pPacketReceiver(NULL),
-	_pPacketSender(NULL)
+	_pPacketSender(NULL),
+    _pPacketFilter(NULL)
 {
 	this->setEndPoint(pEndPoint);
 
@@ -105,18 +107,10 @@ bool Channel::finalise(){
 }
 
 void Channel::send(const char* pBuf, uint32 dwLen){
-	const int32 freeLen = _sendBuf->getFreeSize();
-	if (dwLen > (uint32)(freeLen)){
-		SLASSERT(false, "wtf");
-		destroy();
-		return;
-	}
-	
-	if (isDestroyed()){
-		return;
-	}
-
-	_sendBuf->put(pBuf, dwLen);
+    if(_pPacketFilter)
+        _pPacketFilter->send(this, pBuf, dwLen);
+    else
+        putSendBuffer(pBuf, dwLen);
 
 	if (!sending()){
 		if (_pPacketSender == NULL){
@@ -131,6 +125,22 @@ void Channel::send(const char* pBuf, uint32 dwLen){
 			_pNetworkInterface->getDispatcher().registerWriteFileDescriptor((int32)(*getEndPoint()), _pPacketSender);
 		}
 	}
+}
+
+void Channel::putSendBuffer(const char* pBuf, uint32 dwLen){
+	const int32 freeLen = _sendBuf->getFreeSize();
+	if (dwLen > (uint32)(freeLen)){
+		SLASSERT(false, "wtf");
+        printf("putSendBuffer buffer freelen < datalen\n");
+		destroy();
+		return;
+	}
+	
+	if (isDestroyed()){
+		return;
+	}
+
+	_sendBuf->put(pBuf, dwLen);
 }
 
 void Channel::adjustSendBuffSize(const int32 size){
@@ -291,7 +301,7 @@ void Channel::processPackets(){
 	if(this->isDestroyed())
 		return;
 	
-	const int32 dataSize = _recvBuf->getDataSize();
+    int32 dataSize = _recvBuf->getDataSize();
 	if (dataSize <= 0)
 		return;
 
@@ -301,6 +311,17 @@ void Channel::processPackets(){
 		SLASSERT(false, "wtf");
 		return;
 	}
+    
+    int32 handshakeReadLen = handshake(data, dataSize);
+    if(handshakeReadLen > 0){
+        data += handshakeReadLen;
+        dataSize -= handshakeReadLen;
+        _recvBuf->readOut(handshakeReadLen);
+    }
+
+    if(dataSize <= 0)
+        return;
+    
 
 	int32 used = 0;
 	int32 totalUsed = 0;
@@ -331,11 +352,16 @@ int32 Channel::recvFromEndPoint(){
 	int32 recvSize = 0;
 	char* recvBuf = _recvBuf->writePtr(recvSize);
 	if (recvSize <= 0){
-		SLASSERT(false, "wtf");
+        printf("error!! recv buffer is out!!!\n");
 		return -1;
 	}
 
-	int32 len = _pEndPoint->recv(recvBuf, recvSize);
+    int len = 0;
+    if(_pPacketFilter)
+        len = _pPacketFilter->recv(this, recvBuf, recvSize);
+    else
+        len = _pEndPoint->recv(recvBuf, recvSize);
+
 	if (len > 0)
 		_recvBuf->writeIn(len);
 
@@ -353,6 +379,24 @@ int32 Channel::sendToEndPoint(){
 	}
 
 	return len;
+}
+
+int32 Channel::handshake(const char* data, const int32 datalen){
+    if(hasHandshake())
+        return -1;
+    
+    _flags |= FLAG_HANDSHAKE;
+
+    //websocket
+    if(websocket::WebSocketProtocol::isWebSocketProtocol(data, datalen)){
+        int32 len = websocket::WebSocketProtocol::handshake(this, data, datalen);
+        if(len > 0){
+            _pPacketFilter = NEW WebSocketPacketFilter();
+        }
+        return len;
+    }
+    
+    return -1;
 }
 
 }

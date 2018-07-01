@@ -4,6 +4,9 @@
 #include <list>
 #include <functional>
 #include <unordered_map>
+#ifdef _DEBUG
+#include <algorithm>
+#endif
 namespace sl{
 
 template<typename T, const int32 debugSize = 256>

@@ -9,14 +9,14 @@ ObjectPropInfo::ObjectPropInfo(int32 objTypeId, const char* objName, ObjectPropI
 	_objectPool(nullptr)
 {
 	if (parenter){
-		_layouts = parenter->_layouts;
-		for (auto& layout : _layouts){
-			if (!layout->_isTemp){
-				const IProp* prop = ObjectMgr::getInstance()->setObjectProp(layout->_name.c_str(), _objTypeId, layout);
+		_propLayouts = parenter->_propLayouts;
+		for (auto& propLayout : _propLayouts){
+			if (!propLayout->_isTemp){
+				const IProp* prop = ObjectMgr::getInstance()->setObjectProp(propLayout->_name.c_str(), _objTypeId, propLayout);
 				_props.push_back(prop);
 			}
 			else{
-				ObjectMgr::getInstance()->setObjectTempProp(layout->_name.c_str(), _objTypeId, layout);
+				ObjectMgr::getInstance()->setObjectTempProp(propLayout->_name.c_str(), _objTypeId, propLayout);
 			}
 		}
 
@@ -42,7 +42,7 @@ ObjectPropInfo::~ObjectPropInfo(){
 		DEL layout;
 		}*/
 
-	_layouts.clear();
+	_propLayouts.clear();
 	_props.clear();
 	_selfProps.clear();
 	_tables.clear();
@@ -89,13 +89,40 @@ bool ObjectPropInfo::loadProps(const sl::ISLXmlNode& props, PROP_DEFDINE_MAP& de
 			}
 		}
 
-		_layouts.push_back(layout);
+		_propLayouts.push_back(layout);
 
-		const IProp * prop = ObjectMgr::getInstance()->setObjectProp(layout->_name.c_str(), _objTypeId, (*_layouts.rbegin()));
+		const IProp * prop = ObjectMgr::getInstance()->setObjectProp(layout->_name.c_str(), _objTypeId, (*_propLayouts.rbegin()));
 		_props.push_back(prop);
 		_selfProps.push_back(prop);
 	}
 	return true;
+}
+
+const IProp* ObjectPropInfo::loadProp(const char* name, const int8 type, const int32 size, const int32 setting, const int32 index, const void* extra, const char* defaultVal, bool isTemp){
+	PropLayout* layout = NEW PropLayout();
+	layout->_name = name;
+	layout->_offset = _size;
+	layout->_type = type;
+	layout->_size = size;
+
+	_size += layout->_size;
+	layout->_isTemp = isTemp;
+	layout->_index = index;
+	layout->_setting = setting;
+    layout->_extra = extra;
+	layout->_defaultVal = defaultVal;
+
+	_propLayouts.push_back(layout);
+
+	const IProp * prop = isTemp ? ObjectMgr::getInstance()->setObjectTempProp(layout->_name.c_str(), _objTypeId, (*_propLayouts.rbegin())) :
+        ObjectMgr::getInstance()->setObjectProp(layout->_name.c_str(), _objTypeId, (*_propLayouts.rbegin()));
+	
+    if(!isTemp){
+        _props.push_back(prop);
+	    _selfProps.push_back(prop);
+    }
+
+	return prop;
 }
 
 bool ObjectPropInfo::loadTemps(const sl::ISLXmlNode& temps){
@@ -107,12 +134,14 @@ bool ObjectPropInfo::loadTemps(const sl::ISLXmlNode& temps){
 		_size += layout->_size;
 		layout->_setting = 0;
 		layout->_isTemp = true;
-		_layouts.push_back(layout);
+		_propLayouts.push_back(layout);
 
-		ObjectMgr::getInstance()->setObjectTempProp(layout->_name.c_str(), _objTypeId, (*_layouts.rbegin()));
+		ObjectMgr::getInstance()->setObjectTempProp(layout->_name.c_str(), _objTypeId, (*_propLayouts.rbegin()));
 	}
 	return true;
 }
+
+//bool ObjectPropInfo::loadTable(const )
 
 bool ObjectPropInfo::loadTables(const sl::ISLXmlNode& tables){
 	for (int32 i = 0; i < tables.count(); i++){
@@ -126,6 +155,8 @@ bool ObjectPropInfo::loadTables(const sl::ISLXmlNode& tables){
 	}
 	return true;
 }
+
+//bool ObjectPropInfo::loadTable(const char* name, )
 
 bool ObjectPropInfo::loadPropConfig(const sl::ISLXmlNode& prop, PropLayout& layout){
 	layout._name = prop.getAttributeString("name");

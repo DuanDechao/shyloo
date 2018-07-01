@@ -160,7 +160,7 @@ void Balance::sendGate(sl::api::IKernel* pKernel, int64 agentId){
 	args.fix();
 	_harbor->send(NodeType::GATE, gate->nodeId, NodeProtocol::BALANCE_MSG_SYNC_LOGIN_TICKET, args.out());
 
-	sl::IBStream<128> ack;
+	sl::BStream<128> ack;
 	ack << gate->ip.c_str() << gate->port << agentId;
 	sl::OBStream out = ack.out();
 
@@ -172,7 +172,7 @@ void Balance::sendGate(sl::api::IKernel* pKernel, int64 agentId){
 }
 
 void Balance::sendTicket(sl::api::IKernel* pKernel, int64 agentId, int32 ticket){
-	sl::IBStream<256> ack;
+	sl::BStream<256> ack;
 	ack << (ticket - _passTicket);
 	sl::OBStream out = ack.out();
 

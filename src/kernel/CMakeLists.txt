@@ -133,11 +133,11 @@ ADD_EXECUTABLE(shyloo
 ENDIF(UNIX)
 
 IF(WIN32)
-SET(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/build/windows")
-TARGET_LINK_LIBRARIES(shyloo slxml.lib slnet.lib sltimer.lib slshm.lib)
+	SET(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin/Hybrid")
+	TARGET_LINK_LIBRARIES(shyloo slxml.lib slnet.lib sltimer.lib slshm.lib)
 ENDIF(WIN32)
 
 IF(UNIX)
-SET(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/build/linux")
-TARGET_LINK_LIBRARIES(shyloo libslxml.so libslnet.so libsltimer.so libslshm.so)
+	SET(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin/Hybrid")
+	TARGET_LINK_LIBRARIES(shyloo libslxml.so libslnet.so libsltimer.so libslshm.so)
 ENDIF(UNIX)

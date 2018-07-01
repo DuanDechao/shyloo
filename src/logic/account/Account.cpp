@@ -38,7 +38,7 @@ void Account::onGateBindAccount(sl::api::IKernel* pKernel, const int32 nodeType,
 
 			 _gateAccounts[nodeId].insert(accountId);
 
-			 bindAccountSuccess(pKernel, account);
+			 bindAccountSuccess(pKernel, nodeType, account);
 		}
 		break;
 	case ACCOUNT_STATE_ONLINE:{
@@ -50,7 +50,7 @@ void Account::onGateBindAccount(sl::api::IKernel* pKernel, const int32 nodeType,
 			IArgs<1, 128> args;
 			args << account.agentId;
 			args.fix();
-			_harbor->send(NodeType::GATE, account.gateId, NodeProtocol::ACCOUNT_MSG_KICK_FROM_ACCOUNT, args.out());
+			_harbor->send(nodeType, account.gateId, NodeProtocol::ACCOUNT_MSG_KICK_FROM_ACCOUNT, args.out());
 		}
 		break;
 	case ACCOUNT_STATE_SWITCH:{
@@ -100,7 +100,7 @@ void Account::onGateUnBindAccount(sl::api::IKernel* pKernel, const int32 nodeTyp
 				account.state = ACCOUNT_STATE_ONLINE;
 				_gateAccounts[account.gateId].insert(accountId);
 
-				bindAccountSuccess(pKernel, account);
+				bindAccountSuccess(pKernel, nodeType, account);
 			}
 			else if(account.switchGateId == nodeId && account.switchAgentId == agentId){
 				_switchGateAccounts[account.switchGateId].erase(accountId);
@@ -113,9 +113,9 @@ void Account::onGateUnBindAccount(sl::api::IKernel* pKernel, const int32 nodeTyp
 	}
 }
 
-void Account::bindAccountSuccess(sl::api::IKernel* pKernel, const AccountInfo& account){
+void Account::bindAccountSuccess(sl::api::IKernel* pKernel, const int32 nodeType, const AccountInfo& account){
 	IArgs<4, 1024> args;
 	args << account.agentId << account.accountId << (int32)protocol::ErrorCode::ERROR_NO_ERROR;
 	args.fix();
-	_harbor->send(NodeType::GATE, account.gateId, NodeProtocol::ACCOUNT_MSG_BIND_ACCOUNT_ACK, args.out());
+	_harbor->send(nodeType, account.gateId, NodeProtocol::ACCOUNT_MSG_BIND_ACCOUNT_ACK, args.out());
 }

@@ -144,8 +144,8 @@ void ShadowMgr::onLogicDestroyShadow(sl::api::IKernel* pKernel, const int32 node
 
 void ShadowMgr::syncShadow(sl::api::IKernel* pKernel, IObject* object, const char* name, const IProp* prop, const bool sync){
 	int32 setting = prop->getSetting(object);
-	if (!(setting & prop_def::copy))
-		return;
+	//if (!(setting & prop_def::copy))
+	//	return;
 	
 	ITableControl* shadowSyncProps = object->findTable(OCTableMacro::SHADOW_SYNC_PROP::TABLE_NAME);
 	SLASSERT(shadowSyncProps, "wtf");
@@ -202,7 +202,7 @@ void ShadowMgr::onSyncTime(sl::api::IKernel* pKernel, IObject* object, int64){
 	for (int32 i = 0; i < shadowSyncProps->rowCount(); i++){
 		const IRow* row = shadowSyncProps->getRow(i);
 		const IProp* prop = (const IProp*)row->getDataInt64(OCTableMacro::SHADOW_SYNC_PROP::PROP);
-		SLASSERT(prop && (prop->getSetting(object) & prop_def::copy), "wtf");
+		//SLASSERT(prop && (prop->getSetting(object) & prop_def::copy), "wtf");
 
 		shadow::Attribute attr;
 		attr.name = prop->getName();
@@ -237,8 +237,8 @@ void ShadowMgr::sendCreateShadow(sl::api::IKernel* pKernel, IObject* object, con
 	info.count = 0;
 	for (auto prop : object->getObjProps()){
 		int32 setting = prop->getSetting(object);
-		if (setting & prop_def::copy)
-			info.count++;
+		//if (setting & prop_def::copy)
+		//	info.count++;
 	}
 
 	_harbor->prepareSend(NodeType::LOGIC, logic, NodeProtocol::LOGIC_MSG_CREATE_SHADOW, sizeof(info)+info.count * sizeof(shadow::Attribute));
@@ -246,8 +246,8 @@ void ShadowMgr::sendCreateShadow(sl::api::IKernel* pKernel, IObject* object, con
 
 	for (auto prop : object->getObjProps()){
 		int32 setting = prop->getSetting(object);
-		if (!(setting & prop_def::copy))
-			continue;
+		//if (!(setting & prop_def::copy))
+		//	continue;
 
 		shadow::Attribute attr;
 		attr.name = prop->getName();

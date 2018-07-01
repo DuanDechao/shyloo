@@ -6,7 +6,7 @@ using namespace sl::api;
 
 GET_DLL_ENTRANCE
 
-CREATE_MODULE(AOI)
+//CREATE_MODULE(AOI)
 CREATE_MODULE(Scene)
-CREATE_MODULE(SceneMgr)
-CREATE_MODULE(SceneClientMgr)
+//CREATE_MODULE(SceneMgr)
+//CREATE_MODULE(SceneClientMgr)

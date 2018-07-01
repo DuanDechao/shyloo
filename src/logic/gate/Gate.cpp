@@ -50,11 +50,11 @@ public:
 	
 	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick){
-		if (_actors.empty())
+		if (_agents.empty())
 			Gate::getInstance()->broadcast(_data.data(), (int32)_data.size());
 		else{
-			for (auto actorId : _actors){
-				Gate::getInstance()->send(actorId, _data.data(), (int32)_data.size());
+			for (auto agent : _agents){
+				Gate::getInstance()->send(agent, _data.data(), (int32)_data.size());
 			}
 		}
 
@@ -63,14 +63,15 @@ public:
 	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick){}
 
-	void addActor(const int64 id){ _actors.insert(id); }
+	void addAgent(const int64 id){ _agents.insert(id); }
 private:
 	std::string	_data;
-	std::unordered_set<int64> _actors;
+	std::unordered_set<int64> _agents;
 };
 
 bool Gate::initialize(sl::api::IKernel * pKernel){
 	_self = this;
+    _kernel = pKernel;
 
 	sl::XmlReader svrConf;
 	if (!svrConf.loadXml(pKernel->getCoreFile())){
@@ -84,38 +85,35 @@ bool Gate::initialize(sl::api::IKernel * pKernel){
 
 bool Gate::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
-	FIND_MODULE(_cacheDB, CacheDB);
+	//FIND_MODULE(_cacheDB, CacheDB);
 	FIND_MODULE(_IdMgr, IdMgr);
-	FIND_MODULE(_roleMgr, RoleMgr);
 	FIND_MODULE(_agent, Agent);
 
 	_agent->setListener(this);
 	_harbor->addNodeListener(this);
 
-	_maxRoleNum = 4;
-
-	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENEMGR_MSG_DISTRIBUTE_LOGIC_ACK, Gate::onSceneMgrDistributeLogic);
+	//RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENEMGR_MSG_DISTRIBUTE_LOGIC_ACK, Gate::onSceneMgrDistributeLogic);
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::ACCOUNT_MSG_BIND_ACCOUNT_ACK, Gate::onAccountBindAccountAck);
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::ACCOUNT_MSG_KICK_FROM_ACCOUNT, Gate::onAccountKickFromAccount);
-	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_BIND_PLAYER_ACK, Gate::onLogicBindPlayerAck);
+	//RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_BIND_PLAYER_ACK, Gate::onLogicBindPlayerAck);
 	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::BALANCE_MSG_SYNC_LOGIN_TICKET, Gate::onBalanceSyncLoginTicket);
-	RGS_NODE_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_TRANSFOR, Gate::onLogicTransforToAgent);
-	RGS_NODE_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_BROCAST, Gate::onLogicBrocastToAgents);
-	RGS_NODE_HANDLER(_harbor, NodeProtocol::GATE_MSG_BROCAST, Gate::onLogicBrocastToAgents);
-	RGS_NODE_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_ALLSVR_BROCAST, Gate::onLogicBrocastToAllAgents);
+	//RGS_NODE_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_TRANSFOR, Gate::onLogicTransforToAgent);
+	//RGS_NODE_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_BROCAST, Gate::onLogicBrocastToAgents);
+	//RGS_NODE_HANDLER(_harbor, NodeProtocol::GATE_MSG_BROCAST, Gate::onLogicBrocastToAgents);
+	//RGS_NODE_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_ALLSVR_BROCAST, Gate::onLogicBrocastToAllAgents);
 
 	//_self->rgsAgentMessageHandler(ClientMsgID::CLIENT_MSG_LOGIN_REQ, &Gate::onClientLoginReq);
 	//_self->rgsAgentMessageHandler(ClientMsgID::CLIENT_MSG_SELECT_ROLE_REQ, &Gate::onClientSelectRoleReq);
 	//_self->rgsAgentMessageHandler(ClientMsgID::CLIENT_MSG_CREATE_ROLE_REQ, &Gate::onClientCreateRoleReq);
 	RGS_GATE_ARGS_HANDLER(_self, ClientMsgID::CLIENT_MSG_LOGIN_REQ, Gate::onClientLoginReq);
-	RGS_GATE_ARGS_HANDLER(_self, ClientMsgID::CLIENT_MSG_SELECT_ROLE_REQ, Gate::onClientSelectRoleReq);
-	RGS_GATE_ARGS_HANDLER(_self, ClientMsgID::CLIENT_MSG_CREATE_ROLE_REQ, Gate::onClientCreateRoleReq);
+	//RGS_GATE_ARGS_HANDLER(_self, ClientMsgID::CLIENT_MSG_SELECT_ROLE_REQ, Gate::onClientSelectRoleReq);
+	//RGS_GATE_ARGS_HANDLER(_self, ClientMsgID::CLIENT_MSG_CREATE_ROLE_REQ, Gate::onClientCreateRoleReq);
 
 
 	if (_isQueneOn)
 		START_TIMER(_self, 20000, TIMER_BEAT_FOREVER, REPORT_LOAD_INTERVAL);
 	
-	test();
+	//test();
 	return true;
 }
 bool Gate::destory(sl::api::IKernel * pKernel){
@@ -134,23 +132,23 @@ void Gate::onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32 n
 }
 
 void Gate::onClose(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId){
-	if (nodeType == NodeType::ACCOUNT){
-		std::unordered_map<int64, Player> temp(_players);
+	if (nodeType == NodeType::DATABASE){
+		std::unordered_map<int64, Session> temp(_sessions);
 		for (auto itor = temp.begin(); itor != temp.end(); ++itor){
 			_agent->kick(itor->first);
 		}
 	}
-	else if (nodeType == NodeType::LOGIC){
+	/*else if (nodeType == NodeType::LOGIC){
 		std::unordered_set<int64> temp(_logicPlayers[nodeId]);
 		for (auto agentId : temp){
 			_agent->kick(agentId);
 		}
-	}
+	}*/
 }
 
 void Gate::onTime(sl::api::IKernel* pKernel, int64 timetick){
 	IArgs<1, 32> args;
-	args << (int32)_players.size();
+	args << (int32)_sessions.size();
 	args.fix();
 	_harbor->send(NodeType::BALANCE, 1, NodeProtocol::GATE_MSG_LOAD_REPORT, args.out());
 
@@ -165,24 +163,26 @@ void Gate::onTime(sl::api::IKernel* pKernel, int64 timetick){
 }
 
 void Gate::onAgentOpen(sl::api::IKernel* pKernel, const int64 id){
-	SLASSERT(_players.find(id) == _players.end(), "duplicate agent id£º%d", id);
-	_players[id] = { id, 0, 0, 0, GATE_STATE_NONE };
+	SLASSERT(_sessions.find(id) == _sessions.end(), "duplicate agent id£º%d", id);
+	_sessions[id] = { id, 0, GATE_STATE_NONE };
 }
 
 void Gate::onAgentClose(sl::api::IKernel* pKernel, const int64 id){
-	SLASSERT(_players.find(id) != _players.end(), "where is agent %d", id);
+	SLASSERT(_sessions.find(id) != _sessions.end(), "where is agent %d", id);
 
-	if (_players[id].state != GATE_STATE_NONE){
+	if (_sessions[id].state != GATE_STATE_NONE){
 		reset(pKernel, id, GATE_STATE_NONE);
 	}
 
-	_players.erase(id);
+	_sessions.erase(id);
 }
 
 int32 Gate::onAgentRecv(sl::api::IKernel* pKernel, const int64 id, const void* context, const int32 size){
 	if (size < (int32)(sizeof(int32)* 2)){
 		return 0;
 	}
+
+
 
 	int32 len = *((int32*)((const char*)context + sizeof(int32)));
 	if (size < len){
@@ -194,7 +194,7 @@ int32 Gate::onAgentRecv(sl::api::IKernel* pKernel, const int64 id, const void* c
 		_gateProtos[msgId]->DealNodeMessage(pKernel, id, (const char*)context + sizeof(int32)* 2, len);
 	}
 	else{
-		if (_players[id].state == GATE_STATE_ONLINE){
+		if (_sessions[id].state == GATE_STATE_ONLINE){
 			transMsgToLogic(pKernel, id, context, len);
 		}
 	}
@@ -211,64 +211,55 @@ void Gate::rgsGateArgsMessageHandler(int32 messageId, const GATE_ARGS_CB& handle
 	_gateProtos[messageId] = NEW GateArgsCBMessageHandler(handler);
 }
 
+void Gate::rgsGateListener(IGateListener* listener){
+	_gateListeners.push_back(listener);
+}
+
 void Gate::transMsgToLogic(sl::api::IKernel* pKernel, const int64 id, const void* pContext, const int32 size){
-	Player& player = _players[id];
-	_harbor->prepareSend(NodeType::LOGIC, player.logic, NodeProtocol::GATE_MSG_TRANSMIT_MSG_TO_LOGIC, size + sizeof(int64));
-	_harbor->send(NodeType::LOGIC, player.logic, &player.selectActorId, sizeof(player.selectActorId));
-	_harbor->send(NodeType::LOGIC, player.logic, pContext, size);
+    for(auto* listener : _gateListeners)
+        listener->onGateMsgRecv(pKernel, id, pContext, size);
+
 }
 
 void Gate::reset(sl::api::IKernel* pKernel, int64 id, int8 state){
-	SLASSERT(state == GATE_STATE_NONE || state == GATE_STATE_ROLELOADED, "wtf");
-	Player& player = _players[id];
-	int8 oldState = player.state;
-	if (oldState > GATE_STATE_ROLELOADED){
-		SLASSERT(player.logic > 0 && player.selectActorId != 0, "wtf");
+	SLASSERT(state == GATE_STATE_NONE || state == GATE_STATE_BINDING, "wtf");
+	Session& session = _sessions[id];
 
-		IArgs<1, 32> args;
-		args << player.selectActorId;
-		args.fix();
-		_harbor->send(NodeType::LOGIC, player.logic, NodeProtocol::GATE_MSG_UNBIND_PLAYER_REQ, args.out());
-
-		_actors.erase(player.selectActorId);
-		_logicPlayers[player.logic].erase(id);
-
-		player.selectActorId = 0;
-		player.logic = 0;
+	int8 oldState = session.state;
+	if (oldState > GATE_STATE_BINDING){
+        for(auto* listener : _gateListeners)
+            listener->onGateUnbind(pKernel, id);
 	}
 
 	if (oldState > GATE_STATE_NONE && state == GATE_STATE_NONE){
 		IArgs<3, 128> args;
-		args << player.agentId << player.accountId;
+		args << session.agentId << session.accountId;
 		args.fix();
-		_harbor->send(NodeType::ACCOUNT, 1, NodeProtocol::GATE_MSG_UNBIND_ACCOUNT_REQ, args.out());
+		_harbor->send(NodeType::DATABASE, 1, NodeProtocol::GATE_MSG_UNBIND_ACCOUNT_REQ, args.out());
 
-		player.accountId = 0;
-		player.roles.clear();
+		session.accountId = 0;
 	}
 
-	player.state = state;
+	session.state = state;
 }
 
 void Gate::broadcast(const void* context, const int32 size){
-	auto itor = _players.begin();
-	for (; itor != _players.end(); ++itor){
+	auto itor = _sessions.begin();
+	for (; itor != _sessions.end(); ++itor){
 		if (itor->second.state == GATE_STATE_ONLINE)
 			_agent->send(itor->second.agentId, context, size);
 	}
 }
 
-void Gate::send(int64 actorId, const void* context, const int32 size){
-	auto itor = _actors.find(actorId);
-	if (itor != _actors.end()){
-		SLASSERT(_players.find(itor->second) != _players.end(), "wtf");
-		Player& player = _players[itor->second];
-		if (player.state == GATE_STATE_ONLINE)
-			_agent->send(player.agentId, context, size);
+void Gate::send(int64 agentId, const void* context, const int32 size){
+	auto itor = _sessions.find(agentId);
+	if (itor != _sessions.end()){
+		if (itor->second.state == GATE_STATE_ONLINE)
+			_agent->send(agentId, context, size);
 	}
 }
 
-void Gate::sendToClient(sl::api::IKernel* pKernel, const int64 id, const int32 msgId, const OBStream& buf){
+void Gate::sendToClient(const int64 id, const int32 msgId, const OBStream& buf){
 	int32 header[2];
 	header[0] = msgId;
 	header[1] = buf.getSize() + sizeof(int32)* 2;
@@ -277,20 +268,13 @@ void Gate::sendToClient(sl::api::IKernel* pKernel, const int64 id, const int32 m
 	_agent->send(id, buf.getContext(), buf.getSize());
 }
 
-void Gate::sendLoginAck(sl::api::IKernel* pKernel, Player& player, int32 errCode){
-	IBStream<4096> buf;
+void Gate::sendLoginAck(sl::api::IKernel* pKernel, Session& session, int32 errCode){
+	BStream<4096> buf;
 	buf << (int32)errCode;
-	if (errCode == protocol::ErrorCode::ERROR_NO_ERROR){
-		buf << (int32)player.roles.size();
-		for (const auto& role : player.roles){
-			buf << role.actorId;
-		}
-	}
-	
-	sendToClient(pKernel, player.agentId, ServerMsgID::SERVER_MSG_LOGIN_RSP, buf.out());
+	sendToClient(session.agentId, ServerMsgID::SERVER_MSG_LOGIN_RSP, buf.out());
 }
 
-void Gate::onSceneMgrDistributeLogic(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
+/*void Gate::onSceneMgrDistributeLogic(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
 	int64 agentId = args.getInt64(0);
 	int64 actorId = args.getInt64(1);
 	int32 logic = args.getInt32(2);
@@ -320,21 +304,21 @@ void Gate::onSceneMgrDistributeLogic(sl::api::IKernel* pKernel, const int32 node
 			sendToClient(pKernel, agentId, ServerMsgID::SERVER_MSG_SELECT_ROLE_RSP, buf.out());
 		}
 	}
-}
+}*/
 
 void Gate::onAccountBindAccountAck(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
 	int64 agentId = args.getInt64(0);
 	int64 accountId = args.getInt64(1);
 	int32 errorCode = args.getInt32(2);
 
-	if (_players.find(agentId) != _players.end()){
-		Player& player = _players[agentId];
-		SLASSERT(player.state == GATE_STATE_AUTHENING && player.accountId == accountId, "wtf");
-		if (player.accountId != accountId)
+	if (_sessions.find(agentId) != _sessions.end()){
+		Session& session = _sessions[agentId];
+		SLASSERT(session.state == GATE_STATE_AUTHENING && session.accountId == accountId, "wtf");
+		if (session.accountId != accountId)
 			return;
 
 		if (errorCode == protocol::ErrorCode::ERROR_NO_ERROR){
-			bool ret = _roleMgr->getRoleList(accountId, [&player](sl::api::IKernel* pKernel, const int64 actorId, IRole* role){
+		   	/*bool ret = _roleMgr->getRoleList(accountId, [&player](sl::api::IKernel* pKernel, const int64 actorId, IRole* role){
 				player.roles.push_back({ actorId, role });
 			});
 
@@ -345,24 +329,43 @@ void Gate::onAccountBindAccountAck(sl::api::IKernel* pKernel, const int32 nodeTy
 			else{
 				reset(pKernel, agentId, GATE_STATE_NONE);
 				sendLoginAck(pKernel, player, protocol::ErrorCode::ERROR_GET_ROLE_LIST_FAILED);
-			}
+			}*/
+         
+           session.state = GATE_STATE_BINDING;
+           
+           for (auto* listener : _gateListeners)
+              listener->onGateLogined(pKernel, agentId); 
+           
 		}
 		else{
-			sendLoginAck(pKernel, player, errorCode);
+			sendLoginAck(pKernel, session, errorCode);
 		}
 	}
 }
 
 void Gate::onAccountKickFromAccount(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
 	int64 agentId = args.getInt64(0);
-	if (_players.find(agentId) != _players.end()){
-		SLASSERT(_players[agentId].state >= GATE_STATE_ROLELOADED, "wtf");
+	if (_sessions.find(agentId) != _sessions.end()){
+		SLASSERT(_sessions[agentId].state >= GATE_STATE_BINDING, "wtf");
 
-		reset(pKernel, agentId, GATE_STATE_NONE);
+		//reset(pKernel, agentId, GATE_STATE_NONE);
+        for (auto* listener : _gateListeners)
+            listener->onGateLogOnAttempt(pKernel, agentId);
 	}
 }
 
-void Gate::onLogicBindPlayerAck(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
+void Gate::setGateOnline(const int64 agentId){
+	if (_sessions.find(agentId) != _sessions.end()){
+		Session& session = _sessions[agentId];
+        if(session.state != GATE_STATE_BINDING){
+            return;
+        }
+		session.state = GATE_STATE_ONLINE;
+	}
+}
+
+
+/*void Gate::onLogicBindPlayerAck(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
 	int32 errCode = args.getInt32(0);
 	int64 actorId = args.getInt64(1);
 	int64 accountId = args.getInt64(2);
@@ -388,13 +391,33 @@ void Gate::onLogicBindPlayerAck(sl::api::IKernel* pKernel, const int32 nodeType,
 		buf << errCode;
 		sendToClient(pKernel, player.agentId, ServerMsgID::SERVER_MSG_SELECT_ROLE_RSP, buf.out());
 	}
-}
+}*/
 
 void Gate::onBalanceSyncLoginTicket(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
 	_agentTickets[args.getInt64(0)] = sl::getTimeMilliSecond();
 }
 
-void Gate::onLogicTransforToAgent(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OBStream& args){
+void Gate::sendMsgToAgent(const int64 agentId , const void* context, const int32 size, const int32 delay){
+    sl::api::IKernel* pKernel = _kernel;
+	Session* session = findSessionByAgentId(agentId);
+	if (session != nullptr && session->state == GATE_STATE_ONLINE){
+		//const int32 messageId = ((client::Header*)((const char*)context + sizeof(client::Transfor)))->messageId;
+		if (delay > 0){
+			DelaySendTimer* timer = NEW DelaySendTimer(context, size);
+			timer->addAgent(agentId);
+			START_TIMER(timer, 0, 1, delay);
+		}
+		else{
+			//send(info->actorId, context, size);
+			_agent->send(session->agentId, (const char*)context, size);
+		}
+	}
+	else{
+		ERROR_LOG("send packet to client, but agentId[agentId:%lld] is invaild ", agentId);
+	}
+}
+
+/*void Gate::onLogicTransforToAgent(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OBStream& args){
 	const void* context = args.getContext();
 	const int32 size = args.getSize();
 	SLASSERT(size > sizeof(client::Transfor) + sizeof(client::Header), "size is not invailed");
@@ -418,8 +441,9 @@ void Gate::onLogicTransforToAgent(sl::api::IKernel* pKernel, const int32 nodeTyp
 		ERROR_LOG("send packet to client, but player[actorid:%lld] is invaild ", info->actorId);
 	}
 }
+*/
 
-void Gate::onLogicBrocastToAgents(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OBStream& args){
+/*void Gate::onLogicBrocastToAgents(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OBStream& args){
 	const void* context = args.getContext();
 	const int32 size = args.getSize();
 	SLASSERT(size > sizeof(client::Header), "size is invaild");
@@ -485,30 +509,30 @@ void Gate::onLogicBrocastToAllAgents(sl::api::IKernel* pKernel, const int32 node
 		});
 	}
 }
-
+*/
 void Gate::onClientLoginReq(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
 	const char* accountName = nullptr;
 	int64 ticket = 0;
-	if (!args.readString(accountName) || !args.readInt64(ticket))
+    const char* password = nullptr;
+	if (!args.readString(accountName) || !args.readString(password))
 		return;
 
-	SLASSERT(_players.find(id) != _players.end(), "not find agent!");
-	Player& player = _players[id];
+	SLASSERT(_sessions.find(id) != _sessions.end(), "not find agent!");
+	Session& session = _sessions[id];
 
-	if (player.state != GATE_STATE_NONE)
+	if (session.state != GATE_STATE_NONE)
 		return;
-
 
 	if (_isQueneOn){
 		if (_agentTickets.find(ticket) == _agentTickets.end()){
-			sendLoginAck(pKernel, player, protocol::ErrorCode::ERROR_LOGIN_CHECK_TICKET_FAILED);
+			sendLoginAck(pKernel, session, protocol::ErrorCode::ERROR_LOGIN_CHECK_TICKET_FAILED);
 			return;
 		}
 		_agentTickets.erase(ticket);
 	}
 
-	int64 accountId = 0;
-	bool success = _cacheDB->readByIndex("account", [&](sl::api::IKernel* pKernel, ICacheDBReader* reader){
+	int64 accountId = 34465756878;
+	/*bool success = _cacheDB->readByIndex("account", [&](sl::api::IKernel* pKernel, ICacheDBReader* reader){
 		reader->readColumn("accountId");
 	}, [&accountId](sl::api::IKernel* pKernel, ICacheDBReadResult* result){
 		if (result->count() == 1)
@@ -524,20 +548,24 @@ void Gate::onClientLoginReq(sl::api::IKernel* pKernel, const int64 id, const OBS
 		SLASSERT(success, "write db failed");
 	}
 	SLASSERT(accountId, "can't get accountID");
+*/
+	session.accountId = accountId;
+	session.state = GATE_STATE_AUTHENING;
 
-	player.accountId = accountId;
-	player.state = GATE_STATE_AUTHENING;
+	
+    for (auto* listener : _gateListeners)
+        listener->onGateLogined(pKernel, session.agentId); 
 
-	IArgs<3, 128> inArgs;
-	inArgs << player.agentId << player.accountId;
+	/*IArgs<3, 128> inArgs;
+	inArgs << session.agentId << session.accountId;
 	inArgs.fix();
 
-	_harbor->send(NodeType::ACCOUNT, 1, NodeProtocol::GATE_MSG_BIND_ACCOUNT_REQ, inArgs.out());
-
-	ECHO_TRACE("client[%s:%lld] login...", accountName, accountId);
+	_harbor->send(NodeType::DATABASE, 1, NodeProtocol::GATE_MSG_BIND_ACCOUNT_REQ, inArgs.out());
+*/
+	printf("client[%s:%lld] login...\n", accountName, accountId);
 }
 
-void Gate::onClientSelectRoleReq(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
+/*void Gate::onClientSelectRoleReq(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
 	int64 actorId = 0;
 	if (!args.readInt64(actorId))
 		return;
@@ -561,9 +589,9 @@ void Gate::onClientSelectRoleReq(sl::api::IKernel* pKernel, const int64 id, cons
 
 		ECHO_TRACE("client[%lld] select role[%lld] success", _players[id].accountId, actorId);
 	}
-}
+}*/
 
-void Gate::onClientCreateRoleReq(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
+/*void Gate::onClientCreateRoleReq(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
 	SLASSERT(_players.find(id) != _players.end(), "where is agent?");
 	Player& player = _players[id];
 	if (player.state == GATE_STATE_ROLELOADED){
@@ -591,12 +619,5 @@ void Gate::onClientCreateRoleReq(sl::api::IKernel* pKernel, const int64 id, cons
 			return;
 		}
 	}
-}
+}*/
 
-void Gate::test(){
-	/*auto dbCall = CREATE_DB_CALL(_db, 0, 0);
-	dbCall->insert("user", [&](sl::api::IKernel* pKernel, IDBInsertParamAdder* adder){
-		adder->AddColumn("id", 877777888888);
-		adder->AddColumn("name", "ddc");
-	}, nullptr);*/
-}

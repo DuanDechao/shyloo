@@ -5,7 +5,7 @@
 #include "IMonitor.h"
 #include "IAgent.h"
 #include <unordered_map>
-
+class StartUpHandler;
 class IMonitorMessageHandler{
 public:
 	virtual ~IMonitorMessageHandler(){}
@@ -22,14 +22,25 @@ public:
 
 	virtual void rgsMonitorMessageHandler(int32 messageId, const MONITOR_CB& handler, const char* debug);
 	virtual void rgsMonitorArgsMessageHandler(int32 messageId, const MONITOR_ARGS_CB& handler, const char* debug);
+	virtual void addListener(IMonitorListener* listener);
 
 	virtual void onAgentOpen(sl::api::IKernel* pKernel, const int64 id);
 	virtual void onAgentClose(sl::api::IKernel* pKernel, const int64 id);
 	virtual int32 onAgentRecv(sl::api::IKernel* pKernel, const int64 id, const void* context, const int32 size);
 
+	bool serverReady();
+	bool serverReadyForLogin();
+	bool serverReadyForShutDown();
+	bool serverShutDown();
+
+	sl::api::IKernel* getKernel() const {return _kernel;}
+
 private:
+	sl::api::IKernel* _kernel;
 	std::unordered_map<int32, IMonitorMessageHandler*> _monitorProtos;
+	std::vector<IMonitorListener*> _listeners;
 	IAgent*		_agent;
 	IHarbor*	_harbor;
+	StartUpHandler* _startUpHandler;
 };
 #endif

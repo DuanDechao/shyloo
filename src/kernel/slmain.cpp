@@ -12,7 +12,9 @@ int main(int argc, char ** argv){
 	if(res){
 		pKernel->loop();
 		pKernel->destory();
-	}
+	}else{
+        printf("kernel init failed !!!!\n");
+    }
 
 	return 0;
 }

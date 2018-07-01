@@ -16,11 +16,9 @@
 
 namespace sl
 {
-namespace MemoryStreamConverter
-{
+namespace MemoryStreamConverter{
 	template<size_t T>
-	inline void convert(char* val)
-	{
+	inline void convert(char* val){
 		std::swap(*val, *(val + T - 1));
 		convert<T-2>(val + 1);
 	}
@@ -28,14 +26,12 @@ namespace MemoryStreamConverter
 	template<> inline void convert<0>(char*){}
 	template<> inline void convert<1>(char*){}
 
-	template<typename T>
-	inline void apply(T* val)
-	{
+    template<typename T>
+	inline void apply(T* val){
 		convert<sizeof(T)>((char*)(val));
 	}
 
-	inline void convert(char* val, size_t size)
-	{
+	inline void convert(char* val, size_t size){
 		if(size < 2) return;
 
 		std::swap(*val, *(val + size - 1));

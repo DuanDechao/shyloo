@@ -4,7 +4,8 @@
 class IObject;
 namespace logic_event{
 	enum{
-		EVENT_PRE_SHUTDOWN = 1,
+		EVENT_SERVER_READY = 1,
+		EVENT_PRE_SHUTDOWN,
 		EVENT_SHUTDOWN_NOTIFY,
 		EVENT_SHUTDOWN_CLOSE,
 		EVENT_SHUTDOWN_COMPLETE,
@@ -17,6 +18,15 @@ namespace logic_event{
 		EVENT_DAY_CHANGED,
 		EVENT_WEEK_CHANGED,
 		EVENT_MONTH_CHANGED,
+
+        EVENT_NEW_OBJECT_CREATED,
+        EVENT_CREATE_CELL_ENTITY,
+        EVENT_CELL_ENTITY_CREATED,
+		EVENT_PROXY_CREATED,
+        
+        EVENT_GATE_LOGINED,
+        EVENT_PROXY_ENTITY_CREATED,
+        EVENT_ENTITY_CREATED_FROM_DB_CALLBACK,
 
 		EVENT_LOGIC_PLAYER_RECONNECT = 1000,
 		EVENT_LOGIC_PLAYER_ONLINE,
@@ -52,6 +62,39 @@ namespace logic_event{
 	struct Biology{
 		IObject* object;
 	};
+
+    struct CellEntityCreated{
+        IObject* object;
+		const void* cellData;
+		const int32 cellDataSize;
+        int32 baseNodeId;
+    };
+
+    struct CellEntityCreatedFromCell{
+        uint64 entityId;
+        int32 remoteNodeId;
+    };
+
+    struct GateLoginedInfo{
+        const char* proxyType;
+        uint64 proxyId;
+        int64 agentId;
+    };
+
+    struct ProxyEntityCreated{
+        uint64 proxyId;
+        int64 agentId;
+    };
+
+    struct EntityCreatedFromDBCallBack{
+        const char* entityType;
+        uint64 dbid;
+        uint64 callbackId;
+        uint64 entityId;
+        bool success;
+        bool wasActive;        
+    };
+
 
 	struct DBUpdateFinished{
 
@@ -116,6 +159,14 @@ namespace logic_event{
 	struct ChatAddress{
 		const char* ip;
 		int32 port;
+	};
+
+	struct StartUp{
+	};
+
+	struct ProxyCreated{
+		IObject* object;
+		int64 agentId;
 	};
 }
 #endif

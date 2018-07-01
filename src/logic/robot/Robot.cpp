@@ -36,6 +36,9 @@ bool Robot::destory(sl::api::IKernel * pKernel){
 }
 
 void Robot::onServerConnected(sl::api::IKernel* pKernel){
+	BStream<128> outArgs;
+	outArgs << pKernel->getCmdArg("account") << 12;
+	sendToSvr(pKernel, ClientMsgID::CLIENT_MSG_LOGIN_REQ, outArgs.out());
 }
 
 void Robot::onServerDisConnected(sl::api::IKernel* pKernel){
@@ -94,7 +97,7 @@ void Robot::onServerGiveGateAddressAck(sl::api::IKernel* pKernel, const OBStream
 
 	_client->connect(gateIp, gatePort);
 	
-	IBStream<128> outArgs;
+	BStream<128> outArgs;
 	outArgs << _robot.name.c_str() << _robot.ticket;
 	sendToSvr(pKernel, ClientMsgID::CLIENT_MSG_LOGIN_REQ, outArgs.out());
 }
@@ -113,7 +116,7 @@ void Robot::onServerLoginAck(sl::api::IKernel* pKernel, const OBStream& args){
 	}
 
 	if (roleCount <= 0){
-		IBStream<256> ask;
+		BStream<256> ask;
 		ask << pKernel->getCmdArg("role") << (int8)1 << (int8)1;
 		sendToSvr(pKernel, ClientMsgID::CLIENT_MSG_CREATE_ROLE_REQ, ask.out());
 	}
@@ -124,7 +127,7 @@ void Robot::onServerLoginAck(sl::api::IKernel* pKernel, const OBStream& args){
 			return;
 		}
 
-		IBStream<64> ask;
+		BStream<64> ask;
 		ask << actorId;
 		sendToSvr(pKernel, ClientMsgID::CLIENT_MSG_SELECT_ROLE_REQ, ask.out());
 	}
@@ -138,7 +141,7 @@ void Robot::onServerCreateRoleAck(sl::api::IKernel* pKernel, const OBStream& arg
 		return;
 
 	if (errCode == 0){
-		IBStream<64> ask;
+		BStream<64> ask;
 		ask << actorId;
 		sendToSvr(pKernel, ClientMsgID::CLIENT_MSG_SELECT_ROLE_REQ, ask.out());
 	}
@@ -175,6 +178,8 @@ void Robot::onServerAttribSync(sl::api::IKernel* pKernel, const OBStream& args){
 }
 
 void Robot::test(sl::api::IKernel* pKernel){
-	IBStream<64> ask;
-	sendToSvr(pKernel, ClientMsgID::CLIENT_MSG_TEST, ask.out());
+	BStream<64> ask;
+	const char* gdStr = "&&gdtest 1";
+	ask << gdStr;
+	sendToSvr(pKernel, ClientMsgID::CLIENT_MSG_GD_COMMAND, ask.out());
 }

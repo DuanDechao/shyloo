@@ -17,9 +17,9 @@ public:
 	}
 
 	virtual void onInit(sl::api::IKernel* pKernel, int64 timetick){
-		ITableControl* checkTimers = _object->findTable(OCTableMacro::CHECK_TIMER::TABLE_NAME);
-		SLASSERT(checkTimers, "wtf");
-		checkTimers->addRowKeyInt64((int64)this);
+//		ITableControl* checkTimers = _object->findTable(OCTableMacro::CHECK_TIMER::TABLE_NAME);
+//		SLASSERT(checkTimers, "wtf");
+//		checkTimers->addRowKeyInt64((int64)this);
 	}
 	
 	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){
@@ -33,10 +33,10 @@ public:
 	}
 
 	virtual void onTerminate(sl::api::IKernel* pKernel, bool beForced, int64 timetick){
-		ITableControl* checkTimers = _object->findTable(OCTableMacro::CHECK_TIMER::TABLE_NAME);
-		SLASSERT(checkTimers, "wtf");
-		const IRow* timerRow = checkTimers->findRow((int64)this);
-		DEL_TABLE_ROW(checkTimers, timerRow);
+	//	ITableControl* checkTimers = _object->findTable(OCTableMacro::CHECK_TIMER::TABLE_NAME);
+	//	SLASSERT(checkTimers, "wtf");
+	//	const IRow* timerRow = checkTimers->findRow((int64)this);
+	//	DEL_TABLE_ROW(checkTimers, timerRow);
 
 		OCTimer* timer = (OCTimer*)_object->getTempInt64(_prop);
 		SLASSERT(timer == this, "wtf");

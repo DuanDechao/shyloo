@@ -41,6 +41,10 @@ public:
 	int16 getInt16(const int32 key) { return getData(key, Trait<int16>()); }
 	int32 getInt32(const int32 key) { return getData(key, Trait<int32>()); }
 	int64 getInt64(const int32 key) { return getData(key, Trait<int64>()); }
+	uint8 getUint8(const int32 key) { return getData(key, Trait<uint8>()); }
+	uint16 getUint16(const int32 key) { return getData(key, Trait<uint16>()); }
+	uint32 getUint32(const int32 key) { return getData(key, Trait<uint32>()); }
+	uint64 getUint64(const int32 key) { return getData(key, Trait<uint64>()); }
 	float getFloat(const int32 key) { return getData(key, Trait<float>()); }
 	const char* getString(const int32 key) {
 		const void* p = getData(key);
@@ -80,22 +84,41 @@ private:
 	IndexMap	_indexs;
 };
 
-
-
-
-template<int32 upSize, int32 downSize>
 class IBMap{
 public:
-	IBMap() : _fixed(false), _upOffset(0), _downOffset(0), _context(nullptr), _size(0){
+    IBMap() {}
+    virtual ~IBMap(){}
+
+	virtual IBMap& writeInt8(const int32 key, int8 val) = 0;
+	virtual IBMap& writeInt16(const int32 key, int16 val) = 0;
+	virtual IBMap& writeInt32(const int32 key, int32 val) = 0;
+	virtual IBMap& writeInt64(const int32 key, int64 val) = 0;
+	virtual IBMap& writeUint8(const int32 key, uint8 val) = 0;
+	virtual IBMap& writeUint16(const int32 key, uint16 val) = 0;
+	virtual IBMap& writeUint32(const int32 key, uint32 val) = 0;
+	virtual IBMap& writeUint64(const int32 key, uint64 val) = 0;
+	virtual IBMap& writeFloat(const int32 key, float val)  = 0;
+	virtual IBMap& writeString(const int32 key, const char* val)  = 0;
+	virtual IBMap& writeBlob(const int32 key, const void* val, const int32 size) = 0;
+};
+
+template<int32 upSize, int32 downSize>
+class BMap: public IBMap{
+public:
+	BMap() : _fixed(false), _upOffset(0), _downOffset(0), _context(nullptr), _size(0){
 		_separate = _data + sizeof(int32) + upSize;
 	}
 
-	IBMap& writeInt8(const int32 key, int8 val) { writeData(key, val); return *this; }
-	IBMap& writeInt16(const int32 key, int16 val) { writeData(key, val); return *this; }
-	IBMap& writeInt32(const int32 key, int32 val) { writeData(key, val); return *this; }
-	IBMap& writeInt64(const int32 key, int64 val) { writeData(key, val); return *this; }
-	IBMap& writeFloat(const int32 key, float val) { writeData(key, val); return *this; }
-	IBMap& writeString(const int32 key, const char* val) {
+	virtual IBMap& writeInt8(const int32 key, int8 val) { writeData(key, val); return *this; }
+	virtual IBMap& writeInt16(const int32 key, int16 val) { writeData(key, val); return *this; }
+	virtual IBMap& writeInt32(const int32 key, int32 val) { writeData(key, val); return *this; }
+	virtual IBMap& writeInt64(const int32 key, int64 val) { writeData(key, val); return *this; }
+	virtual IBMap& writeUint8(const int32 key, uint8 val) { writeData(key, val); return *this; }
+	virtual IBMap& writeUint16(const int32 key, uint16 val) { writeData(key, val); return *this; }
+	virtual IBMap& writeUint32(const int32 key, uint32 val) { writeData(key, val); return *this; }
+	virtual IBMap& writeUint64(const int32 key, uint64 val) { writeData(key, val); return *this; }
+	virtual IBMap& writeFloat(const int32 key, float val) { writeData(key, val); return *this; }
+	virtual IBMap& writeString(const int32 key, const char* val) {
 		SLASSERT(!_fixed, "has fixed");
 		int32 len = (int32)strlen(val);
 		SLASSERT(_downOffset + len + 1 <= downSize, "out of range");
@@ -108,7 +131,7 @@ public:
 		return *this;
 	}
 
-	IBMap& writeBlob(const int32 key, const void* val, const int32 size){
+	virtual IBMap& writeBlob(const int32 key, const void* val, const int32 size){
 		SLASSERT(!_fixed, "has fixed");
 		SLASSERT(_downOffset + size + sizeof(int32) <= downSize, "out of range");
 		if (_downOffset + size + sizeof(int32) <= downSize){

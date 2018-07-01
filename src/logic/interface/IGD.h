@@ -87,8 +87,13 @@ template<typename... FixArgs>
 struct Handler{
 	template<typename... ParsedArgs>
 	struct Dealer{
-		static int32 invoke(FixArgs... first, char * param, int32(*fn)(FixArgs..., ParsedArgs...), ParsedArgs... args){
-			return fn(first..., args...);
+		template<typename T>
+		static int32 invoke(FixArgs... first, char * param, int32(*fn)(FixArgs..., ParsedArgs..., T), ParsedArgs... args){
+			char * next = nullptr;
+			T t;
+			if (!Parse(param, t, next))
+				return GD_ARGS_ERROR;
+			return fn(first..., args..., t);
 		}
 		template<typename T, typename... Args>
 		static int32 invoke(FixArgs... first, char* param, int32(*fn)(FixArgs..., ParsedArgs..., T, Args...), ParsedArgs... args){
@@ -133,12 +138,14 @@ public:
 	virtual ~IGD() {}
 	template<typename... Args>
 	void rsgGD(const char* command, int32(*fn)(sl::api::IKernel*, IObject*, Args...)){
-		rsgGDInner(command, NEW gd::GDCommandHandler(fn));
+		rsgGDInner(command, NEW gd::GDCommandHandler<Args...>(fn));
 	}
 
 protected:
 	virtual void rsgGDInner(const char* command, IGDCommandHandler* handler) = 0;
 };
+
+#define RSG_GD(gGD, command) gGD->rsgGD(#command, command)
 
 
 #endif

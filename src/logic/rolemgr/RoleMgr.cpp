@@ -118,7 +118,7 @@ bool RoleMgr::loadRole(const int64 actorId, IObject* object){
 				sl::OBMap args(propsData, size);
 				for (const IProp* prop : object->getObjProps()){
 					int32 setting = prop->getSetting(object);
-					if ((setting & prop_def::save) && (setting & prop_def::blob)){
+					//if ((setting & prop_def::save) && (setting & prop_def::blob)){
 						switch (prop->getType(object)){
 						case DTYPE_INT8: object->setPropInt8(prop, args.getInt8(prop->getName())); break;
 						case DTYPE_INT16: object->setPropInt16(prop, args.getInt16(prop->getName())); break;
@@ -135,7 +135,7 @@ bool RoleMgr::loadRole(const int64 actorId, IObject* object){
 							} 
 							break;
 						}
-					}
+				//	}
 				}
 			}
 		}

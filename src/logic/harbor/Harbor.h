@@ -3,12 +3,10 @@
 #include "IHarbor.h"
 #include "slikernel.h"
 #include "NodeSession.h"
-#include <unordered_map>
 #include <list>
 #include <string>
 #include "slsingleton.h"
 #include "slshm.h"
-
 class Harbor;
 class NodeSessionTcpServer : public sl::api::ITcpServer{
 public:
@@ -66,6 +64,7 @@ public:
 	virtual void connect(const char* ip, const int32 port, const int32 nodeType, const int32 nodeId, bool ipcTransfor = false);
 
 	virtual void broadcast(int32 nodeType, int32 messageId, const OArgs& args);
+	virtual void broadcast(int32 messageId, const OArgs& args, std::unordered_map<int32, std::set<int32>>& exclude);
 	virtual void broadcast(int32 messageId, const OArgs& args);
 	virtual void prepareBroadcast(int32 nodeType, const int32 messageId, const int32 size);
 	virtual void broadcast(int32 nodeType, const void* context, const int32 size);

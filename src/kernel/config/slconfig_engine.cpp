@@ -88,6 +88,7 @@ bool ConfigEngine::loadModuleConfig(){
 	sl::XmlReader reader;
 	if (!reader.loadXml(path)){
 		SLASSERT(false, "load module config failed");
+        printf("load module xml file[%s] failed\n", path);
 		return false;
 	}
 

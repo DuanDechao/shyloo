@@ -15,9 +15,15 @@ public:
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
 
+	virtual const IProp* appendObjectProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index, const void* extra, const char* defaultVal = "");
+	virtual const IProp* appendObjectTempProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index, const void* extra, const char* defaultVal = "");
 	virtual const IProp* getPropByName(const char* name) const;
 	virtual const IProp* getTempPropByName(const char* name) const;
 	virtual const IProp* getPropByNameId(const int32 name) const;
+    virtual const int32 getObjectType(const char* objectType);
+	virtual bool appendTableColumnInfo(const char* tableName, const int16 type, const int32 typeSize, bool isKey);
+
+	virtual void setObjectTypeSize(const int32 size){ _objectTypeSize = size; }
 
 	virtual IObject* create(const char* file, const int32 line, const char* name, bool isShadow);
 	virtual IObject* createById(const char* file, const int32 line, const char* name, const uint64 id, bool isShadow);
@@ -55,7 +61,8 @@ private:
 	typedef std::unordered_map<sl::SLString<MAX_OBJECT_NAME_LEN>, sl::SLString<game::MAX_PATH_LEN>> PROP_CONFIG_PATH_MAP;
 	typedef std::unordered_map<sl::SLString<MAX_PROP_NAME_LEN>, ObjectProp*> PROP_MAP;
 	typedef std::unordered_map<sl::SLString<MAX_OBJECT_NAME_LEN>, ObjectPropInfo *> OBJECT_MODEL_MAP;
-	
+
+	int32			  _objectTypeSize;
 	sl::api::IKernel* _kernel;
 	ObjectMgr* _self;
 	IIdMgr* _idMgr;
@@ -67,6 +74,7 @@ private:
 	PROP_MAP _allTempProps;
 	std::unordered_map<int32, ObjectProp*> _allPropsId;
 	OBJECT_MODEL_MAP _objPropInfo;
+
 	int32 _nextObjTypeId;
 	unordered_map<uint64, MMObject*> _allObjects;
     unordered_map<int32, TableColumn*>  _tablesInfo;

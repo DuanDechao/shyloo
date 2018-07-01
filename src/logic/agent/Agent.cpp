@@ -34,7 +34,7 @@ bool Agent::launched(sl::api::IKernel * pKernel){
 
 	if (!pKernel->startTcpServer(_agentServer, "0.0.0.0", agentPort, agentSendSize, agentRecvSize)){
 		SLASSERT(false, "wtf");
-		TRACE_LOG("start agent server[%s:%d] success", "0.0.0.0", agentPort);
+		TRACE_LOG("start agent server[%s:%d] failed", "0.0.0.0", agentPort);
 		return false;
 	}
 	else{
@@ -63,6 +63,8 @@ int64 Agent::onOpen(AgentSession* pSession){
 	
 	int64 ret = _agentNextId++;
 	_agentSessions[ret] = pSession;
+
+    printf("new agent connected.............\n");
 	
 	if (_listener)
 		_listener->onAgentOpen(_kernel, ret);
@@ -76,6 +78,7 @@ int32 Agent::onRecv(int64 id, const char* pContext, const int32 size){
 		return 0;
 
 	return _listener->onAgentRecv(_kernel, id, pContext, size);
+    return 0;
 }
 
 void Agent::onClose(int64 id){

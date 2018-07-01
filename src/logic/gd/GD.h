@@ -11,6 +11,10 @@ public:
 
 	bool dispatchGDCommand(sl::api::IKernel* pKernel, IObject* object, const sl::OBStream& args);
 
+	void test();
+
+	static int32 gdTest(sl::api::IKernel* pKernel, IObject* object, int32 type);
+
 protected:
 	virtual void rsgGDInner(const char* command, IGDCommandHandler* handler);
 	

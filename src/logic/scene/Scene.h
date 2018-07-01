@@ -2,91 +2,44 @@
 #define __SL_FRAMEWORK_SCENE_H__
 #include "slsingleton.h"
 #include "IScene.h"
-#include <unordered_map>
-#include "slstring.h"
-#include "GameDefine.h"
-
-class IHarbor;
-class IObjectMgr;
-class ICapacitySubscriber;
-class ICapacityPublisher;
-class ITableControl;
-class OArgs;
+#include <map>
+class IProp;
 class IObject;
-class IEventEngine;
 class Scene : public IScene, public sl::SLHolder<Scene>{
-	enum Quadrant{
-		X = 1,
-		Y,
-		Z,
-	};
-
-	struct SceneEntity{
-		SceneEntity() :prev(nullptr), next(nullptr), object(nullptr), isHead(false){}
-		SceneEntity* prev;
-		SceneEntity* next;
-		IObject* object;
-		bool isHead;
-	};
-	
-	struct SceneNodesList{
-		SceneNodesList(){
-			xListHead.isHead = true;
-			yListHead.isHead = true;
-		}
-		SceneEntity xListHead;
-		SceneEntity yListHead;
-	};
-
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
+    
+    inline const IProp* getPropX() const {return _propX;}
+    inline const IProp* getPropY() const {return _propY;}
+    inline const IProp* getPropZ() const {return _propZ;}
+    inline const IProp* getPropCoordinateNode() const {return _propCoordinateNode;}
+    inline const IProp* getPropSceneNodeData() const {return _propSceneNodeData;}
+    inline const IProp* getPropWitness() const {return _propWitness;}
 
-	void onSceneMgrCreateScene(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
-	void onSceneMgrEnterScene(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
-	void onSceneMgrAppearScene(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
-	void onSceneMgrLeaveScene(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
-	void onSceneMgrSyncScene(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
-
-	void onPlayerEnterScene(sl::api::IKernel* pKernel, const void* context, const int32 size);
-
-private:
-	typedef std::function<void(sl::api::IKernel* pKernel, IObject* object)> VisionEvent;
-	void confirmScene(sl::api::IKernel* pKernel, const char* scene);
-	IObject* findScene(const char* scene);
-
-	void objectEnterVision(IObject* object, IObject* other);
-	void objectLeaveVision(IObject* object, IObject* other);
-	void objectMoveInVision(IObject* object, IObject* other);
-
-	void notifyLogicAddWatcher(IObject* object, IObject* watcher);
-	void notifyLogicRemoveWatcher(IObject* object, IObject* watcher);
-	void notifyLogicAddInterester(IObject* object, IObject* interester);
-	void notifyLogicRemoveInterester(IObject* object, IObject* interester);
-
-	void addObjectToScene(IObject* object, const VisionEvent& add);
-	void removeObjectOnScene(IObject* object, const VisionEvent& remove);
-	void moveObjectOnScene(IObject* object, const VisionEvent& add, const VisionEvent& remove, const VisionEvent& move);
-	void foreachVisionObject(IObject* object, int8 quadrant, const VisionEvent& func);
-	void insertSceneNode(SceneEntity* head, SceneEntity* node, const std::function<bool(const SceneEntity* innerNode)>& conditionFunc, bool forward = false);
-	void moveSceneNode(SceneEntity* head, SceneEntity* node, int8 quadrant, bool forward = false);
-	void removeSceneNode(SceneEntity* node);
-	bool isInVision(IObject* object, IObject* other);
-
-	void printSceneNodePos();
+    
+    virtual ISpace* createNewSpace(const uint32 spaceId);
+    virtual ISpace* findSpace(const uint32 spaceId);
+    virtual int32 spaceSize() {return (int32)_spaces.size();}
+    virtual IWitness* getWitness(IObject* object);
+    virtual void updatePosition(IObject* object, float x, float y, float z);
+    virtual void getPosition(IObject* object, float& x, float& y, float& z);
+    virtual int32 getSpaceId(IObject* object);
 
 private:
-	typedef std::unordered_map<sl::SLString<game::MAX_SCENE_LEN>, SceneNodesList> SCENE_OBJECTNODE_MAP;
-	sl::api::IKernel* _kernel;
-	Scene*		_self;
-	IHarbor*		_harbor;
-	IObjectMgr*		_objectMgr;
-	ICapacitySubscriber*  _capacitySubscriber;
-	ICapacityPublisher* _capacityPublisher;
-	IEventEngine*		_eventEngine;
+    bool appendSceneProp();
 
-	ITableControl*	_scenes;
-	SCENE_OBJECTNODE_MAP _sceneObjectNodes;
+
+private:
+    static Scene* s_self;
+    const IProp* _propX;
+    const IProp* _propY;
+    const IProp* _propZ;
+    const IProp* _propCoordinateNode;
+    const IProp* _propSceneNodeData;
+    const IProp* _propWitness;
+    const IProp* _propSpaceId;
+    std::map<uint32, ISpace*>    _spaces;
 };
 #endif

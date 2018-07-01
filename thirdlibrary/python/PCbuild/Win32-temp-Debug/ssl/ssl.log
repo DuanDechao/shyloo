@@ -1,0 +1,16 @@
+﻿生成启动时间为 2017/11/23 22:01:41。
+     1>项目“E:\kbengine-master\kbe\src\lib\python\PCbuild\ssl.vcxproj”在节点 2 上(Build 个目标)。
+     1>Build:
+         cd "E:\kbengine-master\kbe\src\lib\python\PCbuild\"
+         "E:\kbengine-master\kbe\src\lib\python\PCbuild\python_d.exe" build_ssl.py Release Win32 -a
+         
+         '"E:\kbengine-master\kbe\src\lib\python\PCbuild\python_d.exe"' 不是内部或外部命令，也不是可运行的程序
+         或批处理文件。
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.MakeFile.Targets(38,5): error MSB3073: 命令“cd "E:\kbengine-master\kbe\src\lib\python\PCbuild\"
+C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.MakeFile.Targets(38,5): error MSB3073: "E:\kbengine-master\kbe\src\lib\python\PCbuild\python_d.exe" build_ssl.py Release Win32 -a
+C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.MakeFile.Targets(38,5): error MSB3073: ”已退出，代码为 9009。
+     1>已完成生成项目“E:\kbengine-master\kbe\src\lib\python\PCbuild\ssl.vcxproj”(Build 个目标)的操作 - 失败。
+
+生成失败。
+
+已用时间 00:00:00.25

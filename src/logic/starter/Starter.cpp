@@ -62,7 +62,6 @@ bool Starter::destory(sl::api::IKernel * pKernel){
 void Starter::onTime(sl::api::IKernel* pKernel, int64 timetick){
 	IArgs<1, 256> args;
 	args.fix();
-
 	_harbor->broadcast(NodeProtocol::MASTER_MSG_SERVER_STARTED, args.out());
 }
 
