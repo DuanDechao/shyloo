@@ -15,13 +15,16 @@ public:
 		s_scriptTimerPool.recover(this);
 	}
 
-	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){}
+	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick);
 	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick);
 	virtual void onTerminate(sl::api::IKernel* pKernel, bool beForced, int64 timetick);
 	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick){}
 
 	inline int64 getTimerId() const {return _timerId;} 
+
+private:
+	void timeTrigger(sl::api::IKernel* pKernel, int64 timetick);
 
 private:
 	friend sl::SLPool<ScriptTimer>;
@@ -45,7 +48,7 @@ private:
 class ScriptTimers{
 public:
 	ScriptTimers():_lastTimerId(1){}
-	int64 addTimer(sl::api::IKernel* pKernel, PyObject* entity, int64 period, int64 interval, const char* callbackName, PyObject* userData);
+	int64 addTimer(sl::api::IKernel* pKernel, PyObject* entity, int64 delay, int64 interval, const char* callbackName, PyObject* userData);
 	void delTimer(sl::api::IKernel* pKernel, PyObject* entity, int64 timerId);
 
 private:

@@ -919,6 +919,12 @@ void ScriptVector3::onPyPositionChanged()
 	}
 }
 
+void ScriptVector3::updateXYZ(const float x, const float y, const float z){
+	val_->x = x;
+	val_->y = y;
+	val_->z = z;
+}
+
 //-------------------------------------------------------------------------------------
 
 }

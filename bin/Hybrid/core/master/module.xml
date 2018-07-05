@@ -10,4 +10,5 @@
 	<module name="IdMgr" />
 	<module name="Agent" />
 	<module name="StartNodeStrategy" />
+	<module name="MmoServer" />
 </modules>

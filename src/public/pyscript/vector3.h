@@ -120,6 +120,7 @@ public:
 
 	void setVector(const Vector3& v);
 	void setVectorFromPy(const Vector3& v);
+	void updateXYZ(const float x, const float y, const float z);
 
 	/** 
 		检查某个python对象是否可以转换为本类型 

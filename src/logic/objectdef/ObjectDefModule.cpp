@@ -178,6 +178,9 @@ bool ObjectDefModule::loadDefPropertys(const char* moduleName, const sl::ISLXmlN
         if(nodeType == NodeType::SCENE && !hasCellFlags)
             continue;
 
+		//if(nodeType == NodeType::LOGIC && !hasBaseFlags)
+		//	continue;
+
 		IDataType* dataType = DataTypeMgr::getDataType((*propConf)["Type"][0]);
 		if(!dataType){
 			printf("error!! has no DataType[%s]!!", strType);

@@ -8,15 +8,18 @@
 #include "IScene.h"
 
 SCRIPT_METHOD_DECLARE_BEGIN(Entity)
+SCRIPT_METHOD_DECLARE("addProximity",  addProximity,        METH_VARARGS,   0)
 SCRIPT_METHOD_DECLARE_END()
 
 SCRIPT_MEMBER_DECLARE_BEGIN(Entity)
 SCRIPT_MEMBER_DECLARE_END()
 
 SCRIPT_GETSET_DECLARE_BEGIN(Entity)
-SCRIPT_GET_DECLARE("id",              pyGetID,            0,              0)
-SCRIPT_GET_DECLARE("base",              pyGetBaseMailBox,            0,              0)
-SCRIPT_GET_DECLARE("spaceID",              pyGetSpaceID,            0,              0)
+SCRIPT_GET_DECLARE("base",              pyGetBaseMailBox,       0,              0)
+SCRIPT_GET_DECLARE("spaceID",           pyGetSpaceID,           0,              0)
+SCRIPT_GET_DECLARE("isWitnessed",       pyIsWitnessed,          0,              0)
+SCRIPT_GETSET_DECLARE("position",       pyGetPosition,          pySetPosition,          0,			0)
+SCRIPT_GETSET_DECLARE("direction",       pyGetDirection,          pySetDirection,          0,			0)
 SCRIPT_GETSET_DECLARE_END()
 
 BASE_SCRIPT_INIT(Entity, 0, 0, 0, 0, 0)
@@ -24,12 +27,23 @@ Entity::Entity(IObject* object, ScriptDefModule* pScriptModule, PyTypeObject* py
 	:_id(object->getID()),
     _baseMailBox(nullptr),
 	EntityScriptObject(pyType, object, pScriptModule, isInitialised)
-{}
+{
+	float x = 0, y = 0, z = 0;
+	SLMODULE(Scene)->getPosition(getInnerObject(), x, y, z);
+	_pyPosition = NEW sl::pyscript::ScriptVector3(x, y, z); 
+	
+	float roll = 0, pitch = 0, yaw = 0;
+	SLMODULE(Scene)->getDirection(getInnerObject(), roll, pitch, yaw);
+	_pyDirection = NEW sl::pyscript::ScriptVector3(roll, pitch, yaw); 
+}
 
 Entity::~Entity(){
 	SLASSERT(false, "wtf");
 }
 
+PyObject* Entity::addProximity(float range_xz, float range_y, int32 userarg){
+	return PyLong_FromLong(13);
+}
 
 PyObject* Entity::pyGetBaseMailBox(){
     if(!_baseMailBox){
@@ -45,8 +59,77 @@ PyObject* Entity::pyGetSpaceID(){
 	return PyLong_FromLong(spaceId);
 }
 
-PyObject* Entity::pyGetID(){
-	return PyLong_FromUnsignedLongLong(getInnerObject()->getID());
+PyObject* Entity::pyIsWitnessed(){
+	return PyBool_FromLong(false);
+}
+
+PyObject* Entity::pyGetPosition(){
+	float x = 0, y = 0, z = 0;
+	SLMODULE(Scene)->getPosition(getInnerObject(), x, y, z);
+	_pyPosition->updateXYZ(x, y, z);
+	Py_INCREF(_pyPosition);
+	return _pyPosition;
+}
+
+int32 Entity::pySetPosition(PyObject* value){
+	if(!sl::pyscript::ScriptVector3::check(value))
+		return -1;
+
+	Position3D pos;
+	sl::pyscript::ScriptVector3::convertPyObjectToVector3(pos, value);
+	_pyPosition->updateXYZ(pos.x, pos.y, pos.z);
+	SLMODULE(Scene)->updatePosition(getInnerObject(), pos.x, pos.y, pos.z);
+	return 0;
+}
+
+PyObject* Entity::pyGetDirection(){
+	float roll = 0, pitch = 0, yaw = 0;
+	SLMODULE(Scene)->getDirection(getInnerObject(), roll, pitch, yaw);
+	_pyDirection->updateXYZ(roll, pitch, yaw);
+	Py_INCREF(_pyPosition);
+	return _pyPosition;
+}
+
+int32 Entity::pySetDirection(PyObject* value){
+	if(!PySequence_Check(value)){
+		PyErr_Format(PyExc_TypeError, "args of direction is not sequence");
+		PyErr_PrintEx(0);
+		return -1;
+	}
+
+	PyObject* pyItem = PySequence_GetItem(value, 0);
+	if(!PyFloat_Check(pyItem)){
+		PyErr_Format(PyExc_TypeError, "args of dirctions is not float");
+		PyErr_PrintEx(0);
+		Py_DECREF(pyItem);
+		return -1;
+	}
+	float roll = float(PyFloat_AsDouble(pyItem));
+	Py_DECREF(pyItem);
+	
+	pyItem = PySequence_GetItem(value, 1);
+	if(!PyFloat_Check(pyItem)){
+		PyErr_Format(PyExc_TypeError, "args of dirctions is not float");
+		PyErr_PrintEx(0);
+		Py_DECREF(pyItem);
+		return -1;
+	}
+	float pitch = float(PyFloat_AsDouble(pyItem));
+	Py_DECREF(pyItem);
+	
+	pyItem = PySequence_GetItem(value, 2);
+	if(!PyFloat_Check(pyItem)){
+		PyErr_Format(PyExc_TypeError, "args of dirctions is not float");
+		PyErr_PrintEx(0);
+		Py_DECREF(pyItem);
+		return -1;
+	}
+	float yaw = float(PyFloat_AsDouble(pyItem));
+	Py_DECREF(pyItem);
+
+	_pyDirection->updateXYZ(roll, pitch, yaw);
+	SLMODULE(Scene)->updatePosition(getInnerObject(), roll, pitch, yaw);
+	return 0;
 }
 
 void Entity::setBaseMailBox(const int32 logic){
@@ -72,7 +155,6 @@ bool Entity::createCellDataFromStream(const void* cellData, const int32 cellData
 			return false;
 	
 		const IProp* prop = _pScriptModule->getPropByUid(uid);
-        printf("current type name:%s\n", prop->getNameString());
         PyObject* propName = PyUnicode_FromString(prop->getNameString());
 
 		IDataType* dataType = (IDataType*)(prop->getExtra(getInnerObject()));

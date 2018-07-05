@@ -7,5 +7,6 @@ public:
 	virtual ~IIdMgr() {}
 
 	virtual uint64 allocID() = 0;
+	virtual uint64 generateLocalId() = 0;
 };
 #endif

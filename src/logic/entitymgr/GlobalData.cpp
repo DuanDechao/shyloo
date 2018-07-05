@@ -66,10 +66,10 @@ PyObject* GlobalData::mp_subscript(PyObject* self, PyObject* key /*entityID*/){
 
 	if(!pyObj)
 		PyErr_SetObject(PyExc_KeyError, key);
-	else
+	else{
 		Py_INCREF(pyObj);
-
-	PyDict_SetItem(static_cast<GlobalData*>(self)->_dataDict, key, pyObj);
+		PyDict_SetItem(static_cast<GlobalData*>(self)->_dataDict, key, pyObj);
+	}
 	return pyObj;
 }
 

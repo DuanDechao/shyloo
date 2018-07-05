@@ -1,6 +1,19 @@
 #include "EntityScriptObject.h"
 #include "IDCCenter.h"
 #include "EntityMgr.h"
+SCRIPT_METHOD_DECLARE_BEGIN(EntityScriptObject)
+SCRIPT_METHOD_DECLARE("addTimer",  addTimer,        METH_VARARGS,   0)
+SCRIPT_METHOD_DECLARE("delTimer",  delTimer,        METH_VARARGS,   0)
+SCRIPT_METHOD_DECLARE_END()
+
+SCRIPT_MEMBER_DECLARE_BEGIN(EntityScriptObject)
+SCRIPT_MEMBER_DECLARE_END()
+
+SCRIPT_GETSET_DECLARE_BEGIN(EntityScriptObject)
+SCRIPT_GET_DECLARE("id",              pyGetID,            0,              0)
+SCRIPT_GETSET_DECLARE_END()
+
+BASE_SCRIPT_INIT(EntityScriptObject, 0, 0, 0, 0, 0)
 EntityScriptObject::EntityScriptObject(PyTypeObject* pyType, IObject* object, ScriptDefModule* pScriptModule, bool isInitialised)
     :ScriptObject(pyType, isInitialised),
 	 _innerObject(nullptr),
@@ -12,9 +25,26 @@ EntityScriptObject::EntityScriptObject(PyTypeObject* pyType, IObject* object, Sc
 EntityScriptObject::~EntityScriptObject(){
 }
 
+PyObject* EntityScriptObject::pyGetID(){
+	return PyLong_FromUnsignedLongLong(getInnerObject()->getID());
+}
+
+PyObject* EntityScriptObject::addTimer(float delay, float interval, const char* callbackName, PyObject* userData){
+	int64 timerId = _scriptTimers.addTimer(EntityMgr::getInstance()->getKernel(), this, (int64)(delay * 1000), (int64)(interval * 1000), callbackName, userData);
+	return PyLong_FromUnsignedLongLong(timerId);
+}
+
+PyObject* EntityScriptObject::delTimer(int32 timerId){
+	_scriptTimers.delTimer(EntityMgr::getInstance()->getKernel(), this, timerId);
+	S_Return;
+}
+
 
 PyObject* EntityScriptObject::onScriptGetAttribute(PyObject* attr){
 	PyObject* pyValue = ScriptObject::onScriptGetAttribute(attr);
+	if(PyErr_Occurred() && !pyValue){
+		PyErr_Clear();
+	}
 	if(!pyValue){
 		pyValue = _pScriptModule->scriptGetObjectAttribute(this, attr);
 		ScriptObject::onScriptSetAttribute(attr, pyValue);
@@ -93,11 +123,3 @@ PyObject* EntityScriptObject::createArgsPyObjectFromStream(const sl::OBStream& s
 	return pyArgsTuple;
 }
 
-
-int64 EntityScriptObject::addTimer(int64 period, int64 interval, const char* callBackName, PyObject* userData){
-	return _scriptTimers.addTimer(EntityMgr::getInstance()->getKernel(), this, period, interval, callBackName, userData);
-}
-
-void EntityScriptObject::delTimer(int32 timerId){
-	_scriptTimers.delTimer(EntityMgr::getInstance()->getKernel(), this, timerId);
-}

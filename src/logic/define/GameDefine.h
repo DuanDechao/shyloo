@@ -1,6 +1,7 @@
 #ifndef __GAME_DEFINE_H__
 #define __GAME_DEFINE_H__
 
+#include "NodeDefine.h"
 
 enum game{
 	NODE_INVALID_ID = -1,
@@ -44,8 +45,18 @@ enum EntityMailBoxType{
     MAILBOX_TYPE_CLIENT = 2,
     MAILBOX_TYPE_CELL_VIA_BASE = 3,
     MAILBOX_TYPE_BASE_VIA_CELL = 4,
-    MAILBOX_TYPE_CLIENT_VIA_BASE = 5,
-    MAILBOX_TYPE_CLIENT_VIA_CELL = 6,
+    MAILBOX_TYPE_CLIENT_VIA_CELL = 5,
+    MAILBOX_TYPE_CLIENT_VIA_BASE = 6,
+};
+
+const int32 ENTITY_MAILBOX_NODE_TYPE_MAPPING[] = {
+	NodeType::SCENE,
+	NodeType::LOGIC,
+	NodeType::CLIENT,
+	NodeType::SCENE,
+	NodeType::LOGIC,
+	NodeType::CLIENT,
+	NodeType::CLIENT,
 };
 
 #endif

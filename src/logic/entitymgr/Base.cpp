@@ -10,15 +10,12 @@
 SCRIPT_METHOD_DECLARE_BEGIN(Base)
 SCRIPT_METHOD_DECLARE("createCellEntity",  createCellEntity,        METH_VARARGS,   0)
 SCRIPT_METHOD_DECLARE("createInNewSpace",  createInNewSpace,        METH_VARARGS,   0)
-SCRIPT_METHOD_DECLARE("addTimer",  addTimer,        METH_VARARGS,   0)
-SCRIPT_METHOD_DECLARE("delTimer",  delTimer,        METH_VARARGS,   0)
 SCRIPT_METHOD_DECLARE_END()
 
 SCRIPT_MEMBER_DECLARE_BEGIN(Base)
 SCRIPT_MEMBER_DECLARE_END()
 
 SCRIPT_GETSET_DECLARE_BEGIN(Base)
-SCRIPT_GET_DECLARE("id",              pyGetID,            0,              0)
 SCRIPT_GET_DECLARE("isDestroyed",              pyGetIsDestroyed,            0,              0)
 SCRIPT_GET_DECLARE("cell",              pyGetCellMailBox,            0,              0)
 SCRIPT_GET_DECLARE("client",              pyGetClientMailBox,            0,              0)
@@ -45,7 +42,8 @@ PyObject* Base::pyGetCellMailBox(){
         ECHO_ERROR("not has cell mailbox");
         S_Return;
     }
-    return (PyObject*)_cellMailBox;
+	Py_INCREF(_cellMailBox);
+    return _cellMailBox;
 }
 
 PyObject* Base::pyGetClientMailBox(){
@@ -58,10 +56,6 @@ PyObject* Base::pyGetClientMailBox(){
 }
 
 PyObject* Base::pyGetDBID(){
-	return PyLong_FromUnsignedLongLong(getInnerObject()->getID());
-}
-
-PyObject* Base::pyGetID(){
 	return PyLong_FromUnsignedLongLong(getInnerObject()->getID());
 }
 
@@ -83,7 +77,7 @@ PyObject* Base::createCellEntity(PyObject* pyObj){
         return 0;
     }
     
-    remoteCreateCellEntity(cellMailBox->getRemoteNodeId(), NULL);
+    remoteCreateCellEntity(cellMailBox->getRemoteNodeId(), cellMailBox->getEntityId());
     S_Return;
 }
 
@@ -92,16 +86,16 @@ PyObject* Base::createInNewSpace(PyObject* args){
     if(PyLong_Check(args))
         cellappIndex = (int32)PyLong_AsUnsignedLong(args);
     
-    remoteCreateCellEntity(cellappIndex, NULL);
+    remoteCreateCellEntity(cellappIndex, 0);
     S_Return;
 }
 
-void Base::remoteCreateCellEntity(int32 cellappIdx, IObject* createFromObject){
+void Base::remoteCreateCellEntity(int32 cellappIdx, const uint64 createToObjectId){
 	sl::BStream<10240> cellDataStream;
 	addCellDataToStream(cellDataStream);
     IObject* innerObject = getInnerObject();
 	sl::OBStream outData = cellDataStream.out();
-    SLMODULE(BaseApp)->remoteCreateCellEntity(innerObject, createFromObject, cellappIdx, outData.getContext(), outData.getSize());
+    SLMODULE(BaseApp)->remoteCreateCellEntity(innerObject, createToObjectId, cellappIdx, outData.getContext(), outData.getSize());
 }
 
 void Base::addCellDataToStream(sl::IBStream& cellDataStream){
@@ -120,7 +114,6 @@ void Base::addCellDataToStream(sl::IBStream& cellDataStream){
         wchar_t*wideCharString = PyUnicode_AsWideCharString(key, NULL);
 		char* valStr = sl::CStringUtils::wchar2char(wideCharString);
 		PyMem_Free(wideCharString);
-        printf("current type name:%s\n", valStr);
 
 		IObject* innerObject = getInnerObject();
         const IProp* prop = (const IProp*)PyLong_AsVoidPtr(value);
@@ -139,16 +132,6 @@ void Base::addCellDataToStream(sl::IBStream& cellDataStream){
     }
 }
 
-PyObject* Base::addTimer(int32 period, int32 interval, const char* callbackName, PyObject* userData){
-	int64 timerId = EntityScriptObject::addTimer((int64)period * 1000, (int64)interval * 1000, callbackName, userData);
-	return PyLong_FromUnsignedLongLong(timerId);
-}
-
-PyObject* Base::delTimer(int32 timerId){
-	EntityScriptObject::delTimer(timerId);
-	S_Return;
-}
-
 void Base::onGetCell(const int32 cellId){
     if(_cellMailBox){
         ECHO_ERROR("try set cell mailbox, but has one");
@@ -157,9 +140,12 @@ void Base::onGetCell(const int32 cellId){
 
     _cellMailBox = NEW EntityMailBox(EntityMailBoxType::MAILBOX_TYPE_CELL, cellId, getInnerObject()->getID(), _pScriptModule);
 
-    Py_INCREF(static_cast<PyObject*>(_cellMailBox));
+    Py_INCREF(_cellMailBox);
 
     SCRIPT_OBJECT_CALL_ARGS0(this, const_cast<char*>("onGetCell"));   
+	if(PyErr_Occurred()){
+		SLASSERT(false, "wtf");
+	}
 }
 
 void Base::createCellData(){

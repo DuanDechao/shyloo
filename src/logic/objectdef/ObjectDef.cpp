@@ -14,7 +14,7 @@ bool ObjectDef::initialize(sl::api::IKernel * pKernel){
 	_kernel = pKernel;
 	std::string entitiesPath = SLMODULE(ResMgr)->getPyUserScriptsPath();
 	std::string aliasFilePath = entitiesPath + "defs/alias.xml";
-	if (!ObjectDefModule::initialize() || !DataTypeMgr::initialize(aliasFilePath.c_str()) || !loadObjectsConfig(pKernel)){
+	if (!ObjectDefModule::initialize() || !DataTypeMgr::initialize(aliasFilePath.c_str())){
 		SLASSERT(false, "wtf");
 		return false;
 	}
@@ -22,6 +22,10 @@ bool ObjectDef::initialize(sl::api::IKernel * pKernel){
 }
 
 bool ObjectDef::launched(sl::api::IKernel * pKernel){
+	if(!loadObjectsConfig(pKernel)){
+		SLASSERT(false, "wtf");
+		return false;
+	}
     return true;
 }
 
@@ -257,4 +261,9 @@ void ObjectDef::addAllObjectDefToStream(sl::IBStream& stream){
 				stream << pArgsList[i]->getUid();
         }
     } 
+}
+
+
+void ObjectDef::addExtraDataType(const char* typeName, IDataType* dataType){
+	DataTypeMgr::addDataType(typeName, dataType);
 }

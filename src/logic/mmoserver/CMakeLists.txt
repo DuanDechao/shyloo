@@ -13,6 +13,10 @@ SET(MMOSERVER
     "${PROJECT_SOURCE_DIR}/src/logic/mmoserver/CellApp.cpp"
     "${PROJECT_SOURCE_DIR}/src/logic/mmoserver/DBMgr.h"
     "${PROJECT_SOURCE_DIR}/src/logic/mmoserver/DBMgr.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/mmoserver/CellAppMgr.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/mmoserver/CellAppMgr.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/mmoserver/BaseAppMgr.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/mmoserver/BaseAppMgr.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/mmoserver/main.cpp"
 )
 

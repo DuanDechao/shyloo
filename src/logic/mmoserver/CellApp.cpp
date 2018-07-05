@@ -38,6 +38,26 @@ bool CellApp::destory(sl::api::IKernel * pKernel){
 	return true;
 }
 
+IObject* CellApp::createEntity(const char* entityType, const int32 spaceId, Position3D& pos, Position3D& dir, const void* initData, const int32 initDataSize){
+	ISpace* space = SLMODULE(Scene)->findSpace(spaceId);
+	if(!space){
+		ECHO_ERROR("space[%d] is not exist", spaceId);
+		return NULL;
+	}
+	
+	IObject* object = CREATE_OBJECT(SLMODULE(ObjectMgr), entityType); 
+	SLMODULE(Scene)->updatePosition(object, pos.x, pos.y, pos.z);
+    space->addObject(object);
+    space->addObjectToNode(object);
+	
+	ECHO_TRACE("CellApp::createEntity----------------------- %d %s", space->getId(), entityType);
+    
+	logic_event::CellEntityCreated info {object, NULL, 0, initData, initDataSize, 0};
+    SLMODULE(EventEngine)->execEvent(logic_event::EVENT_CELL_ENTITY_CREATED, &info, sizeof(info));
+    
+	return object;
+}
+
 void CellApp::onCreateCellEntityFromBase(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args){
     bool isInNewSpace = args.getBool(0);
     const char* entityType = args.getString(1);
@@ -46,6 +66,7 @@ void CellApp::onCreateCellEntityFromBase(sl::api::IKernel* pKernel, int32 nodeTy
     bool hasClient = args.getBool(4);
     int32 cellDataSize = 0;
     const void* cellData = args.getStruct(5, cellDataSize);
+	const int32 askNodeId = args.getInt32(6);
 
 	ISpace* pSpace = nullptr;
 	if(!isInNewSpace){
@@ -65,15 +86,17 @@ void CellApp::onCreateCellEntityFromBase(sl::api::IKernel* pKernel, int32 nodeTy
     IArgs<2, 256> inArgs;
     inArgs << entityId;
     inArgs.fix();
-    SLMODULE(Harbor)->send(nodeType, nodeId, NodeProtocol::CELL_MSG_CELL_ENTITY_CREATED, inArgs.out());
+    SLMODULE(Harbor)->send(NodeType::LOGIC, askNodeId, NodeProtocol::CELL_MSG_CELL_ENTITY_CREATED, inArgs.out());
 }
 
 bool CellApp::createCellEntityFromBase(ISpace* space, const char* entityType, const int64 entityId, bool hasClient, int32 baseNodeId, const void* cellData, const int32 cellDataSize){
-	IObject* object = CREATE_OBJECT_BYID(SLMODULE(ObjectMgr), entityType, entityId);
+	IObject* object = CREATE_OBJECT_BYID(SLMODULE(ObjectMgr), entityType, entityId); 
     if(!object){
         ECHO_ERROR("onCreateCellEntityFromBase create cell Entity failed");
         return false;
     }
+
+	ECHO_TRACE("CellApp::createCellEntityFromBase----------------------- %d %s", space->getId(), entityType);
 
     space->addObject(object);
     space->addObjectToNode(object);
@@ -83,7 +106,7 @@ bool CellApp::createCellEntityFromBase(ISpace* space, const char* entityType, co
         onGetWitness(object, space);
     }
     
-	logic_event::CellEntityCreated info {object, cellData, cellDataSize, baseNodeId};
+	logic_event::CellEntityCreated info {object, cellData, cellDataSize, NULL, 0, baseNodeId};
     SLMODULE(EventEngine)->execEvent(logic_event::EVENT_CELL_ENTITY_CREATED, &info, sizeof(info));
     
 	return true;
@@ -106,16 +129,6 @@ void CellApp::addSpaceDataToClient(IObject* object, ISpace* space){
 
 void CellApp::onEnterSpace(IObject* object){
     //TODO同步玩家的坐标到客户端
-}
-
-
-bool CellApp::createEntity(const char* entityName, const uint64 entityId){
-	IObject* object = entityId != 0 ? CREATE_OBJECT_BYID(SLMODULE(ObjectMgr), entityName, entityId) : CREATE_OBJECT(SLMODULE(ObjectMgr), entityName);
-    
-    logic_event::Biology info { object };
-    SLMODULE(EventEngine)->execEvent(logic_event::EVENT_NEW_OBJECT_CREATED, &info, sizeof(info));
-
-    return true;
 }
 
 bool CellApp::addSpaceGeometryMapping(const int32 spaceId, const char* path, bool shouldLoadOnServer, std::map<int32, std::string>& params){
@@ -145,7 +158,7 @@ void CellApp::timerEnd(sl::api::IKernel* pKernel, IObject* object, bool novolien
 }
 
 void CellApp::onGlobalDataChanged(const char* key, const int16 dataType, const void* data, const int32 dataSize, bool isDelete){
-	printf("CellApp get GlobalData changed: %s : %s\n", key, (const char*)data);
+	//printf("CellApp get GlobalData changed: %s : %s\n", key, (const char*)data);
 }
 
 void CellApp::test(){

@@ -19,6 +19,7 @@ public:
     virtual void onEnterWorld(IObject* object) = 0;
     virtual IWitness* setWitness(IObject* object) = 0;
 	virtual bool addSpaceGeometryMapping(const char* path, bool shouldLoadOnServer, const std::map<int32, std::string> params) = 0;
+	virtual int32 getId() const = 0;
 };
 
 
@@ -30,6 +31,8 @@ public:
     virtual IWitness* getWitness(IObject* object) = 0;
     virtual void updatePosition(IObject* object, float x, float y, float z) = 0;
     virtual void getPosition(IObject* object, float& x, float& y, float& z) = 0;
+    virtual void updateDirection(IObject* object, float roll, float pitch, float yaw) = 0;
+    virtual void getDirection(IObject* object, float& roll, float& pitch, float& yaw) = 0;
     virtual int32 getSpaceId(IObject* object) = 0;
 };
 

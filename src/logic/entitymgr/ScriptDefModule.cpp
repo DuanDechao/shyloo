@@ -81,12 +81,12 @@ bool ScriptDefModule::initialize(){
 
 bool ScriptDefModule::initDefaultCellData(){
 	const PROPS_MAP& props = _objectDefModule->getProps();
-	const char* moduleName = getModuleName();
+	const int32 moduleType = getModuleType();
 	for(auto propIter : props){
 		const IProp* prop = propIter.second;
-		if(prop->getSetting(moduleName) & prop_def::ObjectDataFlagRelation::OBJECT_CELL_DATA_FLAGS){
-			IDataType* dataType = (IDataType*)(prop->getExtra(moduleName));
-			PyObject* value = (PyObject*)(dataType->parseDefaultStr(prop->getDefaultVal(moduleName)));
+		if(prop->getSetting(moduleType) & prop_def::ObjectDataFlagRelation::OBJECT_CELL_DATA_FLAGS){
+			IDataType* dataType = (IDataType*)(prop->getExtra(moduleType));
+			PyObject* value = (PyObject*)(dataType->parseDefaultStr(prop->getDefaultVal(moduleType)));
 			PyDict_SetItemString(_cellPropData, prop->getNameString(), value); 
 		}
 	}
@@ -120,10 +120,6 @@ int32 ScriptDefModule::scriptSetObjectAttribute(PyObject* object, PyObject* attr
 
 const IProp* ScriptDefModule::getProp(PyObject* attr){
 	PyObject* pyVal = PyDict_GetItem(_propDict, attr);
-    wchar_t* pyUnicodeWideString = PyUnicode_AsWideCharString(attr, NULL);
-    char* propName = sl::CStringUtils::wchar2char(pyUnicodeWideString);
-    PyMem_Free(pyUnicodeWideString);
-	printf("ddc PyObject propName:%s\n", propName);
 	if (!pyVal){
 		return nullptr;
 	}
@@ -205,17 +201,18 @@ void ScriptDefModule::createNameSpace(PyObject* object, PyObject* dictData){
     Py_ssize_t pos = 0;
     PyObject *key, *value;
 	PyObject* pyCellDataAttr = PyUnicode_FromString("cellData");
-	//PyObject * cellDataDict = PyObject_GetAttrString(object, "cellData");
 	PyObject* cellDataDict = ((EntityScriptObject*)object)->onScriptGetAttribute(pyCellDataAttr);
     if(cellDataDict == NULL)
         PyErr_Clear();
 
+	const int32 nodeType = SLMODULE(Harbor)->getNodeType();
     while(PyDict_Next(dictData, &pos, &key, &value)){
-        PyObject* val = scriptGetObjectAttribute(object, key);
-        if(val != nullptr){
-            scriptSetObjectAttribute(object, key, value);
-            continue;
-        }
+		const IProp* prop = getProp(key);
+		if(prop){
+			((EntityScriptObject*)object)->onScriptSetAttribute(key, value);
+			if(nodeType == NodeType::SCENE || (nodeType == NodeType::LOGIC && (prop->getSetting(getModuleType()) & prop_def::ObjectDataFlagRelation::OBJECT_BASE_DATA_FLAGS)))
+				continue;
+		}
 
         if(cellDataDict != NULL && PyDict_Contains(cellDataDict, key) > 0)
             PyDict_SetItem(cellDataDict, key, value);
@@ -247,8 +244,6 @@ void ScriptDefModule::setDefaultCellData(PyObject* dataDict){
             PyErr_PrintEx(0);
 		    return;
 	    }
-	    //const IProp* cellProp = (const IProp*)PyLong_AsVoidPtr(value);
-        //PyObject* pyValue = PyLong_FromLong(0);
         PyDict_SetItem(dataDict, key, value);
     }
 

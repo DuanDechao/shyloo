@@ -18,11 +18,9 @@ public:
 	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick) {}
 
 	virtual uint64 allocID();
+	virtual uint64 generateLocalId();
 	void askIds(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
 	void giveIds(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
-
-private:
-	uint64 generateId();
 
 private:
 	IdMgr*				_self;

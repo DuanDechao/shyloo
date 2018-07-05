@@ -49,6 +49,8 @@ namespace logic_event{
 		EVENT_LOGIC_SEE_SOMEONE,
 		EVENT_LOGIC_MISS_SOMEONE,
 		EVENT_LOGIC_PLAYER_GATE_LOST,
+		EVENT_LOGIC_CREATE_BASE_ANYWHERE,
+		EVENT_LOGIC_CREATE_BASE_ANYWHERE_CALLBACK,
 
 		EVENT_SCENE_ENTER_SCENE = 2000,
 		EVENT_SCENE_APPEAR_SCENE,
@@ -67,6 +69,8 @@ namespace logic_event{
         IObject* object;
 		const void* cellData;
 		const int32 cellDataSize;
+		const void* initData;
+		const int32 initDataSize;
         int32 baseNodeId;
     };
 
@@ -168,5 +172,18 @@ namespace logic_event{
 		IObject* object;
 		int64 agentId;
 	};
+	
+	struct CreateBaseAnywhere{
+		IObject* object;
+		const void* initData;
+		const int32 dataSize;
+	};
+
+	struct CreateBaseAnywhereCallback{
+		uint64 callbackId;
+		const char* entityType;
+		uint64 entityId;
+		int32 createNodeId;
+	}; 
 }
 #endif

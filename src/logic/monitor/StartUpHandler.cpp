@@ -2,6 +2,7 @@
 #include "EventID.h"
 #include "Monitor.h"
 #include "ICluster.h"
+#include "IHarbor.h"
 
 StartUpHandler::StartUpHandler(){
 	_serverReady = false;
@@ -31,5 +32,8 @@ bool StartUpHandler::process(){
 		_serverReadyForLogin = Monitor::getInstance()->serverReadyForLogin();
 	}
 
+	ECHO_TRACE("=====SERVER STATE==NodeType[%d]== NodeId[%d]==", SLMODULE(Harbor)->getNodeType(), SLMODULE(Harbor)->getNodeId());
+	ECHO_TRACE("serverReady:%d", _serverReady);
+	ECHO_TRACE("serverReadyForLogin:%d", _serverReadyForLogin);
 	return _serverReady && _serverReadyForLogin;
 }

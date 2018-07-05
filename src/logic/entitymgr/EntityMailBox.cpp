@@ -8,6 +8,113 @@
 #include "ProtocolID.pb.h"
 #include "EntityMgr.h"
 #include "IPythonEngine.h"
+#include "GameDefine.h"
+void MailBoxType::addToStream(sl::IBStream& stream, void* value){
+	PyObject* pyValue = (PyObject*)value;
+	const char types[2][10] = {
+		"Entity",
+		"Base"
+	};
+
+	uint64 entityId = 0;
+	int32 nodeId = 0;
+	int16 mType = 0;
+	int32 entityType = 0;
+	if(pyValue != Py_None){
+		for(int32 i =0; i < 2; i++){
+			PyTypeObject* stype = sl::pyscript::ScriptObject::getScriptObjectType(types[i]); 
+			if(stype == NULL)
+				continue;
+
+			if(PyObject_IsInstance(pyValue, (PyObject*)stype)){
+				PyObject* pyid = PyObject_GetAttrString(pyValue, "id");
+				if(pyid){
+					entityId = PyLong_AsUnsignedLongLong(pyid);
+					Py_DECREF(pyid);
+				}
+				else{
+					SCRIPT_ERROR_CHECK();
+					entityId = 0;
+					nodeId = 0;
+					break;
+				}
+
+				nodeId = SLMODULE(Harbor)->getNodeId();
+				int32 nodeType = SLMODULE(Harbor)->getNodeType();
+				if(nodeType == NodeType::LOGIC)
+					mType = MAILBOX_TYPE_BASE;
+				else if(nodeType == NodeType::SCENE)
+					mType = MAILBOX_TYPE_CELL;
+				else
+					mType = MAILBOX_TYPE_CLIENT;
+
+				EntityScriptObject* pyScriptEntity = static_cast<EntityScriptObject*>(pyValue);
+				entityType = pyScriptEntity->getInnerObject()->getObjectType();
+			}
+		}
+
+		if(entityId == 0){
+			EntityMailBox* pMailBox = static_cast<EntityMailBox*>(pyValue);
+			nodeId = pMailBox->getRemoteNodeId();
+			entityId = pMailBox->getEntityId();
+			mType = pMailBox->getType();
+			entityType = pMailBox->getEntityType();
+		}
+	}
+
+	stream << entityId;
+	stream << nodeId;
+	stream << mType;
+	stream << entityType;
+}
+
+void MailBoxType::addToObject(IObject* object, const IProp* prop, void* value){
+	int32 size = 0;
+	const char* data = (const char*)(object->getPropData(prop, size));
+	sl::IBStream stream(const_cast<char*>(data), size);
+	addToStream(stream, value);
+}
+	
+void* MailBoxType::createFromStream(const sl::OBStream& stream){
+	uint64 entityId = 0;
+	int32 nodeId = 0;
+	int16 mType = 0;
+	int32 entityType = 0;
+	if(!stream.readUint64(entityId) || !stream.readInt32(nodeId) || !stream.readInt16(mType) || !stream.readInt32(entityType)){
+		ECHO_ERROR("MailBoxType::createFromStream: read data error");
+		return nullptr;
+	}
+
+	if(entityId > 0){
+		PyObject* entity = EntityMailBox::tryGetEntity(mType, nodeId, entityId);
+		if(entity){
+			Py_INCREF(entity);
+			return entity;
+		}
+
+		return NEW EntityMailBox(mType, nodeId, entityId, EntityMgr::getInstance()->findScriptDefModule(entityType));
+	}
+
+	Py_RETURN_NONE;
+}
+
+void* MailBoxType::createFromObject(IObject* object, const IProp* prop){
+	int32 size = 0;
+	const void* data = object->getPropData(prop, size);
+	const sl::OBStream stream((const char*)data, size);
+	return createFromStream(stream);
+}
+
+const int32 MailBoxType::getSize() const{
+	return sizeof(uint64) + 2 * sizeof(int32) + sizeof(int16);
+}
+
+void MailBoxType::addDataTypeInfo(sl::IBStream& stream){
+	stream << getUid();                                                                                                                                                                                                                                     
+	stream << getName();
+	stream << getAliasName();
+}
+
 SCRIPT_METHOD_DECLARE_BEGIN(EntityMailBox)
 SCRIPT_METHOD_DECLARE("__reduce_ex__",  reduce_ex__,        METH_VARARGS,   0)
 SCRIPT_METHOD_DECLARE_END()
@@ -78,15 +185,22 @@ PyObject* EntityMailBox::__unpickle__(PyObject* self, PyObject* args){
 		S_Return;
 	}
 
-	if(nodeId == SLMODULE(Harbor)->getNodeId()){
-		PyObject* entity = (PyObject*)(EntityMgr::getInstance()->findEntity(objectId));
-		if(entity){
-			Py_INCREF(entity);
-			return entity;
-		}
+	PyObject* entity = tryGetEntity(mailboxType, nodeId, objectId);
+	if(entity){
+		SLASSERT(false, "tsda");
+		Py_INCREF(entity);
+		return entity;
 	}
 
 	return NEW EntityMailBox(mailboxType, nodeId, objectId, defModule);
+}
+
+PyObject* EntityMailBox::tryGetEntity(const int16 mailboxType, const int32 nodeId, const uint64 entityId){
+	const int32 nodeType = ENTITY_MAILBOX_NODE_TYPE_MAPPING[mailboxType];
+	if(nodeType == SLMODULE(Harbor)->getNodeType() && nodeId == SLMODULE(Harbor)->getNodeId())
+		return (PyObject*)(EntityMgr::getInstance()->findEntity(entityId));
+	
+	return nullptr;
 }
 
 

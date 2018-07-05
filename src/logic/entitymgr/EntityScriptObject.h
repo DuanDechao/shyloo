@@ -10,6 +10,7 @@
 #include "slbinary_stream.h"
 #include "ScriptTimers.h"
 class EntityScriptObject: public sl::pyscript::ScriptObject{
+	BASE_SCRIPT_HREADER(EntityScriptObject, ScriptObject)
 public:
 	EntityScriptObject(PyTypeObject* pyType, IObject* object, ScriptDefModule* pScriptModule, bool isInitialised = false);
 	~EntityScriptObject();
@@ -26,8 +27,9 @@ public:
 	inline uint64 id() const {return _innerObject->getID();}
 	inline const char* getObjectName() {return _pScriptModule->getModuleName();}
 	
-	int64 addTimer(int64 period, int64 interval, const char* callBackName, PyObject* userData);
-	void delTimer(int32 timerId);
+	DECLARE_PY_GET_MOTHOD(pyGetID);
+    DECLARE_PY_MOTHOD_ARG4(addTimer, float, float, const_charptr, PyObject_ptr);
+    DECLARE_PY_MOTHOD_ARG1(delTimer, int32);
 
 protected:
     IObject*					_innerObject;

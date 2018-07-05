@@ -36,9 +36,11 @@ public:
 	static PyObject* __py__createBaseAnywhere(PyObject* self, PyObject* args);
 	static PyObject* __py__hasRes(PyObject* self, PyObject* args);
 	static PyObject* __py__addSpaceGeometryMapping(PyObject* self, PyObject* args);
+	static PyObject* __py__createEntity(PyObject* self, PyObject* args);
     
-	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){}
-	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick){/*test();*/}
+	virtual void onInit(sl::api::IKernel* pKernel, int64 timetick){ printf("OnInit------------- %lld\n", sl::getTimeMilliSecond());}
+	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){ test();}
+	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick){ printf("OnTime------------------%lld\n", sl::getTimeMilliSecond());}
 	virtual void onTerminate(sl::api::IKernel* pKernel, bool beForced, int64 timetick){}
 	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick){}
@@ -48,12 +50,14 @@ public:
 	virtual bool onServerReadyForShutDown(sl::api::IKernel* pKernel);
 	virtual bool onServerShutDown(sl::api::IKernel* pKernel);
 
-    void onCellEntityCreatedFromCell(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
-    void onCreateCellEntityOnCell(sl::api::IKernel* pKernel, const void* context, const int32 size);
+    //void onCellEntityCreatedFromCell(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
     
+	void onCreateCellEntityOnCell(sl::api::IKernel* pKernel, const void* context, const int32 size);
     void onCellEntityCreatedFromCell(sl::api::IKernel* pKernel, const void* context, const int32 size);
     void onProxyCreated(sl::api::IKernel* pKernel, const void* context, const int32 size);
     void onCellEntityCreatedOnCell(sl::api::IKernel* pKernel, const void* context, const int32 size);
+    void onCreateBaseAnywhere(sl::api::IKernel* pKernel, const void* context, const int32 size);
+    void onCreateBaseAnywhereCallback(sl::api::IKernel* pKernel, const void* context, const int32 size);
     //void onEntityCreatedFromDB(sl::api::IKernel* pKernel, const void* context, const int32 size);
 	void test();
 
@@ -68,6 +72,8 @@ public:
         static uint64 id = 0;
         return ++id;
     }
+
+	inline const IProp* getPropPyObject() const {return _propPyObject;}
 
 private:
     template<typename E>
@@ -91,5 +97,6 @@ private:
 	std::vector<PyTypeObject*>							_scriptBaseTypes;
 	PyObject*											_entryScript;
 	GlobalData*											_globalData;
+	const IProp*										_propPyObject;
 };
 #endif

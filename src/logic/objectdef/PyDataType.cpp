@@ -33,7 +33,6 @@ bool PyDataType::initialize(const char* file){
 	DataTypeMgr::addDataType("PY_TUPLE", NEW PyTupleType);
 	DataTypeMgr::addDataType("PY_LIST", NEW PyListType);
 	DataTypeMgr::addDataType("BLOB", NEW BlobType);
-	DataTypeMgr::addDataType("MAILBOX", NEW MailBoxType);
 
 	FixedArray::installScript(SLMODULE(PythonEngine)->getPythonModule());
 	FixedDict::installScript(SLMODULE(PythonEngine)->getPythonModule());
@@ -179,6 +178,7 @@ void UInt32Type::addToStream(sl::IBStream& stream, void* value){
 		v = (uint32)PyLong_AsLong(pyValue);
 
 		if(PyErr_Occurred()){
+			PyErr_Print();
 			PyErr_Clear();
 
 			PyErr_Format(PyExc_TypeError, "UInt32Type::pyValueToUint32: pyValue(%s) is wrong!", 
@@ -713,7 +713,7 @@ bool PyFixedArrayType::initType(const sl::ISLXmlNode* typeNode){
 		}
 
 		_dataType = dataType;
-		std::string dataName = std::string("_") + sl::CStringUtils::Int64AsString(SLMODULE(IdMgr)->allocID()) + dataType->getName();
+		std::string dataName = std::string("_") + sl::CStringUtils::Int64AsString(SLMODULE(IdMgr)->generateLocalId()) + dataType->getName();
 		DataTypeMgr::addDataType(dataName.c_str(), dataType);
 				
 	}else{
@@ -815,7 +815,7 @@ bool PyFixedDictType::initType(const sl::ISLXmlNode* typeNode){
 			}
 			
 			_dictItems.push_back(std::pair<std::string, IDataType*>(typeName, dataType));
-			std::string dataTypeName = std::string("_") + sl::CStringUtils::Int64AsString(SLMODULE(IdMgr)->allocID()) + dataType->getName();
+			std::string dataTypeName = std::string("_") + sl::CStringUtils::Int64AsString(SLMODULE(IdMgr)->generateLocalId()) + dataType->getName();
 			DataTypeMgr::addDataType(dataTypeName.c_str(), dataType);
 		}
 		else{

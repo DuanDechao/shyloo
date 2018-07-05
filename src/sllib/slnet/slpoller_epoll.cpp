@@ -22,9 +22,7 @@ EpollPoller::~EpollPoller(){
 int EpollPoller::processPendingEvents(int64 maxWait){
 	const int MAX_EVENTS = 50;
 	struct epoll_event events[MAX_EVENTS];
-	int maxWaitInMilliseconds = int(maxWait * 1000);
-
-	int nfds = epoll_wait(_epFd, events, MAX_EVENTS, maxWaitInMilliseconds);
+	int nfds = epoll_wait(_epFd, events, MAX_EVENTS, maxWait);
 
 	for (int i = 0; i < nfds; i++){
 		if(events[i].events & (EPOLLERR|EPOLLHUP)){

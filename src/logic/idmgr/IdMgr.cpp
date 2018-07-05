@@ -13,9 +13,9 @@
 #define AREA_MASK	  0x03FF
 #define AREA_BITS	  10
 #define SEQUENCE_BITS 5
-#define GIVE_NUM	  20
-#define GIVE_SIZE	  500
-#define ASK_TIME_INTERVAL 10000
+#define GIVE_NUM	  100
+#define GIVE_SIZE	  1000
+#define ASK_TIME_INTERVAL 2000
 
 bool IdMgr::initialize(sl::api::IKernel * pKernel){
 	_self = this;
@@ -64,7 +64,7 @@ void IdMgr::onTime(sl::api::IKernel* pKernel, int64 timetick){
 
 uint64 IdMgr::allocID(){
 	if (!_bIsMultiProcess){
-		return _self->generateId();
+		return _self->generateLocalId();
 	}
 
 	SLASSERT(_idPool.size() > 0, "wtf");
@@ -76,7 +76,7 @@ uint64 IdMgr::allocID(){
 void IdMgr::askIds(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
 	IArgs<GIVE_NUM, GIVE_SIZE> inArgs;
 	for (int32 i = 0; i < GIVE_NUM; i++){
-		inArgs << _self->generateId();
+		inArgs << _self->generateLocalId();
 	}
 	inArgs.fix();
 	_harbor->send(nodeType, nodeId, NodeProtocol::GIVE_ID_AREA, inArgs.out());
@@ -88,7 +88,7 @@ void IdMgr::giveIds(sl::api::IKernel* pKernel, const int32 nodeType, const int32
 	}
 }
 
-uint64 IdMgr::generateId(){
+uint64 IdMgr::generateLocalId(){
 	static uint64 lastTimeTick = sl::getTimeMilliSecond();
 	static uint16 sequence = 0;
 

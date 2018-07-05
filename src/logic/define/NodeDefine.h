@@ -12,5 +12,6 @@ enum NodeType{
 	LOGIN = 7,
 	DATABASE = 8,
 	BALANCE = 9,
+	CLIENT = 10,
 };
 #endif

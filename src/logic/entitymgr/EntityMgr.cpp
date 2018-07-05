@@ -20,15 +20,23 @@ EntityMgr* EntityMgr::s_self = nullptr;
 bool EntityMgr::initialize(sl::api::IKernel * pKernel){
 	s_self = this;
 	_kernel = pKernel;
+
+	SLMODULE(ObjectDef)->addExtraDataType("MAILBOX", NEW MailBoxType());
     if(SLMODULE(Harbor)->getNodeType() == NodeType::LOGIC){
-         START_TIMER(s_self, 0, 1, 5000);    
+//         START_TIMER(s_self, 2000, 1, 5000);    
     }
 
 	return true;
 }
 
 bool EntityMgr::launched(sl::api::IKernel * pKernel){
-    if(SLMODULE(Harbor)->getNodeType() == NodeType::LOGIC){
+	const std::vector<const IObjectDefModule*>& allObjectDefs = SLMODULE(ObjectDef)->getAllObjectDefModule();     
+	for(auto defModule : allObjectDefs){
+		const char* moduleName = defModule->getModuleName();
+		_propPyObject = SLMODULE(ObjectMgr)->appendObjectProp(moduleName, "pyObject", DTYPE_INT64, sizeof(int64), 0, 0, 0);
+	}
+    
+	if(SLMODULE(Harbor)->getNodeType() == NodeType::LOGIC){
 		rgsBaseScriptModule(Base::getScriptType());
 		Base::installScript(SLMODULE(PythonEngine)->getPythonModule());
 	    
@@ -45,6 +53,7 @@ bool EntityMgr::launched(sl::api::IKernel * pKernel){
 		Entity::installScript(SLMODULE(PythonEngine)->getPythonModule());
 	    
 		INSTALL_SCRIPT_MODULE_METHOD(SLMODULE(PythonEngine), "addSpaceGeometryMapping", &EntityMgr::__py__addSpaceGeometryMapping);
+	    INSTALL_SCRIPT_MODULE_METHOD(SLMODULE(PythonEngine), "createEntity", &EntityMgr::__py__createEntity);
     }
 
 	EntityMailBox::installScript(SLMODULE(PythonEngine)->getPythonModule());
@@ -69,8 +78,11 @@ bool EntityMgr::launched(sl::api::IKernel * pKernel){
     
 	if(SLMODULE(Harbor)->getNodeType() == NodeType::LOGIC){
         //RGS_EVENT_HANDLER(SLMODULE(EventEngine), logic_event::EVENT_ENTITY_CREATED_FROM_DB_CALLBACK, EntityMgr::onEntityCreatedFromDB);
-        //RGS_EVENT_HANDLER(SLMODULE(EventEngine), logic_event::EVENT_CELL_ENTITY_CREATED, EntityMgr::onCellEntityCreatedFromCell);
+        RGS_EVENT_HANDLER(SLMODULE(EventEngine), logic_event::EVENT_CELL_ENTITY_CREATED, EntityMgr::onCellEntityCreatedFromCell);
         RGS_EVENT_HANDLER(SLMODULE(EventEngine), logic_event::EVENT_PROXY_CREATED, EntityMgr::onProxyCreated);
+        RGS_EVENT_HANDLER(SLMODULE(EventEngine), logic_event::EVENT_LOGIC_CREATE_BASE_ANYWHERE, EntityMgr::onCreateBaseAnywhere);
+        RGS_EVENT_HANDLER(SLMODULE(EventEngine), logic_event::EVENT_LOGIC_CREATE_BASE_ANYWHERE_CALLBACK, EntityMgr::onCreateBaseAnywhereCallback);
+
     }
 
 	if(SLMODULE(Harbor)->getNodeType() == NodeType::SCENE){
@@ -128,17 +140,24 @@ bool EntityMgr::createBaseFromDB(const char* entityType, const uint64 dbid, PyOb
 }
 
 bool EntityMgr::createBaseAnywhere(const char* entityType, PyObject* params, PyObject* pyCallback){
-    uint64 callbackId = allocCallbackId();
-    if(_pyCallbacks.find(callbackId) != _pyCallbacks.end()){
+    uint64 callbackId = pyCallback ? allocCallbackId() : 0;
+    if(callbackId > 0 && _pyCallbacks.find(callbackId) != _pyCallbacks.end()){
         PyErr_Format(PyExc_AssertionError, "EntityMgr::createBaseLocallyFromDB: callback id has exist!");
         PyErr_PrintEx(0);
         return false;
     }
+    
+	if(callbackId > 0){
+		_pyCallbacks[callbackId] = pyCallback;
+		Py_INCREF(pyCallback); 
+	}
 
-    _pyCallbacks[callbackId] = pyCallback;
-    Py_INCREF(pyCallback); 
-	IObject* object = CREATE_OBJECT(SLMODULE(ObjectMgr), entityType);
-	onBaseCreateAnywhere(object, params, callbackId);
+	std::string strInitData = "";
+	if(params != NULL && PyDict_Check(params)){
+		strInitData = SLMODULE(PythonEngine)->pickle(params);
+	}
+
+	SLMODULE(BaseApp)->createBaseAnywhere(entityType, strInitData.data(), strInitData.size(), callbackId);
 }
 
 template<typename E>
@@ -438,20 +457,54 @@ PyObject* EntityMgr::__py__addSpaceGeometryMapping(PyObject* self, PyObject* arg
 
 	S_Return;
 }
+	
+PyObject* EntityMgr::__py__createEntity(PyObject* self, PyObject* args){
+	PyObject* params = NULL;
+	char* entityType = NULL;
+	int32 spaceId = 0;
+	PyObject* position, *direction;
+	
+	if(!PyArg_ParseTuple(args, "s|I|O|O|O", &entityType, &spaceId, &position, &direction, &params)){
+		PyErr_Format(PyExc_TypeError, "EntityMgr::createEntity: args is error");
+		PyErr_PrintEx(0);
+		return 0;
+	}
+
+	if(entityType == NULL || strlen(entityType)  == 0){
+		PyErr_Format(PyExc_TypeError, "EntityMgr::createEntity: entityType is null");
+		PyErr_PrintEx(0);
+		return 0;
+	}
+
+	Position3D pos, dir;
+	sl::pyscript::ScriptVector3::convertPyObjectToVector3(pos, position);
+	sl::pyscript::ScriptVector3::convertPyObjectToVector3(dir, direction);
+	
+	IObject* object = SLMODULE(CellApp)->createEntity(entityType, spaceId, pos, dir, params, 0);
+	if(!object){
+		SLASSERT(false, "create Entity failed");
+		return NULL;
+	}
+	return (PyObject*)(object->getPropInt64(s_self->getPropPyObject()));
+}
 
 void EntityMgr::onCellEntityCreatedOnCell(sl::api::IKernel* pKernel, const void* context, const int32 size){
 	SLASSERT(size == sizeof(logic_event::CellEntityCreated), "wtf");
     logic_event::CellEntityCreated* evt = (logic_event::CellEntityCreated*)context;
     Entity* cellEntity = createCellEntity(evt->object, NULL, false);
-    cellEntity->setBaseMailBox(evt->baseNodeId);
+	if(evt->baseNodeId > 0)
+		cellEntity->setBaseMailBox(evt->baseNodeId);
     
-    bool ret = cellEntity->createCellDataFromStream(evt->cellData, evt->cellDataSize);
-    if(!ret){
-        SLASSERT(false, "createCellData Failed");
-        return;
-    } 
+	if(evt->cellData && evt->cellDataSize > 0){
+		bool ret = cellEntity->createCellDataFromStream(evt->cellData, evt->cellDataSize);
+		if(!ret){
+			SLASSERT(false, "createCellData Failed");
+			return;
+		} 
+	}
 
-    cellEntity->initializeEntity(NULL);
+    cellEntity->initializeEntity((PyObject*)evt->initData);
+	evt->object->setPropInt64(_propPyObject, (int64)cellEntity);
 }
 
 void EntityMgr::onCellEntityCreatedFromCell(sl::api::IKernel* pKernel, const void* context, const int32 size){
@@ -474,6 +527,64 @@ void EntityMgr::onProxyCreated(sl::api::IKernel* pKernel, const void* context, c
 	Proxy* proxy = createProxy(evt->object, NULL, true); 
     proxy->onEntityEnabled(evt->agentId);
 }
+    
+void EntityMgr::onCreateBaseAnywhere(sl::api::IKernel* pKernel, const void* context, const int32 size){
+	SLASSERT(size == sizeof(logic_event::CreateBaseAnywhere), "wtf");
+	logic_event::CreateBaseAnywhere* evt = (logic_event::CreateBaseAnywhere*)context;
+
+	PyObject* params = NULL;
+	if(evt->dataSize > 0){
+		std::string strInitData((const char*)evt->initData, evt->dataSize);
+		params = SLMODULE(PythonEngine)->unpickle(strInitData);
+	}
+	PyObject* e = createBase(evt->object, params, true);
+}
+
+void EntityMgr::onCreateBaseAnywhereCallback(sl::api::IKernel* pKernel, const void* context, const int32 size){
+	SLASSERT(size == sizeof(logic_event::CreateBaseAnywhereCallback), "wtf");
+	logic_event::CreateBaseAnywhereCallback* evt = (logic_event::CreateBaseAnywhereCallback*)context;
+	if(evt->callbackId == 0)
+		return;
+
+    auto callbackItor = _pyCallbacks.find(evt->callbackId);
+    if(callbackItor == _pyCallbacks.end()){
+		SLASSERT(false, "has no callback[%lld]", evt->callbackId);
+		return;
+	}
+
+	PyObject* pyArgs = PyTuple_New(1);
+    PyObject* pyfunc = callbackItor->second;
+	PyObject* pyObj = NULL;
+	if(evt->createNodeId == SLMODULE(Harbor)->getNodeId()){
+		pyObj = _entities->find(evt->entityId);
+		if(!pyObj){
+			ECHO_ERROR("EntityMgr::onBaseCreateFromAnywhere:: can't found entity[%lld]", evt->entityId);
+			Py_DECREF(pyArgs);
+			return;
+		}
+		Py_INCREF(pyObj);
+	}
+	else{
+		ScriptDefModule* pScriptDefModule = findScriptDefModule(evt->entityType);
+		if(!pScriptDefModule){
+			ECHO_ERROR("EntityMgr::onCreateBaseAnywhereCallback: cant found entityType[%s]", evt->entityType);
+			Py_DECREF(pyArgs);
+			return;
+		}
+		pyObj = NEW EntityMailBox(EntityMailBoxType::MAILBOX_TYPE_BASE, evt->createNodeId, evt->entityId, pScriptDefModule);
+	}
+
+	PyTuple_SET_ITEM(pyArgs, 0, pyObj);
+    PyObject* pyResult = PyObject_CallObject(pyfunc, pyArgs);
+    if(pyResult != NULL)
+        Py_DECREF(pyResult);
+    else
+        SCRIPT_ERROR_CHECK();
+    
+    Py_DECREF(pyfunc);
+	Py_DECREF(pyArgs);
+    _pyCallbacks.erase(callbackItor);
+}
 
 void EntityMgr::onEntityCreatedFromDB(IObject* object, const int32 callbackId, bool wasActive){
     PyObject* e = createBase(object, NULL, true);
@@ -495,34 +606,6 @@ void EntityMgr::onEntityCreatedFromDB(IObject* object, const int32 callbackId, b
 }
 
 void EntityMgr::onBaseCreateAnywhere(IObject* object,  PyObject* params, const int32 callbackId){
-	PyObject* e = createBase(object, params, true);
-    if(callbackId > 0){
-        auto callbackItor = _pyCallbacks.find(callbackId);
-        if(callbackItor == _pyCallbacks.end())
-            return;
-
-		PyObject* pyArgs = PyTuple_New(1);
-        PyObject* pyfunc = callbackItor->second;
-		
-		PyObject* base = _entities->find(object->getID());
-		if(!base){
-			ECHO_ERROR("EntityMgr::onBaseCreateFromAnywhere:: can't found entity[%lld]", object->getID());
-			Py_DECREF(pyArgs);
-			return;
-		}
-		
-		Py_INCREF(base);
-		PyTuple_SET_ITEM(pyArgs, 0, base);
-        PyObject* pyResult = PyObject_CallObject(pyfunc, pyArgs);
-        if(pyResult != NULL)
-            Py_DECREF(pyResult);
-        else
-            SCRIPT_ERROR_CHECK();
-        
-        Py_DECREF(pyfunc);
-		Py_DECREF(pyArgs);
-        _pyCallbacks.erase(callbackItor);
-    }
 }
 /*
 void EntityMgr::onEntityCreatedFromDB(sl::api::IKernel* pKernel, const void* context, const int32 size){
@@ -658,8 +741,22 @@ void EntityMgr::onRemoteMethodCall(const uint64 objectId, const sl::OBStream& st
 }
 
 void EntityMgr::test(){
-    printf("py test start++++++++++++++++++++++++++++++++++++++\n");
-	PyRun_SimpleString("from ddddtest import test\ntest()\n");
+//    printf("py test start++++++++++++++++++++++++++++++++++++++\n");
+//	PyRun_SimpleString("from ddddtest import test\ntest()\n");
+
+	uint64 val = 2220061311037865984;
+	PyObject* pyVal = PyLong_FromUnsignedLongLong(val);
+	if(PyErr_Occurred()){
+		SLASSERT(false, "wtf");
+		PyErr_Format(PyExc_TypeError, "UInt64Type::createFromStream: errval=%lld", val);
+		PyErr_PrintEx(0);
+		//SL_RELEASE(pyVal);
+		if(pyVal){
+			Py_DECREF(pyVal);
+			pyVal = NULL;
+		}
+	//	return PyLong_FromUnsignedLongLong(0);
+	}
 }
 
 bool EntityMgr::onServerReady(sl::api::IKernel* pKernel){
@@ -673,18 +770,44 @@ bool EntityMgr::onServerReady(sl::api::IKernel* pKernel){
 }
 
 bool EntityMgr::onServerReadyForLogin(sl::api::IKernel* pKernel){
+	bool completed = false;
+	float v = 0.0f;
 	if(PyObject_HasAttrString(_entryScript, "onReadyForLogin") > 0){
 		PyObject* pyResult = PyObject_CallMethod(_entryScript, const_cast<char*>("onReadyForLogin"), const_cast<char*>("O"), PyBool_FromLong(1));
 		if(pyResult != NULL){
-			bool completed = (pyResult == Py_True);
+			completed = (pyResult == Py_True);
+			if(!completed){
+				v = (float)PyFloat_AsDouble(pyResult);
+				if(PyErr_Occurred()){
+					SCRIPT_ERROR_CHECK();
+					Py_DECREF(pyResult);
+					return false;
+				}
+			}
+			else{
+				v = 100.f;
+			}
 			Py_DECREF(pyResult);
-			return completed;
 		}
 		else{
 			SCRIPT_ERROR_CHECK();
 			return false;
 		}
 	}
+	else{
+		v = 100.f;
+		return true;
+	}
+
+	if(v > 0.9999f){
+		v = 100.f;
+		completed = true;
+	}
+
+	if(!completed){
+		ECHO_TRACE("complete progress[%f]", v);
+	}
+	return completed;
 }
 
 bool EntityMgr::onServerReadyForShutDown(sl::api::IKernel* pKernel){

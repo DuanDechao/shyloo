@@ -29,6 +29,7 @@ public:
     virtual void addSpaceDataToStream(sl::IBStream& stream);
     virtual IWitness* setWitness(IObject* object);
 	virtual bool addSpaceGeometryMapping(const char* path, bool shouldLoadOnServer, const std::map<int32, std::string> params);
+	virtual int32 getId() const {return _id;}
     
     void positionChanged(sl::api::IKernel* pKernel, IObject* object, const char* name, const IProp* prop, const bool sync);
 

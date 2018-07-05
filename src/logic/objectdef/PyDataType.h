@@ -311,16 +311,6 @@ public:
 	virtual void* parseDefaultStr(const char* defaultValStr);
 };
 
-class MailBoxType: public PyDataType{
-public:
-	virtual ~MailBoxType(){}
-	virtual void addToStream(sl::IBStream& stream, void* value){}
-	virtual void addToObject(IObject* object, const IProp* prop, void* value){}
-	virtual void* createFromStream(const sl::OBStream& stream){return nullptr;}
-	virtual const char* getName() const {return "MAILBOX";}
-	virtual void* parseDefaultStr(const char* defaultValStr){return nullptr;}
-};
-
 class PythonType: public PyDataType{
 public:
 	virtual ~PythonType(){}

@@ -37,6 +37,9 @@ bool Scene::appendSceneProp(){
 		_propX = SLMODULE(ObjectMgr)->appendObjectProp(moduleName, "posX", DTYPE_FLOAT, sizeof(float), 0, 0, 0);
 		_propY = SLMODULE(ObjectMgr)->appendObjectProp(moduleName, "posY", DTYPE_FLOAT, sizeof(float), 0, 0, 0);
 		_propZ = SLMODULE(ObjectMgr)->appendObjectProp(moduleName, "posZ", DTYPE_FLOAT, sizeof(float), 0, 0, 0); 
+		_propRoll = SLMODULE(ObjectMgr)->appendObjectProp(moduleName, "dirRoll", DTYPE_FLOAT, sizeof(float), 0, 0, 0);
+		_propPitch = SLMODULE(ObjectMgr)->appendObjectProp(moduleName, "dirPitch", DTYPE_FLOAT, sizeof(float), 0, 0, 0);
+		_propYaw = SLMODULE(ObjectMgr)->appendObjectProp(moduleName, "dirYaw", DTYPE_FLOAT, sizeof(float), 0, 0, 0); 
 		_propCoordinateNode = SLMODULE(ObjectMgr)->appendObjectProp(moduleName, "coordinateNode", DTYPE_INT64, sizeof(int64), 0, 0, 0);
 		_propSceneNodeData = SLMODULE(ObjectMgr)->appendObjectProp(moduleName, "sceneNodeData", DTYPE_INT64, sizeof(int64), 0, 0, 0);
 		_propWitness = SLMODULE(ObjectMgr)->appendObjectProp(moduleName, "witness", DTYPE_INT64, sizeof(int64), 0, 0, 0);
@@ -44,10 +47,10 @@ bool Scene::appendSceneProp(){
 
 	}
 
-		Space::setPropCoordinateNode(_propCoordinateNode);
-		Space::setPropWitness(_propWitness);
-		Space::setPropPosZ(_propZ);
-		Space::setPropSpaceId(_propSpaceId);
+	Space::setPropCoordinateNode(_propCoordinateNode);
+	Space::setPropWitness(_propWitness);
+	Space::setPropPosZ(_propZ);
+	Space::setPropSpaceId(_propSpaceId);
    // }
 }
 
@@ -85,6 +88,18 @@ void Scene::getPosition(IObject* object, float& x, float& y, float& z){
     x = object->getPropFloat(_propX);
     y = object->getPropFloat(_propY);
     z = object->getPropFloat(_propZ);
+}
+
+void Scene::updateDirection(IObject* object, float roll, float pitch, float yaw){
+    object->setPropFloat(_propRoll, roll);
+    object->setPropFloat(_propPitch, pitch);
+    object->setPropFloat(_propYaw, yaw);
+}
+
+void Scene::getDirection(IObject* object, float& roll, float& pitch, float& yaw){
+    roll = object->getPropFloat(_propRoll);
+    pitch = object->getPropFloat(_propPitch);
+    yaw = object->getPropFloat(_propYaw);
 }
 
 int32 Scene::getSpaceId(IObject* object){
