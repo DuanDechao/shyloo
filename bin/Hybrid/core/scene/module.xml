@@ -7,13 +7,13 @@
 	<module name="IdMgr" />
 	<module name="EventEngine" />
     <module name="ResMgr" />
-    <module name="PythonEngine" />
 	<module name="DCCenter" />
 	<module name="GlobalData" />
+    <module name="PythonEngine" />
     <module name="ObjectDef" />
-    <module name="EntityMgr" />
+    <module name="PythonServer" />
+    <module name="ObjectTimer" />
 	<module name="MmoServer" />
     <module name="Scene" />
-    <module name="ObjectTimer" />
     <module name="Navigation" />
 </modules>

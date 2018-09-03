@@ -11,7 +11,6 @@
 #include "IIdMgr.h"
 #include "slbinary_stream.h"
 #include "IObjectDef.h"
-#include "IEntityMgr.h"
 #include "IGlobalData.h"
 
 bool BaseApp::initialize(sl::api::IKernel * pKernel){
@@ -196,6 +195,7 @@ void BaseApp::onClientRemoteMethodCall(sl::api::IKernel* pKernel, const int64 id
 	}
 
 	const uint64 objectId = itor->second->getID();
-	SLMODULE(EntityMgr)->onRemoteMethodCall(objectId, args);
+	logic_event::RemoteMethodCall info{objectId, args};
+	SLMODULE(EventEngine)->execEvent(logic_event::EVENT_REMOTE_METHOD_CALL, &info, sizeof(info));
 }
 

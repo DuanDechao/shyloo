@@ -86,30 +86,6 @@ SET(PUBLIC
     "${PROJECT_SOURCE_DIR}/src/public/slbase64.cpp"
 )
 
-SET(PYSCRIPT
-    "${PROJECT_SOURCE_DIR}/src/public/pyscript/py_macros.h"
-    "${PROJECT_SOURCE_DIR}/src/public/pyscript/scriptobject.h"
-    "${PROJECT_SOURCE_DIR}/src/public/pyscript/scriptobject.inl"
-    "${PROJECT_SOURCE_DIR}/src/public/pyscript/scriptobject.cpp"
-    "${PROJECT_SOURCE_DIR}/src/public/pyscript/vector2.h"
-    "${PROJECT_SOURCE_DIR}/src/public/pyscript/vector2.cpp"
-    "${PROJECT_SOURCE_DIR}/src/public/pyscript/vector3.h"
-    "${PROJECT_SOURCE_DIR}/src/public/pyscript/vector3.cpp"
-    "${PROJECT_SOURCE_DIR}/src/public/pyscript/vector4.h"
-    "${PROJECT_SOURCE_DIR}/src/public/pyscript/vector4.cpp"
-    "${PROJECT_SOURCE_DIR}/src/public/pyscript/pickler.h"
-    "${PROJECT_SOURCE_DIR}/src/public/pyscript/pickler.cpp"
-    "${PROJECT_SOURCE_DIR}/src/public/pyscript/py_memorystream.h"
-    "${PROJECT_SOURCE_DIR}/src/public/pyscript/py_memorystream.inl"
-    "${PROJECT_SOURCE_DIR}/src/public/pyscript/py_memorystream.cpp"
-    "${PROJECT_SOURCE_DIR}/src/public/pyscript/map.h"
-    "${PROJECT_SOURCE_DIR}/src/public/pyscript/map.cpp"
-    "${PROJECT_SOURCE_DIR}/src/public/pyscript/sequence.h"
-    "${PROJECT_SOURCE_DIR}/src/public/pyscript/sequence.cpp"
-
-	"${PROJECT_SOURCE_DIR}/src/public/pyscript/py_gc.h"
-	"${PROJECT_SOURCE_DIR}/src/public/pyscript/py_gc.cpp"
-)
 
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/sllib)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/kernel)

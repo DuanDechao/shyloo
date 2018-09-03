@@ -268,8 +268,7 @@ bool ObjectDefModule::loadDefMethods(const char* moduleName, const int8 type, co
 }
 
 bool ObjectDefModule::appendObjectProp(PropDefInfo* defInfo, bool isMethod, bool isTemp){
-	const IProp* prop = isTemp ? SLMODULE(ObjectMgr)->appendObjectTempProp(_moduleName.c_str(), defInfo->_name.c_str(), defInfo->_type, defInfo->_size, defInfo->_flags, defInfo->_index, defInfo->_extra, defInfo->_defaultVal.c_str()) : 
-        SLMODULE(ObjectMgr)->appendObjectProp(_moduleName.c_str(), defInfo->_name.c_str(), defInfo->_type, defInfo->_size, defInfo->_flags, defInfo->_index, defInfo->_extra, defInfo->_defaultVal.c_str());
+	const IProp* prop = isTemp ? SLMODULE(ObjectMgr)->appendObjectTempProp(_moduleName.c_str(), defInfo->_name.c_str(), defInfo->_type, defInfo->_size, defInfo->_flags, defInfo->_index, defInfo->_extra, defInfo->_defaultVal.c_str()) : SLMODULE(ObjectMgr)->appendObjectProp(_moduleName.c_str(), defInfo->_name.c_str(), defInfo->_type, defInfo->_size, defInfo->_flags, defInfo->_index, defInfo->_extra, defInfo->_defaultVal.c_str());
 	if (!prop){
 		SLASSERT(false, "wtf");
 		return false;

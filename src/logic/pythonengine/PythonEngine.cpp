@@ -1,17 +1,28 @@
 #include "PythonEngine.h"
-#include "slstring_utils.h"
-#include "slpymacros.h"
+#include "IResMgr.h"
+#include "NodeProtocol.h"
 #include "IHarbor.h"
 #include "NodeDefine.h"
-#include "IResMgr.h"
-#include "pyscript/pickler.h"
 #include "pyscript/py_gc.h"
-#define ENGINE_MODULE "shyloo"
-					
+#include "pyscript/pickler.h"
+PythonEngine* PythonEngine::s_self = nullptr;
 bool PythonEngine::initialize(sl::api::IKernel * pKernel){
+	s_self = this;
 	_kernel = pKernel;
-	_self = this;
 
+	return initPyEnvir(pKernel);
+}
+
+bool PythonEngine::launched(sl::api::IKernel * pKernel){
+    return true;
+}
+
+bool PythonEngine::destory(sl::api::IKernel * pKernel){
+	DEL this;
+	return true;
+}
+
+bool PythonEngine::initPyEnvir(sl::api::IKernel* pKernel){
 	if(SLMODULE(ResMgr)->getPyUserScriptsPath().size() == 0){
 		ERROR_LOG("PythonEngine::initialize: SL_RES_PATH error");
 		return false;
@@ -33,39 +44,26 @@ bool PythonEngine::initialize(sl::api::IKernel * pKernel){
 	
 	std::string userResPath = SLMODULE(ResMgr)->getPyUserResPath();
 	userResPath += "server/scripts/common";
-    installPyScript(userResPath.c_str(), pyPaths.c_str());
-	return true;
+	return getScript().install(userResPath.c_str(), pyPaths.c_str(), "shyloo");
 }
 
-bool PythonEngine::launched(sl::api::IKernel * pKernel){
-	INSTALL_SCRIPT_MODULE_METHOD(this, "testPyCall", &PythonEngine::__py_testPyCall);
-	//test();
-	return true;
-}
-
-bool PythonEngine::destory(sl::api::IKernel * pKernel){
-	DEL this;
-	return true;
-}
-
-bool PythonEngine::installPyScript(const char* resPath, const char* userPath){
-	bool ret = getScript().install(resPath, userPath, ENGINE_MODULE);
-	return true;
-}
-
-void PythonEngine::installScriptModuleMethod(PyCFunction f, const char* funcName){
+void PythonEngine::installScriptModuleMethod(const char* funcName, PyCFunction f){
 	_scriptMethods[funcName] = { funcName, f, METH_VARARGS, NULL };
-	PyModule_AddObject(getScript().getModule(), funcName, PyCFunction_New(&_scriptMethods[funcName], 0));
+	PyModule_AddObject(getScript().getBaseModule(), funcName, PyCFunction_New(&_scriptMethods[funcName], 0));
+}
+
+void PythonEngine::addScriptIntConstant(const char* varName, int32 value){
+	PyModule_AddIntConstant(getScript().getBaseModule(), varName, value);
 }
 
 int32 PythonEngine::registerPyObjectToScript(const char* attrName, PyObject* pyObj){
-	return PyObject_SetAttrString(getScript().getModule(), attrName, pyObj);
+	return PyObject_SetAttrString(getScript().getBaseModule(), attrName, pyObj);
 }
 
 int32 PythonEngine::unregisterPyObjectToScript(const char* attrName){
 	if(!attrName)
 		return 0;
-	return PyObject_DelAttrString(getScript().getModule(), attrName);
+	return PyObject_DelAttrString(getScript().getBaseModule(), attrName);
 }
 
 void PythonEngine::installScriptModuleType(PyTypeObject* scriptType, const char* typeName){
@@ -75,15 +73,12 @@ void PythonEngine::installScriptModuleType(PyTypeObject* scriptType, const char*
 		return;
 	}
 	Py_INCREF(scriptType);
-	if (PyModule_AddObject(getScript().getModule(), typeName, (PyObject*)scriptType) < 0){
+	if (PyModule_AddObject(getScript().getBaseModule(), typeName, (PyObject*)scriptType) < 0){
 		ECHO_ERROR("PyModule_AddObject(%s) is error!", typeName);
 	}																				
-	SCRIPT_ERROR_CHECK();															
-}
-
-PyObject* PythonEngine::__py_testPyCall(PyObject* self, PyObject* args){
-	ECHO_ERROR("PYTHON CALL BACK");
-	return 0;
+	if (PyErr_Occurred()){
+		PyErr_PrintEx(0);
+	}
 }
 
 std::string PythonEngine::pickle(PyObject* pyobj){
@@ -109,6 +104,4 @@ void PythonEngine::incTracing(std::string name){
 void PythonEngine::decTracing(std::string name){
 	sl::pyscript::PyGC::decTracing(name);
 }
-void PythonEngine::test(){
-	PyRun_SimpleString("from ddddtest import htest\nhtest()\n");
-}
+

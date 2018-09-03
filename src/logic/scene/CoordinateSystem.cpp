@@ -185,7 +185,7 @@ void CoordinateSystem::debugNodes(){
 }
 
 void CoordinateSystem::update(CoordinateNode* pNode){
-    printf("CoordindateNode[%p] starting update... old:%f %f %f curr:%f %f %f\n", pNode, pNode->oldX(), pNode->oldY(), pNode->oldZ(), pNode->xx(), pNode->yy(), pNode->zz());
+    //printf("CoordindateNode[%p] starting update... old:%f %f %f curr:%f %f %f\n", pNode, pNode->oldX(), pNode->oldY(), pNode->oldZ(), pNode->xx(), pNode->yy(), pNode->zz());
     if(pNode->xx() != pNode->oldX()){
         while(true){
             CoordinateNode* pCurrNode = pNode->prevX();

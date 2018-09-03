@@ -58,5 +58,7 @@ public:
     virtual const std::vector<const IObjectDefModule*>& getAllObjectDefModule() = 0;
     virtual void addAllObjectDefToStream(sl::IBStream& stream) = 0;
 	virtual void addExtraDataType(const char* typeName, IDataType* dataType) = 0;
+	virtual IDataType* getDataType(const char* typeName) = 0;
+	virtual IDataType* getDataType(const int32 uType) = 0;
 };
 #endif

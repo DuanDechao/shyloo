@@ -8,7 +8,6 @@
 #include "slstring.h"
 #include "GameDefine.h"
 #include "slbinary_map.h"
-#include "IEntityMgr.h"
 #include "IScene.h"
 #include "IObjectTimer.h"
 bool CellApp::initialize(sl::api::IKernel * pKernel){
@@ -50,7 +49,7 @@ IObject* CellApp::createEntity(const char* entityType, const int32 spaceId, Posi
     space->addObject(object);
     space->addObjectToNode(object);
 	
-	ECHO_TRACE("CellApp::createEntity----------------------- %d %s", space->getId(), entityType);
+	//ECHO_TRACE("CellApp::createEntity----------------------- %d %s", space->getId(), entityType);
     
 	logic_event::CellEntityCreated info {object, NULL, 0, initData, initDataSize, 0};
     SLMODULE(EventEngine)->execEvent(logic_event::EVENT_CELL_ENTITY_CREATED, &info, sizeof(info));

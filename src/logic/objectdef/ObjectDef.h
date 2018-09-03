@@ -29,6 +29,8 @@ public:
     virtual const std::vector<const IObjectDefModule*>& getAllObjectDefModule() {return _allObjectModule;}
     virtual void addAllObjectDefToStream(sl::IBStream& stream);
 	virtual void addExtraDataType(const char* typeName, IDataType* dataType);
+	virtual IDataType* getDataType(const char* typeName);
+	virtual IDataType* getDataType(const int32 uType);
 
 private:
     bool isLoadObjectModule(ObjectDefModule* defModule);

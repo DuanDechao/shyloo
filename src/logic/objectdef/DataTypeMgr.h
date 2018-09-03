@@ -22,6 +22,7 @@ public:
 	static IDataType* getDataType(const uint32 uid);
 	static void addDataType(const char* name, IDataType* dataType);
 	static const std::unordered_map<std::string, IDataType*>& getAllDataType(){return _dataTypes;}
+	static bool loadAlias(const char* file);
 
 private:
 	static TYPE_MAP _typeMap;

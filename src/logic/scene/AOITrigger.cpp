@@ -17,7 +17,7 @@ void AOITrigger::onEnter(CoordinateNode* pNode){
         return;
 
     ObjectCoordinateNode* pObjectCoordinateNode = static_cast<ObjectCoordinateNode*>(pNode);
-    printf("AOITrigger try to enter\n");
+    //printf("AOITrigger try to enter\n");
 
     _witness->onEnterAOI(this, pObjectCoordinateNode->object());
 
@@ -28,7 +28,7 @@ void AOITrigger::onLeave(CoordinateNode* pNode){
         return;
 
     ObjectCoordinateNode* pObjectCoordinateNode = static_cast<ObjectCoordinateNode*>(pNode);
-    printf("AOITrigger try to leave\n");
+    //printf("AOITrigger try to leave\n");
 
     _witness->onLeaveAOI(this, pObjectCoordinateNode->object());
 

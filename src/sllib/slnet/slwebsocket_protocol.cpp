@@ -28,6 +28,7 @@ bool WebSocketProtocol::isWebSocketProtocol(const char* data, const int32 datale
         return false;
 
     int32 strLen = strlen(data);
+	strLen = strLen > datalen ? datalen : strLen;
     std::string webData(data, strLen);
 
 	size_t fi = webData.find_first_of("Sec-WebSocket-Key");
@@ -58,6 +59,7 @@ int32 WebSocketProtocol::handshake(network::Channel* pChannel, const char* data,
 		return -1;
 	
     int32 strLen = strlen(data);
+	strLen = strLen > datalen ? datalen : strLen;
     std::string webData(data, strLen);
 	
     std::vector<std::string> header_and_data;

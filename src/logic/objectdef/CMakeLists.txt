@@ -8,18 +8,12 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(OBJECTDEF
-    "${PROJECT_SOURCE_DIR}/src/logic/objectdef/PyDataType.h"
-    "${PROJECT_SOURCE_DIR}/src/logic/objectdef/PyDataType.cpp"
     "${PROJECT_SOURCE_DIR}/src/logic/objectdef/DataTypeMgr.h"
     "${PROJECT_SOURCE_DIR}/src/logic/objectdef/DataTypeMgr.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/objectdef/ObjectDef.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/objectdef/ObjectDef.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/objectdef/ObjectDefModule.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/objectdef/ObjectDefModule.cpp"
-	"${PROJECT_SOURCE_DIR}/src/logic/objectdef/FixedDict.h"
-	"${PROJECT_SOURCE_DIR}/src/logic/objectdef/FixedDict.cpp"
-	"${PROJECT_SOURCE_DIR}/src/logic/objectdef/FixedArray.h"
-	"${PROJECT_SOURCE_DIR}/src/logic/objectdef/FixedArray.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/objectdef/main.cpp"
 )
 
@@ -27,7 +21,6 @@ SOURCE_GROUP(api FILES ${SL_KERNEL_API})
 SOURCE_GROUP(public FILES ${PUBLIC})
 SOURCE_GROUP(interface FILES ${SL_LOGIC_INTERFACE})
 SOURCE_GROUP(define FILES ${SL_LOGIC_DEFINE})
-SOURCE_GROUP(pyscript FILES ${PYSCRIPT})
 SOURCE_GROUP(\\ FILES ${OBJECTDEF})
 
 ADD_LIBRARY(ObjectDef SHARED
@@ -36,7 +29,6 @@ ADD_LIBRARY(ObjectDef SHARED
 	${PUBLIC}
 	${SL_LOGIC_INTERFACE}
 	${SL_LOGIC_DEFINE}
-	${PYSCRIPT}
 )
 
 IF(WIN32)

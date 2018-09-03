@@ -36,8 +36,8 @@ void Slave::CheckNodeTimer::onTime(sl::api::IKernel* pKernel, int64 timetick){
 		pid_t ret = waitpid(_node.process, &status, WNOHANG);
 		if (ret != 0){
 			if (ret > 0){
-				TRACE_LOG("process [%s] is lost, try restart", _node.cmd);
-				_node.process = Slave::getInstance()->startNode(pKernel, _node.cmd);
+				//TRACE_LOG("process [%s] is lost, try restart", _node.cmd);
+				//_node.process = Slave::getInstance()->startNode(pKernel, _node.cmd);
 			}
 			else{
 				ECHO_ERROR("wait pid %s failed[%d]", _node.cmd, SL_ERRNO);

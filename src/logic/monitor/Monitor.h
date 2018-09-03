@@ -39,8 +39,6 @@ private:
 	sl::api::IKernel* _kernel;
 	std::unordered_map<int32, IMonitorMessageHandler*> _monitorProtos;
 	std::vector<IMonitorListener*> _listeners;
-	IAgent*		_agent;
-	IHarbor*	_harbor;
 	StartUpHandler* _startUpHandler;
 };
 #endif

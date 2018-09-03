@@ -31,14 +31,13 @@ private:
 
 bool Monitor::initialize(sl::api::IKernel * pKernel){
 	_kernel = pKernel;
+	_startUpHandler = NULL;
 	return true;
 }
 
 bool Monitor::launched(sl::api::IKernel * pKernel){
-	FIND_MODULE(_harbor, Harbor);
-	if (_harbor->getNodeType() == NodeType::MASTER){
-		FIND_MODULE(_agent, Agent);
-		_agent->setListener(this);
+	if (SLMODULE(Harbor)->getNodeType() == NodeType::MASTER){
+		SLMODULE(Agent)->setListener(this);
 	}
 	else{
 		if(!_startUpHandler)

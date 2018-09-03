@@ -1,6 +1,7 @@
 #ifndef __EVENT_ID_H__
 #define __EVENT_ID_H__
 #include "slmulti_sys.h"
+#include "slbinary_stream.h"
 class IObject;
 namespace logic_event{
 	enum{
@@ -27,6 +28,7 @@ namespace logic_event{
         EVENT_GATE_LOGINED,
         EVENT_PROXY_ENTITY_CREATED,
         EVENT_ENTITY_CREATED_FROM_DB_CALLBACK,
+		EVENT_REMOTE_METHOD_CALL,
 
 		EVENT_LOGIC_PLAYER_RECONNECT = 1000,
 		EVENT_LOGIC_PLAYER_ONLINE,
@@ -185,5 +187,10 @@ namespace logic_event{
 		uint64 entityId;
 		int32 createNodeId;
 	}; 
+
+	struct RemoteMethodCall{
+		uint64 objectId;
+		const sl::OBStream& stream;
+	};
 }
 #endif

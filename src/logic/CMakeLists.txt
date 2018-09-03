@@ -34,11 +34,11 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IStarter.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IChat.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IGD.h"
-	"${PROJECT_SOURCE_DIR}/src/logic/interface/IPythonEngine.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/DBType.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/SQLBase.h"
     "${PROJECT_SOURCE_DIR}/src/logic/interface/IObjectDef.h"
-	"${PROJECT_SOURCE_DIR}/src/logic/interface/IEntityMgr.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IPythonEngine.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IPythonServer.h"
     "${PROJECT_SOURCE_DIR}/src/logic/interface/IMmoServer.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IResMgr.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/INavigation.h"
@@ -71,7 +71,7 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/db)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/eventengine)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/mysqlmgr)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/scriptengine)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/dbcreator)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/dbcreator)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/distribution)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/account)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/rolemgr)
@@ -98,8 +98,8 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/startnodestrategy)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/chat)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/gd)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/pythonengine)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/pythonserver)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/objectdef)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/entitymgr)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/mmoserver)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/resmgr)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/navigation)

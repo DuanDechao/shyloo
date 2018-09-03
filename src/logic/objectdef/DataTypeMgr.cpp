@@ -1,6 +1,6 @@
 #include "DataTypeMgr.h"
 #include <algorithm>
-#include "PyDataType.h"
+#include "IPythonServer.h"
 DataTypeMgr::TYPE_MAP DataTypeMgr::_typeMap;
 DataTypeMgr::DATATYPE_MAP DataTypeMgr::_dataTypes;
 DataTypeMgr::UID_TYPE_MAP DataTypeMgr::_uidTypeMap;
@@ -20,8 +20,30 @@ bool DataTypeMgr::initialize(const char* aliasFile){
 	_typeMap["STRING"] = DTYPE_STRING;
 	_typeMap["BLOB"] = DTYPE_BLOB;
 	
-	if(!PyDataType::initialize(aliasFile))
+	if(!loadAlias(aliasFile))
 		return false;
+
+	return true;
+}
+
+bool DataTypeMgr::loadAlias(const char* file){
+	sl::XmlReader conf;
+	if (!conf.loadXml(file)){
+		SLASSERT(false, "can not load file %s", file);
+		return false;
+	}
+	
+	const std::vector<sl::ISLXmlNode*>& types = conf.root().getAllChilds();
+	for (auto type : types){
+		string aliasName = type->value();
+		string value = type->text();
+		IDataType* dataType = DataTypeMgr::getDataType(value.c_str());
+		if(NULL == dataType){
+			dataType = SLMODULE(PythonServer)->createPyDataTypeFromXml(value.c_str(), type);
+		}
+		SLASSERT(dataType, "load dataType failed[%s]", aliasName.c_str());
+		addDataType(aliasName.c_str(), dataType);
+	}
 
 	return true;
 }
@@ -44,7 +66,7 @@ IDataType* DataTypeMgr::getDataType(const sl::ISLXmlNode& typeNode){
 	const char* name = typeNode.text();
 	IDataType* dataType = getDataType(name);
 	if(!dataType)
-		return PyDataType::createDataType(typeNode);
+		return SLMODULE(PythonServer)->createPyDataTypeFromXml(name, &typeNode);
 	return dataType;
 }
 IDataType* DataTypeMgr::getDataType(const char* name){
@@ -52,7 +74,10 @@ IDataType* DataTypeMgr::getDataType(const char* name){
 	if(itor != _dataTypes.end())
 		return itor->second;
 
-	return nullptr;
+	IDataType* dataType = SLMODULE(PythonServer)->createPyDataType(name);
+	if(dataType)
+		addDataType(name, dataType);
+	return dataType;
 }
 
 IDataType* DataTypeMgr::getDataType(const uint32 uid){

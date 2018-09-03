@@ -8,7 +8,6 @@
 #include "IHarbor.h"
 #include "NodeProtocol.h"
 #include "IResMgr.h"
-#include "pyscript/pickler.h"
 bool ObjectDef::initialize(sl::api::IKernel * pKernel){
 	_self = this;
 	_kernel = pKernel;
@@ -266,4 +265,12 @@ void ObjectDef::addAllObjectDefToStream(sl::IBStream& stream){
 
 void ObjectDef::addExtraDataType(const char* typeName, IDataType* dataType){
 	DataTypeMgr::addDataType(typeName, dataType);
+}
+
+IDataType* ObjectDef::getDataType(const char* typeName){
+	return DataTypeMgr::getDataType(typeName);
+}
+
+IDataType* ObjectDef::getDataType(const int32 uType){
+	return DataTypeMgr::getDataType(uType);
 }
