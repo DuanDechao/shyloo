@@ -14,7 +14,7 @@ bool BaseAppMgr::launched(sl::api::IKernel * pKernel){
     if(SLMODULE(Harbor)->getNodeType() != NodeType::MASTER)
         return true;
 
-    RGS_NODE_ARGS_HANDLER(SLMODULE(Harbor), NodeProtocol::BASE_MSG_CREATE_BASE_ANYWHERE, BaseAppMgr::onBaseMsgReqCreateBaseAnywhere);
+    RGS_NODE_HANDLER(SLMODULE(Harbor), NodeProtocol::BASE_MSG_CREATE_BASE_ANYWHERE, BaseAppMgr::onBaseMsgReqCreateBaseAnywhere);
 
 	return true;
 }
@@ -24,7 +24,7 @@ bool BaseAppMgr::destory(sl::api::IKernel * pKernel){
 	return true;
 }
 
-void BaseAppMgr::onBaseMsgReqCreateBaseAnywhere(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args){
+void BaseAppMgr::onBaseMsgReqCreateBaseAnywhere(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args){
 	int32 logic = SLMODULE(CapacitySubscriber)->choose(NodeType::LOGIC);
 	SLMODULE(Harbor)->send(NodeType::LOGIC, logic, NodeProtocol::BASEMGR_MSG_CREATE_BASE_ANYWHERE, args);
 }

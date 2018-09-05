@@ -23,9 +23,13 @@ public:
 	virtual void prepareSend(int32 nodeType, int32 nodeId, int32 messageId, int32 size) = 0;
 	virtual void send(int32 nodeType, int32 nodeId, const void* pContext, const int32 size) = 0;
 	virtual void send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& args) = 0;
+	virtual void send(int32 nodeType, int32 nodeId, int32 messageId, const sl::OBStream& args) = 0;
 	virtual void broadcast(int32 nodeType, int32 messageId, const OArgs& args) = 0;
+	virtual void broadcast(int32 nodeType, int32 messageId, const sl::OBStream& args) = 0;
 	virtual void broadcast(int32 messageId, const OArgs& args, std::unordered_map<int32, std::set<int32>>& exclude) = 0;
+	virtual void broadcast(int32 messageId, const sl::OBStream& args, std::unordered_map<int32, std::set<int32>>& exclude) = 0;
 	virtual void broadcast(int32 messageId, const OArgs& args) = 0;
+	virtual void broadcast(int32 messageId, const sl::OBStream& args) = 0;
 	virtual void prepareBroadcast(int32 nodeType, const int32 messageId, const int32 size) = 0;
 	virtual void broadcast(int32 nodeType, const void* context, const int32 size) = 0;
 	virtual void rgsNodeArgsMessageHandler(int32 messageId, const NodeArgsCB& handler) = 0;

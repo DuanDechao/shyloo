@@ -60,7 +60,6 @@ void Proxy::giveClientTo(Proxy* proxy){
 	const int32 remoteNodeId = getClientMailBox()->getRemoteNodeId(); 
 	setClientMailBox(NULL);
 	proxy->onGiveClientTo(remoteNodeId);
-
 }
 
 void Proxy::onGiveClientTo(const int32 nodeId){

@@ -39,10 +39,10 @@ bool IdMgr::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
 	if (_bIsMultiProcess){
 		if (_harbor->getNodeType() == NodeType::MASTER){
-			RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::ASK_FOR_ALLOC_ID_AREA, IdMgr::askIds);
+			RGS_NODE_HANDLER(_harbor, NodeProtocol::ASK_FOR_ALLOC_ID_AREA, IdMgr::askIds);
 		}
 		else{
-			RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::GIVE_ID_AREA, IdMgr::giveIds);
+			RGS_NODE_HANDLER(_harbor, NodeProtocol::GIVE_ID_AREA, IdMgr::giveIds);
 			START_TIMER(_self, 1000, TIMER_BEAT_FOREVER, ASK_TIME_INTERVAL);
 		}
 	}
@@ -55,9 +55,8 @@ bool IdMgr::destory(sl::api::IKernel * pKernel){
 
 void IdMgr::onTime(sl::api::IKernel* pKernel, int64 timetick){
 	if ((int32)_idPool.size() < _poolSize){
-		IArgs<1, 32> args;
+		sl::BStream<32> args;
 		args << 0;
-		args.fix();
 		_harbor->send(_svrNodeType, 1, NodeProtocol::ASK_FOR_ALLOC_ID_AREA, args.out());
 	}
 }
@@ -73,18 +72,19 @@ uint64 IdMgr::allocID(){
 	return newId;
 }
 
-void IdMgr::askIds(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
-	IArgs<GIVE_NUM, GIVE_SIZE> inArgs;
+void IdMgr::askIds(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args){
+	sl::BStream<GIVE_SIZE> inArgs;
 	for (int32 i = 0; i < GIVE_NUM; i++){
 		inArgs << _self->generateLocalId();
 	}
-	inArgs.fix();
 	_harbor->send(nodeType, nodeId, NodeProtocol::GIVE_ID_AREA, inArgs.out());
 }
 
-void IdMgr::giveIds(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
-	for (int32 i = 0; i < args.getCount(); i++){
-		_idPool.push_back(args.getInt64(i));
+void IdMgr::giveIds(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args){
+	while(args.getRemainSize() > 0){
+		int64 id = 0;
+		args >> id;
+		_idPool.push_back(id);
 	}
 }
 

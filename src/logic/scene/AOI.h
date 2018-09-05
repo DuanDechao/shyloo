@@ -19,10 +19,10 @@ public:
 	virtual void foreachNeighbor(IObject* object, const std::function<void(sl::api::IKernel* pKernel, IObject* object)>& f);
 	virtual bool isNeighbor(IObject* object, const int64 id);
 
-	void onSceneAddInterester(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
-	void onSceneAddWatcher(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
-	void onSceneRemoveInterester(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
-	void onSceneRemoveWatcher(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
+	void onSceneAddInterester(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args);
+	void onSceneAddWatcher(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args);
+	void onSceneRemoveInterester(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args);
+	void onSceneRemoveWatcher(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args);
 
 	void onObjectEnterVision(sl::api::IKernel* pKernel, const void* context, const int32 size);
 

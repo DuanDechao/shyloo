@@ -4,7 +4,7 @@
 #include "IIdMgr.h"
 #include "slsingleton.h"
 class IHarbor;
-class OArgs;
+class sl::OBStream;
 class IdMgr :public IIdMgr, public sl::api::ITimer, public sl::SLHolder<IdMgr>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
@@ -19,8 +19,8 @@ public:
 
 	virtual uint64 allocID();
 	virtual uint64 generateLocalId();
-	void askIds(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
-	void giveIds(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
+	void askIds(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args);
+	void giveIds(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args);
 
 private:
 	IdMgr*				_self;

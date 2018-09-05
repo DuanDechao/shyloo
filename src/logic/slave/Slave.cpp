@@ -93,8 +93,8 @@ bool Slave::initialize(sl::api::IKernel * pKernel){
 bool Slave::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
 
-	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::MASTER_MSG_START_NODE, Slave::openNewNode);
-	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::MASTER_MSG_STOP_NODES, Slave::stopNodes);
+	RGS_NODE_HANDLER(_harbor, NodeProtocol::MASTER_MSG_START_NODE, Slave::openNewNode);
+	RGS_NODE_HANDLER(_harbor, NodeProtocol::MASTER_MSG_STOP_NODES, Slave::stopNodes);
 
 	return true;
 }
@@ -110,9 +110,11 @@ bool Slave::destory(sl::api::IKernel * pKernel){
 	return true;
 }
 
-void Slave::openNewNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args){
-	int32 newNodeType = args.getInt32(0);
-	int32 newNodeId = args.getInt32(1);
+void Slave::openNewNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args){
+	int32 newNodeType = 0;
+	args >> newNodeType;
+	int32 newNodeId = 0;
+	args >> newNodeId;
 	TRACE_LOG("open new Node [%d:%d]", newNodeType, newNodeId);
 	SLASSERT(_executes.find(newNodeType) != _executes.end(), "unknown nodetype %d", newNodeType);
 	if (_executes.find(newNodeType) != _executes.end()){
@@ -125,7 +127,7 @@ void Slave::openNewNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId,
 	}
 }
 
-void Slave::stopNodes(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args){
+void Slave::stopNodes(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args){
 	for (auto itor = _cmds.begin(); itor != _cmds.end(); ++itor){
 		if (itor->second.timer){
 			pKernel->killTimer(itor->second.timer);

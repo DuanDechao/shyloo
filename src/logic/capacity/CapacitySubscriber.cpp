@@ -12,7 +12,7 @@ bool CapacitySubscriber::initialize(sl::api::IKernel * pKernel){
 bool CapacitySubscriber::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
 
-	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::NODE_CAPACITY_LOAD_REPORT, CapacitySubscriber::nodeLoadReport);
+	RGS_NODE_HANDLER(_harbor, NodeProtocol::NODE_CAPACITY_LOAD_REPORT, CapacitySubscriber::nodeLoadReport);
 	
 	return true;
 }
@@ -39,8 +39,9 @@ int32 CapacitySubscriber::choose(int32 nodeType){
 	return chooseStrategy2(nodeType);
 }
 
-void CapacitySubscriber::nodeLoadReport(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
-	float nodeLoad = args.getFloat(0);
+void CapacitySubscriber::nodeLoadReport(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args){
+	float nodeLoad = 0.0f;
+	args >> nodeLoad;
 	_allNodeLoad[nodeType][nodeId] = { nodeLoad };
 	//ECHO_ERROR("node[%d:%d] load updated: %f", nodeType, nodeId, nodeLoad);
 }

@@ -61,11 +61,10 @@ void Master::onClose(sl::api::IKernel* pKernel, const int32 nodeType, const int3
 }
 
 void Master::sendNewNode(const int32 nodeType, const int32 nodeId, const int32 newNodeType, const int32 newNodeId, const char* ip, const int32 port){
-	IArgs<4, 512> args;
+	sl::BStream<512> args;
 	args << newNodeType;
 	args << newNodeId;
 	args << ip;
 	args << port;
-	args.fix();
 	_harbor->send(nodeType, nodeId, NodeProtocol::MASTER_MSG_NEW_NODE, args.out());
 }

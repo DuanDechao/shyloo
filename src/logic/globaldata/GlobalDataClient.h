@@ -16,7 +16,7 @@ public:
 	virtual std::set<std::string>& getKeys() {return _globalData->getKeys(); }
 	
 	void sendGlobalDataChanged(const char* key, const int16 dataType, const void* data, const int32 dataSize, bool isDelete);
-	void onGlobalDataChangedFromServer(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
+	void onGlobalDataChangedFromServer(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args);
 
 private:
 	GlobalDataClient*			_self;

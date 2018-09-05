@@ -20,11 +20,15 @@ public:
     DECLARE_PY_GETSET_MOTHOD(pyGetDirection, pySetDirection);
     DECLARE_PY_MOTHOD_ARG3(addProximity, float, float, int32);
     void setBaseMailBox(const int32 logic);
+    void setClientMailBox(const int32 logic);
     bool createCellDataFromStream(const void* cellData, const int32 cellDataSize);
+	inline EntityMailBox* getBaseMailBox() const {return _baseMailBox;}
+	inline EntityMailBox* getClientMailBox() const {return _clientMailBox;}
 
 private:
 	uint64											_id;
     EntityMailBox*                                  _baseMailBox;
+    EntityMailBox*                                  _clientMailBox;
 	sl::pyscript::ScriptVector3*					_pyPosition; 
 	sl::pyscript::ScriptVector3*					_pyDirection; 
 };

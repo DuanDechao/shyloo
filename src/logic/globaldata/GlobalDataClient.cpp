@@ -18,7 +18,7 @@ bool GlobalDataClient::launched(sl::api::IKernel * pKernel){
 	if(SLMODULE(Harbor)->getNodeType() == NodeType::DATABASE)
 		return true;
 
-	RGS_NODE_ARGS_HANDLER(SLMODULE(Harbor), NodeProtocol::GLOBAL_DATA_SERVER_CHANGED, GlobalDataClient::onGlobalDataChangedFromServer);
+	RGS_NODE_HANDLER(SLMODULE(Harbor), NodeProtocol::GLOBAL_DATA_SERVER_CHANGED, GlobalDataClient::onGlobalDataChangedFromServer);
 	return true;
 }
 
@@ -42,31 +42,34 @@ bool GlobalDataClient::del(const char* key){
 }
 
 void GlobalDataClient::sendGlobalDataChanged(const char* key, const int16 dataType, const void* data, const int32 dataSize, bool isDelete){
-    IArgs<20, 10240> args;
+	sl::BStream<10240> args;
 	args << isDelete;
     args << key;
 	
 	if(!isDelete){
 		args << dataType;
 		args << dataSize;
-		args.addStruct(data, dataSize);
+		args.addBlob(data, dataSize);
 	}
-    args.fix();
-    
 	SLMODULE(Harbor)->send(NodeType::DATABASE, 1, NodeProtocol::GLOBAL_DATA_CLIENT_CHANGED, args.out());
 }
 	
-void GlobalDataClient::onGlobalDataChangedFromServer(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args){
-	bool isDelete = args.getBool(0);
-	const char* key = args.getString(1);
+void GlobalDataClient::onGlobalDataChangedFromServer(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args){
+	bool isDelete = false;
+	args >> isDelete;
+	const char* key = nullptr;
+	args >> key;
+
 	if(isDelete){
 		_globalData->del(key);
 	}
 	else{
-		const int16 dataType = args.getInt16(2);
-		const int32 dataSize = args.getInt32(3);
+		int16 dataType = 0;
+		args >> dataType;
+		int32 dataSize;
+		args >> dataSize;
 		int32 size = 0;
-		const void* data = args.getStruct(4, size);
+		const void* data = args.readBlob(size);
 		_globalData->write(key, dataType, data, dataSize);
 	}
 }

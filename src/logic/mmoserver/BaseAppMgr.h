@@ -12,7 +12,7 @@ public:
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
 	
-	void onBaseMsgReqCreateBaseAnywhere(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
+	void onBaseMsgReqCreateBaseAnywhere(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args);
 
 private:
 	sl::api::IKernel*		_kernel;

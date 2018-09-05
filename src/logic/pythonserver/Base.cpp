@@ -94,7 +94,7 @@ void Base::remoteCreateCellEntity(int32 cellappIdx, const uint64 createToObjectI
 	addCellDataToStream(cellDataStream);
     IObject* innerObject = getInnerObject();
 	sl::OBStream outData = cellDataStream.out();
-    SLMODULE(BaseApp)->remoteCreateCellEntity(innerObject, createToObjectId, cellappIdx, outData.getContext(), outData.getSize());
+    SLMODULE(BaseApp)->remoteCreateCellEntity(innerObject, createToObjectId, cellappIdx, _clientMailBox != NULL, outData.getContext(), outData.getSize());
 }
 
 void Base::addCellDataToStream(sl::IBStream& cellDataStream){

@@ -13,7 +13,7 @@ SCRIPT_GETSET_DECLARE_END()
 
 SCRIPT_INIT(RemoteEntityMethod, tp_call, 0, 0, 0, 0)
 RemoteEntityMethod::RemoteEntityMethod(EntityMailBox* mailBox, const IProp* prop)
-    :EntityScriptObject(getScriptType(), nullptr, nullptr, false),
+    :ScriptObject(getScriptType(), false),
      _mailBox(mailBox),
      _prop(prop)
 {}
@@ -23,13 +23,13 @@ PyObject * RemoteEntityMethod::tp_call(PyObject* self, PyObject* args, PyObject*
     EntityMailBox* mailbox = rMethod->getMailBox();
     ScriptDefModule* scriptDefModule = mailbox->getScriptDefModule();
     const IProp* methodProp = rMethod->getMethodProp();
+	sl::BStream<1000> stream;
+	mailbox->newMail(stream);
   //  if(scriptDefModule->checkMethodArgs(mailbox->getMMObject(), methodProp, args)){
-		sl::BStream<1000> stream;
-        stream << mailbox->getEntityId();
-		stream << (int16)methodProp->getIndex(mailbox->getEntityType());
-		addArgsToStream(mailbox->getEntityType(), methodProp, stream, args);
-        printf("remote send mail+_++++++++++++++++++++++++++++++++++++++++++++++++++\n");
-        mailbox->postMail(stream.out());
+	stream << (int16)methodProp->getIndex(mailbox->getEntityType());
+	addArgsToStream(mailbox->getEntityType(), methodProp, stream, args);
+    printf("remote send mail+_++++++++++++++++++++++++++++++++++++++++++++++++++\n");
+    mailbox->postMail(stream.out());
     //}
     S_Return;
 }

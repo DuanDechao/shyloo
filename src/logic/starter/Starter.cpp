@@ -60,8 +60,7 @@ bool Starter::destory(sl::api::IKernel * pKernel){
 }
 
 void Starter::onTime(sl::api::IKernel* pKernel, int64 timetick){
-	IArgs<1, 256> args;
-	args.fix();
+	sl::BStream<256> args;
 	_harbor->broadcast(NodeProtocol::MASTER_MSG_SERVER_STARTED, args.out());
 }
 
@@ -143,9 +142,8 @@ void Starter::startNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId)
 
 	int32 slave = _strategy->chooseNode(nodeType, nodeId);
 	if (slave != game::NODE_INVALID_ID){
-		IArgs<2, 128> args;
+		sl::BStream<128> args;
 		args << nodeType << nodeId;
-		args.fix();
 		_harbor->send(NodeType::SLAVE, slave, NodeProtocol::MASTER_MSG_START_NODE, args.out());
 		TRACE_LOG("start new Node %d %d", nodeType, nodeId);
 	}
@@ -171,8 +169,7 @@ void Starter::preShutDown(sl::api::IKernel* pKernel, const void* context, const 
 		pKernel->killTimer(timer);
 	}
 
-	IArgs<1, 32> args;
-	args.fix();
+	sl::BStream<32> args;
 	_harbor->broadcast(NodeType::SLAVE, NodeProtocol::MASTER_MSG_STOP_NODES, args.out());
 }
 

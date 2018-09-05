@@ -25,7 +25,7 @@ bool CellApp::launched(sl::api::IKernel * pKernel){
     if(SLMODULE(Harbor)->getNodeType() != NodeType::SCENE)
         return true;
 	
-    RGS_NODE_ARGS_HANDLER(SLMODULE(Harbor), NodeProtocol::BASE_MSG_CREATE_CELL_ENTITY, CellApp::onCreateCellEntityFromBase);
+    RGS_NODE_HANDLER(SLMODULE(Harbor), NodeProtocol::BASE_MSG_CREATE_CELL_ENTITY, CellApp::onCreateCellEntityFromBase);
     
     _propPosChangeTimer = SLMODULE(ObjectMgr)->appendObjectTempProp("Avatar", "psoChangeTimer", DTYPE_INT64, sizeof(int64), 0, 0, 0);
 //    test();
@@ -51,21 +51,23 @@ IObject* CellApp::createEntity(const char* entityType, const int32 spaceId, Posi
 	
 	//ECHO_TRACE("CellApp::createEntity----------------------- %d %s", space->getId(), entityType);
     
-	logic_event::CellEntityCreated info {object, NULL, 0, initData, initDataSize, 0};
+	logic_event::CellEntityCreated info {object, NULL, 0, initData, initDataSize, 0, false};
     SLMODULE(EventEngine)->execEvent(logic_event::EVENT_CELL_ENTITY_CREATED, &info, sizeof(info));
     
 	return object;
 }
 
-void CellApp::onCreateCellEntityFromBase(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args){
-    bool isInNewSpace = args.getBool(0);
-    const char* entityType = args.getString(1);
-    const int64 entityId = args.getInt64(2);
-	const int64 otherOrSpaceId = args.getInt64(3);
-    bool hasClient = args.getBool(4);
+void CellApp::onCreateCellEntityFromBase(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args){
+    bool isInNewSpace = false;
+    const char* entityType = nullptr;
+    int64 entityId = 0;
+	int64 otherOrSpaceId = 0;
+    bool hasClient = false;
     int32 cellDataSize = 0;
-    const void* cellData = args.getStruct(5, cellDataSize);
-	const int32 askNodeId = args.getInt32(6);
+	args >> isInNewSpace >> entityType >> entityId >> otherOrSpaceId >> hasClient;
+    const void* cellData = args.readBlob(cellDataSize);
+	int32 askNodeId = 0;
+	args >> askNodeId;
 
 	ISpace* pSpace = nullptr;
 	if(!isInNewSpace){
@@ -82,9 +84,8 @@ void CellApp::onCreateCellEntityFromBase(sl::api::IKernel* pKernel, int32 nodeTy
         return;
     }
     
-    IArgs<2, 256> inArgs;
+	sl::BStream<256> inArgs;
     inArgs << entityId;
-    inArgs.fix();
     SLMODULE(Harbor)->send(NodeType::LOGIC, askNodeId, NodeProtocol::CELL_MSG_CELL_ENTITY_CREATED, inArgs.out());
 }
 
@@ -105,7 +106,7 @@ bool CellApp::createCellEntityFromBase(ISpace* space, const char* entityType, co
         onGetWitness(object, space);
     }
     
-	logic_event::CellEntityCreated info {object, cellData, cellDataSize, NULL, 0, baseNodeId};
+	logic_event::CellEntityCreated info {object, cellData, cellDataSize, NULL, 0, baseNodeId, hasClient};
     SLMODULE(EventEngine)->execEvent(logic_event::EVENT_CELL_ENTITY_CREATED, &info, sizeof(info));
     
 	return true;
@@ -175,7 +176,7 @@ void CellApp::test(){
     args1 << (const int64)6768784342424;
     args1 << true;
     args1.addStruct(nullptr, 0);
-    onCreateCellEntityFromBase(_kernel, 5, 1, args1.out());
+    //onCreateCellEntityFromBase(_kernel, 5, 1, args1.out());
 
     IObject* objectA = SLMODULE(ObjectMgr)->findObject(676878434242);
     START_OBJECT_TIMER(SLMODULE(ObjectTimer), objectA, _propPosChangeTimer, 0, -1, 2000, CellApp::timerStart, CellApp::onTimer, CellApp::timerEnd);

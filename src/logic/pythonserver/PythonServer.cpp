@@ -98,6 +98,7 @@ bool PythonServer::launched(sl::api::IKernel * pKernel){
 	}
 
     RGS_EVENT_HANDLER(SLMODULE(EventEngine), logic_event::EVENT_REMOTE_METHOD_CALL, PythonServer::onRemoteMethodCall);
+	RGS_NODE_HANDLER(SLMODULE(Harbor), NodeProtocol::REMOTE_NEW_ENTITY_MAIL, PythonServer::onRemoteNewEntityMail);
 
 	SLMODULE(Monitor)->addListener(this);
 	
@@ -548,12 +549,59 @@ void PythonServer::onRemoteMethodCall(sl::api::IKernel* pKernel, const void* con
 	obj->onRemoteMethodCall(evt->stream);
 }
 
+void PythonServer::onRemoteNewEntityMail(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args){
+	int8 mType = 0;
+	uint64 entityId = 0;
+	args >> mType >> entityId;
+	
+	EntityScriptObject* obj = _entities->find(entityId);	
+	if(!obj){
+		ECHO_ERROR("cant find object[%lld]", entityId);
+		return;
+	}
+	
+	EntityMailBox* mailBox = NULL;
+	if(SLMODULE(Harbor)->getNodeType() == NodeType::LOGIC){
+		if(mType == EntityMailBoxType::MAILBOX_TYPE_BASE)
+			obj->onRemoteMethodCall(args);
+		else if(mType == EntityMailBoxType::MAILBOX_TYPE_CELL_VIA_BASE)
+			mailBox = static_cast<Base*>(obj)->getCellMailBox();
+		else if(mType == EntityMailBoxType::MAILBOX_TYPE_CLIENT_VIA_BASE)
+			mailBox = static_cast<Base*>(obj)->getClientMailBox();
+		else{
+			SLASSERT(false, "invaild mailbox call");
+		}
+		
+	}
+	else if(SLMODULE(Harbor)->getNodeType() == NodeType::SCENE){
+		if(mType == EntityMailBoxType::MAILBOX_TYPE_CELL)
+			obj->onRemoteMethodCall(args);
+		else if(mType == EntityMailBoxType::MAILBOX_TYPE_BASE_VIA_CELL)
+			mailBox = static_cast<Entity*>(obj)->getBaseMailBox();
+		else if(mType == EntityMailBoxType::MAILBOX_TYPE_CLIENT_VIA_CELL)
+			mailBox = static_cast<Entity*>(obj)->getClientMailBox();
+		else{
+			SLASSERT(false, "invaild mailBox call");
+		}
+	}
+
+	if(mailBox){
+		sl::BStream<1000> stream;
+		mailBox->newMail(stream);
+		stream << args;
+		mailBox->postMail(stream.out());
+	}
+}
+
 void PythonServer::onCellEntityCreatedOnCell(sl::api::IKernel* pKernel, const void* context, const int32 size){
 	SLASSERT(size == sizeof(logic_event::CellEntityCreated), "wtf");
     logic_event::CellEntityCreated* evt = (logic_event::CellEntityCreated*)context;
     Entity* cellEntity = createCellEntity(evt->object, NULL, false);
 	if(evt->baseNodeId > 0)
 		cellEntity->setBaseMailBox(evt->baseNodeId);
+
+	if(evt->hasClient && evt->baseNodeId > 0)
+		cellEntity->setClientMailBox(evt->baseNodeId);
     
 	if(evt->cellData && evt->cellDataSize > 0){
 		bool ret = cellEntity->createCellDataFromStream(evt->cellData, evt->cellDataSize);

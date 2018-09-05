@@ -14,7 +14,7 @@ public:
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
     
-    void onCreateCellEntityFromBase(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
+    void onCreateCellEntityFromBase(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args);
     virtual IObject* createEntity(const char* entityName, const int32 spaceId, Position3D& pos, Position3D& dir, const void* initData, const int32 initDataSize);
     virtual bool addSpaceGeometryMapping(const int32 spaceId, const char* path, bool shouldLoadOnServer, std::map<int32, std::string>& params);
 

@@ -17,11 +17,11 @@ public:
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
 
-	void onLogicEnterScene(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
-	void onLogicAppearScene(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
-	void onLogicLeaveScene(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
-	void onLogicUpdatePosition(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
-	void onSceneConfirmScene(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
+	void onLogicEnterScene(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args);
+	void onLogicAppearScene(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args);
+	void onLogicLeaveScene(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args);
+	void onLogicUpdatePosition(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args);
+	void onSceneConfirmScene(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args);
 
 private:
 	void distributeScene(sl::api::IKernel* pKernel, const char* scene);

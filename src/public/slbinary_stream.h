@@ -24,6 +24,18 @@ public:
 	inline bool readUint32(uint32& val) const { return read(val); }
 	inline bool readUint64(uint64& val) const { return read(val); }
 	inline bool readDouble(double& val) const { return read(val); }
+	inline const OBStream& operator >> (bool& val) const {read(val); return *this;}
+	inline const OBStream& operator >> (int8& val) const {read(val); return *this;}
+	inline const OBStream& operator >> (int16& val) const {read(val); return *this;}
+	inline const OBStream& operator >> (int32& val) const {read(val); return *this;}
+	inline const OBStream& operator >> (int64& val) const {read(val); return *this;}
+	inline const OBStream& operator >> (float& val) const {read(val); return *this;}
+	inline const OBStream& operator >> (uint8& val) const {read(val); return *this;}
+	inline const OBStream& operator >> (uint16& val) const {read(val); return *this;}
+	inline const OBStream& operator >> (uint32& val) const {read(val); return *this;}
+	inline const OBStream& operator >> (uint64& val) const {read(val); return *this;}
+	inline const OBStream& operator >> (double& val) const {read(val); return *this;}
+	inline const OBStream& operator >> (const char*& val) const {readString(val); return *this;}
 
 	bool readString(const char* & val) const {
 		int32 size;
@@ -35,6 +47,7 @@ public:
 			val = (const char*)data;
 			return true;
 		}
+		SLASSERT(false, "wtf");
 		return false;
 	}
 
@@ -51,13 +64,16 @@ public:
 
 	inline const void * getContext() const { return _buffer; }
 	inline const int32 getSize() const { return _size; }
+	inline const int32 getRemainSize() const {return _size - _offset;}
 
 private:
 	template<typename T>
 	bool read(T& val) const {
 		const void* data = getData(sizeof(T));
-		if (data == nullptr)
+		if (data == nullptr){
+			SLASSERT(false, "wtf");
 			return false;
+		}
 
 		val = *(T*)data;
 		return true;
@@ -96,6 +112,7 @@ public:
 	virtual IBStream& operator <<(const uint16& val) { return write(val); }
 	virtual IBStream& operator <<(const uint32& val) { return write(val); }
 	virtual IBStream& operator <<(const uint64& val) { return write(val); }
+	virtual IBStream& operator <<(const sl::OBStream& val) { return addBlob(val.getContext(), val.getSize()); }
 	
     virtual IBStream& operator <<(const char* val){
 		int32 size = (int32)strlen(val);

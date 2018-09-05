@@ -59,4 +59,14 @@ const int32 ENTITY_MAILBOX_NODE_TYPE_MAPPING[] = {
 	NodeType::CLIENT,
 };
 
+const char ENTITY_MAILBOX_NAME_MAPPING[][8] = {
+	"cell",
+	"base",
+	"client",
+	"cell",
+	"base",
+	"client",
+	"client",
+};
+
 #endif

@@ -54,8 +54,8 @@ public:
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
 
-	void openNewNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
-	void stopNodes(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
+	void openNewNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args);
+	void stopNodes(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args);
 
 private:
 	void startNewNode(sl::api::IKernel* pKernel, const char* name, const char* cmd, const int32 nodeType, const int32 nodeId);

@@ -31,10 +31,10 @@ bool ShutDown::launched(sl::api::IKernel * pKernel){
 		_harbor->addNodeListener(this);
 
 		RGS_MONITOR_ARGS_HANDLER(_monitor, MonitorProtocol::CLIENT_SHUTDOWN_SERVER_REQ, ShutDown::shutdownServerReq);
-		RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::CLUSTER_MSG_SHUTDOWN_ACK, ShutDown::onClusterShutdownAck);
+		RGS_NODE_HANDLER(_harbor, NodeProtocol::CLUSTER_MSG_SHUTDOWN_ACK, ShutDown::onClusterShutdownAck);
 	}
 	else{
-		RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::MASTER_MSG_ASK_SHUTDOWN, ShutDown::onMasterAskShutdown);
+		RGS_NODE_HANDLER(_harbor, NodeProtocol::MASTER_MSG_ASK_SHUTDOWN, ShutDown::onMasterAskShutdown);
 		RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_SHUTDOWN_COMPLETE, ShutDown::onClusterShutdownComplete);
 	}
 
@@ -141,11 +141,9 @@ void ShutDown::checkNextStep(sl::api::IKernel* pKernel){
 }
 
 void ShutDown::sendNewStep(sl::api::IKernel* pKernel){
-	IArgs<2, 128> args;
+	sl::BStream<128> args;
 	args << (int8)_currStep;
 	args << (int8)_allSteps[_currStep].optType;
-	args.fix();
-
 	auto nodeItor = _currOptNodes.begin();
 	for (; nodeItor != _currOptNodes.end(); ++nodeItor){
 		for (auto nodeId : nodeItor->second){
@@ -155,9 +153,11 @@ void ShutDown::sendNewStep(sl::api::IKernel* pKernel){
 	}
 }
 
-void ShutDown::onMasterAskShutdown(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
-	int8 _currShutdownStep = args.getInt8(0);
-	int8 _optType = args.getInt8(1);
+void ShutDown::onMasterAskShutdown(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args){
+	int8 _currShutdownStep = 0;
+	int8 _optType = 0;
+	args >> _currShutdownStep;
+	args >> _optType;
 
 	logic_event::ShutDown info{ _currShutdownStep };
 	if (_optType == OptType::NOTIFY){
@@ -173,8 +173,9 @@ void ShutDown::onMasterAskShutdown(sl::api::IKernel* pKernel, const int32 nodeTy
 	}
 }
 
-void ShutDown::onClusterShutdownAck(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
-	int8 stepIdx = args.getInt8(0);
+void ShutDown::onClusterShutdownAck(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args){
+	int8 stepIdx = 0;
+	args >> stepIdx;
 	if (_shutdowning){
 		SLASSERT(stepIdx == _currStep, "wtf");
 		if (stepIdx == _currStep){
@@ -190,8 +191,7 @@ void ShutDown::onClusterShutdownComplete(sl::api::IKernel* pKernel, const void* 
 	SLASSERT(size == sizeof(logic_event::ShutDown), "wtf");
 	logic_event::ShutDown* info = (logic_event::ShutDown*)context;
 	
-	IArgs<1, 32> args;
+	sl::BStream<32> args;
 	args << info->step;
-	args.fix();
 	_harbor->send(NodeType::MASTER, 1, NodeProtocol::CLUSTER_MSG_SHUTDOWN_ACK, args.out());
 }

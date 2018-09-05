@@ -29,7 +29,7 @@ private:
 private:
 	friend sl::SLPool<ScriptTimer>;
 
-	ScriptTimer(PyObject* entity, int64 timerId, const char* callbackName, PyObject* userData)
+	ScriptTimer(PyObject* entity, int32 timerId, const char* callbackName, PyObject* userData)
 		:_entity(entity),
 		_timerId(timerId),
 		_callBackName(callbackName),
@@ -53,7 +53,7 @@ public:
 
 private:
 	std::unordered_map<int64, ScriptTimer*> _timers;
-	int64 _lastTimerId;
+	int32 _lastTimerId;
 
 };
 #endif

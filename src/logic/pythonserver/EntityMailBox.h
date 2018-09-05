@@ -21,6 +21,7 @@ public:
 	inline int32 getEntityType() const {return _pScriptModule->getModuleType(); }
 	inline ScriptDefModule* getScriptDefModule() const {return _pScriptModule;}
     
+	bool newMail(sl::IBStream& stream);
 	bool postMail(const sl::OBStream& data);
 
 	static PyObject* __unpickle__(PyObject* self, PyObject* args);

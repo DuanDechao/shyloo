@@ -52,9 +52,8 @@ void CapacityPublisher::decreaseLoad(int32 load){
 }
 
 void CapacityPublisher::onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* ip, const int32 port){
-	IArgs<1, 64> args;
+	sl::BStream<64> args;
 	args << (float)(_currLoad / _maxLoad);
-	args.fix();
 	_harbor->send(nodeType, nodeId, NodeProtocol::NODE_CAPACITY_LOAD_REPORT, args.out());
 }
 
@@ -64,9 +63,8 @@ void CapacityPublisher::onTime(sl::api::IKernel* pKernel, int64 timetick){
 
 	_lastLoad = _currLoad;
 
-	IArgs<1, 64> args;
+	sl::BStream<64> args;
 	args << (float)_currLoad / _maxLoad;
-	args.fix();
 	_harbor->broadcast(NodeProtocol::NODE_CAPACITY_LOAD_REPORT, args.out());
 }
 

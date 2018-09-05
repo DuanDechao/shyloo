@@ -74,6 +74,7 @@ namespace logic_event{
 		const void* initData;
 		const int32 initDataSize;
         int32 baseNodeId;
+		bool hasClient;
     };
 
     struct CellEntityCreatedFromCell{

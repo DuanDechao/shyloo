@@ -25,6 +25,7 @@ BASE_SCRIPT_INIT(Entity, 0, 0, 0, 0, 0)
 Entity::Entity(IObject* object, ScriptDefModule* pScriptModule, PyTypeObject* pyType, bool isInitialised)
 	:_id(object->getID()),
     _baseMailBox(nullptr),
+    _clientMailBox(nullptr),
 	EntityScriptObject(pyType, object, pScriptModule, isInitialised)
 {
 	float x = 0, y = 0, z = 0;
@@ -136,9 +137,16 @@ void Entity::setBaseMailBox(const int32 logic){
         ECHO_ERROR("should not have base mailbox");
         return;
     }
-    const int32 entityType = SLMODULE(ObjectMgr)->getObjectType(_pScriptModule->getModuleName());
     _baseMailBox = NEW EntityMailBox(EntityMailBoxType::MAILBOX_TYPE_BASE, logic, getInnerObject()->getID(), _pScriptModule);
+    Py_INCREF(static_cast<PyObject*>(_baseMailBox));
+}
 
+void Entity::setClientMailBox(const int32 logic){
+    if(_clientMailBox){
+        ECHO_ERROR("should not have client mailbox");
+        return;
+    }
+    _clientMailBox = NEW EntityMailBox(EntityMailBoxType::MAILBOX_TYPE_CLIENT_VIA_BASE, logic, getInnerObject()->getID(), _pScriptModule);
     Py_INCREF(static_cast<PyObject*>(_baseMailBox));
 }
 

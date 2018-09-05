@@ -61,11 +61,15 @@ public:
 	virtual void prepareSend(int32 nodeType, int32 nodeId, int32 messageId, int32 size);
 	virtual void send(int32 nodeType, int32 nodeId, const void* pContext, const int32 size);
 	virtual void send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& args);
+	virtual void send(int32 nodeType, int32 nodeId, int32 messageId, const sl::OBStream& args);
 	virtual void connect(const char* ip, const int32 port, const int32 nodeType, const int32 nodeId, bool ipcTransfor = false);
 
 	virtual void broadcast(int32 nodeType, int32 messageId, const OArgs& args);
+	virtual void broadcast(int32 nodeType, int32 messageId, const sl::OBStream& args);
 	virtual void broadcast(int32 messageId, const OArgs& args, std::unordered_map<int32, std::set<int32>>& exclude);
+	virtual void broadcast(int32 messageId, const sl::OBStream& args, std::unordered_map<int32, std::set<int32>>& exclude);
 	virtual void broadcast(int32 messageId, const OArgs& args);
+	virtual void broadcast(int32 messageId, const sl::OBStream& args);
 	virtual void prepareBroadcast(int32 nodeType, const int32 messageId, const int32 size);
 	virtual void broadcast(int32 nodeType, const void* context, const int32 size);
 

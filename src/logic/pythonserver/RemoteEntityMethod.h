@@ -2,11 +2,11 @@
 #define SL_LOGIC_ENTITY_REMOTE_METHOD_H
 #include "slikernel.h"
 #include "IDCCenter.h"
-#include "EntityScriptObject.h"
+#include "pyscript/scriptobject.h"
 #include <string>
 
 class EntityMailBox;
-class RemoteEntityMethod: public EntityScriptObject{
+class RemoteEntityMethod: public sl::pyscript::ScriptObject{
 	INSTANCE_SCRIPT_HREADER(RemoteEntityMethod, ScriptObject)
 public:
 	RemoteEntityMethod(EntityMailBox* mailBox, const IProp* prop);

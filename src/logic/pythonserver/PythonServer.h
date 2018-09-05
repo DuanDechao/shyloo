@@ -66,6 +66,7 @@ public:
     void onCreateBaseAnywhereCallback(sl::api::IKernel* pKernel, const void* context, const int32 size);
 	void onRemoteMethodCall(sl::api::IKernel* pKernel, const void* context, const int32 size);
     //void onEntityCreatedFromDB(sl::api::IKernel* pKernel, const void* context, const int32 size);
+	void onRemoteNewEntityMail(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args);
 	void test();
 
 	sl::api::IKernel* getKernel() const { return _kernel;}

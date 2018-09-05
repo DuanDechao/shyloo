@@ -242,6 +242,24 @@ void Harbor::send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& ar
 	itor1->second->send(args.getContext(), args.getSize());
 }
 
+void Harbor::send(int32 nodeType, int32 nodeId, int32 messageId, const sl::OBStream& args){
+	auto itor = _allNode.find(nodeType);
+	if (itor == _allNode.end()){
+		ECHO_ERROR("send data but can't find node[%s]", getNodeName(nodeType));
+		SLASSERT(false, "wtf");
+		return;
+	}
+
+	auto itor1 = itor->second.find(nodeId);
+	if (itor1 == itor->second.end()){
+		SLASSERT(false, "wtf");
+		return;
+	}
+	
+	itor1->second->prepareSendNodeMessage(messageId, args.getSize());
+	itor1->second->send(args.getContext(), args.getSize());
+}
+
 void Harbor::prepareSend(int32 nodeType, int32 nodeId, int32 messageId, int32 size){
 	auto itor = _allNode[nodeType].find(nodeId);
 	if (itor != _allNode[nodeType].end()){
@@ -269,6 +287,19 @@ void Harbor::broadcast(int32 nodeType, int32 messageId, const OArgs& args){
 	}
 }
 
+void Harbor::broadcast(int32 nodeType, int32 messageId, const sl::OBStream& args){
+	auto itor = _allNode.find(nodeType);
+	if (itor == _allNode.end()){
+		//SLASSERT(false, "wtf");
+		return;
+	}
+
+	for (auto node : itor->second){
+		node.second->prepareSendNodeMessage(messageId, args.getSize());
+		node.second->send(args.getContext(), args.getSize());
+	}
+}
+
 void Harbor::broadcast(int32 messageId, const OArgs& args, std::unordered_map<int32, std::set<int32>>& exclude){
 	for (auto nodeType : _allNode){
 		auto excludeNodes = exclude.find(nodeType.first);
@@ -283,7 +314,30 @@ void Harbor::broadcast(int32 messageId, const OArgs& args, std::unordered_map<in
 	}
 }
 
+void Harbor::broadcast(int32 messageId, const sl::OBStream& args, std::unordered_map<int32, std::set<int32>>& exclude){
+	for (auto nodeType : _allNode){
+		auto excludeNodes = exclude.find(nodeType.first);
+		bool isNodeTypeExclude = (excludeNodes != exclude.end());	
+		for (auto node : nodeType.second){
+			if(isNodeTypeExclude && excludeNodes->second.find(node.first) != excludeNodes->second.end()){
+				continue;
+			}
+			node.second->prepareSendNodeMessage(messageId, args.getSize());
+			node.second->send(args.getContext(), args.getSize());
+		}
+	}
+}
+
 void Harbor::broadcast(int32 messageId, const OArgs& args){
+	for (auto nodeType : _allNode){
+		for (auto node : nodeType.second){
+			node.second->prepareSendNodeMessage(messageId, args.getSize());
+			node.second->send(args.getContext(), args.getSize());
+		}
+	}
+}
+
+void Harbor::broadcast(int32 messageId, const sl::OBStream& args){
 	for (auto nodeType : _allNode){
 		for (auto node : nodeType.second){
 			node.second->prepareSendNodeMessage(messageId, args.getSize());

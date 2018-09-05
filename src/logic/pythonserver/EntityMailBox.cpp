@@ -29,28 +29,73 @@ EntityMailBox::EntityMailBox(const int8 mailBoxType, const int32 nodeId, const u
 {}
 
 PyObject * EntityMailBox::onScriptGetAttribute(PyObject* attr){
-	PyObject* pyValue = ScriptObject::onScriptGetAttribute(attr);
-	if(pyValue)
-		return pyValue;
-    
     const IProp* prop = _pScriptModule->getMethodProp(getType(), attr);
-    if(!prop){
+    if(prop){
+		PyObject* remoteMethod = NEW RemoteEntityMethod(this, prop);
+	    Py_INCREF(remoteMethod);
+		return remoteMethod;
+    }
+
+	wchar_t* wideCharString = PyUnicode_AsWideCharString(attr, NULL);
+	char* strAttr = sl::CStringUtils::wchar2char(wideCharString);
+	PyMem_Free(wideCharString);
+
+	const char* currMailBoxName = ENTITY_MAILBOX_NAME_MAPPING[_type];
+	if(strcmp(strAttr, currMailBoxName) == 0){
+		printf("cant get mailBox!!!\n");
+		SLASSERT(false, "wtf");
+		return NULL;
+	}
+
+	int16 mType = -1;
+	if(strcmp(strAttr, "cell") == 0){
+		if(_type == EntityMailBoxType::MAILBOX_TYPE_BASE_VIA_CELL)
+			mType = EntityMailBoxType::MAILBOX_TYPE_CELL;
+		else
+			mType = EntityMailBoxType::MAILBOX_TYPE_CELL_VIA_BASE;
+	}
+	else if(strcmp(strAttr, "base") == 0){
+		if(_type == EntityMailBoxType::MAILBOX_TYPE_CELL_VIA_BASE)
+			mType = EntityMailBoxType::MAILBOX_TYPE_BASE;
+		else
+			mType = EntityMailBoxType::MAILBOX_TYPE_BASE_VIA_CELL;
+	}
+	else if(strcmp(strAttr, "client") == 0){
+		if(_type == EntityMailBoxType::MAILBOX_TYPE_BASE)
+			mType = EntityMailBoxType::MAILBOX_TYPE_CLIENT_VIA_BASE;
+		else if(_type == EntityMailBoxType::MAILBOX_TYPE_CELL)
+			mType = EntityMailBoxType::MAILBOX_TYPE_CLIENT_VIA_CELL;
+	}
+
+	if(mType != -1){
+		free(strAttr);
+		return NEW EntityMailBox(mType, _nodeId, _entityId, _pScriptModule);
+	}
+
+	free(strAttr);
+
+	PyObject* pyValue = ScriptObject::onScriptGetAttribute(attr);
+	if(!pyValue){
        PyErr_Format(PyExc_AssertionError, "onScriptGetAttribute: can't get method %s", prop->getNameString());
        PyErr_PrintEx(0);
        return nullptr;
-    }
+	}
+	
+	return pyValue;
+}
 
-    PyObject* remoteMethod = NEW RemoteEntityMethod(this, prop);
-    Py_INCREF(remoteMethod);
-    
-    return remoteMethod;
+bool EntityMailBox::newMail(sl::IBStream& stream){
+	stream << _type;
+	stream << _entityId;
 }
 
 bool EntityMailBox::postMail(const sl::OBStream& data){
-	//if(_type == EntityMailBoxType::MAILBOX_TYPE_CELL)	
-		//SLMODULE(Harbor)->send(NodeType::SCENE, _nodeId, NodeProtocol::REMOTE_NEW_ENTITY_MAIL, data);   
-	//if(_type == EntityMailBoxType::MAILBOX_TYPE_BASE)	
-		//SLMODULE(Harbor)->send(NodeType::LOGIC, _nodeId, NodeProtocol::REMOTE_NEW_ENTITY_MAIL, data);   
+	if(_type == EntityMailBoxType::MAILBOX_TYPE_CELL || _type == EntityMailBoxType::MAILBOX_TYPE_BASE_VIA_CELL 
+		|| _type == EntityMailBoxType::MAILBOX_TYPE_CLIENT_VIA_CELL)	
+		SLMODULE(Harbor)->send(NodeType::SCENE, _nodeId, NodeProtocol::REMOTE_NEW_ENTITY_MAIL, data);   
+	if(_type == EntityMailBoxType::MAILBOX_TYPE_BASE || _type == EntityMailBoxType::MAILBOX_TYPE_CELL_VIA_BASE 
+		|| _type == EntityMailBoxType::MAILBOX_TYPE_CLIENT_VIA_BASE)	
+		SLMODULE(Harbor)->send(NodeType::LOGIC, _nodeId, NodeProtocol::REMOTE_NEW_ENTITY_MAIL, data);   
 	if(_type == EntityMailBoxType::MAILBOX_TYPE_CLIENT)	
 		SLMODULE(Gate)->sendToClient(_nodeId, ServerMsgID::SERVER_MSG_REMOTE_NEW_ENTITY_MAIL, data);
     return true;

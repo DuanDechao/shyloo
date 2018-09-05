@@ -41,8 +41,8 @@ public:
 
 	void shutdownServerReq(sl::api::IKernel* pKernel, const int64 id, const sl::OBStream& args);
 
-	void onMasterAskShutdown(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
-	void onClusterShutdownAck(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
+	void onMasterAskShutdown(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args);
+	void onClusterShutdownAck(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args);
 
 	void onClusterShutdownComplete(sl::api::IKernel* pKernel, const void* context, const int32 size);
 

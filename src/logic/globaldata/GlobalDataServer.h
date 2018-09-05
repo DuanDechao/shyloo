@@ -10,7 +10,7 @@ public:
 
 	void addGlobalDataListener(IGlobalDataListener* listener);
 	void onGlobalDataChanged(const char* key, const int16 dataType, const void* data, const int32 dataSize, bool isDelete);
-	void onGlobalDataChangedFromClient(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
+	void onGlobalDataChangedFromClient(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args);
 
 private:
 	GlobalDataServer*			_self;
