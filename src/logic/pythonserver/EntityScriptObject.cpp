@@ -1,6 +1,7 @@
 #include "EntityScriptObject.h"
 #include "IDCCenter.h"
 #include "PythonServer.h"
+#include "IHarbor.h"
 SCRIPT_METHOD_DECLARE_BEGIN(EntityScriptObject)
 SCRIPT_METHOD_DECLARE("addTimer",  addTimer,        METH_VARARGS,   0)
 SCRIPT_METHOD_DECLARE("delTimer",  delTimer,        METH_VARARGS,   0)
@@ -68,7 +69,7 @@ void EntityScriptObject::onRemoteMethodCall(const sl::OBStream& stream){
 	
 	const IProp* methodProp = _pScriptModule->findMethodProp(methodIndex);
 	if(!methodProp){
-		printf("method[%d] is not exist!\n", methodIndex);
+		printf("[%d]method[%d] is not exist!\n",SLMODULE(Harbor)->getNodeType(), methodIndex);
 		return;
 	}
 	

@@ -14,6 +14,7 @@ public:
 
     const uint64 getID(){return _id;}
     DECLARE_PY_GET_MOTHOD(pyGetBaseMailBox);
+    DECLARE_PY_GET_MOTHOD(pyGetClientMailBox);
     DECLARE_PY_GET_MOTHOD(pyGetSpaceID);
     DECLARE_PY_GET_MOTHOD(pyIsWitnessed);
     DECLARE_PY_GETSET_MOTHOD(pyGetPosition, pySetPosition);

@@ -62,9 +62,8 @@ public:
 
 	inline void reset() { _offset = 0; }
 
-	inline const void * getContext() const { return _buffer; }
-	inline const int32 getSize() const { return _size; }
-	inline const int32 getRemainSize() const {return _size - _offset;}
+	inline const void * getContext() const { return _buffer + _offset; }
+	inline const int32 getSize() const { return _size - _offset; }
 
 private:
 	template<typename T>
@@ -112,7 +111,7 @@ public:
 	virtual IBStream& operator <<(const uint16& val) { return write(val); }
 	virtual IBStream& operator <<(const uint32& val) { return write(val); }
 	virtual IBStream& operator <<(const uint64& val) { return write(val); }
-	virtual IBStream& operator <<(const sl::OBStream& val) { return addBlob(val.getContext(), val.getSize()); }
+	virtual IBStream& operator <<(const sl::OBStream& val) { return writeData(val.getContext(), val.getSize()); }
 	
     virtual IBStream& operator <<(const char* val){
 		int32 size = (int32)strlen(val);
@@ -123,6 +122,9 @@ public:
 			_buffer[_offset] = 0;
 			++_offset;
 		}
+		else{
+			SLASSERT(false, "wtf");
+		}
 		return *this;
 	}
 
@@ -131,6 +133,9 @@ public:
 			*this << size;
 			sl::SafeMemcpy(_buffer + _offset, _maxSize - _offset, context, size);
 			_offset += size;
+		}
+		else{
+			SLASSERT(false, "wtf");
 		}
 		return *this;
 	}
@@ -160,9 +165,16 @@ public:
 private:
 	template<typename T>
 	IBStream& write(const T& val){
-		if (_offset + sizeof(T) <= _maxSize){
-			sl::SafeMemcpy(_buffer + _offset, _maxSize - _offset, &val, sizeof(T));
-			_offset += sizeof(T);
+		return writeData(&val, sizeof(T));
+	}
+
+	IBStream& writeData(const void* val, const int32 size){
+		if (_offset + size <= _maxSize){
+			sl::SafeMemcpy(_buffer + _offset, _maxSize - _offset, val, size);
+			_offset += size;
+		}
+		else{
+			SLASSERT(false, "wtf");
 		}
 		return *this;
 	}

@@ -50,7 +50,7 @@ PyObject* Base::pyGetClientMailBox(){
 		ECHO_ERROR("not has client mailbox");
 		S_Return;
 	}
-
+	Py_INCREF(_clientMailBox);
 	return (PyObject*)_clientMailBox;
 }
 

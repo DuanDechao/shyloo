@@ -238,7 +238,7 @@ PyObject* PythonServer::__py__scriptLogType(PyObject* self, PyObject* args){
 }
 
 PyObject* PythonServer::__py__publish(PyObject* self, PyObject* args){
-	return PyLong_FromUnsignedLong(1);
+	return PyLong_FromUnsignedLong(0);
 }
 
 PyObject* PythonServer::__py__addWatcher(PyObject* self, PyObject* args){
@@ -564,8 +564,9 @@ void PythonServer::onRemoteNewEntityMail(sl::api::IKernel* pKernel, int32 nodeTy
 	if(SLMODULE(Harbor)->getNodeType() == NodeType::LOGIC){
 		if(mType == EntityMailBoxType::MAILBOX_TYPE_BASE)
 			obj->onRemoteMethodCall(args);
-		else if(mType == EntityMailBoxType::MAILBOX_TYPE_CELL_VIA_BASE)
+		else if(mType == EntityMailBoxType::MAILBOX_TYPE_CELL_VIA_BASE){
 			mailBox = static_cast<Base*>(obj)->getCellMailBox();
+		}
 		else if(mType == EntityMailBoxType::MAILBOX_TYPE_CLIENT_VIA_BASE)
 			mailBox = static_cast<Base*>(obj)->getClientMailBox();
 		else{

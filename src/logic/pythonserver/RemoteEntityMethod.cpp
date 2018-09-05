@@ -2,6 +2,7 @@
 #include "EntityMailBox.h"
 #include "NodeProtocol.h"
 #include "slbinary_stream.h"
+#include "IHarbor.h"
 SCRIPT_METHOD_DECLARE_BEGIN(RemoteEntityMethod)
 SCRIPT_METHOD_DECLARE_END()
 
@@ -28,7 +29,6 @@ PyObject * RemoteEntityMethod::tp_call(PyObject* self, PyObject* args, PyObject*
   //  if(scriptDefModule->checkMethodArgs(mailbox->getMMObject(), methodProp, args)){
 	stream << (int16)methodProp->getIndex(mailbox->getEntityType());
 	addArgsToStream(mailbox->getEntityType(), methodProp, stream, args);
-    printf("remote send mail+_++++++++++++++++++++++++++++++++++++++++++++++++++\n");
     mailbox->postMail(stream.out());
     //}
     S_Return;

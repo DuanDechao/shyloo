@@ -81,7 +81,7 @@ void IdMgr::askIds(sl::api::IKernel* pKernel, const int32 nodeType, const int32 
 }
 
 void IdMgr::giveIds(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args){
-	while(args.getRemainSize() > 0){
+	while(args.getSize() > 0){
 		int64 id = 0;
 		args >> id;
 		_idPool.push_back(id);

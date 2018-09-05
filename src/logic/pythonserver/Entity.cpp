@@ -15,6 +15,7 @@ SCRIPT_MEMBER_DECLARE_END()
 
 SCRIPT_GETSET_DECLARE_BEGIN(Entity)
 SCRIPT_GET_DECLARE("base",              pyGetBaseMailBox,       0,              0)
+SCRIPT_GET_DECLARE("client",            pyGetClientMailBox,     0,              0)
 SCRIPT_GET_DECLARE("spaceID",           pyGetSpaceID,           0,              0)
 SCRIPT_GET_DECLARE("isWitnessed",       pyIsWitnessed,          0,              0)
 SCRIPT_GETSET_DECLARE("position",       pyGetPosition,          pySetPosition,          0,			0)
@@ -50,7 +51,17 @@ PyObject* Entity::pyGetBaseMailBox(){
         ECHO_ERROR("has no base mailbox");
         S_Return;
     }
+	Py_INCREF(_baseMailBox);
     return (PyObject*)_baseMailBox;
+}
+
+PyObject* Entity::pyGetClientMailBox(){
+    if(!_clientMailBox){
+        ECHO_ERROR("has no client mailbox");
+        S_Return;
+    }
+	Py_INCREF(_clientMailBox);
+    return (PyObject*)_clientMailBox;
 }
 
 PyObject* Entity::pyGetSpaceID(){
