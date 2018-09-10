@@ -86,7 +86,7 @@ bool PythonServer::launched(sl::api::IKernel * pKernel){
 		return false;
     
 	if(SLMODULE(Harbor)->getNodeType() == NodeType::LOGIC){
-        //RGS_EVENT_HANDLER(SLMODULE(EventEngine), logic_event::EVENT_ENTITY_CREATED_FROM_DB_CALLBACK, PythonServer::onEntityCreatedFromDB);
+        RGS_EVENT_HANDLER(SLMODULE(EventEngine), logic_event::EVENT_ENTITY_CREATED_FROM_DB_CALLBACK, PythonServer::onBaseCreatedFromDB);
         RGS_EVENT_HANDLER(SLMODULE(EventEngine), logic_event::EVENT_CELL_ENTITY_CREATED, PythonServer::onCellEntityCreatedFromCell);
         RGS_EVENT_HANDLER(SLMODULE(EventEngine), logic_event::EVENT_PROXY_CREATED, PythonServer::onProxyCreated);
         RGS_EVENT_HANDLER(SLMODULE(EventEngine), logic_event::EVENT_LOGIC_CREATE_BASE_ANYWHERE, PythonServer::onCreateBaseAnywhere);
@@ -152,9 +152,7 @@ bool PythonServer::createBaseFromDB(const char* entityType, const uint64 dbid, P
 
     _pyCallbacks[callbackId] = pyCallback;
     Py_INCREF(pyCallback); 
-	IObject* object = CREATE_OBJECT(SLMODULE(ObjectMgr), entityType);
-	onEntityCreatedFromDB(object, callbackId, false);
-    //return SLMODULE(BaseApp)->createEntityFromDB(entityType, dbid, callbackId, entityId);
+    return SLMODULE(BaseApp)->createBaseFromDB(entityType, dbid, callbackId);
 }
 
 bool PythonServer::createBaseAnywhere(const char* entityType, PyObject* params, PyObject* pyCallback){
@@ -695,33 +693,11 @@ void PythonServer::onCreateBaseAnywhereCallback(sl::api::IKernel* pKernel, const
     _pyCallbacks.erase(callbackItor);
 }
 
-void PythonServer::onEntityCreatedFromDB(IObject* object, const int32 callbackId, bool wasActive){
-    PyObject* e = createBase(object, NULL, true);
-    if(callbackId > 0){
-        auto callbackItor = _pyCallbacks.find(callbackId);
-        if(callbackItor == _pyCallbacks.end())
-            return;
-        
-        PyObject* pyfunc = callbackItor->second;
-        PyObject* pyResult = PyObject_CallFunction(pyfunc, const_cast<char*>("OKi"), e, object->getID(), wasActive);
-        if(pyResult != NULL)
-            Py_DECREF(pyResult);
-        else
-            SCRIPT_ERROR_CHECK();
-        
-        Py_DECREF(pyfunc);
-        _pyCallbacks.erase(callbackItor);
-    }
-}
-
-void PythonServer::onBaseCreateAnywhere(IObject* object,  PyObject* params, const int32 callbackId){
-}
-/*
-void PythonServer::onEntityCreatedFromDB(sl::api::IKernel* pKernel, const void* context, const int32 size){
+void PythonServer::onBaseCreatedFromDB(sl::api::IKernel* pKernel, const void* context, const int32 size){
 	SLASSERT(size == sizeof(logic_event::EntityCreatedFromDBCallBack), "wtf");
     logic_event::EntityCreatedFromDBCallBack* evt = (logic_event::EntityCreatedFromDBCallBack*)context;
     
-    PyObject* e = createBase(evt->entityType, NULL, true, evt->entityId);
+    PyObject* e = createBase(evt->object, NULL, false);
     if(evt->callbackId > 0){
         auto callbackItor = _pyCallbacks.find(evt->callbackId);
         if(callbackItor == _pyCallbacks.end())
@@ -737,8 +713,9 @@ void PythonServer::onEntityCreatedFromDB(sl::api::IKernel* pKernel, const void* 
         Py_DECREF(pyfunc);
         _pyCallbacks.erase(callbackItor);
     }
+	static_cast<EntityScriptObject*>(e)->initializeEntity(NULL);
 }
-*/
+
 void PythonServer::rgsBaseScriptModule(PyTypeObject* type){
 	_scriptBaseTypes.push_back(type);
 }

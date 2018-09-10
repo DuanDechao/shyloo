@@ -36,20 +36,18 @@ void DBMgr::onBaseMsgQueryEntity(sl::api::IKernel* pKernel, int32 nodeType, int3
     const char* entityType = nullptr;
     uint64 dbid = 0;
     uint64 callbackId = 0;
-    uint64 entityId = 0;
-	args >> entityType >> dbid >> callbackId >> entityId;
+	args >> entityType >> dbid >> callbackId;
 
     bool success = false;
     bool wasActive = false;
 
     //读取数据
-    printf("query entity data....................%s, %llu, %llu\n", entityType, dbid, entityId);
+    printf("query entity data....................%s, %llu, %llu\n", entityType, dbid);
 
 	sl::BStream<1000> inArgs;
     inArgs << entityType;
     inArgs << dbid;
     inArgs << callbackId;
-    inArgs << entityId;
     inArgs << success;
     inArgs << wasActive;
     SLMODULE(Harbor)->send(nodeType, nodeId, NodeProtocol::DB_MSG_QUERY_ENTITY_CALLBACK, inArgs.out());

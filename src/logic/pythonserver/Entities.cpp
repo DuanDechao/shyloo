@@ -152,15 +152,15 @@ PyObject* Entities::__py_pyGet(PyObject* self, PyObject * args, PyObject* kwds)
 	Entities* lpEntities = static_cast<Entities*>(self);
 	PyObject * pDefault = Py_None;
 	uint64 id = 0;
-	if (!PyArg_ParseTuple( args, "i|O", &id, &pDefault))
+	if (!PyArg_ParseTuple( args, "K|O", &id, &pDefault))
 	{
 		return NULL;
 	}
 
 	PyObject* pEntity = lpEntities->find(id);
+	SLASSERT(pEntity, "cant find Entity[%llu]", id);
 
-	if (!pEntity)
-	{
+	if (!pEntity){
 		pEntity = pDefault;
 	}
 

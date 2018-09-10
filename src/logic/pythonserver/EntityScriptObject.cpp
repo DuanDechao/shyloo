@@ -65,13 +65,13 @@ void EntityScriptObject::onRemoteMethodCall(const sl::OBStream& stream){
 	if(!stream.readUint16(methodIndex))
 		return;
 
-	ECHO_TRACE("onRemoteMethodCall from remote call method[%d]", methodIndex);
-	
 	const IProp* methodProp = _pScriptModule->findMethodProp(methodIndex);
 	if(!methodProp){
 		printf("[%d]method[%d] is not exist!\n",SLMODULE(Harbor)->getNodeType(), methodIndex);
 		return;
 	}
+	
+	ECHO_TRACE("onRemoteMethodCall from remote call method[%d][%s]", methodIndex, methodProp->getNameString());
 	
 	PyObject* pyFunc = PyObject_GetAttrString(this, const_cast<char*>(methodProp->getNameString()));
 	PyObject* pyResult = NULL;
@@ -84,6 +84,13 @@ void EntityScriptObject::onRemoteMethodCall(const sl::OBStream& stream){
 
 	PyObject* args = createArgsPyObjectFromStream(stream, methodProp);
 	pyResult = PyObject_CallObject(pyFunc, args);
+	if(!pyResult){
+		SCRIPT_ERROR_CHECK();
+	}
+	else{
+		Py_XDECREF(pyResult);
+	}
+
 	if(args){
 		Py_XDECREF(args);
 	}

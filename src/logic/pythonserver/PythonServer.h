@@ -22,8 +22,6 @@ public:
 	
 	virtual IDataType* createPyDataTypeFromXml(const char* typeName, const sl::ISLXmlNode* node); 
 	virtual IDataType* createPyDataType(const char* typeName);
-	virtual void onEntityCreatedFromDB(IObject* object, const int32 callbackId, bool wasActive);
-	virtual void onBaseCreateAnywhere(IObject* object,  PyObject* params, const int32 callbackId);
 
 	Base* createBase(IObject* object, PyObject* params, bool initializeScript = true);
     Entity* createCellEntity(IObject* object, PyObject* params, bool initializeScript = true);
@@ -65,7 +63,7 @@ public:
     void onCreateBaseAnywhere(sl::api::IKernel* pKernel, const void* context, const int32 size);
     void onCreateBaseAnywhereCallback(sl::api::IKernel* pKernel, const void* context, const int32 size);
 	void onRemoteMethodCall(sl::api::IKernel* pKernel, const void* context, const int32 size);
-    //void onEntityCreatedFromDB(sl::api::IKernel* pKernel, const void* context, const int32 size);
+    void onBaseCreatedFromDB(sl::api::IKernel* pKernel, const void* context, const int32 size);
 	void onRemoteNewEntityMail(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args);
 	void test();
 

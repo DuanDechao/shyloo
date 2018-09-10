@@ -94,10 +94,9 @@ namespace logic_event{
     };
 
     struct EntityCreatedFromDBCallBack{
-        const char* entityType;
+		IObject* object;
         uint64 dbid;
         uint64 callbackId;
-        uint64 entityId;
         bool success;
         bool wasActive;        
     };

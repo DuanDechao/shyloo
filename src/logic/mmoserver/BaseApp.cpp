@@ -122,12 +122,11 @@ void BaseApp::onCellEntityCreatedFromCell(sl::api::IKernel* pKernel, int32 nodeT
     SLMODULE(EventEngine)->execEvent(logic_event::EVENT_CELL_ENTITY_CREATED, &info, sizeof(info));
 }
 
-bool BaseApp::createEntityFromDB(const char* entityType, const uint64 dbid, const uint64 callbackId, const uint64 entityId){
+bool BaseApp::createBaseFromDB(const char* entityType, const uint64 dbid, const uint64 callbackId){
 	sl::BStream<1000> args;
     args << entityType;
     args << dbid;
     args << callbackId;
-    args << entityId;
     SLMODULE(Harbor)->send(NodeType::DATABASE, 1, NodeProtocol::BASE_MSG_QUERY_ENTITY, args.out());
     return true;
 }
@@ -136,12 +135,14 @@ void BaseApp::onDBMsgQueryEntityCallback(sl::api::IKernel* pKernel, int32 nodeTy
     const char* entityType = nullptr;
     uint64 dbid = 0;
     uint64 callbackId = 0;
-    uint64 entityId = 0;
     bool success = false;
     bool wasActive = false;
-	args >> entityType >> dbid >> callbackId >> entityId >> success >> wasActive;
+	args >> entityType >> dbid >> callbackId >> success >> wasActive;
+	
+	IObject* object = CREATE_OBJECT(SLMODULE(ObjectMgr), entityType);
+	SLASSERT(object, "wtf");
 
-    logic_event::EntityCreatedFromDBCallBack info {entityType, dbid, callbackId, entityId, success, wasActive};
+    logic_event::EntityCreatedFromDBCallBack info {object, dbid, callbackId, success, wasActive};
     SLMODULE(EventEngine)->execEvent(logic_event::EVENT_ENTITY_CREATED_FROM_DB_CALLBACK, &info, sizeof(info));
 }
 

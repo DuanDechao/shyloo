@@ -85,8 +85,8 @@ PyObject * EntityMailBox::onScriptGetAttribute(PyObject* attr){
 }
 
 bool EntityMailBox::newMail(sl::IBStream& stream){
-	stream << _type;
 	stream << _entityId;
+	stream << _type;
 	return true;
 }
 

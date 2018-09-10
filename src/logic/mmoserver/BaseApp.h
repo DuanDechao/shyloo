@@ -16,7 +16,7 @@ public:
 
 	virtual bool remoteCreateCellEntity(IObject* object, const uint64 createToObjectId, const int32 cellIdx, bool hasClient, const void* cellData, const int32 cellDataSize);
 	virtual bool createBaseAnywhere(const char* entityType, const void* initData, const int32 initDataSize, const uint64 callbackId);
-    virtual bool createEntityFromDB(const char* entityName, const uint64 dbid, const uint64 callbackId, const uint64 entityId);
+    virtual bool createBaseFromDB(const char* entityName, const uint64 dbid, const uint64 callbackId);
 	
     virtual void onGateLogined(sl::api::IKernel* pKernel, const int64 id);
 	virtual void onGateLogOnAttempt(sl::api::IKernel* pKernel, const int64 id);

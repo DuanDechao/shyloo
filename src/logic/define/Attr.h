@@ -40,7 +40,10 @@ namespace prop_def {
 		OBJECT_CELL_DATA_FLAGS = ObjectDataFlag::CELL_PUBLIC | ObjectDataFlag::CELL_PRIVATE | ObjectDataFlag::ALL_CLIENTS | ObjectDataFlag::CELL_PUBLIC_AND_OWN | ObjectDataFlag::OTHER_CLIENTS | ObjectDataFlag::OWN_CLIENT,
 		//所有与client有关的标志
 		OBJECT_CLIENT_DATA_FLAGS = ObjectDataFlag::BASE_AND_CLIENT | ObjectDataFlag::ALL_CLIENTS | ObjectDataFlag::CELL_PUBLIC_AND_OWN | ObjectDataFlag::OTHER_CLIENTS | ObjectDataFlag::OWN_CLIENT,
-		//
+		//own
+		OBJECT_CLINET_OWN_DATA_FLAGS = ObjectDataFlag::BASE_AND_CLIENT | ObjectDataFlag::ALL_CLIENTS | ObjectDataFlag::CELL_PUBLIC_AND_OWN | ObjectDataFlag::OWN_CLIENT,
+		//other
+		OBJECT_CLIENT_OTHER_DATA_FLAGS = ObjectDataFlag::ALL_CLIENTS | ObjectDataFlag::OTHER_CLIENTS,
 	};
 
 
