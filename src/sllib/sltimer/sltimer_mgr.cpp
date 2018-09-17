@@ -229,5 +229,14 @@ SLList* SLTimerMgr::findTimerList(CSLTimerBase* timerBase){
 	return findList;
 }
 
+int64 SLTimerMgr::getNextExp(int64 maxTime){
+	if(m_runTimerList.front()){
+		return 0;
+	}
+
+	int64 nextExpJiffies = m_gear1->getNextExp(maxTime/JIFFIES_INTERVAL);
+	return nextExpJiffies * JIFFIES_INTERVAL; 
+}
+
 }
 }

@@ -151,6 +151,10 @@ public:
 	}
 
 		
+	static int32 StringAsInt32(const std::string& str){
+		return StringAsInt32(str.c_str());
+	}
+
 	static int32 StringAsInt32(const char* pStr){
 		SLASSERT(pStr, "is null pointer");
 		return atoi(pStr);
@@ -160,6 +164,10 @@ public:
 		char str[128] ={0};
 		SafeSprintf(str, 127, "%d", val);
 		return str;
+	}
+
+	static float StringAsFloat(const std::string& str){
+		return StringAsFloat(str.c_str());
 	}
 
 	static float StringAsFloat(const char* pstr){
@@ -173,6 +181,10 @@ public:
 		return str;
 	}
 
+	static int64 StringAsInt64(const std::string& str){
+		return StringAsInt64(str.c_str());
+	}
+
 	static int64 StringAsInt64(const char* pstr){
 		SLASSERT(pstr, "is null pointer");
 		return atoll(pstr);
@@ -184,6 +196,10 @@ public:
 		return str;
 	}
 
+	static uint64 StringAsUint64(const std::string& str){
+		return StringAsUint64(str.c_str());
+	}
+
 	static uint64 StringAsUint64(const char* pstr){
 		SLASSERT(pstr, "is null pointer");
 		std::stringstream sstream;
@@ -192,6 +208,10 @@ public:
 		uint64 val = 0;
 		sstream >> val;
 		return val;
+	}
+	
+	static int16 StringAsInt16(const std::string& str){
+		return StringAsInt16(str.c_str());
 	}
 
 	static int16 StringAsInt16(const char* pStr){
@@ -205,6 +225,10 @@ public:
 		return str;
 	}
 
+	static int8 StringAsInt8(const std::string& str){
+		return StringAsInt8(str.c_str());
+	}
+
 	static int8 StringAsInt8(const char* pStr){
 		SLASSERT(pStr, "is null pointer");
 		return (int8)StringAsInt32(pStr);
@@ -216,6 +240,10 @@ public:
 		return str;
 	}
 	
+	static double StringAsDouble(const std::string& str){
+		return StringAsDouble(str.c_str());
+	}
+
 	static double StringAsDouble(const char* pStr){
 		SLASSERT(pStr, "is null pointer");
 		std::stringstream sstream;
@@ -224,6 +252,10 @@ public:
 		double val = 0;
 		sstream >> val;
 		return val;
+	}
+
+	static bool StringAsBoolean(const std::string& str){
+		return StringAsBoolean(str.c_str());
 	}
 
 	static bool StringAsBoolean(const char* pStr){

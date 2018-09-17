@@ -12,4 +12,10 @@ public:
 	virtual IDataType* createPyDataType(const char* typeName) = 0;
 };
 
+class ITelnetServer: public sl::api::IModule{
+public:
+	virtual ~ITelnetServer() {}
+
+};
+
 #endif

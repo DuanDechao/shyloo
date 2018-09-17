@@ -1,6 +1,7 @@
 #include "ResMgr.h"
 #include "slstring_utils.h"
 #include "slmulti_sys.h"
+#include "slxml_reader.h"
 bool ResMgr::initialize(sl::api::IKernel * pKernel){
 	_self = this;
 
@@ -24,8 +25,30 @@ bool ResMgr::initialize(sl::api::IKernel * pKernel){
 		return false;
 	}
 
+	std::string resPath = matchRes("server/shyloo.xml");
+	if(!reloadCoreConfig(pKernel, resPath.c_str())){
+		SLASSERT(false, "wtf");
+		return false;
+	}
 
 	return true;
+}
+
+bool ResMgr::reloadCoreConfig(sl::api::IKernel* pKernel, const char* resPath){
+	sl::XmlReader resConf;
+	if (!resConf.loadXml(resPath)){
+		SLASSERT(false, "cant load core file");
+		return false;
+	}
+
+	const char* retValue = NULL;
+	if(resConf.root().subNodeExist("parentFile")){
+		std::string parentFile = matchRes(resConf.root()["parentFile"][0].getValueString());
+		if(!reloadCoreConfig(pKernel, parentFile.c_str()))
+			return false;
+	}
+
+	return pKernel->reloadCoreConfig(resPath);
 }
 
 bool ResMgr::launched(sl::api::IKernel * pKernel){
@@ -221,3 +244,64 @@ bool ResMgr::hasRes(const std::string& res){
 	}
 	return false;
 }
+
+int32 ResMgr::getResValueInt32(const char* attr){
+	return sl::CStringUtils::StringAsInt32(getResValue(attr));
+}
+
+int64 ResMgr::getResValueInt64(const char* attr){
+	return sl::CStringUtils::StringAsInt64(getResValue(attr));
+}
+
+const char* ResMgr::getResValueString(const char* attr){
+	return getResValue(attr);
+}
+
+bool ResMgr::getResValueBoolean(const char* attr){
+	return sl::CStringUtils::StringAsBoolean(getResValue(attr));
+}
+
+const char* ResMgr::getResValue(const char* attr){
+	auto itor = _resValueCache.find(attr);
+	if(itor != _resValueCache.end())
+		return itor->second.c_str();
+
+	std::string resFile = matchRes("server/shyloo.xml");
+	std::vector<std::string> subAttrs;
+	std::string strAttr = attr;
+
+	subAttrs = sl::CStringUtils::splits(strAttr, "/");
+	const char* resValue = getResValue(resFile.c_str(), subAttrs);
+	resValue = resValue ? resValue : "";
+	_resValueCache[attr] = resValue;
+	return resValue;
+}
+
+const char* ResMgr::getResValue(const char* resPath, const std::vector<std::string>& attrs){
+	sl::XmlReader resConf;
+	if (!resConf.loadXml(resPath)){
+		SLASSERT(false, "cant load core file");
+		return NULL;
+	}
+
+	const char* retValue = NULL;
+	if(resConf.root().subNodeExist("parentFile")){
+		std::string parentFile = matchRes(resConf.root()["parentFile"][0].getValueString());
+		retValue = getResValue(parentFile.c_str(), attrs);
+	}
+	
+	sl::ISLXmlNode* pXmlNode = const_cast<sl::ISLXmlNode*>(&(resConf.root()));
+	for(int32 idx = 0; idx < attrs.size(); idx++){
+		if(!pXmlNode->subNodeExist(attrs[idx].c_str())){
+			pXmlNode = NULL;
+			break;
+		}
+		pXmlNode = const_cast<sl::ISLXmlNode*>(&((*pXmlNode)[attrs[idx].c_str()][0]));
+	}
+
+	retValue = pXmlNode ? pXmlNode->getValueString() : retValue;
+
+	return retValue;
+}
+
+

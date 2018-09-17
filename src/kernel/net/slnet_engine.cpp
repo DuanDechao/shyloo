@@ -1,5 +1,6 @@
 #include "slnet_engine.h"
 #include "slnet_session.h"
+#include "slconfig_engine.h"
 #include "sltime.h"
 #include "slxml_reader.h"
 #ifdef SL_OS_WINDOWS
@@ -42,19 +43,6 @@ NetEngine::~NetEngine(){
 }
 
 bool NetEngine::initialize(){
-	char path[MAX_PATH] = { 0 };
-	SafeSprintf(path, sizeof(path), "%s/core/server_conf.xml", sl::getAppPath());
-	XmlReader server_conf;
-	if (!server_conf.loadXml(path)){
-		SLASSERT(false, "not find core file %s", path);
-		return false;
-	}
-
-	if (server_conf.root()["server"][0].hasAttribute("pubIp")){
-		const char* pubIp = server_conf.root()["server"][0].getAttributeString("pubIp");
-		SafeSprintf(m_ip, sizeof(m_ip), "%s", pubIp);
-	}
-
 	if (strcmp(m_ip, "") == 0)
 		readInternetIp();
 
@@ -81,6 +69,10 @@ bool NetEngine::addTcpServer(sl::api::ITcpServer* server, const char* ip, const 
 	if (nullptr == pListener)
 		return false;
 
+	const sCoreConfig* pCoreConfig = ConfigEngine::getInstance()->getCoreConfig();
+	sendSize = pCoreConfig->channelWriteBufferSize < 0 ? sendSize : pCoreConfig->channelWriteBufferSize;
+	recvSize = pCoreConfig->channelReadBufferSize < 0 ? recvSize : pCoreConfig->channelReadBufferSize;
+
 	pListener->setBufferSize(recvSize, sendSize);
 	pListener->setPacketParser(NEW NetPacketParser);
 	pListener->setSessionFactory(NEW ServerSessionFactory(server));
@@ -88,6 +80,9 @@ bool NetEngine::addTcpServer(sl::api::ITcpServer* server, const char* ip, const 
 		//SLASSERT(false);
 		return false;
 	}
+
+	server->setListenPort(pListener->getListenPort());
+
 	return true;
 }
 bool NetEngine::addTcpClient(sl::api::ITcpSession* session, const char* ip, const short port, int sendSize, int recvSize){
@@ -98,6 +93,10 @@ bool NetEngine::addTcpClient(sl::api::ITcpSession* session, const char* ip, cons
 	if (nullptr == pConnector)
 		return false;
 
+	const sCoreConfig* pCoreConfig = ConfigEngine::getInstance()->getCoreConfig();
+	sendSize = pCoreConfig->channelWriteBufferSize < 0 ? sendSize : pCoreConfig->channelWriteBufferSize;
+	recvSize = pCoreConfig->channelReadBufferSize < 0 ? recvSize : pCoreConfig->channelReadBufferSize;
+	
 	pConnector->setBufferSize(recvSize, sendSize);
 	pConnector->setPacketParser(NEW NetPacketParser);
 	NetSession* pNetSession = NetSession::create(session);
@@ -112,7 +111,7 @@ bool NetEngine::addTcpClient(sl::api::ITcpSession* session, const char* ip, cons
 
 int64 NetEngine::loop(int64 overTime){
 	int64 startTime = sl::getTimeMilliSecond();
-	m_pSLNetModule->run(overTime / 2);
+	m_pSLNetModule->run(overTime);
 	//ECHO_ERROR("netengine loop");
 	return sl::getTimeMilliSecond() - startTime;
 }

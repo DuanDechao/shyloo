@@ -50,11 +50,11 @@ public:
 	void test();
 
 private:
-	bool initPropDefineConfig(sl::api::IKernel * pKernel);
-	bool loadObjectPropConfig(sl::api::IKernel * pKernel);
+	//bool initPropDefineConfig(sl::api::IKernel * pKernel);
+	//bool loadObjectPropConfig(sl::api::IKernel * pKernel);
 
-	ObjectPropInfo* createTemplate(sl::api::IKernel* pKernel, const char* objectName);
-	ObjectPropInfo* queryTemplate(sl::api::IKernel* pKernel, const char* objectName);
+	//ObjectPropInfo* createTemplate(sl::api::IKernel* pKernel, const char* objectName);
+	//ObjectPropInfo* queryTemplate(sl::api::IKernel* pKernel, const char* objectName);
 
 private:
 	typedef std::unordered_map<sl::SLString<MAX_PROP_NAME_LEN>, int32> PROP_DEFINE_MAP;

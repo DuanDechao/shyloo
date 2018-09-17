@@ -13,6 +13,7 @@ public:
 	AgentSessionServer(Agent* pAgent) :_agent(pAgent){}
 	virtual ~AgentSessionServer(){}
 	virtual sl::api::ITcpSession* mallocTcpSession(sl::api::IKernel* pKernel);
+	virtual void setListenPort(uint16 port){}
 
 	inline void recover(AgentSession* session){
 		s_pool.recover(session);
@@ -30,6 +31,7 @@ public:
 	virtual bool destory(sl::api::IKernel * pKernel);
 
 	virtual void setListener(IAgentListener* pListener);
+	virtual void setPort(const int16 port) {_agentPort = port;}
 
 	int32 onRecv(int64 id, const char* pContext, const int32 size);
 	int64 onOpen(AgentSession* pSession);
@@ -44,10 +46,10 @@ public:
 
 private:
 	sl::api::IKernel*   _kernel;
-	IHarbor*			_harbor;
 	int64				_agentNextId;
 	IAgentListener*		_listener;
 	AgentSessionServer* _agentServer;
+	int32				_agentPort;
 	std::unordered_map<int64, AgentSession*> _agentSessions;
 };
 #endif

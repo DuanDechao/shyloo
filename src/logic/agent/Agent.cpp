@@ -10,35 +10,24 @@ sl::api::ITcpSession* AgentSessionServer::mallocTcpSession(sl::api::IKernel* pKe
 
 bool Agent::initialize(sl::api::IKernel * pKernel){
 	_kernel = pKernel;
+	_agentPort = 0;
 	return true;
 }
 
 bool Agent::launched(sl::api::IKernel * pKernel){
-	FIND_MODULE(_harbor, Harbor);
-
-	sl::XmlReader conf;
-	if (!conf.loadXml(pKernel->getConfigFile())){
-		SLASSERT(false, "can not load core file %s", pKernel->getCoreFile());
-		return false;
-	}
-	const sl::ISLXmlNode& agentConf = conf.root()["agent"][0];
-	int32 agentRecvSize = agentConf.getAttributeInt32("recv");
-	int32 agentSendSize = agentConf.getAttributeInt32("send");
-	int32 agentPort = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("agent"));
-	
 	_agentServer = NEW AgentSessionServer(this);
 	if (!_agentServer){
 		SLASSERT(false, "wtf");
 		return false;
 	}
 
-	if (!pKernel->startTcpServer(_agentServer, "0.0.0.0", agentPort, agentSendSize, agentRecvSize)){
+	if (!pKernel->startTcpServer(_agentServer, "0.0.0.0", _agentPort)){
 		SLASSERT(false, "wtf");
-		TRACE_LOG("start agent server[%s:%d] failed", "0.0.0.0", agentPort);
+		TRACE_LOG("start agent server[%s:%d] failed", "0.0.0.0", _agentPort);
 		return false;
 	}
 	else{
-		TRACE_LOG("start agent server[%s:%d] success", "0.0.0.0", agentPort);
+		TRACE_LOG("start agent server[%s:%d] success", "0.0.0.0", _agentPort);
 	}
 	
 	return true;
@@ -51,7 +40,6 @@ bool Agent::destory(sl::api::IKernel * pKernel){
 	
 	_listener = nullptr;
 	_agentNextId = 0;
-	_harbor = nullptr;
 	
 	DEL this;
 	return true;

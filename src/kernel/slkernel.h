@@ -21,14 +21,14 @@ public:
 	virtual api::IModule * findModule(const char * name);
 
 	//net interface
-	virtual bool startTcpServer(api::ITcpServer * server, const char* ip, const int32 port, int32 sendSize, int32 recvSize);
-	virtual bool startTcpClient(api::ITcpSession * client, const char* ip, const int32 port, int32 sendSize, int32 recvSize);
+	virtual bool startTcpServer(api::ITcpServer * server, const char* ip, const int32 port, int32 sendSize = 0, int32 recvSize = 0);
+	virtual bool startTcpClient(api::ITcpSession * client, const char* ip, const int32 port, int32 sendSize = 0, int32 recvSize = 0);
 	virtual const char* getInternetIp();
 	virtual const char* getLocalIp();
 
 	//ipc interface
 	virtual bool addIPCServer(sl::api::ITcpServer* server, const int64 serverId);
-	virtual bool addIPCClient(sl::api::ITcpSession* session, const int64 clientId, const int64 serverId, const int32 sendSize, const int32 recvSize);
+	virtual bool addIPCClient(sl::api::ITcpSession* session, const int64 clientId, const int64 serverId, const int32 sendSize = 0, const int32 recvSize = 0);
 
 	//timer interface
 	virtual bool startTimer(api::ITimer* timer, int64 delay, int32 count, int64 interval, const char* file, const int32 line);
@@ -39,10 +39,7 @@ public:
 	
 	// config interface
 	virtual const char* getCmdArg(const char* name);
-	virtual const char* getCoreFile();
-	virtual const char* getConfigFile();
-	virtual const char* getEnvirPath();
-	virtual const char* getIpcPath();
+	virtual bool reloadCoreConfig(const char* coreFile);
 
 	//async interface
 	virtual void startAsync(const int64 threadId, api::IAsyncHandler* handler, const char* debug);

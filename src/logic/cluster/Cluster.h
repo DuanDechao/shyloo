@@ -26,7 +26,6 @@ private:
 	bool isSameDeivce(const char* localIp, const char* remoteIp);
 
 private:
-	IHarbor*			_harbor;
 	std::set<int64>		_openNodes;
 	sl::SLString<128>	_masterIp;
 	int32				_masterPort;

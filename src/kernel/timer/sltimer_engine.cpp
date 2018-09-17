@@ -86,5 +86,9 @@ int64 TimerEngine::loop(int64 overTime){
 	return m_pTimerMgr->process(overTime);
 }
 
+int64 TimerEngine::getNextExp(int64 maxTime){
+	return m_pTimerMgr->getNextExp(maxTime);
+}
+
 }
 }

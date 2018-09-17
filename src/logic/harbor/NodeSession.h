@@ -46,6 +46,8 @@ public:
 	inline void setIpcTransfor(bool isIpc) { _ipcTransfor = isIpc; }
 	inline bool isIpcTransfor() const { return _ipcTransfor; }
 
+	void sendAllocNewNodeId(const int32 newNodeId);
+
 protected:
 	friend sl::SLPool<NodeSession>;
 	

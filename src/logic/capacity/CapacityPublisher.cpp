@@ -4,6 +4,7 @@
 #include "slargs.h"
 #include "GameDefine.h"
 #include "NodeProtocol.h"
+#include "IHarbor.h"
 
 bool CapacityPublisher::initialize(sl::api::IKernel * pKernel){
 	_lastLoad = 0;
@@ -14,18 +15,9 @@ bool CapacityPublisher::initialize(sl::api::IKernel * pKernel){
 }
 
 bool CapacityPublisher::launched(sl::api::IKernel * pKernel){
-	FIND_MODULE(_harbor, Harbor);
+	SLMODULE(Harbor)->addNodeListener(this);
 	
-	sl::XmlReader svrConf;
-	if (!svrConf.loadXml(pKernel->getCoreFile())){
-		SLASSERT(false, "cant load core file");
-		return false;
-	}
-
-	_harbor->addNodeListener(this);
-
-	int32 broadInterval = svrConf.root()["loadbroad"][0].getAttributeInt32("interval");
-	START_TIMER(_self, 0, -1, broadInterval);
+	START_TIMER(_self, 0, -1, 1000);
 	
 	return true;
 }
@@ -54,7 +46,7 @@ void CapacityPublisher::decreaseLoad(int32 load){
 void CapacityPublisher::onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* ip, const int32 port){
 	sl::BStream<64> args;
 	args << (float)(_currLoad / _maxLoad);
-	_harbor->send(nodeType, nodeId, NodeProtocol::NODE_CAPACITY_LOAD_REPORT, args.out());
+	SLMODULE(Harbor)->send(nodeType, nodeId, NodeProtocol::NODE_CAPACITY_LOAD_REPORT, args.out());
 }
 
 void CapacityPublisher::onTime(sl::api::IKernel* pKernel, int64 timetick){
@@ -65,6 +57,6 @@ void CapacityPublisher::onTime(sl::api::IKernel* pKernel, int64 timetick){
 
 	sl::BStream<64> args;
 	args << (float)_currLoad / _maxLoad;
-	_harbor->broadcast(NodeProtocol::NODE_CAPACITY_LOAD_REPORT, args.out());
+	SLMODULE(Harbor)->broadcast(NodeProtocol::NODE_CAPACITY_LOAD_REPORT, args.out());
 }
 

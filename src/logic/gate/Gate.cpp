@@ -72,13 +72,7 @@ private:
 bool Gate::initialize(sl::api::IKernel * pKernel){
 	_self = this;
     _kernel = pKernel;
-
-	sl::XmlReader svrConf;
-	if (!svrConf.loadXml(pKernel->getCoreFile())){
-		SLASSERT(false, "cant load core file");
-		return false;
-	}
-	_isQueneOn = svrConf.root()["balance"][0].getAttributeInt32("max_tickets") > 0;
+	_isQueneOn = false;
 
 	return true;
 }

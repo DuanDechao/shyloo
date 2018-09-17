@@ -8,7 +8,7 @@ ISLDBConnection* MysqlMgr::_escapeConnection = nullptr;
 bool MysqlMgr::initialize(sl::api::IKernel * pKernel){
 	_kernel = pKernel;
 
-	sl::XmlReader svrConf;
+	/*sl::XmlReader svrConf;
 	if (!svrConf.loadXml(pKernel->getCoreFile())){
 		SLASSERT(false, "cant load core file");
 		return false;
@@ -39,7 +39,7 @@ bool MysqlMgr::initialize(sl::api::IKernel * pKernel){
 		_escapeConnection = _dbConnectionPool->allocConnection();
 		SLASSERT(_escapeConnection, "create db connection failed");
 	}
-
+*/
 	return true;
 }
 

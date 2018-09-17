@@ -56,13 +56,13 @@ bool ObjectDef::loadObjectsConfig(sl::api::IKernel* pKernel){
 	SLMODULE(ObjectMgr)->setObjectTypeSize((int32)_propConfigsPath.size());
 	const std::vector<sl::ISLXmlNode*>& allEntities = conf.root().getAllChilds();
 	for (auto entity : allEntities){
-		if (_modelDefMap.find(entity->value()) != _modelDefMap.end())
+		if (_modelDefMap.find(entity->name()) != _modelDefMap.end())
 			continue;
 
 		//¼ÓÔØmoduleÎÄ¼þµÄ¶¨Òå
-		ObjectDefModule* pModule = loadModuleDef(pKernel, entity->value());
+		ObjectDefModule* pModule = loadModuleDef(pKernel, entity->name());
 		if(!pModule){
-			printf("load Module def[%s] is null\n", entity->value());
+			printf("load Module def[%s] is null\n", entity->name());
 			return false;
 		}
         _allObjectModule.push_back(pModule);
@@ -96,10 +96,10 @@ ObjectDefModule* ObjectDef::loadModuleDef(sl::api::IKernel* pKernel, const char*
 			
 			const sl::ISLXmlNode& interfaceNodes = implNodes[i]["Interface"];
 			for (int32 j = 0; j < interfaceNodes.count(); j++){
-				ObjectDefModule* implDefModule = queryModuleDef(pKernel, interfaceNodes[j].text());
-				SLASSERT(implDefModule, "where is %s xml", interfaceNodes[j].text());
+				ObjectDefModule* implDefModule = queryModuleDef(pKernel, interfaceNodes[j].getValueString());
+				SLASSERT(implDefModule, "where is %s xml", interfaceNodes[j].getValueString());
 				if (!implDefModule){
-					printf("where is implement %s xml", interfaceNodes[j].text());
+					printf("where is implement %s xml", interfaceNodes[j].getValueString());
 					return nullptr;
 				}
 
@@ -114,10 +114,10 @@ ObjectDefModule* ObjectDef::loadModuleDef(sl::api::IKernel* pKernel, const char*
 	if (!defModule && propConf.root().subNodeExist("Parent")){
 		const sl::ISLXmlNode& parentNodes = propConf.root()["Parent"];
 		for (int32 i = 0; i < parentNodes.count(); i++){
-			ObjectDefModule* parentDefModule = queryModuleDef(pKernel, parentNodes[i].text());
-			SLASSERT(parentDefModule, "where is %s xml", parentNodes[i].text());
+			ObjectDefModule* parentDefModule = queryModuleDef(pKernel, parentNodes[i].getValueString());
+			SLASSERT(parentDefModule, "where is %s xml", parentNodes[i].getValueString());
 			if (!parentDefModule){
-				printf("where is %s xml\n", parentNodes[i].text());
+				printf("where is %s xml\n", parentNodes[i].getValueString());
 				return nullptr;
 			}
 

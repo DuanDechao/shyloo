@@ -105,14 +105,14 @@ bool ObjectDefModule::loadDefPropertys(const char* moduleName, const sl::ISLXmlN
 	static int32 g_propIndexAuto = 1;
 	std::vector<sl::ISLXmlNode*> allPropsConf = root.getAllChilds();
 	for (auto propConf : allPropsConf){
-		const char* propName = propConf->value();
+		const char* propName = propConf->name();
 		if (!propConf->subNodeExist("Flags")){
 			ECHO_ERROR(false, "prop %s has not Flags attribute", propName);
 			return false;
 		}
         
         uint32 flags = prop_def::ObjectPropType::PROP;
-		std::string strFlags = (*propConf)["Flags"][0].text();
+		std::string strFlags = (*propConf)["Flags"][0].getValueString();
         sl::CStringUtils::MakeUpper(strFlags);
         auto flagItor = s_objectFlagMapping.find(strFlags);
 		if (flagItor == s_objectFlagMapping.end()){
@@ -139,7 +139,7 @@ bool ObjectDefModule::loadDefPropertys(const char* moduleName, const sl::ISLXmlN
 		}
 
 		if (propConf->subNodeExist("Persistent")){
-			std::string strPersistent = (*propConf)["Persistent"][0].text();
+			std::string strPersistent = (*propConf)["Persistent"][0].getValueString();
             sl::CStringUtils::MakeLower(strPersistent);
             if (strPersistent == "true")
 				flags |= prop_def::ObjectDBFlag::persistent;
@@ -149,16 +149,16 @@ bool ObjectDefModule::loadDefPropertys(const char* moduleName, const sl::ISLXmlN
 			ECHO_ERROR(false, "loadDefProperty error: not found Type of prop[%s] on module[%s]", propName, moduleName);
 			return false;
 		}
-		const char* strType = (*propConf)["Type"][0].text();
+		const char* strType = (*propConf)["Type"][0].getValueString();
         if (propConf->subNodeExist("Index")){
-			std::string strIndex = (*propConf)["Index"][0].text();
+			std::string strIndex = (*propConf)["Index"][0].getValueString();
             sl::CStringUtils::MakeLower(strIndex);
             if (strIndex == "true")
 				flags |= prop_def::ObjectDBFlag::index;
 		}
 
 		if (propConf->subNodeExist("Identifier")){
-			std::string strIdentifier = (*propConf)["Identifier"][0].text();
+			std::string strIdentifier = (*propConf)["Identifier"][0].getValueString();
             sl::CStringUtils::MakeLower(strIdentifier);
             if (strIdentifier == "true")
 				flags |= prop_def::ObjectDBFlag::identifier;
@@ -166,13 +166,13 @@ bool ObjectDefModule::loadDefPropertys(const char* moduleName, const sl::ISLXmlN
 
 		int32 propIndex = 0;
 		if(propConf->subNodeExist("Utype"))
-			propIndex = sl::CStringUtils::StringAsInt32((*propConf)["Utype"][0].text());
+			propIndex = sl::CStringUtils::StringAsInt32((*propConf)["Utype"][0].getValueString());
 		else
 			propIndex = g_propIndexAuto++;
 
 		const char* defaultVal = "";
 		if(propConf->subNodeExist("Default"))
-			defaultVal = (*propConf)["Default"][0].text();
+			defaultVal = (*propConf)["Default"][0].getValueString();
 
 	    int32 nodeType = SLMODULE(Harbor)->getNodeType();
         if(nodeType == NodeType::SCENE && !hasCellFlags)
@@ -217,14 +217,14 @@ bool ObjectDefModule::loadDefMethods(const char* moduleName, const int8 type, co
 	static int32 g_methodIndexAuto = 1;
 	std::vector<sl::ISLXmlNode*> allMethodsConf = root.getAllChilds();
 	for (auto methodConf : allMethodsConf){
-		const char* methodName = methodConf->value();
+		const char* methodName = methodConf->name();
 		bool isExposed = false;
 		if (methodConf->subNodeExist("Exposed"))
 			isExposed = true;
 
 		int32 methodIndex = 0;
 		if(methodConf->subNodeExist("Utype"))
-			methodIndex = sl::CStringUtils::StringAsInt32((*methodConf)["Utype"][0].text());
+			methodIndex = sl::CStringUtils::StringAsInt32((*methodConf)["Utype"][0].getValueString());
 		else
 			methodIndex = g_methodIndexAuto++;
 
@@ -238,7 +238,7 @@ bool ObjectDefModule::loadDefMethods(const char* moduleName, const int8 type, co
 
 			pArgsList = NEW IDataType*[argsCount];
 			for (int32 i = 0; i < argsCount; i++){
-				const char* strType = args[i].text();
+				const char* strType = args[i].getValueString();
 				IDataType* arg = DataTypeMgr::getDataType(strType);
 				if(!arg){
 					printf("Module[%s]'s method[%s] Args DataType[%s] is null!\n", moduleName, methodName, strType);

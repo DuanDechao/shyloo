@@ -5,7 +5,7 @@
 #include "slconfig_engine.h"
 #include "slasync_engine.h"
 #include "sllog_engine.h"
-#include "slipc_engine.h"
+//#include "slipc_engine.h"
 #include <time.h>
 
 namespace sl
@@ -34,7 +34,7 @@ bool Kernel::ready(){
 	return ConfigEngine::getInstance() &&
 		TimerEngine::getInstance() &&
 		NetEngine::getInstance() &&
-		IPCEngine::getInstance() &&
+	//	IPCEngine::getInstance() &&
 		AsyncEngine::getInstance() &&
 		LogicEngine::getInstance() &&
 		LogEngine::getInstance();
@@ -42,13 +42,14 @@ bool Kernel::ready(){
 }
 
 bool Kernel::initialize(int32 argc, char ** argv){
+	_shutDown = false;
 	parse(argc, argv);
 
 	return ConfigEngine::getInstance()->initialize() &&
 		LogEngine::getInstance()->initialize() &&
 		TimerEngine::getInstance()->initialize() &&
 		NetEngine::getInstance()->initialize() &&
-		IPCEngine::getInstance()->initialize() &&
+	//	IPCEngine::getInstance()->initialize() &&
 		AsyncEngine::getInstance()->initialize() &&
 		LogicEngine::getInstance()->initialize();
 }
@@ -58,7 +59,7 @@ bool Kernel::destory(){
 	LogicEngine::getInstance()->destory();
 	TimerEngine::getInstance()->destory();
 	NetEngine::getInstance()->destory();
-	IPCEngine::getInstance()->destory();
+//	IPCEngine::getInstance()->destory();
 	LogEngine::getInstance()->destory();
 	ConfigEngine::getInstance()->destory();
 
@@ -71,19 +72,17 @@ void Kernel::loop() {
 	_shutDown = false;
 	while (!_shutDown){
 		int64 startTick = sl::getTimeMilliSecond();
-		int64 netTick = NetEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sNetlooptick);
-		int64 ipcTick = IPCEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sIpclooptick);
-		int64 timerTick = TimerEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sTimerlooptick);
-		int64 asyncTick = AsyncEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->sAsynclooptick);
+		int64 asyncTick = AsyncEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->gameUpdateTick);
+		int64 timerTick = TimerEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->gameUpdateTick);
+		int64 nextTimerExp = TimerEngine::getInstance()->getNextExp(ConfigEngine::getInstance()->getCoreConfig()->gameUpdateTick);
+		SLASSERT(nextTimerExp <= ConfigEngine::getInstance()->getCoreConfig()->gameUpdateTick, "wtf");
+		int64 netTick = NetEngine::getInstance()->loop(nextTimerExp);
+//		int64 ipcTick = IPCEngine::getInstance()->loop(ConfigEngine::getInstance()->getCoreConfig()->gameUpdateTick);
 		LogEngine::getInstance()->loop(0);
 
 		int64 useTick = sl::getTimeMilliSecond() - startTick;
-		if (useTick > ConfigEngine::getInstance()->getCoreConfig()->sLoopduration ||
-			netTick > ConfigEngine::getInstance()->getCoreConfig()->sNetlooptick ||
-			timerTick > ConfigEngine::getInstance()->getCoreConfig()->sTimerlooptick ||
-			asyncTick > ConfigEngine::getInstance()->getCoreConfig()->sAsynclooptick || 
-			ipcTick > ConfigEngine::getInstance()->getCoreConfig()->sIpclooptick){
-			ECHO_ERROR("Loop use %d(%d, %d, %d, %d)", useTick, netTick, ipcTick, asyncTick, timerTick);
+		if (useTick > 2* ConfigEngine::getInstance()->getCoreConfig()->gameUpdateTick){
+			ECHO_ERROR("Loop use %d(%d, %d, %d)", useTick, netTick, asyncTick, timerTick);
 		}
 		else{
 			CSLEEP(1);
@@ -98,20 +97,8 @@ const char* Kernel::getCmdArg(const char* name){
 	return nullptr;
 }
 
-const char* Kernel::getCoreFile(){
-	return ConfigEngine::getInstance()->getCoreFile();
-}
-
-const char* Kernel::getConfigFile(){
-	return ConfigEngine::getInstance()->getConfigFile();
-}
-
-const char* Kernel::getEnvirPath(){
-	return ConfigEngine::getInstance()->getEnvirPath();
-}
-
-const char* Kernel::getIpcPath(){
-	return ConfigEngine::getInstance()->getIpcPath();
+bool Kernel::reloadCoreConfig(const char* coreFile){
+	return ConfigEngine::getInstance()->loadCoreConfig(coreFile); 
 }
 
 bool Kernel::startTcpServer(api::ITcpServer * server, const char* ip, const int32 port, int32 sendSize, int32 recvSize){
@@ -167,11 +154,13 @@ void Kernel::asyncLog(int32 filter, const char* log, const char* file, const int
 }
 
 bool Kernel::addIPCServer(sl::api::ITcpServer* server, const int64 serverId){
-	return IPCEngine::getInstance()->addIPCServer(server, serverId);
+	return true;
+	//return IPCEngine::getInstance()->addIPCServer(server, serverId);
 }
 
 bool Kernel::addIPCClient(sl::api::ITcpSession* session, const int64 clientId, const int64 serverId, const int32 sendSize, const int32 recvSize){
-	return IPCEngine::getInstance()->addIPCClient(session, clientId, serverId, sendSize, recvSize);
+	return true;
+	//return IPCEngine::getInstance()->addIPCClient(session, clientId, serverId, sendSize, recvSize);
 }
 
 void Kernel::parse(int argc, char** argv){

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<modules path="./">
+	<module name="ResMgr" />
+	<module name="Harbor" />
+	<module name="Cluster" />
+	<module name="Capacity" />
+	<module name="EventEngine" />
+   	<module name="IdMgr" />
+    <module name="DCCenter" />
+    <module name="GlobalData" />
+	<module name="Account" />
+    <module name="MmoServer" />
+    <!--<module name="MysqlMgr" />-->
+    <!--<module name="Redis" />-->
+    <!--<module name="DBCreator" />-->
+    <!--<module name="CacheDB" />-->
+    <!--<module name="DB" />-->
+</modules>

@@ -14,14 +14,14 @@ namespace core{
 bool LogEngine::initialize(){
 	_terminate = false;
 
-	string syncFileName = ConfigEngine::getInstance()->getCoreConfig()->logFile + "_" + sl::getCurrentTimeStr("%4d_%02d_%02d_%02d_%02d_%02d_sync.log");
-	_syncLogFile.Init(sl::ENamed, ConfigEngine::getInstance()->getCoreConfig()->logPath.c_str(), syncFileName.c_str());
-	_syncLogFile.SetFormatByStr(ConfigEngine::getInstance()->getCoreConfig()->logFormat.c_str());
+//	string syncFileName = ConfigEngine::getInstance()->getCoreConfig()->logFile + "_" + sl::getCurrentTimeStr("%4d_%02d_%02d_%02d_%02d_%02d_sync.log");
+//	_syncLogFile.Init(sl::ENamed, ConfigEngine::getInstance()->getCoreConfig()->logPath.c_str(), syncFileName.c_str());
+//	_syncLogFile.SetFormatByStr(ConfigEngine::getInstance()->getCoreConfig()->logFormat.c_str());
 	
-	_asyncLogFile.SetFormatByStr(ConfigEngine::getInstance()->getCoreConfig()->logFormat.c_str());
-	_lastAsyncWriteTick = 0;
+//	_asyncLogFile.SetFormatByStr(ConfigEngine::getInstance()->getCoreConfig()->logFormat.c_str());
+//	_lastAsyncWriteTick = 0;
 
-	_thread = std::thread(&LogEngine::threadRun, this);
+//	_thread = std::thread(&LogEngine::threadRun, this);
 
 	return true;
 }

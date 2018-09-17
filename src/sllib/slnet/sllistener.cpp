@@ -62,6 +62,11 @@ void CSLListener::setPacketParser(ISLPacketParser* poPacketParser){
 	_pListenerReceiver->setPacketParser(poPacketParser);
 }
 
+uint16 CSLListener::getListenPort(){
+	network::Address address = _pListenEndPoint->getlocalAddress();
+	return address.port();
+}
+
 void CSLListener::release(){
 	DEL this;
 }

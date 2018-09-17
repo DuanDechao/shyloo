@@ -33,6 +33,13 @@ SET(PYSCRIPT
 	 "${PROJECT_SOURCE_DIR}/src/logic/pythonserver/pyscript/pyscript.cpp"
 )
 
+SET(TELNETSERVER
+	 "${PROJECT_SOURCE_DIR}/src/logic/pythonserver/telnetserver/TelnetServer.h"
+	 "${PROJECT_SOURCE_DIR}/src/logic/pythonserver/telnetserver/TelnetServer.cpp"
+	 "${PROJECT_SOURCE_DIR}/src/logic/pythonserver/telnetserver/TelnetSession.h"
+	 "${PROJECT_SOURCE_DIR}/src/logic/pythonserver/telnetserver/TelnetSession.cpp"
+)
+
 SET(PYTHONSERVER
 	 "${PROJECT_SOURCE_DIR}/src/logic/pythonserver/EntityScriptObject.h"
 	 "${PROJECT_SOURCE_DIR}/src/logic/pythonserver/EntityScriptObject.cpp"
@@ -73,6 +80,7 @@ SOURCE_GROUP(public FILES ${PUBLIC})
 SOURCE_GROUP(interface FILES ${SL_LOGIC_INTERFACE})
 SOURCE_GROUP(define FILES ${SL_LOGIC_DEFINE})
 SOURCE_GROUP(pyscript FILES ${PYSCRIPT})
+SOURCE_GROUP(telnetserver FILES ${TELNETSERVER})
 SOURCE_GROUP(\\ FILES ${PYTHONSERVER})
 
 ADD_LIBRARY(PythonServer SHARED
@@ -82,6 +90,7 @@ ADD_LIBRARY(PythonServer SHARED
 	${SL_LOGIC_INTERFACE}
 	${SL_LOGIC_DEFINE}
 	${PYSCRIPT}
+	${TELNETSERVER}
 )
 
 IF(WIN32)

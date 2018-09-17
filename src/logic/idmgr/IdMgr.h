@@ -25,7 +25,6 @@ public:
 private:
 	IdMgr*				_self;
 	IHarbor*			_harbor;
-	int32				_svrNodeType;
 	int32				_areaId;
 	int32				_poolSize;
 	std::vector<uint64>	_idPool;

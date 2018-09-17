@@ -36,7 +36,7 @@ void CSLConnector::setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize){
 
 bool CSLConnector::connect(const char* pszIP, uint16 wPort){
 	if (nullptr == _pSession || nullptr == _pNetworkInterface || _pPacketParser == nullptr
-		|| _dwRecvBufSize <= 0 || _dwSendBufSize <= 0){
+		|| _dwRecvBufSize < 0 || _dwSendBufSize < 0){
 		SLASSERT(false, "wtf");
 		return false;
 	}

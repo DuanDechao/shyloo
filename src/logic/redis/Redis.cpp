@@ -6,7 +6,7 @@ bool Redis::initialize(sl::api::IKernel * pKernel){
 	_slRedisMgr = sl::db::getSLRedisMgr();
 	_kernel = pKernel;
 
-	sl::XmlReader svrConf;
+	/*sl::XmlReader svrConf;
 	if (!svrConf.loadXml(pKernel->getCoreFile())){
 		SLASSERT(false, "cant load core file");
 		return false;
@@ -42,7 +42,7 @@ bool Redis::initialize(sl::api::IKernel * pKernel){
 		const char* script = scripts[i].text();
 		_scripts[proc] = script;
 	}
-
+*/
 	return true;
 }
 bool Redis::launched(sl::api::IKernel * pKernel){

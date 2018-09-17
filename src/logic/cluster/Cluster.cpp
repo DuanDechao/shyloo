@@ -1,7 +1,7 @@
 #include "Cluster.h"
 #include "NodeProtocol.h"
 #include "NodeDefine.h"
-#include "slxml_reader.h"
+#include "IResMgr.h"
 
 bool Cluster::initialize(sl::api::IKernel * pKernel){
 	_clusterReady = false;
@@ -9,21 +9,15 @@ bool Cluster::initialize(sl::api::IKernel * pKernel){
 }
 
 bool Cluster::launched(sl::api::IKernel * pKernel){
-	FIND_MODULE(_harbor, Harbor);
-	if (_harbor->getNodeType() != NodeType::MASTER){
-		RGS_NODE_HANDLER(_harbor, NodeProtocol::MASTER_MSG_NEW_NODE, Cluster::newNodeComing);
+	if (SLMODULE(Harbor)->getNodeType() != NodeType::MASTER){
+		RGS_NODE_HANDLER(SLMODULE(Harbor), NodeProtocol::MASTER_MSG_NEW_NODE, Cluster::newNodeComing);
 
-		sl::XmlReader server_conf;
-		if (!server_conf.loadXml(pKernel->getCoreFile())){
-			SLASSERT(false, "can't load core file %s", pKernel->getCoreFile());
-			return false;
-		}
-		_masterIp = server_conf.root()["master"][0].getAttributeString("ip");
-		_masterPort = server_conf.root()["master"][0].getAttributeInt32("port");
+		_masterIp = SLMODULE(ResMgr)->getResValueString("master/ip");
+		_masterPort = SLMODULE(ResMgr)->getResValueInt32("master/port");
 		START_TIMER(this, 0, 1, 1000);
 	}
 
-	RGS_NODE_HANDLER(_harbor, NodeProtocol::MASTER_MSG_SERVER_STARTED, Cluster::onClusterIsReady);
+	RGS_NODE_HANDLER(SLMODULE(Harbor), NodeProtocol::MASTER_MSG_SERVER_STARTED, Cluster::onClusterIsReady);
 	return true;
 }
 
@@ -38,19 +32,23 @@ void Cluster::newNodeComing(sl::api::IKernel* pKernel, const int32 nodeType, con
 	const char* ip = nullptr;
 	int32 port = 0;
 	args >> newNodeType >> newNodeId >> ip >> port;
-	
+
+	//同类型的节点不需要互连
+	if(SLMODULE(Harbor)->getNodeType() == newNodeType)
+		return;
+
 	int64 nodeIdx = ((int64)newNodeType << 32) | (int64)newNodeId;
 	if (_openNodes.find(nodeIdx) != _openNodes.end())
 		return;
 
-	if (_harbor->getNodeType() < newNodeType)
+	if (SLMODULE(Harbor)->getNodeType() < newNodeType)
 		return;
 
-	if (_harbor->getNodeType() == newNodeType && _harbor->getNodeId() >= newNodeId)
-		return;
+	//if (SLMODULE(Harbor)->getNodeType() == newNodeType && SLMODULE(Harbor)->getNodeId() >= newNodeId)
+	//	return;
 
 	_openNodes.insert(nodeIdx);
-	_harbor->connect(ip, port, newNodeType, newNodeId, isSameDeivce(pKernel->getLocalIp(), ip));
+	SLMODULE(Harbor)->connect(ip, port, newNodeType, newNodeId, isSameDeivce(pKernel->getLocalIp(), ip));
 }
 
 void Cluster::onClusterIsReady(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args){
@@ -59,7 +57,7 @@ void Cluster::onClusterIsReady(sl::api::IKernel* pKernel, const int32 nodeType, 
 
 
 void Cluster::onTime(sl::api::IKernel* pKernel, int64 timetick){
-	_harbor->connect(_masterIp.c_str(), _masterPort, -2, 1);
+	SLMODULE(Harbor)->connect(_masterIp.c_str(), _masterPort, -2, 1);
 }
 
 bool Cluster::isSameDeivce(const char* localIp, const char* remoteIp){

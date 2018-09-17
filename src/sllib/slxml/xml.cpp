@@ -5,7 +5,7 @@ namespace sl{
 namespace xml{
 
 CSLXmlNode::CSLXmlNode(const TiXmlElement* poTiXmlNode){
-	m_value = poTiXmlNode->Value();
+	m_name = poTiXmlNode->Value();
 	m_poTiXmlNode = poTiXmlNode;
 	loadChildren(poTiXmlNode);
 	loadAttributes(poTiXmlNode);
@@ -57,6 +57,35 @@ bool CSLXmlNode::getAttributeBoolean(const char* name) const{
 	return val ? val->AttrBoolean : false;
 }
 
+int8 CSLXmlNode::getValueInt8() const{
+	return sl::CStringUtils::StringAsInt8(m_value);
+}
+
+int16 CSLXmlNode::getValueInt16() const{
+	return sl::CStringUtils::StringAsInt16(m_value);
+}
+
+int32 CSLXmlNode::getValueInt32() const{
+	return sl::CStringUtils::StringAsInt32(m_value);
+}
+
+int64 CSLXmlNode::getValueInt64() const{
+	return sl::CStringUtils::StringAsInt64(m_value);
+}
+
+const char * CSLXmlNode::getValueString() const{
+	return m_value.c_str();
+}
+
+float CSLXmlNode::getValueFloat() const{
+	return sl::CStringUtils::StringAsFloat(m_value);
+}
+
+bool CSLXmlNode::getValueBoolean() const{
+	return sl::CStringUtils::StringAsBoolean(m_value);
+}
+
+
 const ISLXmlNode& CSLXmlNode::operator[](const char* nodeName) const{
 	if (nullptr == nodeName){
 		SLASSERT(false, "invalid params");
@@ -97,7 +126,7 @@ void CSLXmlNode::loadAttributes(const TiXmlElement* element){
 
 void CSLXmlNode::loadText(const TiXmlElement* element){
 	if (element->GetText())
-		m_text = element->GetText();
+		m_value = element->GetText();
 }
 
 const CSLXmlNode::AttrVal* CSLXmlNode::findAttr(const char* name) const{

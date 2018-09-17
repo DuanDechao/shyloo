@@ -39,7 +39,7 @@ bool ScriptEngine::initialize(sl::api::IKernel * pKernel){
 	_state = SLLua_newState();
 	luaL_openlibs(_state);
 
-	char scriptPath[game::MAX_PATH_LEN] = { 0 };
+	/*char scriptPath[game::MAX_PATH_LEN] = { 0 };
 	SafeSprintf(scriptPath, sizeof(scriptPath), "%s/script/", pKernel->getEnvirPath());
 	addSearchPath(pKernel, scriptPath);
 
@@ -47,6 +47,7 @@ bool ScriptEngine::initialize(sl::api::IKernel * pKernel){
 		SLASSERT(false, "load entry script file failed");
 		return false;
 	}
+	*/
 
 	_callor = NEW ScriptCallor(this);
 

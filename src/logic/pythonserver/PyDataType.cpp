@@ -622,12 +622,12 @@ void* PyListType::parseDefaultStr(const char* defaultValStr){
 
 bool PyFixedArrayType::initType(const sl::ISLXmlNode* typeNode){
 	if(!typeNode->subNodeExist("of") || (*typeNode)["of"].count() != 1){
-		printf("error!! alias type[%s] has no of!!\n", typeNode->value());
+		printf("error!! alias type[%s] has no of!!\n", typeNode->name());
 		return false;
 	}
 
 	const sl::ISLXmlNode& subTypeNode = (*typeNode)["of"][0];
-	std::string strType = subTypeNode.text();
+	std::string strType = subTypeNode.getValueString();
 	if(strType == "ARRAY"){
 		PyFixedArrayType* dataType = NEW PyFixedArrayType();
 		if(!dataType->initType(&subTypeNode)){
@@ -721,7 +721,7 @@ PyObject* PyFixedArrayType::createNewFromObj(PyObject* pyobj){
 
 bool PyFixedDictType::initType(const sl::ISLXmlNode* typeNode){
 	if(!typeNode->subNodeExist("Properties")){
-		printf("error!! alias type[%s] has no Properties!!\n", typeNode->value());
+		printf("error!! alias type[%s] has no Properties!!\n", typeNode->name());
 		return false;
 	}
 
@@ -730,14 +730,14 @@ bool PyFixedDictType::initType(const sl::ISLXmlNode* typeNode){
 
 	std::string typeName = "", strType = "";
 	for(auto subType : allPropNode){
-		typeName = subType->value();
+		typeName = subType->name();
 		if(!subType->subNodeExist("Type") || (*subType)["Type"].count() != 1){
-			printf("error! aliasType[%s]'s subType[%s] has no Type attribute!!\n", typeNode->value(), typeName.c_str());
+			printf("error! aliasType[%s]'s subType[%s] has no Type attribute!!\n", typeNode->name(), typeName.c_str());
 			return false;
 		}
 
 		const sl::ISLXmlNode& subTypeNode = (*subType)["Type"][0];
-		strType = subTypeNode.text();
+		strType = subTypeNode.getValueString();
 		if(strType == "ARRAY"){
 			PyFixedArrayType* dataType = NEW PyFixedArrayType();
 			if(!dataType->initType(&subTypeNode)){
@@ -762,7 +762,7 @@ bool PyFixedDictType::initType(const sl::ISLXmlNode* typeNode){
 	}
 
 	if(typeNode->subNodeExist("implementedBy")){
-		 strType = (*typeNode)["implementedBy"][0].text();
+		 strType = (*typeNode)["implementedBy"][0].getValueString();
 		 if(strType.size() > 0 && !loadImplModule(strType)){
 			 printf("PyFixedDictType::initType: loadImplModule is error\n");
 			 return false;
@@ -771,7 +771,7 @@ bool PyFixedDictType::initType(const sl::ISLXmlNode* typeNode){
 	}
 
 	if(_dictItems.size() == 0){
-		printf("FixedDictType::initType: FIXED_DICT(%s) no keys!\n", typeNode->value());
+		printf("FixedDictType::initType: FIXED_DICT(%s) no keys!\n", typeNode->name());
 		return false;
 	}
 

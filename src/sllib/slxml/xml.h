@@ -15,13 +15,19 @@ class CSLXMLNull : public ISLXmlNode{
 	virtual const char* SLAPI getAttributeString(const char* name)const { SLASSERT(false, "this is null xml node"); return nullptr; }
 	virtual float SLAPI getAttributeFloat(const char* name)const { SLASSERT(false, "this is null xml node"); return 0.0; }
 	virtual bool SLAPI getAttributeBoolean(const char* name) const { SLASSERT(false, "this is null xml node"); return false; }
+	virtual int8 SLAPI getValueInt8() const { SLASSERT(false, "this is null xml node"); return 0; }
+	virtual int16 SLAPI getValueInt16()const { SLASSERT(false, "this is null xml node"); return 0; }
+	virtual int32 SLAPI getValueInt32()const { SLASSERT(false, "this is null xml node"); return 0; }
+	virtual int64 SLAPI getValueInt64()const { SLASSERT(false, "this is null xml node"); return 0; }
+	virtual const char* SLAPI getValueString()const { SLASSERT(false, "this is null xml node"); return nullptr; }
+	virtual float SLAPI getValueFloat()const { SLASSERT(false, "this is null xml node"); return 0.0; }
+	virtual bool SLAPI getValueBoolean() const { SLASSERT(false, "this is null xml node"); return false; }
 	virtual const ISLXmlNode& SLAPI operator[] (const char* nodeName)const { SLASSERT(false, "this is null xml node"); return *this; }
 	virtual const ISLXmlNode& SLAPI operator[](const int32 i)const { SLASSERT(false, "this is null xml node"); return *this; }
 	virtual const int32 SLAPI count(void) const { SLASSERT(false, "this is null xml node"); return 0; }
 	virtual bool SLAPI hasAttribute(const char* name)const{ SLASSERT(false, "this is null xml node"); return false; }
 	virtual bool SLAPI subNodeExist(const char* name) const { SLASSERT(false, "this is null xml node"); return false; }
-	virtual const char* SLAPI text() const { SLASSERT(false, "this is null xml node"); return nullptr; }
-	virtual const char* SLAPI value() const { SLASSERT(false, "this is null xml node"); return nullptr; }
+	virtual const char* SLAPI name() const { SLASSERT(false, "this is null xml node"); return nullptr; }
 	virtual const std::vector<ISLXmlNode*>& SLAPI getAllChilds() const { SLASSERT(false, "this is null xml node"); return _emptyNodes; }
 
 private:
@@ -48,6 +54,13 @@ public:
 	virtual const char* SLAPI getAttributeString(const char* name) const;
 	virtual float SLAPI getAttributeFloat(const char* name) const;
 	virtual bool SLAPI getAttributeBoolean(const char* name) const;
+	virtual int8 SLAPI getValueInt8() const;
+	virtual int16 SLAPI getValueInt16()const;
+	virtual int32 SLAPI getValueInt32()const;
+	virtual int64 SLAPI getValueInt64()const;
+	virtual const char* SLAPI getValueString()const;
+	virtual float SLAPI getValueFloat()const;
+	virtual bool SLAPI getValueBoolean() const;
 	virtual const ISLXmlNode& SLAPI operator[] (const char* nodeName) const;
 	virtual const ISLXmlNode& SLAPI operator[](const int32 i) const { SLASSERT(false, "this is xml node"); return m_xmlNull; }
 	virtual const int32 SLAPI count(void) const { SLASSERT(false, "this is xml node"); return 0; }
@@ -58,8 +71,7 @@ public:
 	}
 	virtual const std::vector<ISLXmlNode*>& SLAPI getAllChilds() const { return m_allChilds; }
 
-	virtual const char* SLAPI text() const { return m_text.c_str(); }
-	virtual const char* SLAPI value() const { return m_value.c_str(); }
+	virtual const char* SLAPI name() const { return m_name.c_str(); }
 	virtual bool SLAPI subNodeExist(const char* name) const { return m_xmlChilds.find(name) != m_xmlChilds.end(); }
 	void loadChildren(const TiXmlElement* element);
 	void loadAttributes(const TiXmlElement* element);
@@ -69,15 +81,15 @@ private:
 	std::map<std::string, CSLXmlArray*> m_xmlChilds;
 	std::vector<ISLXmlNode*> m_allChilds;
 	std::map<std::string, AttrVal> m_xmlAttrs;
-	std::string m_text;
 	std::string m_value;
+	std::string m_name;
 	CSLXMLNull	m_xmlNull;
 	const TiXmlElement* m_poTiXmlNode;
 };
 
 class CSLXmlArray : public ISLXmlNode{
 public:
-	CSLXmlArray(const char* value) :m_value(value){}
+	CSLXmlArray(const char* name) :m_name(name){}
 	virtual	~CSLXmlArray(){
 		for (int32 i = 0; i < (int32)m_elements.size(); i++){
 			DEL m_elements[i];
@@ -91,6 +103,13 @@ public:
 	virtual const char* SLAPI getAttributeString(const char* name) const { SLASSERT(false, "this is xml array"); return nullptr; }
 	virtual float SLAPI getAttributeFloat(const char* name) const { SLASSERT(false, "this is xml array"); return 0.0; }
 	virtual bool SLAPI getAttributeBoolean(const char* name) const { SLASSERT(false, "this is xml array"); return false; }
+	virtual int8 SLAPI getValueInt8() const { SLASSERT(false, "this is xml array"); return 0; }
+	virtual int16 SLAPI getValueInt16()const { SLASSERT(false, "this is xml array"); return 0; }
+	virtual int32 SLAPI getValueInt32()const { SLASSERT(false, "this is xml array"); return 0; }
+	virtual int64 SLAPI getValueInt64()const { SLASSERT(false, "this is xml array"); return 0; }
+	virtual const char* SLAPI getValueString()const { SLASSERT(false, "this is xml array"); return nullptr; }
+	virtual float SLAPI getValueFloat()const { SLASSERT(false, "this is xml array"); return 0.0; }
+	virtual bool SLAPI getValueBoolean() const { SLASSERT(false, "this is xml array"); return false; }
 	virtual bool SLAPI hasAttribute(const char* name)const{ SLASSERT(false, "this is xml array"); return false; }
 	virtual bool SLAPI subNodeExist(const char* name) const { SLASSERT(false, "this is xml array"); return false; }
 	virtual const ISLXmlNode& SLAPI operator[] (const char* nodeName)const { SLASSERT(false, "this is xml array"); return *this; }
@@ -104,15 +123,14 @@ public:
 	virtual const std::vector<ISLXmlNode*>& SLAPI getAllChilds() const { SLASSERT(false, "this is xml array"); return _emptyNodes; }
 
 	virtual const int32 SLAPI count(void) const { return (int32)m_elements.size(); }
-	virtual const char* SLAPI text() const { SLASSERT(false, "this is xml array"); return nullptr; }
-	virtual const char* SLAPI value() const { return m_value.c_str(); }
+	virtual const char* SLAPI name() const { return m_name.c_str(); }
 	void addElement(CSLXmlNode* poXmlNode){
 		if (poXmlNode)
 			m_elements.push_back(poXmlNode);
 	}
 private:
 	std::vector<CSLXmlNode*> m_elements;
-	std::string m_value;
+	std::string m_name;
 	CSLXMLNull	m_xmlNull;
 	std::vector<ISLXmlNode*> _emptyNodes;
 };

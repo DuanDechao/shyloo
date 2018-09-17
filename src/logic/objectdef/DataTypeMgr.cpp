@@ -35,8 +35,8 @@ bool DataTypeMgr::loadAlias(const char* file){
 	
 	const std::vector<sl::ISLXmlNode*>& types = conf.root().getAllChilds();
 	for (auto type : types){
-		string aliasName = type->value();
-		string value = type->text();
+		string aliasName = type->name();
+		string value = type->getValueString();
 		IDataType* dataType = DataTypeMgr::getDataType(value.c_str());
 		if(NULL == dataType){
 			dataType = SLMODULE(PythonServer)->createPyDataTypeFromXml(value.c_str(), type);
@@ -63,7 +63,7 @@ uint16 DataTypeMgr::getType(const uint32 uid){
 }
 
 IDataType* DataTypeMgr::getDataType(const sl::ISLXmlNode& typeNode){
-	const char* name = typeNode.text();
+	const char* name = typeNode.getValueString();
 	IDataType* dataType = getDataType(name);
 	if(!dataType)
 		return SLMODULE(PythonServer)->createPyDataTypeFromXml(name, &typeNode);

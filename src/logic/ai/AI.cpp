@@ -10,7 +10,7 @@ bool AI::initialize(sl::api::IKernel * pKernel){
 	_self = this;
 	_kernel = pKernel;
 
-	char path[256] = { 0 };
+	/*char path[256] = { 0 };
 	SafeSprintf(path, sizeof(path)-1, "%s/ai", pKernel->getEnvirPath());
 
 	bool ret = true;
@@ -24,8 +24,8 @@ bool AI::initialize(sl::api::IKernel * pKernel){
 		conf.machine = AILoader::load(pKernel, path, conf.interval);
 		_ais[name] = conf;
 	});
-
-	return ret;
+*/
+	return true;
 }
 
 bool AI::launched(sl::api::IKernel * pKernel){

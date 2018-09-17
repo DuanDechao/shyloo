@@ -16,7 +16,7 @@ public:
 	virtual ~IAgent() {}
 
 	virtual void setListener(IAgentListener* pListener) = 0;
-
+	virtual void setPort(const int16 port) = 0;
 	virtual void send(const int64 id, const void* pBuf, const int32 size) = 0;
 	virtual void kick(const int64 id) = 0;
 };

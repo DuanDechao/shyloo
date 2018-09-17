@@ -7,6 +7,7 @@
 #include "slargs.h"
 #include "sltime.h"
 #include "NodeDefine.h"
+#include "IResMgr.h"
 
 #define SEQUENCE_MASK 0x001F
 #define TIMETICK_MASK 0x0001FFFFFFFFFFFF
@@ -19,18 +20,10 @@
 
 bool IdMgr::initialize(sl::api::IKernel * pKernel){
 	_self = this;
-
-	sl::XmlReader server_conf;
-	if (!server_conf.loadXml(pKernel->getCoreFile())){
-		SLASSERT(false, "can't load core file %s", pKernel->getCoreFile());
-		return false;
-	}
-	const sl::ISLXmlNode& idConf = server_conf.root()["id"][0];
-	_bIsMultiProcess = idConf.getAttributeBoolean("multiProc");
+	_bIsMultiProcess = true;
 	if (_bIsMultiProcess){
-		_svrNodeType = idConf.getAttributeInt32("server");
-		_areaId = idConf.getAttributeInt32("area");
-		_poolSize = idConf.getAttributeInt32("poolSize");
+		_areaId = SLMODULE(ResMgr)->getResValueInt32("hostID");
+		_poolSize = SLMODULE(ResMgr)->getResValueInt32("ids/desiredSize");
 	}
 	return true;
 }
@@ -57,7 +50,7 @@ void IdMgr::onTime(sl::api::IKernel* pKernel, int64 timetick){
 	if ((int32)_idPool.size() < _poolSize){
 		sl::BStream<32> args;
 		args << 0;
-		_harbor->send(_svrNodeType, 1, NodeProtocol::ASK_FOR_ALLOC_ID_AREA, args.out());
+		_harbor->send(NodeType::MASTER, 1, NodeProtocol::ASK_FOR_ALLOC_ID_AREA, args.out());
 	}
 }
 

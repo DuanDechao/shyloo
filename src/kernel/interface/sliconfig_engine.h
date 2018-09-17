@@ -10,23 +10,10 @@ namespace core
 {
 struct sCoreConfig{
 	//server logic main loop frame tick
-	int32 sLoopduration;
-
-	//socket module
-	int32 sNetlooptick;		//net logic loop frame tick
-
-	//ipc module
-	int32 sIpclooptick;
-
-	//timer module
-	int32 sTimerlooptick;
-
-	//async module
-	int32 sAsynclooptick;
-
-	// async thread num
-	int32 sAsyncThreadNum;
-
+	int32 gameUpdateTick;
+	int32 maxAsyncThreadNum;
+	int32 channelReadBufferSize;
+	int32 channelWriteBufferSize;
 	//log
 	std::string logPath;
 	std::string logFile;

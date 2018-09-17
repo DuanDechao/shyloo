@@ -25,6 +25,7 @@ public:
 	virtual void SLAPI resumeTimer(SLTimerHandler pTimer);
 	virtual int64 SLAPI process(int64 overTime);
 	virtual void SLAPI release();
+	virtual int64 SLAPI getNextExp(int64 maxTime);
 
 public:
 	SLTimerMgr();

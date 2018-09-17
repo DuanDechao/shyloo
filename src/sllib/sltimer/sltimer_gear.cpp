@@ -89,5 +89,15 @@ void SLTimerGear::update(){
 
 }
 
+int64 SLTimerGear::getNextExp(int32 maxOffsetSlot){
+	int32 step = 0;
+	while(step < maxOffsetSlot && (_nowSlot + step) <= _maxSlotNum){
+		if(!_slots[_nowSlot+step].isEmpty())
+			break;
+		step++;
+	}
+	return step ? step : 1; 
+}
+
 }
 }

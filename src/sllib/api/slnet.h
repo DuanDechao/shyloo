@@ -39,6 +39,7 @@ public:
 	virtual void SLAPI setPacketParser(ISLPacketParser* poPacketParser) = 0;
 	virtual bool SLAPI start(const char* pszIP, uint16 wPort, bool bReUseAddr = true) = 0;
 	virtual bool SLAPI stop(void) = 0;
+	virtual uint16 SLAPI getListenPort(void) = 0;
 	virtual void SLAPI release(void) = 0;
 };
 

@@ -13,7 +13,7 @@ bool AsyncEngine::ready(){
 
 bool AsyncEngine::initialize(){
 	const sCoreConfig* conf = ConfigEngine::getInstance()->getCoreConfig();
-	int32 threadCount = conf->sAsyncThreadNum;
+	int32 threadCount = conf->maxAsyncThreadNum;
 	if (threadCount > 0){
 		for (int32 i = 0; i < threadCount; i++){
 			AsyncThread* t = NEW AsyncThread;

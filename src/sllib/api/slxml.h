@@ -15,13 +15,19 @@ public:
 	virtual const char* SLAPI getAttributeString(const char* name) const = 0;
 	virtual float SLAPI getAttributeFloat(const char* name) const = 0;
 	virtual bool SLAPI getAttributeBoolean(const char* name) const = 0;
+	virtual int8 SLAPI getValueInt8() const = 0;
+	virtual int16 SLAPI getValueInt16() const = 0;
+	virtual int32 SLAPI getValueInt32() const  = 0;
+	virtual int64 SLAPI getValueInt64() const  = 0;
+	virtual const char* SLAPI getValueString() const = 0;
+	virtual float SLAPI getValueFloat() const = 0;
+	virtual bool SLAPI getValueBoolean() const = 0;
 	virtual const ISLXmlNode& SLAPI operator[](const char* nodeName) const = 0;
 	virtual const ISLXmlNode& SLAPI operator[](const int32 i) const = 0;
 	virtual const int32 SLAPI count(void) const = 0;
 	virtual bool SLAPI hasAttribute(const char* name) const = 0;
 	virtual bool SLAPI subNodeExist(const char* name) const = 0;
-	virtual const char* SLAPI text() const = 0;
-	virtual const char* SLAPI value() const = 0;
+	virtual const char* SLAPI name() const = 0;
 	virtual const std::vector<ISLXmlNode*>& SLAPI getAllChilds() const = 0;
 };
 

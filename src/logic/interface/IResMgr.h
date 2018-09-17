@@ -10,6 +10,10 @@ public:
 	virtual std::string getPyUserScriptsPath() = 0; 
 	virtual bool hasRes(const std::string& res) = 0;
 	virtual std::string matchRes(const std::string& res) = 0;
+	virtual int32 getResValueInt32(const char* attr) = 0;
+	virtual int64 getResValueInt64(const char* attr) = 0;
+	virtual const char* getResValueString(const char* attr) = 0;
+	virtual bool getResValueBoolean(const char* attr) = 0;
 };
 
 #endif

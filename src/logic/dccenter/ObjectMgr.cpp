@@ -80,7 +80,7 @@ void ObjectMgr::onTime(sl::api::IKernel* pKernel, int64 timetick){
 	//uint64 playerId = player->getID();
 	//ECHO_TRACE("player id:%llu", player->getID());
 }
-
+/*
 bool ObjectMgr::initPropDefineConfig(sl::api::IKernel * pKernel){
 	char path[256] = { 0 };
 	SafeSprintf(path, sizeof(path), "%s/object.xml", pKernel->getEnvirPath());
@@ -109,7 +109,7 @@ bool ObjectMgr::initPropDefineConfig(sl::api::IKernel * pKernel){
 	}
 	return true;
 }
-
+*/
 bool ObjectMgr::appendTableColumnInfo(const char* tableName, const int16 type, const int32 typeSize, bool isKey){
 	int32 nameId = sl::CalcStringUniqueId(tableName);
 	auto itor = _tablesInfo.find(nameId);
@@ -124,7 +124,7 @@ bool ObjectMgr::appendTableColumnInfo(const char* tableName, const int16 type, c
 
 	return true;
 }
-
+/*
 bool ObjectMgr::loadObjectPropConfig(sl::api::IKernel * pKernel){
 	char path[256] = { 0 };
 	SafeSprintf(path, sizeof(path)-1, "%s/dccenter", pKernel->getEnvirPath());
@@ -191,7 +191,7 @@ ObjectPropInfo* ObjectMgr::queryTemplate(sl::api::IKernel* pKernel, const char* 
 
 	return createTemplate(pKernel, objectName);
 }
-
+*/
 const int32 ObjectMgr::getObjectType(const char* objectType){
     auto itor = _objPropInfo.find(objectType);
     if(itor == _objPropInfo.end())
