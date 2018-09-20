@@ -3,6 +3,7 @@
 #include "IResMgr.h"
 #include "pyscript/pickler.h"
 #include "pyscript/py_gc.h"
+#include "pyscript/scriptstdouterrhook.h"
 #define SCRIPT_PATH																		\
 					"../../../server/res/server/scripts;"								\
 					"../../../server/res/server/scripts/common;"						\
@@ -62,5 +63,55 @@ bool PyScript::install(const char* pythonHomeDir, const char* pyPaths, const cha
 	sl::pyscript::Pickler::initialize();
 	sl::pyscript::PyGC::initialize();
 
+	sl::pyscript::ScriptStdErr::installScript(NULL);
+	sl::pyscript::ScriptStdOut::installScript(NULL);
+
 	return true;
 }
+
+bool PyScript::runSimpleString(const char* command, std::string* retPtr){
+	if(command == NULL)
+		return false;
+
+	if(retPtr != NULL){
+		sl::pyscript::ScriptStdOutErrHook* pStdOutErrHook = NEW sl::pyscript::ScriptStdOutErrHook();
+		if(!pStdOutErrHook->install()){
+			printf("Script::runSimpleString: outErrHook install failed\n");
+			SCRIPT_ERROR_CHECK();
+			DEL pStdOutErrHook;
+			return false;
+		}
+
+		pStdOutErrHook->setHookBuffer(retPtr);
+
+		PyObject *m, *d, *v;
+		m = PyImport_AddModule("__main__");
+		if(m == NULL){
+			SCRIPT_ERROR_CHECK();
+			pStdOutErrHook->uninstall();
+			DEL pStdOutErrHook;
+			return false;
+		}
+
+		d = PyModule_GetDict(m);
+		v = PyRun_String(command, Py_single_input, d, d);
+		if( v == NULL ){
+			PyErr_Print();
+			pStdOutErrHook->uninstall();
+			DEL pStdOutErrHook;
+			return false;
+		}
+
+		Py_DECREF(v);
+		SCRIPT_ERROR_CHECK();
+
+		pStdOutErrHook->uninstall();
+		DEL pStdOutErrHook;
+		return true; 
+	}
+
+	PyRun_SimpleString(command);
+	SCRIPT_ERROR_CHECK();
+	return true;
+}
+

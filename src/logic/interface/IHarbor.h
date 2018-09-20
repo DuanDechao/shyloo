@@ -38,6 +38,7 @@ public:
 	virtual const int32 getNodeType() const = 0;
 	virtual const int32 getNodeId() const = 0;
 	virtual const char* getNodeName(int32 nodeType) = 0;
+	virtual const char* getNodeTypeStr() const = 0;
 	virtual void setPort(uint16 port) = 0;
 	virtual void setLocalNodeId(int32 nodeId) = 0;
 };

@@ -105,3 +105,28 @@ void PythonEngine::decTracing(std::string name){
 	sl::pyscript::PyGC::decTracing(name);
 }
 
+bool PythonEngine::runSimpleString(std::string command, std::string& ret){
+	if(command.size() == 0)
+		return false;
+
+	command += "\n";
+	PyObject* pycmd = PyUnicode_DecodeUTF8(command.data(), command.size(), NULL);
+	if(!pycmd){
+		if(PyErr_Occurred()){
+			PyErr_PrintEx(0);
+		}
+		return false;
+	}
+
+	PyObject* pycmd1 = PyUnicode_AsEncodedString(pycmd, "utf-8", NULL);
+	if(!_pyScript.runSimpleString(PyBytes_AsString(pycmd1), &ret)){
+		Py_DECREF(pycmd);
+		Py_DECREF(pycmd1);
+		return false;
+	}
+
+	Py_DECREF(pycmd);
+	Py_DECREF(pycmd1);
+	return true;
+}
+

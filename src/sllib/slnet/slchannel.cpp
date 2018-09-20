@@ -326,7 +326,11 @@ void Channel::processPackets(){
 	int32 used = 0;
 	int32 totalUsed = 0;
 	do{
-		used = _pPacketParser->parsePacket(data + totalUsed, dataSize - totalUsed);
+		if(_pPacketParser)
+			used = _pPacketParser->parsePacket(data + totalUsed, dataSize - totalUsed);
+		else
+			used = dataSize;
+
 		if (used > 0){
 			SLASSERT(totalUsed + used <= dataSize, "wtf");
 			_pSession->onRecv(data + totalUsed, used);

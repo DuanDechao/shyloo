@@ -22,6 +22,7 @@ public:
 	virtual bool destory();
 
 	virtual bool addTcpServer(sl::api::ITcpServer* server, const char* ip, const short port, int sendSize, int recvSize);
+	virtual bool addTelnetServer(sl::api::ITcpServer* server, const char* ip, const short port);
 	virtual bool addTcpClient(sl::api::ITcpSession* session, const char* ip, const short port, int sendSize, int recvSize);
 	virtual const char* getInternetIp() { return m_ip; }
 	virtual const char* getLocalIp() { return m_localIp; }

@@ -8,6 +8,7 @@
 #include "slmemorystream.h"
 #include <sstream>
 #include "slbinary_stream.h"
+#include "utf8/utf8.h"
 using namespace std;
 namespace sl
 {
@@ -322,6 +323,24 @@ public:
 			*(pOutStream.getBuffer() + slen) = 0;
 			pOutStream.skip(slen + 1);
 		}
+	}
+	static bool wchar2utf8(const std::wstring& wstr, std::string& utf8str){
+		try{
+			std::string utf8str2;
+			utf8str2.resize(wstr.size() * 4);                   // allocate for most long case
+
+			char* oend = utf8::utf16to8(wstr.c_str(), 
+									wstr.c_str() + wstr.size(), &utf8str2[0]);
+
+			utf8str2.resize(oend - (&utf8str2[0]));             // remove unused tail
+			utf8str = utf8str2;
+		}
+		catch (std::exception){
+			utf8str = "";
+			return false;
+		}
+
+		return true;
 	}
 };
 

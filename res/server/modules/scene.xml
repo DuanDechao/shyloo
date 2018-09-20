@@ -11,6 +11,7 @@
     <module name="PythonEngine" />
     <module name="ObjectDef" />
     <module name="PythonServer" />
+    <module name="TelnetServer" />
     <module name="ObjectTimer" />
 	<module name="MmoServer" />
     <module name="Scene" />

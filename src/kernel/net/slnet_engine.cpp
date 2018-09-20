@@ -37,6 +37,8 @@ char g_localIpPrefix[MAX_LOCAL_IP_PREFIX_NUM][MAX_IP_LEN] = {
 	"192.168.",
 };
 
+#define DEFAULT_BUFFER_SIZE 16777216
+
 NetEngine::~NetEngine(){
 	if (m_pSLNetModule)
 		m_pSLNetModule->release();
@@ -82,9 +84,28 @@ bool NetEngine::addTcpServer(sl::api::ITcpServer* server, const char* ip, const 
 	}
 
 	server->setListenPort(pListener->getListenPort());
-
 	return true;
 }
+
+bool NetEngine::addTelnetServer(sl::api::ITcpServer* server, const char* ip, const short port){
+	if(nullptr == m_pSLNetModule)
+		return false;
+
+	ISLListener* pListener = m_pSLNetModule->createListener();
+	if (nullptr == pListener)
+		return false;
+
+	pListener->setBufferSize(DEFAULT_BUFFER_SIZE, DEFAULT_BUFFER_SIZE);
+	pListener->setSessionFactory(NEW ServerSessionFactory(server));
+	if (!pListener->start(ip, port)){
+		//SLASSERT(false);
+		return false;
+	}
+
+	server->setListenPort(pListener->getListenPort());
+	return true;
+}
+
 bool NetEngine::addTcpClient(sl::api::ITcpSession* session, const char* ip, const short port, int sendSize, int recvSize){
 	if (nullptr == m_pSLNetModule)
 		return false;

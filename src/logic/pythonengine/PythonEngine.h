@@ -24,6 +24,7 @@ public:
 	virtual void incTracing(std::string name);
 	virtual void decTracing(std::string name);
 	virtual void addScriptIntConstant(const char* varName, int32 value);
+	virtual bool runSimpleString(std::string command, std::string& ret);
 
 private:
 	bool initPyEnvir(sl::api::IKernel* pKernel);

@@ -39,6 +39,7 @@ SET(SL_LOGIC_INTERFACE
     "${PROJECT_SOURCE_DIR}/src/logic/interface/IObjectDef.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IPythonEngine.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IPythonServer.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/ITelnetServer.h"
     "${PROJECT_SOURCE_DIR}/src/logic/interface/IMmoServer.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IResMgr.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/INavigation.h"
@@ -99,4 +100,5 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/mmoserver)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/resmgr)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/navigation)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/globaldata)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/telnetserver)
 

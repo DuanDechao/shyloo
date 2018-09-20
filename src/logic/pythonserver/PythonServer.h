@@ -9,12 +9,13 @@
 #include "IMonitor.h"
 #include "slsingleton.h"
 #include "GlobalData.h"
+#include "ITelnetServer.h"
 #include "pyscript/pyscript.h"
 class Base;
 class Entity;
 class Proxy;
 class ScriptDefModule;
-class PythonServer : public IPythonServer, public IMonitorListener, public sl::api::ITimer, public sl::SLHolder<PythonServer>{
+class PythonServer : public IPythonServer, public IMonitorListener, public ITelnetHandler, public sl::api::ITimer, public sl::SLHolder<PythonServer>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);
@@ -53,6 +54,8 @@ public:
 	virtual bool onServerReadyForLogin(sl::api::IKernel* pKernel);
 	virtual bool onServerReadyForShutDown(sl::api::IKernel* pKernel);
 	virtual bool onServerShutDown(sl::api::IKernel* pKernel);
+
+	virtual bool processTelnetCommand(std::string command, std::string& retBuf);
 
     //void onCellEntityCreatedFromCell(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args);
     

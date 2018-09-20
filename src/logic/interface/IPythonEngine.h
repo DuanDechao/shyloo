@@ -18,6 +18,7 @@ public:
 	virtual void incTracing(std::string name) = 0;
 	virtual void decTracing(std::string name) = 0;
 	virtual void addScriptIntConstant(const char* varName, int32 value) = 0;
+	virtual bool runSimpleString(std::string command, std::string& ret) = 0;
 };
 
 #endif

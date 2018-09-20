@@ -133,6 +133,7 @@ public:
 
 	//net interface
 	virtual bool startTcpServer(api::ITcpServer * server, const char* ip, const int32 port, int32 sendSize = 0, int32 recvSize = 0) = 0;
+	virtual bool startTelnetServer(sl::api::ITcpServer* server, const char* ip, const int32 port) = 0;
 	virtual bool startTcpClient(api::ITcpSession * client, const char* ip, const int32 port, int32 sendSize = 0, int32 recvSize = 0) = 0;
 	virtual const char* getInternetIp() = 0;
 	virtual const char* getLocalIp() = 0;

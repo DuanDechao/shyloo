@@ -17,6 +17,7 @@
 #include "PyDataType.h"
 #include "pyscript/py_gc.h"
 #include "IPythonEngine.h"
+#include "ITelnetServer.h"
 
 PythonServer* PythonServer::s_self = nullptr;
 bool PythonServer::initialize(sl::api::IKernel * pKernel){
@@ -101,6 +102,7 @@ bool PythonServer::launched(sl::api::IKernel * pKernel){
 	RGS_NODE_HANDLER(SLMODULE(Harbor), NodeProtocol::REMOTE_NEW_ENTITY_MAIL, PythonServer::onRemoteNewEntityMail);
 
 	SLMODULE(Monitor)->addListener(this);
+	SLMODULE(TelnetServer)->rgsTelnetHandler("python", this);
 	
     return true;
 }
@@ -894,4 +896,8 @@ bool PythonServer::onServerReadyForShutDown(sl::api::IKernel* pKernel){
 
 bool PythonServer::onServerShutDown(sl::api::IKernel* pKernel){
 	return true;
+}
+
+bool PythonServer::processTelnetCommand(std::string command, std::string& retBuf){
+	return SLMODULE(PythonEngine)->runSimpleString(command, retBuf);
 }

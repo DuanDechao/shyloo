@@ -36,7 +36,6 @@ bool IdMgr::launched(sl::api::IKernel * pKernel){
 		}
 		else{
 			RGS_NODE_HANDLER(_harbor, NodeProtocol::GIVE_ID_AREA, IdMgr::giveIds);
-			START_TIMER(_self, 1000, TIMER_BEAT_FOREVER, ASK_TIME_INTERVAL);
 		}
 	}
 	return true;
@@ -44,6 +43,18 @@ bool IdMgr::launched(sl::api::IKernel * pKernel){
 bool IdMgr::destory(sl::api::IKernel * pKernel){
 	DEL this;
 	return true;
+}
+	
+void IdMgr::onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* ip, const int32 port){
+	if(SLMODULE(Harbor)->getNodeType() == NodeType::MASTER)
+		return;
+
+	if(nodeType == NodeType::MASTER){
+		START_TIMER(_self, 1000, TIMER_BEAT_FOREVER, ASK_TIME_INTERVAL);
+	}
+}
+
+void IdMgr::onClose(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId){
 }
 
 void IdMgr::onTime(sl::api::IKernel* pKernel, int64 timetick){

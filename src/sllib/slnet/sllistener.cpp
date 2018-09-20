@@ -42,7 +42,7 @@ void CSLListener::setBufferSize(uint32 dwRecvBufSize, uint32 dwSendBufSize){
 bool CSLListener::start(const char* pszIP, uint16 wPort, bool bReUseAddr /* = true */){
 	SLASSERT(_pNetworkInterface, "wtf");
 	if (_pNetworkInterface == nullptr || _pListenerReceiver == nullptr ||
-		_dwRecvBufSize <= 0 || _dwSendBufSize <= 0){
+		_dwRecvBufSize < 0 || _dwSendBufSize < 0){
 		return false;
 	}
 

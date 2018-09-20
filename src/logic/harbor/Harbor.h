@@ -44,6 +44,7 @@ public:
 	virtual bool destory(sl::api::IKernel * pKernel);
 
 	virtual const int32 getNodeType() const { return _nodeType; }
+	virtual const char* getNodeTypeStr() const {return s_nodeNames[_nodeType].c_str();}
 	virtual const int32 getNodeId() const { return _nodeId; }
 	virtual const int32 getPort() const { return _port; }
 	virtual void setPort(uint16 port) {_port = port;}

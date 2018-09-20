@@ -12,6 +12,8 @@ public:
 
 	inline PyObject* getBaseModule() const { return _baseModule; }
 	inline PyObject* getMathModule() const { return _mathModule; }
+	
+	bool runSimpleString(const char* command, std::string* retPtr);
 
 protected:
 	PyObject*			_baseModule;

@@ -8,6 +8,17 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(PYSCRIPT
+	 "${PROJECT_SOURCE_DIR}/src/logic/pythonengine/pyscript/py_macros.h"
+	 "${PROJECT_SOURCE_DIR}/src/logic/pythonengine/pyscript/scriptobject.h"
+	 "${PROJECT_SOURCE_DIR}/src/logic/pythonengine/pyscript/scriptobject.cpp"
+	 "${PROJECT_SOURCE_DIR}/src/logic/pythonengine/pyscript/scriptstderr.h"
+	 "${PROJECT_SOURCE_DIR}/src/logic/pythonengine/pyscript/scriptstderr.cpp"
+	 "${PROJECT_SOURCE_DIR}/src/logic/pythonengine/pyscript/scriptstdout.h"
+	 "${PROJECT_SOURCE_DIR}/src/logic/pythonengine/pyscript/scriptstdout.cpp"
+	 "${PROJECT_SOURCE_DIR}/src/logic/pythonengine/pyscript/scriptstdouterr.h"
+	 "${PROJECT_SOURCE_DIR}/src/logic/pythonengine/pyscript/scriptstdouterr.cpp"
+	 "${PROJECT_SOURCE_DIR}/src/logic/pythonengine/pyscript/scriptstdouterrhook.h"
+	 "${PROJECT_SOURCE_DIR}/src/logic/pythonengine/pyscript/scriptstdouterrhook.cpp"
 	 "${PROJECT_SOURCE_DIR}/src/logic/pythonengine/pyscript/pickler.h"
 	 "${PROJECT_SOURCE_DIR}/src/logic/pythonengine/pyscript/pickler.cpp"
 	 "${PROJECT_SOURCE_DIR}/src/logic/pythonengine/pyscript/py_gc.h"

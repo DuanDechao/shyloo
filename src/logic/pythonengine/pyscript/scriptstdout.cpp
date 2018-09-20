@@ -1,32 +1,6 @@
-/*
-This source file is part of KBEngine
-For the latest info, see http://www.kbengine.org/
-
-Copyright (c) 2008-2017 KBEngine.
-
-KBEngine is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-KBEngine is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
- 
-You should have received a copy of the GNU Lesser General Public License
-along with KBEngine.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
 #include "scriptstdout.h"
 #include "scriptstdouterr.h"
-
-#ifndef CODE_INLINE
-#include "scriptstdout.inl"
-#endif
-
-namespace KBEngine{ namespace script{
+namespace sl{ namespace pyscript{
 
 SCRIPT_METHOD_DECLARE_BEGIN(ScriptStdOut)
 SCRIPT_METHOD_DECLARE("write",				write,				METH_VARARGS,			0)	
@@ -62,7 +36,7 @@ bool ScriptStdOut::install(void)
 	PyObject* sysModule = PyImport_ImportModule("sys");
 	if (!sysModule)
 	{
-		ERROR_MSG("ScriptStdOut: Failed to import sys module\n");
+		printf("ScriptStdOut: Failed to import sys module\n");
 		return false;
 	}
 	
@@ -81,7 +55,7 @@ bool ScriptStdOut::uninstall(void)
 	PyObject* sysModule = PyImport_ImportModule("sys");
 	if (!sysModule)
 	{
-		ERROR_MSG("ScriptStdOut: Failed to import sys module\n");
+		printf("ScriptStdOut: Failed to import sys module\n");
 		return false;
 	}
 
@@ -104,7 +78,7 @@ PyObject* ScriptStdOut::__py_write(PyObject* self, PyObject *args)
 
 	if (!PyArg_ParseTuple(args, "O", &obj))
 	{
-		ERROR_MSG("ScriptStdOut::write: Bad args\n");
+		printf("ScriptStdOut::write: Bad args\n");
 		return NULL;
 	}
 		

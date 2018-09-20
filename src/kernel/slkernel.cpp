@@ -105,6 +105,10 @@ bool Kernel::startTcpServer(api::ITcpServer * server, const char* ip, const int3
 	return NetEngine::getInstance()->addTcpServer(server, ip, port, sendSize, recvSize);
 }
 
+bool Kernel::startTelnetServer(api::ITcpServer * server, const char* ip, const int32 port){
+	return NetEngine::getInstance()->addTelnetServer(server, ip, port);
+}
+
 bool Kernel::startTcpClient(api::ITcpSession * client, const char* ip, const int32 port, int32 sendSize, int32 recvSize){
 	return NetEngine::getInstance()->addTcpClient(client, ip, port, sendSize, recvSize);
 }
