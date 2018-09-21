@@ -10,6 +10,8 @@
 #include "slbinary_map.h"
 #include "IScene.h"
 #include "IObjectTimer.h"
+#include "IDebugHelper.h"
+
 bool CellApp::initialize(sl::api::IKernel * pKernel){
 	_self = this;
 	_kernel = pKernel;

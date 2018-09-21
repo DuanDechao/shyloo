@@ -2,7 +2,7 @@
 #include "AgentSession.h"
 #include "slxml_reader.h"
 #include "slstring_utils.h"
-
+#include "IDebugHelper.h"
 sl::SLPool<AgentSession> AgentSessionServer::s_pool;
 sl::api::ITcpSession* AgentSessionServer::mallocTcpSession(sl::api::IKernel* pKernel){
 	return CREATE_FROM_POOL(s_pool, _agent);

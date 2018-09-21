@@ -318,9 +318,9 @@ public:
 
 	static void wchar2char(const wchar_t* ts, sl::IBStream& pOutStream){
 		int len = (int)((wcslen(ts) +1) * sizeof(wchar_t));
-		size_t slen = wcstombs(pOutStream.getBuffer(), ts, len);
+		size_t slen = wcstombs((char*)pOutStream.getContext(), ts, len);
 		if((size_t)-1 != slen){
-			*(pOutStream.getBuffer() + slen) = 0;
+			*((char*)pOutStream.getContext() + slen) = 0;
 			pOutStream.skip(slen + 1);
 		}
 	}

@@ -9,6 +9,8 @@
 #include "IEventEngine.h"
 #include "EventID.h"
 #include "ICapacity.h"
+#include "IDebugHelper.h"
+
 #define STARTED_DELAY_TIME 15000
 bool Starter::initialize(sl::api::IKernel * pKernel){
 	_self = this;

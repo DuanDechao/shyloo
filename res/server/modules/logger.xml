@@ -2,11 +2,9 @@
 <modules path="./">
 	<module name="ResMgr" />
 	<module name="Harbor" />
-	<module name="Agent" />
 	<module name="Cluster" />
 	<module name="Capacity" />
+	<module name="Agent" />
 	<module name="EventEngine" />
-	<module name="IdMgr" />
 	<module name="DebugHelper" />
-	<module name="MmoServer" />
 </modules>

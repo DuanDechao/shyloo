@@ -1,7 +1,7 @@
 #include "Harbor.h"
 #include "slxml_reader.h"
 #include "slargs.h"
-
+#include "IDebugHelper.h"
 std::unordered_map<std::string, int32> Harbor::s_nodeTypes;
 std::unordered_map<int32, std::string> Harbor::s_nodeNames;
 sl::api::ITcpSession* NodeSessionTcpServer::mallocTcpSession(sl::api::IKernel* pKernel){
@@ -103,13 +103,23 @@ bool Harbor::initNodeTypes(sl::api::IKernel* pKernel){
 	s_nodeTypes["game"] = NodeType::LOGIC;
 	s_nodeTypes["scene"] = NodeType::SCENE;
 	s_nodeTypes["dbmgr"] = NodeType::DATABASE;
+	s_nodeTypes["logger"] = NodeType::LOGGER;
 	s_nodeNames[NodeType::GATE] = "gate";
 	s_nodeNames[NodeType::MASTER] = "master";
 	s_nodeNames[NodeType::SLAVE] = "slave";
 	s_nodeNames[NodeType::LOGIC] = "game";
 	s_nodeNames[NodeType::SCENE] = "scene";
 	s_nodeNames[NodeType::DATABASE] = "dbmgr";
+	s_nodeNames[NodeType::LOGGER] = "logger";
 	return true;
+}
+
+bool Harbor::isNodeConnected(const int32 nodeType, const int32 nodeId){
+	auto itor = _connectedNodes.find(nodeType);
+	if(itor == _connectedNodes.end())
+		return false;
+
+	return itor->second & (uint64)(1 << nodeId);
 }
 
 int32 Harbor::allocNodeIdByType(const int32 nodeType){
@@ -131,15 +141,21 @@ int32 Harbor::allocNodeIdByType(const int32 nodeType){
 
 void Harbor::onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* ip, int32 nodePort, NodeSession* session){
 	_allNode[nodeType].insert(std::make_pair(nodeId, session));
+
+	if(_connectedNodes.find(nodeType) == _connectedNodes.end())
+		_connectedNodes[nodeType] = 0;
+
+	_connectedNodes[nodeType] |= (uint64)(1 << nodeId);
 	
 	for (auto& listener : _listenerPool){
 		listener->onOpen(pKernel, nodeType, nodeId, ip, nodePort);
 	}
-	printf("node[%s:%d] from[%s:%d] opened\n", s_nodeNames[nodeType].c_str(), nodeId, ip, nodePort);
+	INFO_LOG("node[%s:%d] from[%s:%d] opened\n", s_nodeNames[nodeType].c_str(), nodeId, ip, nodePort);
 }
 
 void Harbor::onNodeClose(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId){
 	_allNode[nodeType].erase(nodeId);
+	_connectedNodes[nodeType] &= ~((uint64)(1 << nodeId));
 	
 	for (auto& listener : _listenerPool){
 		listener->onClose(pKernel, nodeType, nodeId);

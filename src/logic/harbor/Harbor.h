@@ -49,6 +49,7 @@ public:
 	virtual const int32 getPort() const { return _port; }
 	virtual void setPort(uint16 port) {_port = port;}
 	virtual void setLocalNodeId(int32 nodeId) {_nodeId = nodeId;}
+	virtual bool isNodeConnected(const int32 nodeType, const int32 nodeId);
 	
 	virtual void onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* ip, int32 nodePort, NodeSession* session);
 	virtual void onNodeClose(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId);
@@ -96,5 +97,6 @@ private:
 	static std::unordered_map<std::string, int32> s_nodeTypes;
 	static std::unordered_map<int32, std::string> s_nodeNames;
 	std::unordered_map<int32, int32> _lastAllocNodeId;
+	std::unordered_map<int32, uint64> _connectedNodes;
 };
 #endif

@@ -3,7 +3,7 @@
 #include "Monitor.h"
 #include "ICluster.h"
 #include "IHarbor.h"
-
+#include "IDebugHelper.h"
 StartUpHandler::StartUpHandler(){
 	_serverReady = false;
 	_serverReadyForLogin = false;
@@ -13,16 +13,16 @@ StartUpHandler::StartUpHandler(){
 void StartUpHandler::onTime(sl::api::IKernel* pKernel, int64 timetick){
 	if(process()){
 		pKernel->killTimer(this);
-		ECHO_ERROR("server is ready for login");
+		TRACE_LOG("server is ready for login");
 	}
 	else{
-		ECHO_ERROR("server is not ready for login, retry....");
+		TRACE_LOG("server is not ready for login, retry....");
 	}
 }
 
 bool StartUpHandler::process(){
 	if(!SLMODULE(Cluster)->clusterIsReady()){
-		ECHO_TRACE("cluster is not ready......");
+		TRACE_LOG("cluster is not ready......");
 		return false;
 	}
 	if(!_serverReady){

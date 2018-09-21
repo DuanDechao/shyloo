@@ -13,6 +13,7 @@
 #include "slxml_reader.h"
 #include "slstring_utils.h"
 #include <algorithm>
+#include "IDebugHelper.h"
 
 #define REPORT_LOAD_INTERVAL 1000
 #define TICKET_EXPIRE_TIME 10000

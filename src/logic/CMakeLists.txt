@@ -44,6 +44,7 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IResMgr.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/INavigation.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IGlobalData.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IDebugHelper.h"
 )
 
 SET(SL_LOGIC_DEFINE
@@ -101,4 +102,5 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/resmgr)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/navigation)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/globaldata)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/telnetserver)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/debughelper)
 

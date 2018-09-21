@@ -1,6 +1,7 @@
 #include "TelnetServer.h"
 #include "slargs.h"
 #include "IHarbor.h"
+#include "IDebugHelper.h"
 
 sl::api::ITcpSession* TelnetSessionTcpServer::mallocTcpSession(sl::api::IKernel* pKernel){
 	return TelnetSession::create(_telnetServer);

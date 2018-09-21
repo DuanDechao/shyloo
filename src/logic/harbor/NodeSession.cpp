@@ -1,6 +1,6 @@
- #include "NodeSession.h"
+#include "NodeSession.h"
 #include "Harbor.h"
-
+#include "IDebugHelper.h"
 struct NodeHeader{
 	int32 messageId;
 	int32 len;
@@ -32,7 +32,6 @@ int32 NodeSession::onRecv(sl::api::IKernel* pKernel, const char* pContext, int d
 		if(_nodeId <= 0){
 			_nodeId = _harbor->allocNodeIdByType(_nodeType);
 			sendAllocNewNodeId(_nodeId);
-			printf("nodeallllllll     %d\n", _nodeId);
 		}
 		_harbor->onNodeOpen(pKernel, _nodeType, _nodeId, getRemoteIP(), report->port, this);
 

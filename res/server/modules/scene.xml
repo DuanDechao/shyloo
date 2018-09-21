@@ -9,6 +9,7 @@
 	<module name="DCCenter" />
 	<module name="GlobalData" />
     <module name="PythonEngine" />
+    <module name="DebugHelper" />
     <module name="ObjectDef" />
     <module name="PythonServer" />
     <module name="TelnetServer" />

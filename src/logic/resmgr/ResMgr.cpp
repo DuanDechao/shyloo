@@ -2,6 +2,7 @@
 #include "slstring_utils.h"
 #include "slmulti_sys.h"
 #include "slxml_reader.h"
+#include "IDebugHelper.h"
 bool ResMgr::initialize(sl::api::IKernel * pKernel){
 	_self = this;
 

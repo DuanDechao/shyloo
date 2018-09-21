@@ -41,6 +41,7 @@ public:
 	virtual const char* getNodeTypeStr() const = 0;
 	virtual void setPort(uint16 port) = 0;
 	virtual void setLocalNodeId(int32 nodeId) = 0;
+	virtual bool isNodeConnected(const int32 nodeType, const int32 nodeId) = 0;
 };
 
 #define RGS_NODE_HANDLER(harbor, messageId, handler) harbor->rgsNodeMessageHandler(messageId, std::bind(&handler, this, std::placeholders::_1, std::placeholders::_2,  std::placeholders::_3, std::placeholders::_4))

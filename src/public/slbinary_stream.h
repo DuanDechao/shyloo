@@ -153,7 +153,8 @@ public:
 		return OBStream(_buffer, _offset);
 	}
 
-	char* getBuffer() {return _buffer + _offset;}
+	inline void* getContext() const {return _buffer + _offset;}
+	inline const int32 getSize() const {return _maxSize - _offset;}
 	bool skip(const int32 size) {
 		if(_offset + size > _maxSize)
 			return false;
@@ -161,6 +162,7 @@ public:
 		_offset += size;
 		return true;
 	}
+	inline void reset() {_offset = 0;}
 
 private:
 	template<typename T>

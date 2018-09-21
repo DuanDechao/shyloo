@@ -4,6 +4,7 @@
 #include "Scene.h"
 #include "Witness.h"
 #include "INavigation.h"
+#include "IDebugHelper.h"
 const IProp* Space::_propCoordinateNode = NULL;
 const IProp* Space::_propWitness = NULL;
 const IProp* Space::_propPosZ = NULL;

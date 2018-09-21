@@ -2,6 +2,7 @@
 #include "IResMgr.h"
 #include "slfile_utils.h"
 #include "DetourCommon.h"
+#include "IDebugHelper.h"
 static float frand(){
 	return (float)rand() / (float)RAND_MAX;
 }

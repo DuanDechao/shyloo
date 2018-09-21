@@ -3,6 +3,7 @@
 enum NodeType{
 	SLAVE = -3,
 	MASTER = -2,
+	LOGGER = -1,
 	GATE = 1,
 	LOGIC = 2,
 	SCENE = 3,

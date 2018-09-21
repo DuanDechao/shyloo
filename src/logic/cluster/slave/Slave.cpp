@@ -6,6 +6,7 @@
 #include "slxml_reader.h"
 #include "slargs.h"
 #include "sltools.h"
+#include "IDebugHelper.h"
 
 #ifdef SL_OS_LINUX
 #include <sys/stat.h>

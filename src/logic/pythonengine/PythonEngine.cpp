@@ -5,6 +5,7 @@
 #include "NodeDefine.h"
 #include "pyscript/py_gc.h"
 #include "pyscript/pickler.h"
+#include "IDebugHelper.h"
 PythonEngine* PythonEngine::s_self = nullptr;
 bool PythonEngine::initialize(sl::api::IKernel * pKernel){
 	s_self = this;

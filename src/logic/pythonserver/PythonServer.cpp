@@ -18,6 +18,7 @@
 #include "pyscript/py_gc.h"
 #include "IPythonEngine.h"
 #include "ITelnetServer.h"
+#include "IDebugHelper.h"
 
 PythonServer* PythonServer::s_self = nullptr;
 bool PythonServer::initialize(sl::api::IKernel * pKernel){

@@ -195,7 +195,7 @@ struct SLModule{
 #define TIMER_BEAT_FOREVER	-1
 
 #define SLMODULE(name) (sl::api::SLModule<I##name>::instance(#name))
-
+/*
 #define INFO_LOG(format, ...) { \
 	char log[8192]; \
 	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
@@ -225,7 +225,7 @@ struct SLModule{
 	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
 	pKernel->asyncLog(0x20, log, __FILE__, __LINE__); \
 }
-
+*/
 #define IMPORTANT_LOG(format, ...) { \
 	char log[8192]; \
 	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
