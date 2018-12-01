@@ -83,6 +83,7 @@ bool BaseApp::remoteCreateCellEntity(IObject* object, const uint64 createToObjec
 	bool isCreateInNewSpace = (createToObjectId ? false : true);
     const char* entityType = object->getObjTypeString();
     
+	printf("remoteCreateCellEntity................ssssssssssssss %d\n", isCreateInNewSpace);
 	sl::BStream<2048> args;
 	if(isCreateInNewSpace){
 		args << entityType;
@@ -112,6 +113,7 @@ bool BaseApp::createBaseAnywhere(const char* entityType, const void* initData, c
 	args << SLMODULE(Harbor)->getNodeId();
 	args << callbackId;
 	SLMODULE(Harbor)->send(NodeType::MASTER, 1, NodeProtocol::BASE_MSG_CREATE_BASE_ANYWHERE, args.out());
+	printf("createBaseAnywhere........");
 	return true;
 }
 

@@ -27,5 +27,6 @@ private:
 
 private:
 	std::unordered_map<int64, Node> _nodes;
+	std::unordered_map<std::string, Node> _slaveNodes;
 };
 #endif

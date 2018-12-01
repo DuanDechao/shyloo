@@ -98,5 +98,6 @@ void DataTypeMgr::addDataType(const char* name, IDataType* dataType){
 	_uidTypeMap[_dataTypeUID] = _typeMap[name];
 	_uidDataTypeMap[_dataTypeUID] = dataType;
 	dataType->setUid(_dataTypeUID);
+	dataType->setType(_typeMap[name]);
 }
 

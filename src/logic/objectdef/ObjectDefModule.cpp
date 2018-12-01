@@ -289,6 +289,10 @@ bool ObjectDefModule::appendObjectProp(PropDefInfo* defInfo, bool isMethod, bool
     (*propMap)[defInfo->_name.c_str()] = prop;
     (*idPropMap)[defInfo->_index] = prop;
     (*idPropMap)[defInfo->_index] = prop;
+
+	if(!isMethod && (defInfo->_flags & prop_def::ObjectDBFlag::persistent))
+		_persistentProps[defInfo->_name.c_str()] = prop;
+
     return true;
 }
 

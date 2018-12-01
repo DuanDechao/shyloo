@@ -8,6 +8,7 @@
 
 class IHarbor;
 class IMysqlMgr;
+class DataBase;
 class DB : public IDB, public sl::SLHolder<DB> {
 	enum{
 		SIZE_32 = 32,
@@ -25,6 +26,7 @@ public:
 	virtual bool destory(sl::api::IKernel * pKernel);
 
 	virtual IDBCall* create(int64 threadId, const int64 id, const char* file, const int32 line, const void* context, const int32 size = 0);
+	//virtual IDBInterface* getDBInterface() {return _dbInterface;}
 
 	IMysqlMgr* getMysqlMgr(){ return _mysql; }
 
@@ -33,8 +35,10 @@ public:
 private:
 	sl::api::IKernel*	_kernel;
 	DB*					_self;
+	IDBInterface*		_dbInterface;
 	IHarbor*			_harbor;
 	IMysqlMgr*			_mysql;
+	DataBase*			_database;
 };
 
 

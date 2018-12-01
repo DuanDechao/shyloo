@@ -12,7 +12,6 @@
 #include "IIdMgr.h"
 #include "ScriptDefModule.h"
 #include "EntityMailBox.h"
-#include "IMonitor.h"
 #include "IResMgr.h"
 #include "PyDataType.h"
 #include "pyscript/py_gc.h"
@@ -28,6 +27,8 @@ bool PythonServer::initialize(sl::api::IKernel * pKernel){
 }
 
 bool PythonServer::launched(sl::api::IKernel * pKernel){
+	if(SLMODULE(Harbor)->getNodeType() != NodeType::LOGIC && SLMODULE(Harbor)->getNodeType() != NodeType::SCENE)
+		return true;
 	const std::vector<const IObjectDefModule*>& allObjectDefs = SLMODULE(ObjectDef)->getAllObjectDefModule();     
 	for(auto defModule : allObjectDefs){
 		const char* moduleName = defModule->getModuleName();
@@ -102,7 +103,7 @@ bool PythonServer::launched(sl::api::IKernel * pKernel){
     RGS_EVENT_HANDLER(SLMODULE(EventEngine), logic_event::EVENT_REMOTE_METHOD_CALL, PythonServer::onRemoteMethodCall);
 	RGS_NODE_HANDLER(SLMODULE(Harbor), NodeProtocol::REMOTE_NEW_ENTITY_MAIL, PythonServer::onRemoteNewEntityMail);
 
-	SLMODULE(Monitor)->addListener(this);
+	SLMODULE(Cluster)->addServerProcessHandler(this);
 	SLMODULE(TelnetServer)->rgsTelnetHandler("python", this);
 	
     return true;
@@ -353,6 +354,7 @@ PyObject* PythonServer::__py__createBaseLocallyFromDB(PyObject* self, PyObject* 
 }
 
 PyObject* PythonServer::__py__createBaseAnywhere(PyObject* self, PyObject* args){
+	printf("dddddsssssssssssssssssssssssssssss\n");
     int argCount = (int32)PyTuple_Size(args);
 	PyObject* params = NULL;
     PyObject* pyCallback = NULL;

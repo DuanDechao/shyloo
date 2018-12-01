@@ -8,7 +8,6 @@
 #include "sltime.h"
 #include "NodeDefine.h"
 #include "IResMgr.h"
-
 #define SEQUENCE_MASK 0x001F
 #define TIMETICK_MASK 0x0001FFFFFFFFFFFF
 #define AREA_MASK	  0x03FF
@@ -17,7 +16,6 @@
 #define GIVE_NUM	  100
 #define GIVE_SIZE	  1000
 #define ASK_TIME_INTERVAL 2000
-
 bool IdMgr::initialize(sl::api::IKernel * pKernel){
 	_self = this;
 	_bIsMultiProcess = true;
@@ -36,6 +34,8 @@ bool IdMgr::launched(sl::api::IKernel * pKernel){
 		}
 		else{
 			RGS_NODE_HANDLER(_harbor, NodeProtocol::GIVE_ID_AREA, IdMgr::giveIds);
+			SLMODULE(Harbor)->addNodeListener(this);
+			SLMODULE(Cluster)->addServerProcessHandler(this);
 		}
 	}
 	return true;
@@ -46,15 +46,16 @@ bool IdMgr::destory(sl::api::IKernel * pKernel){
 }
 	
 void IdMgr::onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* ip, const int32 port){
-	if(SLMODULE(Harbor)->getNodeType() == NodeType::MASTER)
-		return;
-
 	if(nodeType == NodeType::MASTER){
 		START_TIMER(_self, 1000, TIMER_BEAT_FOREVER, ASK_TIME_INTERVAL);
 	}
 }
 
 void IdMgr::onClose(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId){
+}
+
+bool IdMgr::onServerReady(sl::api::IKernel* pKernel){
+	return (int32)_idPool.size() >= _poolSize;
 }
 
 void IdMgr::onTime(sl::api::IKernel* pKernel, int64 timetick){

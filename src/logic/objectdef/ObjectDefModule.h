@@ -65,6 +65,7 @@ public:
     virtual const char* getModuleName() const { return _moduleName.c_str(); }
 	virtual const int32 getModuleType() const { return _moduleType;} 
     virtual const PROPS_MAP& getProps() const {return _props;}
+	virtual const PROPS_MAP& getPersistentProps() const {return _persistentProps;} 
     virtual const PROPS_MAP& getCellProps() const {return _cellProps;}
     virtual const PROPS_MAP& getClientMethods() const {return _clientMethods;}
     virtual const PROPS_MAP& getCellMethods() const {return _cellMethods;}
@@ -97,6 +98,7 @@ private:
 	std::vector<PropDefInfo*>			_propsDefInfo;
     std::vector<PropDefInfo*>           _methodsDefInfo;
     PROPS_MAP                           _props;
+    PROPS_MAP                           _persistentProps;
     PROPS_MAP                           _cellProps;
     PROPS_IDMAP                         _idToProps;
     PROPS_MAP                           _clientMethods;

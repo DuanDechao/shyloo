@@ -140,6 +140,8 @@ public:
 class IMysqlResult{
 public:
 	virtual ~IMysqlResult() {}
+	virtual const char* errInfo() = 0;
+	virtual int32 errCode()  = 0;
 	virtual int32 rowCount() const = 0;
 	virtual int32 columnCount() const = 0;
 	virtual bool columnExist(const char* column) const = 0;
@@ -148,6 +150,7 @@ public:
 	virtual int32 getDataInt32(const int32 row, const char* column) const = 0;
 	virtual int64 getDataInt64(const int32 row, const char* column) const = 0;
 	virtual const char* getDataString(const int32 row, const char* column) const = 0;
+	virtual void release() = 0;
 };
 
 class IMysqlHandler{
@@ -166,12 +169,30 @@ private:
 };
 
 typedef std::function<void(sl::api::IKernel* pKernel, SQLCommand& sqlCommnand)> SQLCommnandFunc;
+class IDBInterface{
+public:
+	virtual ~IDBInterface() {}
+	//异步执行sql语句，子线程
+	virtual void execSql(const int64 id, IMysqlHandler* handler, const SQLCommnandFunc& f) = 0;
+	virtual void execSql(const int64 id, IMysqlHandler* handler, const int32 optType, const char* sql) = 0;
+	//同步执行sql语句
+	virtual IMysqlResult* execSqlSync(const SQLCommnandFunc& f) = 0;
+	virtual IMysqlResult* execSqlSync(const int32 optType, const char* sql) = 0;
+
+	virtual void stopSql(IMysqlHandler* handler) = 0;
+	virtual const char* host() = 0;
+	virtual const int32 port() = 0;
+	virtual const char* user() = 0;
+	virtual const char* passwd() = 0;
+	virtual const char* dbName() = 0;
+	virtual const char* charset() = 0;
+	virtual const int32 threadCount() = 0;
+};
+
 class IMysqlMgr : public sl::api::IModule{
 public:
 	virtual  ~IMysqlMgr(){}
-
-	virtual void execSql(const int64 id, IMysqlHandler* handler, const SQLCommnandFunc& f) = 0;
-	virtual void execSql(const int64 id, IMysqlHandler* handler, const char* sql, const char* table, const int8 optType) = 0;
-	virtual void stopSql(IMysqlHandler* handler) = 0;
+	virtual IDBInterface* createDBInterface(const char* host, const int32 port, const char* user, const char* pwd, const char* dbName, const char* charset, int32 threadNum = 1) = 0;
+	virtual void closeDBInterface(const char* host, const int32 port, const char* dbName) = 0;
 };
 #endif

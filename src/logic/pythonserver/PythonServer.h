@@ -6,16 +6,16 @@
 #include <unordered_map>
 #include "EntityScriptObject.h"
 #include "Entities.h"
-#include "IMonitor.h"
 #include "slsingleton.h"
 #include "GlobalData.h"
 #include "ITelnetServer.h"
+#include "ICluster.h"
 #include "pyscript/pyscript.h"
 class Base;
 class Entity;
 class Proxy;
 class ScriptDefModule;
-class PythonServer : public IPythonServer, public IMonitorListener, public ITelnetHandler, public sl::api::ITimer, public sl::SLHolder<PythonServer>{
+class PythonServer : public IPythonServer, public IServerProcessHandler, public ITelnetHandler, public sl::api::ITimer, public sl::SLHolder<PythonServer>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);

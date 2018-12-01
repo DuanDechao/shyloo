@@ -10,7 +10,6 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IEventEngine.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IFSM.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IMysqlMgr.h"
-	"${PROJECT_SOURCE_DIR}/src/logic/interface/ICapacity.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IDistribution.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IAccount.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IRoleMgr.h"
@@ -30,7 +29,6 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IOCCommand.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IRelation.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IClient.h"
-	"${PROJECT_SOURCE_DIR}/src/logic/interface/IMonitor.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IStarter.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IChat.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IGD.h"
@@ -61,14 +59,13 @@ SET(SL_LOGIC_DEFINE
 #ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/attrgetter)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/harbor)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/agent)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/capacity)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/cluster)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/dccenter)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/idmgr)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/gate)
-#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/db)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/db)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/eventengine)
-#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/mysqlmgr)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/mysqlmgr)
 #ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/scriptengine)
 #ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/distribution)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/account)
@@ -91,7 +88,6 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/objecttimer)
 #ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/balance)
 #ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/monitorclient)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/online)
-#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/startnodestrategy)
 #ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/chat)
 #ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/gd)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/pythonengine)

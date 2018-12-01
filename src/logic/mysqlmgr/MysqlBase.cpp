@@ -16,29 +16,40 @@ MysqlBase::~MysqlBase(){
 }
 
 bool MysqlBase::onExecute(sl::api::IKernel* pKernel){
-	SLASSERT(_sqlCommand->checkVaild(), "invaild sql command");
-	if (_sqlCommand->optType() == DB_OPT_QUERY){
-		ISLDBResult* dbResult = _dbConnection->executeWithResult(_sqlCommand->toString());
+	_errCode = realExecSql(_sqlCommand, _dbConnection, &_result);
+	return _errCode == 0;
+}
+
+int32 MysqlBase::realExecSql(SQLCommand* sqlCommand, ISLDBConnection* dbConnection, MysqlResult* mysqlResult){
+	SLASSERT(sqlCommand->checkVaild(), "invaild sql command");
+	int32 errCode = 0;
+	if (sqlCommand->optType() == DB_OPT_QUERY){
+		ISLDBResult* dbResult = dbConnection->executeWithResult(sqlCommand->toString());
 		if (!dbResult){
-			_errCode = _dbConnection->getLastErrno();
-			SLASSERT(false, "sql command exec %s failed, error:%s", _sqlCommand->toString(), _dbConnection->getLastError());
+			errCode = dbConnection->getLastErrno();
+			mysqlResult->setErrCode(errCode);
+			const char* errInfo = dbConnection->getLastError();
+			mysqlResult->setErrInfo(errInfo);
+			SLASSERT(false, "sql command exec %s failed, error:%s", sqlCommand->toString(), errInfo);
 			return false;
 		}
-		_result.setColumns(dbResult);
+		mysqlResult->setColumns(dbResult);
 
 		while (dbResult->next()){
-			_result.setColData(dbResult);
+			mysqlResult->setColData(dbResult);
 		}
 	}
 	else{
-		if (!_dbConnection->execute(_sqlCommand->toString())){
-			_errCode = _dbConnection->getLastErrno();
-			SLASSERT(false, "sql command exec %s failed, error:%s", _sqlCommand->toString(), _dbConnection->getLastError());
+		if (!dbConnection->execute(sqlCommand->toString())){
+			errCode = dbConnection->getLastErrno();
+			mysqlResult->setErrCode(errCode);
+			const char* errInfo = dbConnection->getLastError();
+			mysqlResult->setErrInfo(errInfo);
+			SLASSERT(false, "sql command exec %s failed, error:%s", sqlCommand->toString(), errInfo);
 			return false;
 		}
 	}
-
-	return true;
+	return errCode;
 }
 
 void MysqlBase::Exec(IMysqlHandler* handler){

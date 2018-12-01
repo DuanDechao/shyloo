@@ -8,25 +8,36 @@
 #include "slxml_reader.h"
 class PyDataType: public IDataType{
 public:
+	PyDataType()
+		:_id(0), 
+		_type(0),
+		_aliasName("")
+	{}
+
 	virtual ~PyDataType(){}
 
 	virtual bool initType(sl::ISLXmlNode* typeNode) {return true;}
 	virtual void setUid(const uint16 id) {_id = id;}
 	virtual const uint16 getUid() const {return _id;}
+	virtual void setType(const int8 type) {_type = type;}
+	virtual const int8 getType() const {return _type;}
 	virtual void setAliasName(const char* aliasName) {_aliasName = aliasName;}
 	virtual const char* getAliasName() const {return _aliasName.c_str();}
 	virtual const int32 getSize() const {return 256;}	
 	virtual void* createFromObject(IObject* object, const IProp* prop);
 	virtual void addToObject(IObject* object, const IProp* prop, void* value);
 	virtual void addDataTypeInfo(sl::IBStream& stream);
+	virtual IDataType* arrayDataType() {return NULL;}
+	virtual std::vector<std::pair<string, IDataType*>> dictDataType() {static std::vector<std::pair<string, IDataType*>> empty; return empty;}
 	virtual PyObject* createNewItemFromObj(PyObject* pyobj){ Py_INCREF(pyobj); return pyobj; }
 	virtual PyObject* createNewFromObj(PyObject* pyobj) { Py_INCREF(pyobj); return pyobj; }
 	static IDataType* createDataType(const char* typeName, const sl::ISLXmlNode* typeNode);
 	static IDataType* createDataType(const char* typeName);
 	static bool initialize();
 public:
-	uint16	_id;
-	std::string _aliasName;
+	uint16			_id;
+	int8			_type;
+	std::string		_aliasName;
 	static std::unordered_map<std::string, IDataType*> s_pyDataTypes;
 };
 
@@ -335,6 +346,7 @@ public:
 	virtual void* parseDefaultStr(const char* defaultValStr);
 	virtual PyObject* createNewItemFromObj(PyObject* pyobj);
 	virtual PyObject* createNewFromObj(PyObject* pyobj);
+	virtual IDataType* arrayDataType() {return _dataType;}
 
 protected:
 	IDataType* _dataType;
@@ -356,6 +368,7 @@ public:
 	virtual void addToStream(sl::IBStream& stream, void* value);
 	virtual void* createFromStream(const sl::OBStream& stream);
 	virtual void* parseDefaultStr(const char* defaultValStr);
+	virtual std::vector<std::pair<string, IDataType*>> dictDataType() {return _dictItems;}
 
 	PyObject* implCreateObjFromDict(PyObject* dictData);
 	PyObject* implGetDictFromObj(PyObject* pyObj);

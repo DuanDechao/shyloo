@@ -7,6 +7,7 @@
 #include "IHarbor.h"
 #include "NodeDefine.h"
 #include "NodeProtocol.h"
+#include <iomanip>
 
 bool Logger::initialize(sl::api::IKernel * pKernel){
 	_self = this;
@@ -221,13 +222,10 @@ void Logger::writeLog(LOG_ITEM* pLogItem){
 			aTm->tm_hour, aTm->tm_min, aTm->tm_sec, pLogItem->time);
 
 	logStream << timeBuf;
-	logStream << "		";
-	logStream << SLMODULE(Harbor)->getNodeName(pLogItem->nodeType);
-	logStream << "		";
-	logStream << pLogItem->nodeId;
-	logStream << "	";
-	logStream << LOG_LEVEL_NAME[pLogItem->logType];
-	logStream << "	-	";
+	logStream << setw(8) << setiosflags(ios::right) << SLMODULE(Harbor)->getNodeName(pLogItem->nodeType);
+	logStream << setw(3) << setiosflags(ios::right) << pLogItem->nodeId;
+	logStream << setw(8) << setiosflags(ios::right) << LOG_LEVEL_NAME[pLogItem->logType];
+	logStream << " - ";
 	logStream << pLogItem->logStr;
 	logStream << "\n";
 

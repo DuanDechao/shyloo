@@ -81,7 +81,7 @@ PyObject* Base::createCellEntity(PyObject* pyObj){
 }
 
 PyObject* Base::createInNewSpace(PyObject* args){
-    int32 cellappIndex = 1;
+    int32 cellappIndex = 0;
     if(PyLong_Check(args))
         cellappIndex = (int32)PyLong_AsUnsignedLong(args);
     

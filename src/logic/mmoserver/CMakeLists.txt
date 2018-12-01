@@ -17,6 +17,8 @@ SET(MMOSERVER
 	"${PROJECT_SOURCE_DIR}/src/logic/mmoserver/CellAppMgr.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/mmoserver/BaseAppMgr.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/mmoserver/BaseAppMgr.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/mmoserver/ForwardMsgBuffer.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/mmoserver/ForwardMsgBuffer.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/mmoserver/main.cpp"
 )
 

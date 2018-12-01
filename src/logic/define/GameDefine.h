@@ -69,4 +69,14 @@ const char ENTITY_MAILBOX_NAME_MAPPING[][8] = {
 	"client",
 };
 
+enum ServerState{
+	S_NONE = -1,
+	S_INIT = 0,
+	S_READY,
+	S_READY_FOR_LOGIN,
+	S_RUNNING,
+	S_PRE_SHUTDOWN,
+	S_SHUTDOWN,
+};
+
 #endif

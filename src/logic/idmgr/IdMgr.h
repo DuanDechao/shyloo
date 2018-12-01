@@ -4,8 +4,9 @@
 #include "IIdMgr.h"
 #include "slsingleton.h"
 #include "IHarbor.h"
+#include "ICluster.h"
 class sl::OBStream;
-class IdMgr :public IIdMgr, public INodeListener, public sl::api::ITimer, public sl::SLHolder<IdMgr>{
+class IdMgr :public IIdMgr, public INodeListener, public IServerProcessHandler, public sl::api::ITimer, public sl::SLHolder<IdMgr>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);
@@ -16,6 +17,11 @@ public:
 	virtual void onTerminate(sl::api::IKernel* pKernel, bool beForced, int64 timetick){}
 	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick) {}
+	
+	virtual bool onServerReady(sl::api::IKernel* pKernel);
+	virtual bool onServerReadyForLogin(sl::api::IKernel* pKernel) {return true;}
+	virtual bool onServerReadyForShutDown(sl::api::IKernel* pKernel) {return true;}
+	virtual bool onServerShutDown(sl::api::IKernel* pKernel) {return true;}
 
 	virtual void onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* ip, const int32 port);
 	virtual void onClose(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId);

@@ -5,6 +5,7 @@
 using namespace sl::db;
 class MysqlResult : public IMysqlResult{
 public:
+	MysqlResult():_errCode(0){}
 	virtual ~MysqlResult() {}
 
 	virtual int32 rowCount() const { return (int32)_result.size(); }
@@ -15,6 +16,11 @@ public:
 	virtual int32 getDataInt32(const int32 i, const char* key) const { return sl::CStringUtils::StringAsInt32(getColData(i, key).c_str()); }
 	virtual int64 getDataInt64(const int32 i, const char* key) const { return sl::CStringUtils::StringAsInt64(getColData(i, key).c_str()); }
 	virtual const char* getDataString(const int32 i, const char* key) const { return getColData(i, key).c_str(); }
+	virtual int32 errCode() {return _errCode;}
+	virtual const char* errInfo() {return _errInfo.c_str();}
+	virtual void release() {DEL this;}
+	void setErrCode(int32 code) {_errCode = code;}
+	void setErrInfo(const char* info) {_errInfo = info;}
 
 	void setColData(ISLDBResult* dbResult){
 		int32 fieldNum = (int32)dbResult->fieldNum();
@@ -51,6 +57,8 @@ private:
 private:
 	std::unordered_map<string, int32> _columns;
 	std::vector<std::vector<string>> _result;
+	int32 _errCode;
+	std::string _errInfo;
 };
 
 class MysqlBase : public IMysqlBase, public sl::api::IAsyncHandler{
@@ -64,6 +72,9 @@ public:
 	virtual void onRelease(sl::api::IKernel* pKernel);
 
 	void Exec(IMysqlHandler* handler);
+	
+	static int32 realExecSql(SQLCommand* sqlCommand, ISLDBConnection* dbConnection, MysqlResult* mysqlResult);
+
 private:
 	ISLDBConnection* _dbConnection;
 	IMysqlHandler* _handler;

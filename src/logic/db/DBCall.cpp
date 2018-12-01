@@ -125,7 +125,7 @@ private:
 void DBCall::query(const char* tableName, const DBQueryCommandFunc& f, const DBCallBack& cb){
 	_cb = cb;
 	
-	_db->getMysqlMgr()->execSql(_threadId, this, [tableName, &f](sl::api::IKernel* pKernel, SQLCommand& sqlCommand){
+	_dbInterface->execSql(_threadId, this, [tableName, &f](sl::api::IKernel* pKernel, SQLCommand& sqlCommand){
 		sqlCommand.table(tableName);
 		
 		if (f){
@@ -141,7 +141,7 @@ void DBCall::query(const char* tableName, const DBQueryCommandFunc& f, const DBC
 void DBCall::insert(const char* tableName, const DBInsertCommandFunc& f, const DBCallBack& cb){
 	_cb = cb;
 
-	_db->getMysqlMgr()->execSql(_threadId, this, [tableName, &f](sl::api::IKernel* pKernel, SQLCommand& sqlCommand){
+	_dbInterface->execSql(_threadId, this, [tableName, &f](sl::api::IKernel* pKernel, SQLCommand& sqlCommand){
 		sqlCommand.table(tableName);
 
 		if (f){
@@ -154,7 +154,7 @@ void DBCall::insert(const char* tableName, const DBInsertCommandFunc& f, const D
 void DBCall::update(const char* tableName, const DBUpdateCommandFunc& f, const DBCallBack& cb){
 	_cb = cb;
 
-	_db->getMysqlMgr()->execSql(_threadId, this, [tableName, &f](sl::api::IKernel* pKernel, SQLCommand& sqlCommand){
+	_dbInterface->execSql(_threadId, this, [tableName, &f](sl::api::IKernel* pKernel, SQLCommand& sqlCommand){
 		sqlCommand.table(tableName);
 
 		if (f){
@@ -168,7 +168,7 @@ void DBCall::update(const char* tableName, const DBUpdateCommandFunc& f, const D
 void DBCall::save(const char* tableName, const DBSaveCommandFunc& f, const DBCallBack& cb){
 	_cb = cb;
 
-	_db->getMysqlMgr()->execSql(_threadId, this, [tableName, &f](sl::api::IKernel* pKernel, SQLCommand& sqlCommand){
+	_dbInterface->execSql(_threadId, this, [tableName, &f](sl::api::IKernel* pKernel, SQLCommand& sqlCommand){
 		sqlCommand.table(tableName);
 
 		if (f){
@@ -181,7 +181,7 @@ void DBCall::save(const char* tableName, const DBSaveCommandFunc& f, const DBCal
 void DBCall::del(const char* tableName, const DBDeleteCommandFunc& f, const DBCallBack& cb){
 	_cb = cb;
 
-	_db->getMysqlMgr()->execSql(_threadId, this, [tableName, &f](sl::api::IKernel* pKernel, SQLCommand& sqlCommand){
+	_dbInterface->execSql(_threadId, this, [tableName, &f](sl::api::IKernel* pKernel, SQLCommand& sqlCommand){
 		sqlCommand.table(tableName);
 
 		if (f){
@@ -191,6 +191,11 @@ void DBCall::del(const char* tableName, const DBDeleteCommandFunc& f, const DBCa
 
 		sqlCommand.del();
 	});
+}
+
+void DBCall::execRawSql(const int32 optType, const char* sql, const DBCallBack& cb){
+	_cb = cb;
+	_dbInterface->execSql(_threadId, this, optType, sql);
 }
 
 bool DBCall::onSuccess(sl::api::IKernel* pKernel, const int32 optType, const int32 affectedRow, IMysqlResult* result){

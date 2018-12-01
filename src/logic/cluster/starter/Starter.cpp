@@ -8,7 +8,6 @@
 #include "sltime.h"
 #include "IEventEngine.h"
 #include "EventID.h"
-#include "ICapacity.h"
 #include "IDebugHelper.h"
 
 #define STARTED_DELAY_TIME 15000
@@ -76,7 +75,7 @@ void Starter::onNodeTimerStart(sl::api::IKernel * pKernel, int32 type, int64 tic
 }
 
 void Starter::onNodeTimer(sl::api::IKernel * pKernel, int32 type, int64 tick){
-	auto itor = _nodes.find(type);
+/*	auto itor = _nodes.find(type);
 	SLASSERT(itor != _nodes.end(), "wtf");
 	if (itor != _nodes.end()){
 		if (_executes[itor->first].max > itor->second.max && SLMODULE(CapacitySubscriber)->checkOverLoad(itor->first, _executes[itor->first].rate * itor->second.max)){
@@ -84,6 +83,7 @@ void Starter::onNodeTimer(sl::api::IKernel * pKernel, int32 type, int64 tick){
 			++itor->second.max;
 		}
 	}
+*/
 }
 
 void Starter::onNodeTimerEnd(sl::api::IKernel * pKernel, int32 type, int64 tick){

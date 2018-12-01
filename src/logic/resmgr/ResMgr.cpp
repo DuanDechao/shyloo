@@ -275,7 +275,7 @@ const char* ResMgr::getResValue(const char* attr){
 	const char* resValue = getResValue(resFile.c_str(), subAttrs);
 	resValue = resValue ? resValue : "";
 	_resValueCache[attr] = resValue;
-	return resValue;
+	return _resValueCache[attr].c_str();
 }
 
 const char* ResMgr::getResValue(const char* resPath, const std::vector<std::string>& attrs){

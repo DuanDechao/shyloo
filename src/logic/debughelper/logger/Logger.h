@@ -18,12 +18,12 @@ public:
 	};
 
 	const char LOG_LEVEL_NAME[20][20] ={
-		"	TRACE",
-		"	DEBUG",
-		"	 INFO",
-		" WARNING",
-		"	ERROR",
-		"	FATAL",
+		"TRACE",
+		"DEBUG",
+		"INFO",
+		"WARN",
+		"ERROR",
+		"FATAL",
 	};
 
 	struct LOG_ITEM{

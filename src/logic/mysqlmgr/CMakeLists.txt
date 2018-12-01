@@ -13,6 +13,8 @@ SET(MYSQLMGR
 	"${PROJECT_SOURCE_DIR}/src/logic/mysqlmgr/MysqlBase.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/mysqlmgr/MysqlMgr.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/mysqlmgr/MysqlMgr.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/mysqlmgr/DBInterface.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/mysqlmgr/DBInterface.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/mysqlmgr/main.cpp"
 )
 

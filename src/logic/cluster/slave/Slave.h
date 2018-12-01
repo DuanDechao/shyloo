@@ -13,14 +13,8 @@
 
 class IHarbor;
 class OArgs;
-class Slave :public sl::api::IModule, public sl::SLHolder<Slave>{
+class Slave :public sl::api::IModule, public sl::api::ITimer, public sl::SLHolder<Slave>{
 public:
-	
-	struct EXECUTE_INFO{
-		char name[64];
-		char cmd[MAX_CMD_LEN];
-	};
-
 	class CheckNodeTimer;
 	struct EXECUTE_NODE{
 		EXECUTE_NODE() : timer(nullptr), process(0){}
@@ -56,9 +50,20 @@ public:
 
 	void openNewNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args);
 	void stopNodes(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args);
+	void clusterRegisterNode(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args);
+		
+	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick) {}
+	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick);
+	virtual void onTerminate(sl::api::IKernel* pKernel, bool beForced, int64 timetick) {}
+	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick) {}
+	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick) {}
+
+	//void getMachineCpuPer();
+	//void getMachineMemPer();
+	//void getNodeCpuPer(int32 nodeType, int32 nodeId);
+	//void getNodeMemPer(int32 nodeType, int32 nodeId);
 
 private:
-	void startNewNode(sl::api::IKernel* pKernel, const char* name, const char* cmd, const int32 nodeType, const int32 nodeId);
 #ifdef SL_OS_WINDOWS
 	int32 startNode(sl::api::IKernel* pKernel, const char* cmd);
 #else
@@ -67,8 +72,9 @@ private:
 	
 
 private:
+	Slave*	_self;
 	std::unordered_map<int64, EXECUTE_NODE> _cmds;
-	std::unordered_map<int32, EXECUTE_INFO> _executes;
+
 };
 
 #endif

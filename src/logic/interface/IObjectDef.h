@@ -19,12 +19,16 @@ public:
 	virtual void* createFromObject(IObject* object, const IProp* prop) = 0;
 	virtual void setUid(const uint16 id) = 0;
 	virtual const uint16 getUid() const = 0;
+	virtual void setType(const int8 type) = 0;
+	virtual const int8 getType() const = 0;
 	virtual const char* getName() const = 0;
 	virtual const int32 getSize() const = 0;
 	virtual void setAliasName(const char* aliasName) = 0;
 	virtual const char* getAliasName() const  = 0;
 	virtual void addDataTypeInfo(sl::IBStream& stream)= 0;
 	virtual void* parseDefaultStr(const char* defaultValStr) = 0;
+	virtual IDataType* arrayDataType() = 0;
+	virtual std::vector<std::pair<string, IDataType*>> dictDataType() = 0;
 };
 
 
@@ -39,6 +43,7 @@ public:
     virtual bool hasClient() const = 0;
     
     virtual const PROPS_MAP& getProps() const  = 0;
+	virtual const PROPS_MAP& getPersistentProps() const = 0; 
     virtual const PROPS_MAP& getClientMethods() const = 0;
     virtual const PROPS_MAP& getCellMethods() const = 0;
     virtual const PROPS_MAP& getBaseMethods() const = 0;

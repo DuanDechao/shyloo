@@ -11,6 +11,10 @@ SET(DATABASE
 	"${PROJECT_SOURCE_DIR}/src/logic/db/DBCall.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/db/DB.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/db/DB.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/db/DBTable.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/db/DBTable.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/db/DBTableMysql.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/db/DBTableMysql.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/db/main.cpp"
 )
 

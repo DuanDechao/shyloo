@@ -35,9 +35,6 @@ bool Master::destory(sl::api::IKernel * pKernel){
 
 
 void Master::onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* ip, const int32 port){
-	if(nodeType == NodeType::SLAVE)
-		return;
-
 	int64 node = (((int64)nodeType) << 32) | nodeId;
 	auto iter = _nodes.find(node);
 	if (iter != _nodes.end()){
@@ -60,9 +57,6 @@ void Master::onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32
 }
 
 void Master::onClose(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId){
-	if(nodeType == NodeType::SLAVE)
-		return;
-
 	int64 node = (((int64)nodeType) << 32) | nodeId;
 	auto iter = _nodes.find(node);
 	if (iter == _nodes.end()){

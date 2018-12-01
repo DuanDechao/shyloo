@@ -262,14 +262,13 @@ void Harbor::send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& ar
 void Harbor::send(int32 nodeType, int32 nodeId, int32 messageId, const sl::OBStream& args){
 	auto itor = _allNode.find(nodeType);
 	if (itor == _allNode.end()){
-		ECHO_ERROR("send data but can't find node[%s]", getNodeName(nodeType));
-		SLASSERT(false, "wtf");
+		ECHO_ERROR("send data but can't find node[%s:%d]", getNodeName(nodeType), nodeId);
 		return;
 	}
 
 	auto itor1 = itor->second.find(nodeId);
 	if (itor1 == itor->second.end()){
-		SLASSERT(false, "wtf");
+		ECHO_ERROR("send data but can't find node[%s:%d]", getNodeName(nodeType), nodeId);
 		return;
 	}
 	

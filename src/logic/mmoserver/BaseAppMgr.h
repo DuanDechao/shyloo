@@ -5,7 +5,7 @@
 #include "slbinary_stream.h"
 #include "slstring.h"
 #include "GameDefine.h"
-
+#include "ForwardMsgBuffer.h"
 class BaseAppMgr : public IBaseAppMgr, public sl::SLHolder<BaseAppMgr>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
@@ -17,5 +17,6 @@ public:
 private:
 	sl::api::IKernel*		_kernel;
 	BaseAppMgr*		        _self;
+	ForwardMsgBuffer*		_forwardMsgBuffer;
 };
 #endif
