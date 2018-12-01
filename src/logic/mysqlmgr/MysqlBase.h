@@ -74,7 +74,7 @@ public:
 	void Exec(IMysqlHandler* handler);
 	
 	static int32 realExecSql(SQLCommand* sqlCommand, ISLDBConnection* dbConnection, MysqlResult* mysqlResult);
-
+	static int32 getTableFields(ISLDBConnection* dbConnection, const char* tableName, MysqlResult* mysqlResult);
 private:
 	ISLDBConnection* _dbConnection;
 	IMysqlHandler* _handler;

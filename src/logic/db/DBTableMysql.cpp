@@ -3,6 +3,14 @@
 // 常规的buf长度
 #define SQL_BUF 65535
 #define MYSQL_ENGINE_TYPE "InnoDB"
+bool DBTableItemMysql::syncItemToDB(IDBInterface* pdbi, const char* dbDataType, const char* tableName, const char* itemName,
+		const int32 dataLength, enum_field_types sqlItemType, uint32 itemFlags, void* pData){
+	// if(pData){
+	// 	TABLE_FIELDS* pTFData = static_cast<TABLE_FIELDS*>(pData);
+		
+	// }
+}
+
 DBTableItemMysqlFixedDict::DBTableItemMysqlFixedDict(const char* itemName, IDataType* dataType, const char* defaultVal)
 	:DBTableItem(itemName, dataType, defaultVal)
 {}
@@ -23,6 +31,14 @@ bool DBTableItemMysqlFixedDict::initialize(){
 		_keyTypes.push_back(itemVal);
 	}
 	
+	return true;
+}
+
+bool DBTableItemMysqlFixedDict::syncToDB(IDBInterface* pdbi){
+	for(auto itor = keyTypes.begin(); itor != _keyTypes.end(); itor++){
+		if(!itor->second->syncToDB(pdbi))
+			return false;
+	}
 	return true;
 }
 
@@ -60,6 +76,7 @@ bool DBTableItemMysqlArray::initialize(){
 		itemName = TABLE_ARRAY_ITEM_VALUE_CONST_STR;
 
 	DBTableItem* pArrayTableItem = _parentTable->createItem(itemName.c_str(), _dataType->arrayDataType(), _defaultVal.c_str());
+	_parentTable->dataBase()->addTable(pTable);
 	pArrayTableItem->setParentTableItem(this);
 	pArrayTableItem->setTableName(pTable->tableName());
 
@@ -74,14 +91,43 @@ bool DBTableItemMysqlArray::initialize(){
 	return true;
 }
 
+bool DBTableItemMysqlArray::syncToDB(IDBInterface* pdbi){
+
+}
+
 
 DBTableMysql::DBTableMysql(const char* tableName)
 	:DBTable(tableName)
 {}
 
+bool DBTableMysql::initialize(){
+	const IObjectDefModule* defModule = SLMODULE(ObjectDef)->findObjectDefModule(_tableName.c_str());
+	if(!defModule){
+		SLASSERT(false, "can't find Module %s", _tableName.c_str());
+		return false;
+	}
+
+	const PROPS_MAP& persistentProp = defModule->getPersistentProps();
+	for(auto prop : persistentProp){
+		int8 type = prop.second->getType(defModule->getModuleName());	
+		IDataType* dataType = SLMODULE(ObjectDef)->getDataType(type);
+		SLASSERT(dataType, "wtf");
+		const char* defaultVal = prop.second->getDefaultVal(_tableName.c_str());
+		DBTableItem* pDTItem = createItem(prop.first.c_str(), dataType, defaultVal);
+		if(!pDTItem->initialize())
+			return false;
+	}
+	return true;
+}
+
 DBTableItem* DBTableMysql::createItem(const char* itemName, IDataType* dataType, const char* defaultVal){
 	std::string typeName = dataType->getName();
 	DBTableItem* pDTItem = NULL;
+	if(typeName == "INT8"){
+		if(strcmp(defaultVal, "") == 0)
+			defaultVal = "0";
+		pDTItem = NEW DBTableItemMysqlDigit(itemName, dataType, defaultVal);
+	}
 	if(typeName == "FIXED_DICT"){
 		pDTItem = NEW DBTableItemMysqlFixedDict(itemName, dataType, defaultVal);
 	}
@@ -97,6 +143,9 @@ DBTableItem* DBTableMysql::createItem(const char* itemName, IDataType* dataType,
 }
 
 bool DBTableMysql::syncToDB(IDBInterface* pdbi){
+	if(_sync)
+		return true;
+
 	char sqlBuf[SQL_BUF];
 	std::string extItem = "";
 
@@ -107,9 +156,11 @@ bool DBTableMysql::syncToDB(IDBInterface* pdbi){
 			"(id bigint(20) unsigned AUTO_INCREMENT, PRIMARY KEY idKey (id)%s)"
 			"ENGINE=" MYSQL_ENGINE_TYPE, tableName(), extItem.c_str());
 
-	//IDBCall* callor = CREATE_DB_CALL(SLMODULE(DB), 0, SYNC_STATE::ST_INIT);
-	//callor->execRawSql(sqlBuf, DBTableMysql::syncToDBCallback);
-	pdbi->execSqlSync(DB_OPT_UPDATE, sqlBuf);
+	IMysqlResult* result = pdbi->execSqlSync(DB_OPT_UPDATE, sqlBuf);
+	if(!result || result->getErrCode() != 0){
+		ERROR_LOG("DBTableMysql::syncToDB error:%d(%s)", result->getErrCode(), result->getErrInfo());
+		return false;
+	}
 	return true;
 }
 
@@ -117,12 +168,27 @@ DataBaseMysql::DataBaseMysql(IDBInterface* pdbi)
 	:DataBase(pdbi)
 {}
 
-void DataBaseMysql::initialize(){
+bool DataBaseMysql::initialize(){
 	const std::vector<const IObjectDefModule*>& allModule = SLMODULE(ObjectDef)->getAllObjectDefModule();
 	for(auto defModule : allModule){
+		if(!defModule->isPersistent())
+			continue;
+
 		DBTable* pTable = NEW DBTableMysql(defModule->getModuleName());
-	//	pTable->initialize();
+		if(!pTable->initialize()){
+			DEL pTable;
+			return false;
+		}
 		addTable(pTable);
-		pTable->syncToDB(_dbInterface);
+		pTable->setDataBase(this);
 	}
+	return true;
+}
+
+bool DataBaseMysql::syncToDB(){
+	for(auto itor : _tables){
+		if(!itor->second->syncToDB(_dbInterface))
+			return false;
+	}
+	return true;
 }

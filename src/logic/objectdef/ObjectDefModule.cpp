@@ -18,7 +18,8 @@ ObjectDefModule::ObjectDefModule(const char* moduleName, ObjectDefModule* parent
 	:_moduleName(moduleName),
     _hasCell(false),
     _hasBase(false),
-    _hasClient(false)
+    _hasClient(false),
+    _persistent(false)
 {
 	loadParentModule(parentModule);
 }
@@ -61,6 +62,9 @@ bool ObjectDefModule::loadParentModule(ObjectDefModule* parentModule){
 
 		if (parentModule->hasClient())
 			_hasClient = true;
+
+		if (parentModule->isPersistent())
+			_persistent = true;
 	}
 
 	return true;
@@ -141,8 +145,10 @@ bool ObjectDefModule::loadDefPropertys(const char* moduleName, const sl::ISLXmlN
 		if (propConf->subNodeExist("Persistent")){
 			std::string strPersistent = (*propConf)["Persistent"][0].getValueString();
             sl::CStringUtils::MakeLower(strPersistent);
-            if (strPersistent == "true")
+            if (strPersistent == "true"){
 				flags |= prop_def::ObjectDBFlag::persistent;
+				_persistent = true;
+            }
 		}
 
 		if (!propConf->subNodeExist("Type")){

@@ -29,6 +29,7 @@ class ISLDBConnection{
 public:
 	virtual bool SLAPI reOpen() = 0;
 	virtual ISLDBResult* SLAPI executeWithResult(const char* commandSql) = 0;
+	virtual ISLDBResult* SLAPI getTableFields(const char* tableName) = 0;
 	virtual bool SLAPI execute(const char* commandSql) = 0;
 	virtual unsigned int SLAPI getLastErrno(void) = 0;
 	virtual const char* SLAPI getLastError(void) = 0;

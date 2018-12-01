@@ -178,6 +178,7 @@ public:
 	//同步执行sql语句
 	virtual IMysqlResult* execSqlSync(const SQLCommnandFunc& f) = 0;
 	virtual IMysqlResult* execSqlSync(const int32 optType, const char* sql) = 0;
+	virtual IMysqlResult* getTableFields(const char* tableName);
 
 	virtual void stopSql(IMysqlHandler* handler) = 0;
 	virtual const char* host() = 0;

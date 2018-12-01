@@ -40,6 +40,7 @@ public:
 	virtual const char* dbName() {return _dbName.c_str();}
 	virtual const char* charset() {return _charset.c_str();}
 	virtual const int32 threadCount() {return _threadCount;}
+	virtual IMysqlResult* getTableFields(const char* tableName);
 	
 	int32 escapeString(char* dest, const int32 destSize, const char* src, const int32 srcSize);
 

@@ -31,7 +31,7 @@ int32 MysqlBase::realExecSql(SQLCommand* sqlCommand, ISLDBConnection* dbConnecti
 			const char* errInfo = dbConnection->getLastError();
 			mysqlResult->setErrInfo(errInfo);
 			SLASSERT(false, "sql command exec %s failed, error:%s", sqlCommand->toString(), errInfo);
-			return false;
+			return errCode;
 		}
 		mysqlResult->setColumns(dbResult);
 
@@ -46,8 +46,27 @@ int32 MysqlBase::realExecSql(SQLCommand* sqlCommand, ISLDBConnection* dbConnecti
 			const char* errInfo = dbConnection->getLastError();
 			mysqlResult->setErrInfo(errInfo);
 			SLASSERT(false, "sql command exec %s failed, error:%s", sqlCommand->toString(), errInfo);
-			return false;
+			return errCode;
 		}
+	}
+	return errCode;
+}
+
+int32 MysqlBase::getTableFields(ISLDBConnection* dbConnection, const char* tableName, MysqlResult* mysqlResult){
+	ISLDBResult* dbResult = dbConnection->getTableFields(tableName);
+	int32 errCode = 0;
+	if(!dbResult){
+		errCode = dbConnection->getLastErrno();
+		mysqlResult->setErrCode(errCode);
+		const char* errInfo = dbConnection->getLastError();
+		mysqlResult->setErrInfo(errInfo);
+		SLASSERT(false, "getTableField from table(%s) failed, error:%s", tableName, errInfo);
+		return errCode;
+	}
+	mysqlResult->setColumns(dbResult);
+
+	while(dbResult->next()){
+		mysqlResult->setColData(dbResult);
 	}
 	return errCode;
 }

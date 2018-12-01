@@ -58,6 +58,7 @@ public:
 	virtual bool hasBase() const { return _hasBase; }
 	virtual bool hasCell() const { return _hasCell; }
 	virtual bool hasClient() const { return _hasClient; }
+	virtual bool isPersistent() const {return _persistent;}
 	inline const std::vector<PropDefInfo*>& propsDefInfo() { return _propsDefInfo; }
     inline const std::vector<PropDefInfo*>& methodsDefInfo() {return _methodsDefInfo;}
 	inline void setModuleType(const int32 type) { _moduleType = type; }
@@ -95,6 +96,7 @@ private:
 	bool								_hasBase;
 	bool								_hasCell;
 	bool								_hasClient;
+	bool								_persistent;
 	std::vector<PropDefInfo*>			_propsDefInfo;
     std::vector<PropDefInfo*>           _methodsDefInfo;
     PROPS_MAP                           _props;

@@ -18,6 +18,7 @@ public:
 	virtual const char* SLAPI getLastError(void);
 	virtual void SLAPI release(void);
 	virtual unsigned long SLAPI escapeString(char* dest, const char* src, unsigned long srcSize);
+	virtual ISLDBResult* getTableFields(const char* tableName);
 
 	bool connectDBSvr();
 	bool isActive();

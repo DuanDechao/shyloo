@@ -118,6 +118,12 @@ int32 DBInterface::escapeString(char* dest, const int32 destSize, const char* sr
 	return len;
 }
 
+IMysqlResult* DBInterface::getTableFields(const char* tableName){
+	MysqlResult* result = NEW MysqlResult();
+	MysqlBase::getTableFields(_syncConnection, tableName, result);
+	return result;
+}
+
 void DBInterface::test(){
 	TestHandler* handler = NEW TestHandler();
 	auto f = [&](sl::api::IKernel* pKernel, SQLCommand& sqlCommand){

@@ -41,6 +41,7 @@ public:
     virtual bool hasBase() const  = 0;
     virtual bool hasCell() const = 0;
     virtual bool hasClient() const = 0;
+    virtual bool isPersistent() const = 0;
     
     virtual const PROPS_MAP& getProps() const  = 0;
 	virtual const PROPS_MAP& getPersistentProps() const = 0; 

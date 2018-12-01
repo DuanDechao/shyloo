@@ -103,6 +103,21 @@ bool SLDBConnection::isActive(){
 	return mysql_ping(&m_mysqlHandler) == 0;
 }
 
+ISLDBResult* SLDBConnection::getTableFields(const char* tableName){
+	if (!isActive())
+		return NULL;
+
+	if(!mysql_list_fields(*m_mysqlHandler, tableName, NULL)){
+		SLASSERT(false, "SLDBConnection::getTableFields from table(%s) failed", tableName);
+		return NULL;
+	}
+	SLDBResult* res = SLDBResult::create();
+	SLASSERT(res, "create SLDBResult failed!");
+	res->setResult(m_mysqlHandler);
+
+	return res;
+}
+
 
 }
 }
