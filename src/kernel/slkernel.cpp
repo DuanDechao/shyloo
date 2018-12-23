@@ -121,6 +121,14 @@ const char* Kernel::getLocalIp(){
 	return NetEngine::getInstance()->getLocalIp();
 }
 
+uint64 Kernel::getSpareTime(){
+	return NetEngine::getInstance()->getSpareTime();
+}
+
+void Kernel::clearSpareTime(){
+	return NetEngine::getInstance()->clearSpareTime();
+}
+
 api::IModule* Kernel::findModule(const char * name){
 	return LogicEngine::getInstance()->findModule(name);
 }

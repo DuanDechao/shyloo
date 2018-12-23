@@ -26,6 +26,8 @@ public:
 	virtual bool startTcpClient(api::ITcpSession * client, const char* ip, const int32 port, int32 sendSize = 0, int32 recvSize = 0);
 	virtual const char* getInternetIp();
 	virtual const char* getLocalIp();
+	virtual uint64 getSpareTime();
+	virtual void clearSpareTime();
 
 	//ipc interface
 	virtual bool addIPCServer(sl::api::ITcpServer* server, const int64 serverId);

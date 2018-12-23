@@ -46,8 +46,7 @@ DBInterface::~DBInterface(){
 	_syncConnection = nullptr;
 }
 
-void DBInterface::execSql(const int64 id, IMysqlHandler* handler, const SQLCommnandFunc& f){
-	SLASSERT(!handler->getBase(), "cannot set base twice");
+void DBInterface::execSql(const int64 id, const SQLCommnandFunc& f, const SQLExecCallback& cb){
 	SQLCommand* sqlCommand = NEW SQLCommand(NEW SQLBuilder(this));
 	if (f){
 		f(MysqlMgr::getInstance()->getKernel(), *sqlCommand);
@@ -59,14 +58,13 @@ void DBInterface::execSql(const int64 id, IMysqlHandler* handler, const SQLCommn
 	}
 
 	ISLDBConnection* dbConn = _dbConnections[(uint64)id % _dbConnections.size()];
-	MysqlBase* mysqlBase = NEW MysqlBase(dbConn, sqlCommand);
-	mysqlBase->Exec(handler);
+	MysqlBase* mysqlBase = NEW MysqlBase(dbConn, sqlCommand, cb);
 	
 	MysqlMgr::getInstance()->getKernel()->startAsync(id, mysqlBase, "exec mysql command");
 }
 
-void DBInterface::execSql(const int64 id, IMysqlHandler* handler, const int32 optType, const char* sql){
-	SLASSERT(!handler->getBase() && sql && strcmp(sql, "") != 0, "wtf");
+void DBInterface::execSql(const int64 id, const int32 optType, const char* sql, const SQLExecCallback& cb){
+	SLASSERT(sql && strcmp(sql, "") != 0, "wtf");
 	SQLCommand* sqlCommand = NEW SQLCommand(NEW SQLBuilder(this, optType, sql));
 	if (!sqlCommand->submit()){
 		SLASSERT(false, "not commit like update¡¢insert¡¢delete¡¢update");
@@ -74,14 +72,9 @@ void DBInterface::execSql(const int64 id, IMysqlHandler* handler, const int32 op
 	}
 
 	ISLDBConnection* dbConn = _dbConnections[(uint64)id % _dbConnections.size()];
-	MysqlBase* mysqlBase = NEW MysqlBase(dbConn, sqlCommand);
-	mysqlBase->Exec(handler);
-	MysqlMgr::getInstance()->getKernel()->startAsync(id, mysqlBase, "exec mysql command");
-}
+	MysqlBase* mysqlBase = NEW MysqlBase(dbConn, sqlCommand, cb);
 
-void DBInterface::stopSql(IMysqlHandler* handler){
-	SLASSERT(handler->getBase(), "mysql handler is not start");
-	MysqlMgr::getInstance()->getKernel()->stopAsync((MysqlBase*)handler->getBase());
+	MysqlMgr::getInstance()->getKernel()->startAsync(id, mysqlBase, "exec mysql command");
 }
 
 IMysqlResult* DBInterface::execSqlSync(const SQLCommnandFunc& f){
@@ -125,9 +118,9 @@ IMysqlResult* DBInterface::getTableFields(const char* tableName){
 }
 
 void DBInterface::test(){
-	TestHandler* handler = NEW TestHandler();
-	auto f = [&](sl::api::IKernel* pKernel, SQLCommand& sqlCommand){
+	/*auto f = [&](sl::api::IKernel* pKernel, SQLCommand& sqlCommand){
 		sqlCommand.table("user").insert(Field("id") = 1111122661331, Field("name") = "ddc\0ffc");
 	};
 	execSql(0, handler, f);
+	*/
 }

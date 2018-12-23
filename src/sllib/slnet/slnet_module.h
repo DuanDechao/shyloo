@@ -18,6 +18,8 @@ public:
 	virtual ISLConnector* SLAPI createConnector();
 	virtual bool SLAPI run(int64 overtime);
 	virtual void SLAPI release();
+	virtual uint64 getSpareTime() {return _dispatcher.getSpareTime();}
+	virtual void clearSpareTime() {_dispatcher.clearSpareTime();}
 
 	inline NetworkInterface* getNetworkInterface() {return _networkInterface;}
 

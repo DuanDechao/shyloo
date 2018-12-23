@@ -1,5 +1,5 @@
 #include "slpoller_select.h"
-
+#include "sltime.h"
 namespace sl{
 namespace network{
 SelectPoller::SelectPoller()
@@ -56,7 +56,8 @@ int SelectPoller::processPendingEvents(int64 maxWait){
 	nextTimeout.tv_usec = (int32)(((double)(maxWait / 1000) - (double)nextTimeout.tv_sec) * 1000000);
 
 	int countReady = 0;
-
+	
+	uint64 startTime = sl::getTimeMilliSecond();
 #ifdef SL_OS_WINDOWS
 	if(_fdLargest == -1){
 		Sleep(int32(maxWait));
@@ -66,6 +67,7 @@ int SelectPoller::processPendingEvents(int64 maxWait){
 		countReady = select(_fdLargest + 1, &readFDs, _fdWriteCount ? &writeFDs: NULL,
 			NULL, &nextTimeout);
 	}
+	_spareTime += sl::getTimeMilliSecond() - startTime;
 
 	if(countReady > 0){
 		this->handleNotifications(countReady, readFDs, writeFDs);

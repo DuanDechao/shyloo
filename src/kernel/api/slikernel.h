@@ -137,6 +137,8 @@ public:
 	virtual bool startTcpClient(api::ITcpSession * client, const char* ip, const int32 port, int32 sendSize = 0, int32 recvSize = 0) = 0;
 	virtual const char* getInternetIp() = 0;
 	virtual const char* getLocalIp() = 0;
+	virtual uint64 getSpareTime() = 0;
+	virtual void clearSpareTime() = 0;
 
 	//ipc interface
 	virtual bool addIPCServer(sl::api::ITcpServer* server, const int64 serverId) = 0;

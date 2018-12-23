@@ -2,9 +2,10 @@
 #include "MysqlMgr.h"
 #include "SQLBase.h"
 
-MysqlBase::MysqlBase(ISLDBConnection* dbConn, SQLCommand* sqlCommand)
+MysqlBase::MysqlBase(ISLDBConnection* dbConn, SQLCommand* sqlCommand, const SQLExecCallback& callback)
 	:_dbConnection(dbConn),
-	_sqlCommand(sqlCommand)
+	_sqlCommand(sqlCommand),
+	_callback(callback)
 {}
 
 MysqlBase::~MysqlBase(){
@@ -30,7 +31,7 @@ int32 MysqlBase::realExecSql(SQLCommand* sqlCommand, ISLDBConnection* dbConnecti
 			mysqlResult->setErrCode(errCode);
 			const char* errInfo = dbConnection->getLastError();
 			mysqlResult->setErrInfo(errInfo);
-			SLASSERT(false, "sql command exec %s failed, error:%s", sqlCommand->toString(), errInfo);
+	//		SLASSERT(false, "sql command exec %s failed, error:%s", sqlCommand->toString(), errInfo);
 			return errCode;
 		}
 		mysqlResult->setColumns(dbResult);
@@ -45,7 +46,7 @@ int32 MysqlBase::realExecSql(SQLCommand* sqlCommand, ISLDBConnection* dbConnecti
 			mysqlResult->setErrCode(errCode);
 			const char* errInfo = dbConnection->getLastError();
 			mysqlResult->setErrInfo(errInfo);
-			SLASSERT(false, "sql command exec %s failed, error:%s", sqlCommand->toString(), errInfo);
+	//		SLASSERT(false, "sql command exec %s failed, error:%s", sqlCommand->toString(), errInfo);
 			return errCode;
 		}
 	}
@@ -54,9 +55,8 @@ int32 MysqlBase::realExecSql(SQLCommand* sqlCommand, ISLDBConnection* dbConnecti
 
 int32 MysqlBase::getTableFields(ISLDBConnection* dbConnection, const char* tableName, MysqlResult* mysqlResult){
 	ISLDBResult* dbResult = dbConnection->getTableFields(tableName);
-	int32 errCode = 0;
-	if(!dbResult){
-		errCode = dbConnection->getLastErrno();
+	int32 errCode = dbConnection->getLastErrno();
+	if(!dbResult || errCode){
 		mysqlResult->setErrCode(errCode);
 		const char* errInfo = dbConnection->getLastError();
 		mysqlResult->setErrInfo(errInfo);
@@ -71,24 +71,14 @@ int32 MysqlBase::getTableFields(ISLDBConnection* dbConnection, const char* table
 	return errCode;
 }
 
-void MysqlBase::Exec(IMysqlHandler* handler){
-	handler->setBase(this);
-	_handler = handler;
-}
-
 bool MysqlBase::onSuccess(sl::api::IKernel* pKernel){
-	return _handler->onSuccess(pKernel, _sqlCommand->optType(), _affectedRow, &_result);
+	return _callback(pKernel, _errCode, _sqlCommand->optType(), _affectedRow, &_result);
 }
 
 bool MysqlBase::onFailed(sl::api::IKernel* pKernel, bool nonviolent){
-	return _handler->onFailed(pKernel, _sqlCommand->optType(), _errCode);
+	return _callback(pKernel, _errCode, _sqlCommand->optType(), _affectedRow, &_result);
 }
 
 void MysqlBase::onRelease(sl::api::IKernel* pKernel){
-	if (_handler){
-		_handler->setBase(nullptr);
-		_handler->onRelease();
-		_handler = nullptr;
-	}
 	DEL this;
 }

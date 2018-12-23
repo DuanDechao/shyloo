@@ -4,7 +4,6 @@
 	<module name="Harbor" />
 	<module name="Agent" />
 	<module name="Cluster" />
-	<module name="Capacity" />
 	<module name="EventEngine" />
 	<module name="IdMgr" />
 	<module name="DebugHelper" />

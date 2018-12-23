@@ -68,6 +68,8 @@ public:
 	virtual ISLConnector* SLAPI createConnector() = 0;
 	virtual bool SLAPI run(int64 overtime) = 0;
 	virtual void SLAPI release() = 0;
+	virtual uint64 getSpareTime() = 0;
+	virtual void clearSpareTime() = 0;
 };
 
 extern "C" SL_DLL_API sl::network::ISLNet* SLAPI getSLNetModule(void);

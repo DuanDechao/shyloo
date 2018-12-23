@@ -190,7 +190,6 @@ void NetEngine::readInternetIp(){
     for(ifaddrs* addr = addrs; addr; addr = addr->ifa_next){
 		if(strcmp(addr->ifa_name, "lo") == 0)
 			continue;
-		
 		if(addr->ifa_addr->sa_family == AF_INET){
 			char ip[MAX_IP_LEN];
 			inet_ntop(AF_INET, &(((sockaddr_in*)addr->ifa_addr)->sin_addr), ip, MAX_IP_LEN);
@@ -202,6 +201,9 @@ void NetEngine::readInternetIp(){
 				else{
 					if(!isLocalIp(ip)){
 						SafeSprintf(m_ip, sizeof(m_ip), "%s", ip);
+					}
+					else{
+						SafeSprintf(m_localIp, sizeof(m_localIp), "%s", ip);
 					}
 				}
 			}

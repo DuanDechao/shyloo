@@ -7,17 +7,6 @@
 #include "IMysqlMgr.h"
 using namespace sl::db;
 
-class TestHandler : public IMysqlHandler{
-public:
-	virtual bool onSuccess(sl::api::IKernel* pKernel, const int32 optType, const int32 affectedRow, IMysqlResult* result){
-		return true;
-	}
-	virtual bool onFailed(sl::api::IKernel* pKernel, const int32 optType, const int32 errCode){
-		return false;
-	}
-	virtual void onRelease(){ DEL this; }
-};
-
 class DBInterface: public IDBInterface{
 public:
 	static DBInterface* create(const char* host, const int32 port, const char* user, const char* pwd, const char* dbName, const char* charset, int32 threadNum){
@@ -28,9 +17,8 @@ public:
 		DEL this;
 	}
 	
-	virtual void execSql(const int64 id, IMysqlHandler* handler, const SQLCommnandFunc& f);
-	virtual void execSql(const int64 id, IMysqlHandler* handler, const int32 optType, const char* sql);
-	virtual void stopSql(IMysqlHandler* handler);
+	virtual void execSql(const int64 id, const SQLCommnandFunc& f, const SQLExecCallback& cb);
+	virtual void execSql(const int64 id, const int32 optType, const char* sql, const SQLExecCallback& cb);
 	virtual IMysqlResult* execSqlSync(const SQLCommnandFunc& f);
 	virtual IMysqlResult* execSqlSync(const int32 optType, const char* sql);
 	virtual const char* host() {return _host.c_str();}

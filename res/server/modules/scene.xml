@@ -3,7 +3,6 @@
     <module name="ResMgr" />
 	<module name="Harbor" />
 	<module name="Cluster" />
-	<module name="Capacity" />
 	<module name="IdMgr" />
 	<module name="EventEngine" />
 	<module name="DCCenter" />

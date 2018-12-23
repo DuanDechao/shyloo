@@ -1,5 +1,5 @@
 #include "slpoller_epoll.h"
-
+#include "sltime.h"
 namespace sl{
 namespace network{
 #ifdef HAS_EPOLL
@@ -22,7 +22,10 @@ EpollPoller::~EpollPoller(){
 int EpollPoller::processPendingEvents(int64 maxWait){
 	const int MAX_EVENTS = 50;
 	struct epoll_event events[MAX_EVENTS];
+	
+	uint64 startTime = sl::getTimeMilliSecond();
 	int nfds = epoll_wait(_epFd, events, MAX_EVENTS, maxWait);
+	_spareTime += sl::getTimeMilliSecond() - startTime;
 
 	for (int i = 0; i < nfds; i++){
 		if(events[i].events & (EPOLLERR|EPOLLHUP)){

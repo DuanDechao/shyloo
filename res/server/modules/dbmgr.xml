@@ -2,17 +2,20 @@
 <modules path="./">
 	<module name="ResMgr" />
 	<module name="Harbor" />
+	<module name="DebugHelper" />
 	<module name="Cluster" />
-	<module name="Capacity" />
 	<module name="EventEngine" />
    	<module name="IdMgr" />
     <module name="DCCenter" />
     <module name="GlobalData" />
 	<module name="Account" />
-    <module name="MmoServer" />
-    <!--<module name="MysqlMgr" />-->
+	<module name="PythonEngine" />
+	<module name="ObjectDef" />
+	<module name="PythonServer" />
+	<module name="MmoServer" />
+	<module name="MysqlMgr" />
     <!--<module name="Redis" />-->
     <!--<module name="DBCreator" />-->
     <!--<module name="CacheDB" />-->
-    <!--<module name="DB" />-->
+	<module name="DB" />
 </modules>

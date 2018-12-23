@@ -6,7 +6,7 @@
 #include "slpool.h"
 
 class DB;
-class DBCall : public IDBCall, public IMysqlHandler, public IDBCallSource{
+class DBCall : public IDBCall, public IDBCallSource{
 public:
 	DBCall(IDBInterface* pdbi, int64 threadId, int64 id) 
 		:_dbInterface(pdbi),

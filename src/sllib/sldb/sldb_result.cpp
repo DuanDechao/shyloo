@@ -9,7 +9,7 @@ SLDBResult::SLDBResult()
 	_fields(NULL),
 	_currRow(NULL),
 	_curRowfieldLengths(NULL),
-	_filedNum(0),
+	_fieldNum(0),
 	_rowNum(0)
 {}
 
@@ -20,17 +20,21 @@ SLDBResult::~SLDBResult(){
 		_fields = NULL;
 		_currRow = NULL;
 		_curRowfieldLengths = NULL;
-		_filedNum = 0;
+		_fieldNum = 0;
 		_rowNum = 0;
 	}
 }
 
 
 void SLDBResult::setResult(MYSQL& mysql){
-	_result = mysql_store_result(&mysql);
+	setResult(mysql_store_result(&mysql));
+}
+
+void SLDBResult::setResult(MYSQL_RES* result){
+	_result = result;
 	if (_result){
 		_fields = mysql_fetch_fields(_result);
-		_filedNum = mysql_num_fields(_result);
+		_fieldNum = mysql_num_fields(_result);
 		_rowNum = (unsigned int)mysql_num_rows(_result);
 	}
 }
@@ -51,7 +55,7 @@ void SLDBResult::release(){
 }
 
 int8 SLDBResult::toInt8(const int32 index){
-	if (index >=0 && index < (int32)_filedNum){
+	if (index >=0 && index < (int32)_fieldNum){
 		if (_currRow && _currRow[index])
 			return (int8)atoi(_currRow[index]);
 	}
@@ -59,7 +63,7 @@ int8 SLDBResult::toInt8(const int32 index){
 }
 
 uint8 SLDBResult::toUint8(const int32 index){
-	if (index >= 0 && index < (int32)_filedNum){
+	if (index >= 0 && index < (int32)_fieldNum){
 		if (_currRow && _currRow[index])
 			return (uint8)atoi(_currRow[index]);
 	}
@@ -67,7 +71,7 @@ uint8 SLDBResult::toUint8(const int32 index){
 }
 
 int16 SLDBResult::toInt16(const int32 index){
-	if (index >= 0 && index < (int32)_filedNum){
+	if (index >= 0 && index < (int32)_fieldNum){
 		if (_currRow && _currRow[index])
 			return (int16)atoi(_currRow[index]);
 	}
@@ -75,7 +79,7 @@ int16 SLDBResult::toInt16(const int32 index){
 }
 
 uint16 SLDBResult::toUint16(const int32 index){
-	if (index >= 0 && index < (int32)_filedNum){
+	if (index >= 0 && index < (int32)_fieldNum){
 		if (_currRow && _currRow[index])
 			return (uint16)atoi(_currRow[index]);
 	}
@@ -83,7 +87,7 @@ uint16 SLDBResult::toUint16(const int32 index){
 }
 
 int32 SLDBResult::toInt32(const int32 index){
-	if (index >= 0 && index < (int32)_filedNum){
+	if (index >= 0 && index < (int32)_fieldNum){
 		if (_currRow && _currRow[index])
 			return (int32)atoi(_currRow[index]);
 	}
@@ -91,7 +95,7 @@ int32 SLDBResult::toInt32(const int32 index){
 }
 
 uint32 SLDBResult::toUint32(const int32 index){
-	if (index >= 0 && index < (int32)_filedNum){
+	if (index >= 0 && index < (int32)_fieldNum){
 		if (_currRow && _currRow[index])
 			return (uint32)atoll(_currRow[index]);
 	}
@@ -99,7 +103,7 @@ uint32 SLDBResult::toUint32(const int32 index){
 }
 
 int64 SLDBResult::toInt64(const int32 index){
-	if (index >= 0 && index < (int32)_filedNum){
+	if (index >= 0 && index < (int32)_fieldNum){
 		if (_currRow && _currRow[index])
 			return (int64)atol(_currRow[index]);
 	}
@@ -107,7 +111,7 @@ int64 SLDBResult::toInt64(const int32 index){
 }
 
 uint64 SLDBResult::toUint64(const int32 index){
-	if (index >= 0 && index < (int32)_filedNum){
+	if (index >= 0 && index < (int32)_fieldNum){
 		if (_currRow && _currRow[index])
 			return (uint64)strtoul(_currRow[index], NULL, 10);
 	}
@@ -115,7 +119,7 @@ uint64 SLDBResult::toUint64(const int32 index){
 }
 
 float SLDBResult::toFloat(const int32 index){
-	if (index >= 0 && index < (int32)_filedNum){
+	if (index >= 0 && index < (int32)_fieldNum){
 		if (_currRow && _currRow[index])
 			return (float)atof(_currRow[index]);
 	}
@@ -123,7 +127,7 @@ float SLDBResult::toFloat(const int32 index){
 }
 
 const char* SLDBResult::toString(const int32 index){
-	if (index >= 0 && index < (int32)_filedNum){
+	if (index >= 0 && index < (int32)_fieldNum){
 		if (_currRow && _currRow[index])
 			return (const char*)_currRow[index];
 	}
@@ -131,7 +135,7 @@ const char* SLDBResult::toString(const int32 index){
 }
 
 const char* SLDBResult::fieldName(const int32 index) const{
-	if (index >= 0 && index < (int32)_filedNum){
+	if (index >= 0 && index < (int32)_fieldNum){
 		if (_fields){
 			return _fields[index].name;
 		}
@@ -140,7 +144,7 @@ const char* SLDBResult::fieldName(const int32 index) const{
 }
 
 const char* SLDBResult::fieldValue(const int32 index) const{
-	if (index >= 0 && index < (int32)_filedNum){
+	if (index >= 0 && index < (int32)_fieldNum){
 		if (_currRow && _currRow[index]){
 			return (const char*)_currRow[index];
 		}
@@ -149,9 +153,45 @@ const char* SLDBResult::fieldValue(const int32 index) const{
 }
 
 unsigned long SLDBResult::fieldLength(const int32 index) const{
-	if (index >= 0 && index < (int32)_filedNum){
+	if (index >= 0 && index < (int32)_fieldNum){
 		if (_curRowfieldLengths){
 			return _curRowfieldLengths[index];
+		}
+	}
+	return 0;
+}
+
+unsigned long SLDBResult::fieldDBLength(const int32 index) const{
+	if(index >= 0 && index < (int32)_fieldNum){
+		if(_fields){
+			return _fields[index].length;
+		}
+	}
+	return 0;
+}
+
+unsigned long SLDBResult::fieldDBMaxLength(const int32 index) const{
+	if(index >= 0 && index < (int32)_fieldNum){
+		if(_fields){
+			return _fields[index].max_length;
+		}
+	}
+	return 0;
+}
+
+unsigned int SLDBResult::fieldFlags(const int32 index) const{
+	if(index >= 0 && index < (int32)_fieldNum){
+		if(_fields){
+			return _fields[index].flags;
+		}
+	}
+	return 0;
+}
+
+int	SLDBResult::fieldType(const int32 index) const{
+	if(index >= 0 && index < (int32)_fieldNum){
+		if(_fields){
+			return _fields[index].type;
 		}
 	}
 	return 0;

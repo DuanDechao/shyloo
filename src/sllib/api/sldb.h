@@ -23,6 +23,10 @@ public:
 	virtual const char* SLAPI fieldName(const int32 index) const = 0;
 	virtual const char* SLAPI fieldValue(const int32 index) const = 0;
 	virtual unsigned long SLAPI fieldLength(const int32 index) const = 0;
+	virtual unsigned long SLAPI fieldDBLength(const int32 index) const = 0;
+	virtual unsigned long SLAPI fieldDBMaxLength(const int32 index) const = 0;
+	virtual unsigned int SLAPI fieldFlags(const int32 index) const = 0;
+	virtual int	SLAPI fieldType(const int32 index) const = 0;
 };
 
 class ISLDBConnection{

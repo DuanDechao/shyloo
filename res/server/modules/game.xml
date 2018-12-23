@@ -2,8 +2,8 @@
 <modules path="./">
     <module name="ResMgr" />
 	<module name="Harbor" />
+	<module name="DebugHelper" />
 	<module name="Cluster" />
-	<module name="Capacity" />
    	<module name="IdMgr" />
 	<module name="EventEngine" />
 	<module name="DCCenter" />
@@ -11,7 +11,9 @@
     <module name="PythonEngine" />
     <module name="ObjectDef" />
     <module name="PythonServer" />
+    <module name="TelnetServer" />
     <module name="Gate" />
+    <module name="Agent" />
 	<!--<module name="Logic" />-->
 	<!--<module name="GD" />-->
 	<!--<module name="Online" />-->

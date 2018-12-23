@@ -39,6 +39,14 @@ int EventDispatcher::processNetwork(int64 overTime){
 	return _pPoller->processPendingEvents(overTime);
 }
 
+uint64 EventDispatcher::getSpareTime() const{
+	return _pPoller->spareTime();
+}
+
+void EventDispatcher::clearSpareTime(){
+	_pPoller->clearSpareTime();
+}
+
 void EventDispatcher::processUntilBreak(int64 overTime){
 	if(_breakProcessing != EVENT_DISPATCHER_STATUS_BREAK_PROCESSING)
 		_breakProcessing = EVENT_DISPATCHER_STATUS_RUNNING;

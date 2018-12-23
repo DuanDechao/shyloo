@@ -5,12 +5,22 @@
 using namespace sl::db;
 class MysqlResult : public IMysqlResult{
 public:
+	struct TABLE_COLUMN{
+		int32  index;
+		uint32 length;
+		uint32 maxLength;
+		uint32 flags;
+		int32  type;
+	};
+
 	MysqlResult():_errCode(0){}
 	virtual ~MysqlResult() {}
 
 	virtual int32 rowCount() const { return (int32)_result.size(); }
 	virtual int32 columnCount() const { return (int32)_columns.size(); }
 	virtual bool columnExist(const char* column) const { return _columns.find(column) != _columns.end(); }
+	virtual const std::vector<std::string>& columns() const {return _columnsVec;}
+
 	virtual int8 getDataInt8(const int32 i, const char* key) const { return sl::CStringUtils::StringAsInt8(getColData(i, key).c_str()); }
 	virtual int16 getDataInt16(const int32 i, const char* key) const { return sl::CStringUtils::StringAsInt16(getColData(i, key).c_str()); }
 	virtual int32 getDataInt32(const int32 i, const char* key) const { return sl::CStringUtils::StringAsInt32(getColData(i, key).c_str()); }
@@ -21,6 +31,34 @@ public:
 	virtual void release() {DEL this;}
 	void setErrCode(int32 code) {_errCode = code;}
 	void setErrInfo(const char* info) {_errInfo = info;}
+	
+	virtual uint32 columnLength(const char* column) const {
+		auto itor = _columns.find(column);
+		if(itor != _columns.end())
+			return itor->second.length;
+		return 0;
+	}
+
+	virtual uint32 columnMaxLength(const char* column) const {
+		auto itor = _columns.find(column);
+		if(itor != _columns.end())
+			return itor->second.maxLength;
+		return 0;
+	}
+
+	virtual uint32 columnFlags(const char* column) const {
+		auto itor = _columns.find(column);
+		if(itor != _columns.end())
+			return itor->second.flags;
+		return 0;
+	}
+
+	virtual int32 columnType(const char* column) const {
+		auto itor = _columns.find(column);
+		if(itor != _columns.end())
+			return itor->second.type;
+		return 0;
+	}
 
 	void setColData(ISLDBResult* dbResult){
 		int32 fieldNum = (int32)dbResult->fieldNum();
@@ -37,7 +75,14 @@ public:
 
 		int32 fieldNum = (int32)dbResult->fieldNum();
 		for (int32 i = 0; i < fieldNum; i++){
-			_columns.insert(make_pair(dbResult->fieldName(i), i));
+			const char* fieldName = dbResult->fieldName(i);
+			TABLE_COLUMN& info = _columns[fieldName];
+			info.index = i;
+			info.length = dbResult->fieldDBLength(i);
+			info.maxLength = dbResult->fieldDBMaxLength(i);
+			info.flags = dbResult->fieldFlags(i);
+			info.type = dbResult->fieldType(i);
+			_columnsVec.push_back(fieldName);
 		}
 	}
 
@@ -45,7 +90,7 @@ private:
 	inline int32 columnIdx(const char* column) const{
 		auto itor = _columns.find(column);
 		SLASSERT(itor != _columns.end(), "cannot find column %s", column);
-		return itor->second;
+		return itor->second.index;
 	}
 
 	const std::string& getColData(int32 row, const char* column) const{
@@ -55,15 +100,16 @@ private:
 	}
 
 private:
-	std::unordered_map<string, int32> _columns;
+	std::unordered_map<string, TABLE_COLUMN> _columns;
+	std::vector<std::string> _columnsVec;
 	std::vector<std::vector<string>> _result;
 	int32 _errCode;
 	std::string _errInfo;
 };
 
-class MysqlBase : public IMysqlBase, public sl::api::IAsyncHandler{
+class MysqlBase : public sl::api::IAsyncHandler{
 public:
-	MysqlBase(ISLDBConnection* dbConn, SQLCommand* sqlCommand);
+	MysqlBase(ISLDBConnection* dbConn, SQLCommand* sqlCommand, const SQLExecCallback& cb);
 	~MysqlBase();
 
 	virtual bool onExecute(sl::api::IKernel* pKernel);
@@ -71,16 +117,14 @@ public:
 	virtual bool onFailed(sl::api::IKernel* pKernel, bool nonviolent);
 	virtual void onRelease(sl::api::IKernel* pKernel);
 
-	void Exec(IMysqlHandler* handler);
-	
 	static int32 realExecSql(SQLCommand* sqlCommand, ISLDBConnection* dbConnection, MysqlResult* mysqlResult);
 	static int32 getTableFields(ISLDBConnection* dbConnection, const char* tableName, MysqlResult* mysqlResult);
 private:
-	ISLDBConnection* _dbConnection;
-	IMysqlHandler* _handler;
-	SQLCommand* _sqlCommand;
-	MysqlResult _result;
-	int32 _errCode;
-	int32 _affectedRow;
+	ISLDBConnection*	_dbConnection;
+	SQLExecCallback		_callback;
+	SQLCommand*			_sqlCommand;
+	MysqlResult			_result;
+	int32				_errCode;
+	int32				_affectedRow;
 };
 #endif

@@ -132,11 +132,6 @@ private:
 	ISQLBuilder* _sqlBuilder;
 };
 
-class IMysqlBase{
-public:
-	virtual ~IMysqlBase(){}
-};
-
 class IMysqlResult{
 public:
 	virtual ~IMysqlResult() {}
@@ -145,42 +140,33 @@ public:
 	virtual int32 rowCount() const = 0;
 	virtual int32 columnCount() const = 0;
 	virtual bool columnExist(const char* column) const = 0;
+	virtual uint32 columnLength(const char* column) const = 0;
+	virtual uint32 columnMaxLength(const char* column) const = 0;
+	virtual uint32 columnFlags(const char* column) const = 0;
+	virtual int32 columnType(const char* column) const = 0;
+	
 	virtual int8 getDataInt8(const int32 row, const char* column) const = 0;
 	virtual int16 getDataInt16(const int32 row, const char* column) const = 0;
 	virtual int32 getDataInt32(const int32 row, const char* column) const = 0;
 	virtual int64 getDataInt64(const int32 row, const char* column) const = 0;
 	virtual const char* getDataString(const int32 row, const char* column) const = 0;
+	virtual const std::vector<std::string>& columns() const = 0;
 	virtual void release() = 0;
 };
 
-class IMysqlHandler{
-public:
-	IMysqlHandler() :_base(nullptr){}
-	virtual ~IMysqlHandler() {}
-
-	inline void setBase(IMysqlBase* base) { _base = base; }
-	inline IMysqlBase* getBase() const { return _base; }
-	
-	virtual bool onSuccess(sl::api::IKernel* pKernel, const int32 optType, const int32 affectedRow, IMysqlResult* result) = 0;
-	virtual bool onFailed(sl::api::IKernel* pKernel, const int32 optType, const int32 errCode) = 0;
-	virtual void onRelease() = 0;
-private:
-	IMysqlBase* _base;
-};
-
 typedef std::function<void(sl::api::IKernel* pKernel, SQLCommand& sqlCommnand)> SQLCommnandFunc;
+typedef std::function<bool(sl::api::IKernel* pKernel, const int32 errCode, const int32 optType, const int32 affectedRow, IMysqlResult* result)> SQLExecCallback;
 class IDBInterface{
 public:
 	virtual ~IDBInterface() {}
 	//异步执行sql语句，子线程
-	virtual void execSql(const int64 id, IMysqlHandler* handler, const SQLCommnandFunc& f) = 0;
-	virtual void execSql(const int64 id, IMysqlHandler* handler, const int32 optType, const char* sql) = 0;
+	virtual void execSql(const int64 id, const SQLCommnandFunc& command, const SQLExecCallback& cb) = 0;
+	virtual void execSql(const int64 id, const int32 optType, const char* sql, const SQLExecCallback& cb) = 0;
 	//同步执行sql语句
 	virtual IMysqlResult* execSqlSync(const SQLCommnandFunc& f) = 0;
 	virtual IMysqlResult* execSqlSync(const int32 optType, const char* sql) = 0;
-	virtual IMysqlResult* getTableFields(const char* tableName);
+	virtual IMysqlResult* getTableFields(const char* tableName) = 0;
 
-	virtual void stopSql(IMysqlHandler* handler) = 0;
 	virtual const char* host() = 0;
 	virtual const int32 port() = 0;
 	virtual const char* user() = 0;

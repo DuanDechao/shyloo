@@ -100,7 +100,7 @@ class IDB : public sl::api::IModule{
 public:
 	virtual ~IDB() {}
 
-	virtual IDBCall* create(int64 threadId, const int64 id, const char* file, const int32 line, const void* context, const int32 size = 0) = 0;
+//	virtual IDBCall* create(int64 threadId, const int64 id, const char* file, const int32 line, const void* context, const int32 size = 0) = 0;
 //	virtual IDBInterface* getInterface() = 0;
 };
 

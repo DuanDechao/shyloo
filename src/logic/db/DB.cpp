@@ -3,7 +3,7 @@
 #include "NodeDefine.h"
 #include "NodeProtocol.h"
 #include "IMysqlMgr.h"
-#include "DBCall.h"
+//#include "DBCall.h"
 #include "IResMgr.h"
 #include "DBTableMysql.h"
 bool DB::initialize(sl::api::IKernel * pKernel){
@@ -27,9 +27,12 @@ bool DB::launched(sl::api::IKernel * pKernel){
 		return true;
 	}
 	_database = NEW DataBaseMysql(_dbInterface);
-	_database->initialize();
+	if(!_database->initialize() || !_database->syncToDB()){
+		SLASSERT(false, "wtf");
+		return false;
+	}
 
-	//test();
+	test();
 	return true;
 }
 
@@ -37,7 +40,7 @@ bool DB::destory(sl::api::IKernel * pKernel){
 	DEL this;
 	return true;
 }
-
+/*
 IDBCall* DB::create(int64 threadId, const int64 id, const char* file, const int32 line, const void* context, const int32 size){
 	if (size <= SIZE_32){
 		return DBContext<SIZE_32>::create(_dbInterface, threadId, id);
@@ -68,9 +71,16 @@ IDBCall* DB::create(int64 threadId, const int64 id, const char* file, const int3
 	}
 	return nullptr;
 }
-
+*/
 void DB::test(){
-	//IDBCall* dbcall = DBContext<SIZE_64>::create(_self, 0, 0);
+	auto f = [&](sl::api::IKernel* pKernel, SQLCommand& sqlCommand){
+		sqlCommand.table("user").insert(Field("id") = 1111122661331, Field("name") = "ddc\0ffc");
+	};
+	auto cb=[&](sl::api::IKernel* pKernel, const int32 errCode, const int32 optType, const int32 affectRow, IMysqlResult* result)-> bool{
+		printf("dddddddddddddddddddddd %d %d\n", errCode, optType);
+		return true;
+	};
+	_dbInterface->execSql(0, f, cb);
 }
 
 
