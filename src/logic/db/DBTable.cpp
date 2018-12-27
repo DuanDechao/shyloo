@@ -24,6 +24,10 @@ void DBTable::addItem(DBTableItem* item){
 	_tableFixedOrderItems.push_back(item);
 }
 
+void DBTable::addSubTable(DBTable* table){
+	_subDBTables.push_back(table);
+}
+
 DBTableItem* DBTable::findItem(int32 utype){
 	auto itor = _tableItems.find(utype);
 	if(itor != _tableItems.end()){
@@ -32,22 +36,7 @@ DBTableItem* DBTable::findItem(int32 utype){
 	return NULL;
 }
 
-uint64 DBTable::writeTable(IDBInterface* pdbi, uint64 dbid, sl::OBStream& data, IObjectDefModule* defModule){
-	while(data.getSize() > 0){
-		int32 propId = 0;
-		data >> propId;
-
-		DBTableItem* pTableItem = findItem(propId);
-		if(!pTableItem){
-			SLASSERT(false, "cant find item[%d] from table [%s]", propId, tableName());
-			return dbid;
-		}
-
-		if(!pTableItem->writeItem(pdbi, dbid, data, defModule)){
-			return dbid;
-		}
-	}
-
+uint64 DBTable::writeTable(IDBInterface* pdbi, uint64 dbid, sl::OBStream& data){
 	return dbid;
 }
 

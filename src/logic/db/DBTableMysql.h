@@ -20,7 +20,9 @@ public:
 	virtual bool syncToDB(IDBInterface* pdbi, void* pData) = 0;
 	virtual void initDBItemName(const char* extraFlag = "");
 	virtual bool isSameKey(const char* key) {return strcmp(key, dbItemName()) == 0;}
-	virtual bool writeItem(IDBInterface* pdbi, uint64 dbid, sl::OBStream& data, IObjectDefModule* defModule) {return true;}
+	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data) {return true;}
+	virtual bool readItemSql(DBContext* pContext) {return true;}
+	virtual bool makeTestData(sl::IBStream& data) {return true;}
 	
 	const char* dbItemName() const {return _dbItemName;}
 	static bool syncItemToDB(IDBInterface* pdbi, const char* dbDataType, const char* tableName, const char* itemName,
@@ -41,6 +43,10 @@ public:
 	virtual ~DBTableItemMysqlDigit(){}
 	
 	virtual bool syncToDB(IDBInterface* pdbi, void* data);
+	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
+	virtual bool readItemSql(DBContext* pContext);
+
+	virtual bool makeTestData(sl::IBStream& data);
 };
 
 class DBTableItemMysqlFixedDict: public DBTableItemMysql{
@@ -55,6 +61,11 @@ public:
 	virtual bool syncToDB(IDBInterface* pdbi, void* pData);
 	virtual void initDBItemName(const char* extraFlag);
 	virtual bool isSameKey(const char* key);
+	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
+	virtual bool readItemSql(DBContext* pContext);
+	virtual bool makeTestData(sl::IBStream& data);
+
+	const KEYTYPE_MAP& keyTypes() const {return _keyTypes;}
 
 protected:
 	KEYTYPE_MAP		_keyTypes;			//dict类型item的keytype
@@ -73,6 +84,9 @@ public:
 	virtual bool syncToDB(IDBInterface* pdbi, void* pData) {return true;}
 	virtual void initDBItemName(const char* extraFlag);
 	virtual bool isSameKey(const char* key) {return false;}
+	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
+	virtual bool readItemSql(DBContext* pContext);
+	virtual bool makeTestData(sl::IBStream& data);
 
 protected:
 	DBTable*		_childTable;		//字段对应的子表
@@ -89,6 +103,11 @@ public:
 	virtual void initDBItemName(const char* extraFlag);
 	virtual bool syncToDB(IDBInterface* pdbi, void* pData);
 	virtual bool isSameKey(const char* key);
+	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
+	virtual bool readItemSql(DBContext* pContext);
+	virtual bool makeTestData(sl::IBStream& data);
+	
+	char** dbItemNames() {return _dbItemNames;}
 
 protected:
 	char  _dbItemNames[3][256];
@@ -105,6 +124,11 @@ public:
 	virtual void initDBItemName(const char* extraFlag);
 	virtual bool syncToDB(IDBInterface* pdbi, void* pData);
 	virtual bool isSameKey(const char* key);
+	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
+	virtual bool readItemSql(DBContext* pContext);
+	virtual bool makeTestData(sl::IBStream& data);
+
+	char** dbItemNames() {return _dbItemNames;}
 
 protected:
 	char _dbItemNames[2][256];
@@ -121,6 +145,11 @@ public:
 	virtual void initDBItemName(const char* extraFlag);
 	virtual bool syncToDB(IDBInterface* pdbi, void* pData);
 	virtual bool isSameKey(const char* key);
+	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
+	virtual bool readItemSql(DBContext* pContext);
+	virtual bool makeTestData(sl::IBStream& data);
+
+	char** dbItemNames() {return _dbItemNames;}
 
 protected:
 	char _dbItemNames[4][256];
@@ -135,6 +164,9 @@ public:
 	virtual ~DBTableItemMysqlString(){}
 
 	virtual bool syncToDB(IDBInterface* pdbi, void* pData);
+	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
+	virtual bool readItemSql(DBContext* pContext);
+	virtual bool makeTestData(sl::IBStream& data);
 };
 
 class DBTableItemMysqlUnicode: public DBTableItemMysql{
@@ -146,6 +178,8 @@ public:
 	virtual ~DBTableItemMysqlUnicode(){}
 
 	virtual bool syncToDB(IDBInterface* pdbi, void* pData);
+	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
+	virtual bool makeTestData(sl::IBStream& data);
 };
 
 class DBTableItemMysqlPython: public DBTableItemMysql{
@@ -157,6 +191,8 @@ public:
 	virtual ~DBTableItemMysqlPython(){}
 	
 	virtual bool syncToDB(IDBInterface* pdbi, void* pData);
+	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
+	virtual bool makeTestData(sl::IBStream& data);
 };
 
 class DBTableItemMysqlBlob: public DBTableItemMysql{
@@ -168,6 +204,8 @@ public:
 	virtual ~DBTableItemMysqlBlob(){}
 
 	virtual bool syncToDB(IDBInterface* pdbi, void* pData);
+	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
+	virtual bool makeTestData(sl::IBStream& data);
 };
 
 class DBTableItemMysqlMailBox: public DBTableItemMysql{
@@ -189,8 +227,13 @@ public:
 	virtual DBTableItem* createItem(const char* itemName, IDataType* dataType, const char* defaultVal);
 	virtual bool syncToDB(IDBInterface* pdbi);
 	virtual bool initialize();
-//	virtual uint64 writeTable(IDBInterface* pdbi, uint64 dbid, sl::OBStream& stream, IObjectDefModule* defModule);
+	virtual uint64 writeTable(IDBInterface* pdbi, uint64 dbid, sl::OBStream& stream);
+	virtual bool queryTable(IDBInterface* pdbi, uint64 dbid, sl::IBStream& stream); 
+	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
+	virtual bool makeTestData(sl::IBStream& data);
 
+	bool writeDataToDB(IDBInterface* pdbi, DBContext* pContext, bool isInsert);
+	bool readDataFromDB(IDBInterface* pdbi, DBContext* pContext, sl::IBStream& data);
 	void initDBItemName();
 
 protected:
@@ -204,6 +247,9 @@ public:
 
 	virtual bool initialize();
 	virtual bool syncToDB();
+	virtual bool makeTest();
+	
+	SQLCommand& createSqlCommand() {return _dbInterface->createSqlCommand();}
 };
 
 #endif

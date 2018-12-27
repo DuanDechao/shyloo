@@ -17,13 +17,14 @@ MysqlBase::~MysqlBase(){
 }
 
 bool MysqlBase::onExecute(sl::api::IKernel* pKernel){
-	_errCode = realExecSql(_sqlCommand, _dbConnection, &_result);
-	return _errCode == 0;
+	int32 errCode = realExecSql(_sqlCommand, _dbConnection, &_result);
+	return errCode == 0;
 }
 
 int32 MysqlBase::realExecSql(SQLCommand* sqlCommand, ISLDBConnection* dbConnection, MysqlResult* mysqlResult){
 	SLASSERT(sqlCommand->checkVaild(), "invaild sql command");
 	int32 errCode = 0;
+	mysqlResult->setOptType(sqlCommand->optType());
 	if (sqlCommand->optType() == DB_OPT_QUERY){
 		ISLDBResult* dbResult = dbConnection->executeWithResult(sqlCommand->toString());
 		if (!dbResult){
@@ -49,6 +50,8 @@ int32 MysqlBase::realExecSql(SQLCommand* sqlCommand, ISLDBConnection* dbConnecti
 	//		SLASSERT(false, "sql command exec %s failed, error:%s", sqlCommand->toString(), errInfo);
 			return errCode;
 		}
+		mysqlResult->setAffectedRows(dbConnection->getAffectedRows());
+		mysqlResult->setInsertId(dbConnection->getInsertId());
 	}
 	return errCode;
 }
@@ -72,11 +75,11 @@ int32 MysqlBase::getTableFields(ISLDBConnection* dbConnection, const char* table
 }
 
 bool MysqlBase::onSuccess(sl::api::IKernel* pKernel){
-	return _callback(pKernel, _errCode, _sqlCommand->optType(), _affectedRow, &_result);
+	return _callback(pKernel, &_result);
 }
 
 bool MysqlBase::onFailed(sl::api::IKernel* pKernel, bool nonviolent){
-	return _callback(pKernel, _errCode, _sqlCommand->optType(), _affectedRow, &_result);
+	return _callback(pKernel, &_result);
 }
 
 void MysqlBase::onRelease(sl::api::IKernel* pKernel){

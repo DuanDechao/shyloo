@@ -79,6 +79,14 @@ unsigned int SLDBConnection::getLastErrno(){
 const char* SLDBConnection::getLastError(){
 	return mysql_error(&m_mysqlHandler);
 }
+	
+const uint64 SLDBConnection::getAffectedRows(){
+	return mysql_affected_rows(&m_mysqlHandler);
+}
+
+const uint64 SLDBConnection::getInsertId(){
+	return mysql_insert_id(&m_mysqlHandler);
+}
 
 bool SLDBConnection::connectDBSvr(){
 	int32 value = 1;

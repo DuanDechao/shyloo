@@ -14,10 +14,7 @@ public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
-
-//	virtual IDBCall* create(int64 threadId, const int64 id, const char* file, const int32 line, const void* context, const int32 size = 0);
-	//virtual IDBInterface* getDBInterface() {return _dbInterface;}
-
+	
 	IMysqlMgr* getMysqlMgr(){ return _mysql; }
 
 	void test();

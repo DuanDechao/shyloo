@@ -5,6 +5,7 @@
 #include "IDCCenter.h"
 #include <map>
 #include "slbinary_stream.h"
+#include "DBContext.h"
 //在数据表中的一个字段
 #define TABLE_ARRAY_ITEM_VALUES_CONST_STR		"values"
 #define TABLE_ARRAY_ITEM_VALUE_CONST_STR		"value"
@@ -38,7 +39,8 @@ public:
 	virtual bool initialize(const char* defaultVal) = 0;
 	virtual bool syncToDB(IDBInterface* pdbi, void* data) = 0;
 	virtual bool isSameKey(const char* key) {return _itemName == key;}
-	virtual bool writeItem(IDBInterface* pdbi, uint64 dbid, sl::OBStream& data, IObjectDefModule* defModule) = 0;
+	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data) = 0;
+	virtual bool makeTestData(sl::IBStream& data) = 0;
 
 protected:
 	std::string		_itemName;			//字段名称
@@ -70,20 +72,25 @@ public:
 
 	void addItem(DBTableItem* item);
 	DBTableItem* findItem(int32 utype);
+	void addSubTable(DBTable* table);
+	const std::vector<DBTable*>& subTables() const {return _subDBTables;}
+	const std::vector<DBTableItem*>& tableItems() const {return _tableFixedOrderItems;}
 
 	virtual bool initialize() = 0;
 	virtual DBTableItem* createItem(const char* itemName, IDataType* dataType, const char* defaultVal) = 0;
 	virtual bool syncToDB(IDBInterface* pdbi) = 0;
-	virtual uint64 writeTable(IDBInterface* pdbi, uint64 dbid, sl::OBStream& stream, IObjectDefModule* defModule);
+	virtual uint64 writeTable(IDBInterface* pdbi, uint64 dbid, sl::OBStream& stream);
+	virtual bool makeTestData(sl::IBStream& data) = 0;
 
 protected:
-	std::string			_tableName;      //表名称
-	int64				_tableId;		 //表id		
-	TABLEITEM_MAP		_tableItems;	 //所有的字段	
-	DataBase*			_database;		 //所属数据库
-	std::vector<DBTableItem*> _tableFixedOrderItems;
-	bool				_isChild;		//是否是子表
-	bool				_sync;			//是否已经同步
+	std::string					_tableName;      //表名称
+	int64						_tableId;		 //表id		
+	TABLEITEM_MAP				_tableItems;	 //所有的字段	
+	DataBase*					_database;		 //所属数据库
+	std::vector<DBTableItem*>	_tableFixedOrderItems;
+	bool						_isChild;		//是否是子表
+	bool						_sync;			//是否已经同步
+	std::vector<DBTable*>		_subDBTables;	//子表集
 };
 
 class DataBase{
@@ -93,6 +100,8 @@ public:
 
 	virtual bool initialize() = 0;
 	virtual bool syncToDB() = 0;
+	virtual bool makeTest() = 0;
+
 	void addTable(DBTable* pTable);
 	DBTable* findTable(const char* table);
 	DBTable* findTable(const int64 id);

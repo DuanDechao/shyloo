@@ -1,5 +1,6 @@
 <root>
 	<gameUpdateHertz> 10 </gameUpdateHertz>
+	<maxAsyncThreadNum> 5 </maxAsyncThreadNum>
 	<hostID> 1 </hostID>
 
 	<channelCommon>

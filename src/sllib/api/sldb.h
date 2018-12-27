@@ -37,6 +37,8 @@ public:
 	virtual bool SLAPI execute(const char* commandSql) = 0;
 	virtual unsigned int SLAPI getLastErrno(void) = 0;
 	virtual const char* SLAPI getLastError(void) = 0;
+	virtual const uint64 SLAPI getAffectedRows(void) = 0;
+	virtual const uint64 SLAPI getInsertId(void) = 0;
 	virtual unsigned long SLAPI escapeString(char* dest, const char* src, unsigned long srcSize) = 0;
 	virtual void SLAPI release(void) = 0;
 };

@@ -48,12 +48,14 @@ DBInterface::~DBInterface(){
 
 void DBInterface::execSql(const int64 id, const SQLCommnandFunc& f, const SQLExecCallback& cb){
 	SQLCommand* sqlCommand = NEW SQLCommand(NEW SQLBuilder(this));
-	if (f){
-		f(MysqlMgr::getInstance()->getKernel(), *sqlCommand);
+	if (!f || !f(MysqlMgr::getInstance()->getKernel(), *sqlCommand)){
+		DEL sqlCommand;
+		return;
 	}
 
 	if (!sqlCommand->submit()){
 		SLASSERT(false, "sqlCommand is inVaild");
+		DEL sqlCommand;
 		return;
 	}
 
@@ -68,6 +70,7 @@ void DBInterface::execSql(const int64 id, const int32 optType, const char* sql, 
 	SQLCommand* sqlCommand = NEW SQLCommand(NEW SQLBuilder(this, optType, sql));
 	if (!sqlCommand->submit()){
 		SLASSERT(false, "not commit like update、insert、delete、update");
+		DEL sqlCommand;
 		return;
 	}
 
@@ -79,12 +82,14 @@ void DBInterface::execSql(const int64 id, const int32 optType, const char* sql, 
 
 IMysqlResult* DBInterface::execSqlSync(const SQLCommnandFunc& f){
 	SQLCommand* sqlCommand = NEW SQLCommand(NEW SQLBuilder(this));
-	if (f){
-		f(MysqlMgr::getInstance()->getKernel(), *sqlCommand);
+	if (!f || !f(MysqlMgr::getInstance()->getKernel(), *sqlCommand)){
+		DEL sqlCommand;
+		return NULL;
 	}
 	
 	if (!sqlCommand->submit()){
 		SLASSERT(false, "sqlCommand is inVaild");
+		DEL sqlCommand;
 		return NULL;
 	}
 	
@@ -97,6 +102,7 @@ IMysqlResult* DBInterface::execSqlSync(const int32 optType, const char* sql){
 	SQLCommand* sqlCommand = NEW SQLCommand(NEW SQLBuilder(this, optType, sql));
 	if (!sqlCommand->submit()){
 		SLASSERT(false, "not commit like update、insert、delete、update");
+		DEL sqlCommand;
 		return NULL;
 	}
 
@@ -115,6 +121,11 @@ IMysqlResult* DBInterface::getTableFields(const char* tableName){
 	MysqlResult* result = NEW MysqlResult();
 	MysqlBase::getTableFields(_syncConnection, tableName, result);
 	return result;
+}
+
+SQLCommand& DBInterface::createSqlCommand(){
+	SQLCommand* sqlCommand = NEW SQLCommand(NEW SQLBuilder(this));
+	return *sqlCommand;
 }
 
 void DBInterface::test(){

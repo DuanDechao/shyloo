@@ -8,8 +8,7 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(DATABASE
-	#	"${PROJECT_SOURCE_DIR}/src/logic/db/DBCall.h"
-	#"${PROJECT_SOURCE_DIR}/src/logic/db/DBCall.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/db/DBContext.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/db/DB.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/db/DB.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/db/DBTable.h"

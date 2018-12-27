@@ -16,6 +16,8 @@ public:
 	virtual bool SLAPI execute(const char* commandSql);
 	virtual unsigned int SLAPI getLastErrno(void);
 	virtual const char* SLAPI getLastError(void);
+	virtual const uint64 SLAPI getAffectedRows(void);
+	virtual const uint64 SLAPI getInsertId(void);
 	virtual void SLAPI release(void);
 	virtual unsigned long SLAPI escapeString(char* dest, const char* src, unsigned long srcSize);
 	virtual ISLDBResult* getTableFields(const char* tableName);

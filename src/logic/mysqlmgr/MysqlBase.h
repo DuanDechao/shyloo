@@ -13,7 +13,12 @@ public:
 		int32  type;
 	};
 
-	MysqlResult():_errCode(0){}
+	MysqlResult()
+		:_errCode(0),
+		_affectedRows(0),
+		_insertId(0),
+		_optType(DB_OPT_NONE)
+	{}
 	virtual ~MysqlResult() {}
 
 	virtual int32 rowCount() const { return (int32)_result.size(); }
@@ -28,9 +33,16 @@ public:
 	virtual const char* getDataString(const int32 i, const char* key) const { return getColData(i, key).c_str(); }
 	virtual int32 errCode() {return _errCode;}
 	virtual const char* errInfo() {return _errInfo.c_str();}
+	virtual const uint64 affectedRows() const {return _affectedRows;}
+	virtual const uint64 insertId() const {return _insertId;}
+	virtual const int32 optType() const {return _optType;}
 	virtual void release() {DEL this;}
+
 	void setErrCode(int32 code) {_errCode = code;}
 	void setErrInfo(const char* info) {_errInfo = info;}
+	void setAffectedRows(const uint64 rows) {_affectedRows = rows;}
+	void setInsertId(const uint64 insertId) {_insertId = insertId;}
+	void setOptType(const int32 opt) {_optType = opt;}
 	
 	virtual uint32 columnLength(const char* column) const {
 		auto itor = _columns.find(column);
@@ -100,11 +112,14 @@ private:
 	}
 
 private:
-	std::unordered_map<string, TABLE_COLUMN> _columns;
-	std::vector<std::string> _columnsVec;
-	std::vector<std::vector<string>> _result;
-	int32 _errCode;
-	std::string _errInfo;
+	std::unordered_map<string, TABLE_COLUMN>	_columns;
+	std::vector<std::string>					_columnsVec;
+	std::vector<std::vector<string>>			_result;
+	int32										_errCode;
+	std::string									_errInfo;
+	uint64										_affectedRows;
+	uint64										_insertId;
+	int32										_optType;
 };
 
 class MysqlBase : public sl::api::IAsyncHandler{
@@ -124,7 +139,5 @@ private:
 	SQLExecCallback		_callback;
 	SQLCommand*			_sqlCommand;
 	MysqlResult			_result;
-	int32				_errCode;
-	int32				_affectedRow;
 };
 #endif

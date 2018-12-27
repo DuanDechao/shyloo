@@ -1,6 +1,7 @@
 #include "DBTableMysql.h"
 #include "IDB.h"
 #include "IDCCenter.h"
+#include<limits.h>
 // 常规的buf长度
 #define SQL_BUF 65535
 #define MYSQL_ENGINE_TYPE "InnoDB"
@@ -64,6 +65,111 @@ bool DBTableItemMysqlDigit::syncToDB(IDBInterface* pdbi, void* data){
 			dbItemName(), _databaseLength, _mysqlItemType, _flag, data);
 }
 
+bool DBTableItemMysqlDigit::writeItemSql(DBContext* pContext, sl::OBStream& data){
+	SQLCommand& sqlCommand = pContext->getSqlCommand();
+	std::string dataType = _dataType->getName();
+	if(dataType == "INT8"){
+		int8 v;
+		data >> v;
+		sqlCommand.save(Field(dbItemName()) = v);
+	}
+	else if(dataType == "INT16"){
+		int16 v;
+		data >> v;
+		sqlCommand.save(Field(dbItemName()) = v);
+	}
+	else if(dataType == "INT32"){
+		int32 v;
+		data >> v;
+		sqlCommand.save(Field(dbItemName()) = v);
+	}
+	else if(dataType == "INT64"){
+		int64 v;
+		data >> v;
+		sqlCommand.save(Field(dbItemName()) = v);
+	}
+	else if(dataType == "UINT8"){
+		uint8 v;
+		data >> v;
+		sqlCommand.save(Field(dbItemName()) = v);
+	}
+	else if(dataType == "UINT16"){
+		uint16 v;
+		data >> v;
+		sqlCommand.save(Field(dbItemName()) = v);
+	}
+	else if(dataType == "UINT32"){
+		uint32 v;
+		data >> v;
+		sqlCommand.save(Field(dbItemName()) = v);
+	}
+	else if(dataType == "UINT64"){
+		uint64 v;
+		data >> v;
+		sqlCommand.save(Field(dbItemName()) = v);
+	}
+	else if(dataType == "FLOAT"){
+		float v;
+		data >> v;
+		sqlCommand.save(Field(dbItemName()) = v);
+	}
+	else if(dataType == "DOUBLE"){
+		double v;
+		data >> v;
+		sqlCommand.save(Field(dbItemName()) = v);
+	}
+	return true;
+}
+
+bool DBTableItemMysqlDigit::makeTestData(sl::IBStream& data){
+	if(this->uType() > 0)
+		data << this->uType(); 
+
+	std::string dataType = _dataType->getName();
+	int32 rand = sl::getRandom(0, INT_MAX);
+	if(dataType == "INT8"){
+		int8 v = rand;
+		data << v;
+	}
+	else if(dataType == "INT16"){
+		int16 v = rand;
+		data << v;
+	}
+	else if(dataType == "INT32"){
+		int32 v = rand;
+		data << v;
+	}
+	else if(dataType == "INT64"){
+		int64 v = rand;
+		data << v;
+	}
+	else if(dataType == "UINT8"){
+		uint8 v = rand;
+		data << v;
+	}
+	else if(dataType == "UINT16"){
+		uint16 v = rand;
+		data << v;
+	}
+	else if(dataType == "UINT32"){
+		uint32 v = rand;
+		data << v;
+	}
+	else if(dataType == "UINT64"){
+		uint64 v = rand;
+		data << v;
+	}
+	else if(dataType == "FLOAT"){
+		float v = rand;
+		data << v;
+	}
+	else if(dataType == "DOUBLE"){
+		double v = rand;
+		data << v;
+	}
+	return true;
+}
+	
 bool DBTableItemMysqlFixedDict::initialize(const char* defaultVal){
 	std::vector<std::pair<std::string, IDataType*>> keyTypes = _dataType->dictDataType();
 	for(auto itor = keyTypes.begin(); itor != keyTypes.end(); itor++){
@@ -113,6 +219,25 @@ bool DBTableItemMysqlFixedDict::isSameKey(const char* key){
 	return false;
 }
 
+bool DBTableItemMysqlFixedDict::writeItemSql(DBContext* pContext, sl::OBStream& data){
+	for(auto itor = _keyTypes.begin(); itor != _keyTypes.end(); itor++){
+		if(!itor->second->writeItemSql(pContext, data))
+			return false;
+	}
+	return true;
+}
+
+bool DBTableItemMysqlFixedDict::makeTestData(sl::IBStream& data){
+	if(this->uType() > 0)
+		data << this->uType();
+
+	for(auto itor = _keyTypes.begin(); itor != _keyTypes.end(); itor++){
+		if(!itor->second->makeTestData(data))
+			return false;
+	}
+	return true;
+}
+
 bool DBTableItemMysqlArray::initialize(const char* defaultVal){
 	//创建子表
 	std::string tname = this->parentTable()->tableName();
@@ -141,6 +266,7 @@ bool DBTableItemMysqlArray::initialize(const char* defaultVal){
 
 	DBTable* pTable = NEW DBTableMysql(sl::CalcStringUniqueId(tableName.c_str()), tableName.c_str());
 	pTable->setIsChild(true);
+	_parentTable->addSubTable(pTable);
 
 	std::string itemName = "";
 	if(strcmp(_dataType->arrayDataType()->getName(), "FIXED_DICT") != 0)
@@ -168,6 +294,53 @@ void DBTableItemMysqlArray::initDBItemName(const char* extraFlag){
 		static_cast<DBTableMysql*>(_childTable)->initDBItemName();
 	}
 }
+
+bool DBTableItemMysqlArray::writeItemSql(DBContext* pContext, sl::OBStream& data){
+	int32 size = 0;
+	data >> size;
+	SLASSERT(_childTable, "wtf");
+
+	if(_childTable){
+		char fixedTableName[256];
+		SafeSprintf(fixedTableName, 256, TABLE_PREFIX "_%s", _childTable->tableName());
+
+		//清空
+		if(size <= 0){
+			if(pContext->dbid() <= 0)
+				return true;
+
+			//清空_childTable->tableName()
+			pContext->addSubContext(_childTable->tableName(), NULL);
+		}
+		else{
+			for(int32 idx = 0; idx < size; idx++){
+				DataBaseMysql* database = static_cast<DataBaseMysql*>(_parentTable->dataBase());
+				SQLCommand& sqlCommand = database->createSqlCommand();
+				DBContext* newDBContext = NEW DBContext(_childTable->tableName(), sqlCommand, 0);
+				sqlCommand.table(fixedTableName);
+				if(!static_cast<DBTableMysql*>(_childTable)->writeItemSql(newDBContext, data))
+					return false;
+
+				pContext->addSubContext(_childTable->tableName(), newDBContext);
+			}
+		}
+	}
+	return true;
+}
+
+bool DBTableItemMysqlArray::makeTestData(sl::IBStream& data){
+	if(this->uType() > 0)
+		data << this->uType();
+
+	int32 rand = sl::getRandom(0, 100);
+	data << rand;
+	for(int32 idx = 0; idx < rand; idx++){
+		if(_childTable){
+			_childTable->makeTestData(data);
+		}
+	}
+	return true;
+}
 	
 void DBTableItemMysqlVector3::initDBItemName(const char* extraFlag){
 	for(int32 idx = 0; idx < 3; idx++){
@@ -190,6 +363,27 @@ bool DBTableItemMysqlVector3::isSameKey(const char* key){
 			return true;
 	}
 	return false;
+}
+
+bool DBTableItemMysqlVector3::writeItemSql(DBContext* pContext, sl::OBStream& data){
+	SQLCommand& sqlCommand = pContext->getSqlCommand();
+	for(int32 idx = 0; idx < 3; idx++){
+		float v;
+		data >> v;
+		sqlCommand.save(Field(_dbItemNames[idx]) = v);
+	}
+	return true;
+}
+
+bool DBTableItemMysqlVector3::makeTestData(sl::IBStream& data){
+	if(this->uType() > 0)
+		data << this->uType();
+
+	for(int32 idx = 0; idx < 3; idx++){
+		float rand = sl::getRandom(0, INT_MAX);
+		data << rand;
+	}
+	return true;
 }
 
 void DBTableItemMysqlVector2::initDBItemName(const char* extraFlag){
@@ -215,6 +409,27 @@ bool DBTableItemMysqlVector2::isSameKey(const char* key){
 	return false;
 }
 
+bool DBTableItemMysqlVector2::writeItemSql(DBContext* pContext, sl::OBStream& data){
+	SQLCommand& sqlCommand = pContext->getSqlCommand();
+	for(int32 idx = 0; idx < 2; idx++){
+		float v;
+		data >> v;
+		sqlCommand.save(Field(_dbItemNames[idx]) = v);
+	}
+	return true;
+}
+
+bool DBTableItemMysqlVector2::makeTestData(sl::IBStream& data){
+	if(this->uType() > 0)
+		data << this->uType();
+
+	for(int32 idx = 0; idx < 2; idx++){
+		float rand = sl::getRandom(0, INT_MAX);
+		data << rand;
+	}
+	return true;
+}
+
 void DBTableItemMysqlVector4::initDBItemName(const char* extraFlag){
 	for(int32 idx = 0; idx < 4; idx++){
 		SafeSprintf(_dbItemNames[idx], 256, TABLE_ITEM_PREFIX"_%d_%s%s", idx, extraFlag, itemName());
@@ -238,12 +453,50 @@ bool DBTableItemMysqlVector4::isSameKey(const char* key){
 	return false;
 }
 
+bool DBTableItemMysqlVector4::writeItemSql(DBContext* pContext, sl::OBStream& data){
+	SQLCommand& sqlCommand = pContext->getSqlCommand();
+	for(int32 idx = 0; idx < 4; idx++){
+		float v;
+		data >> v;
+		sqlCommand.save(Field(_dbItemNames[idx]) = v);
+	}
+	return true;
+}
+
+bool DBTableItemMysqlVector4::makeTestData(sl::IBStream& data){
+	if(this->uType() > 0)
+		data << this->uType();
+
+	for(int32 idx = 0; idx < 4; idx++){
+		float rand = sl::getRandom(0, INT_MAX);
+		data << rand;
+	}
+	return true;
+}
+
 bool DBTableItemMysqlString::syncToDB(IDBInterface* pdbi, void* pData){
 	int32 length = getDataType()->getSize();
 	std::string strLength = sl::CStringUtils::Int32AsString(length);
 	sl::CStringUtils::RepleaceAll(_dbItemType, "@DATALEN@", strLength);
 	return DBTableItemMysql::syncItemToDB(pdbi, _dbItemType.c_str(), _tableName.c_str(),
 				dbItemName(), length, _mysqlItemType, _flag, pData);
+}
+
+bool DBTableItemMysqlString::writeItemSql(DBContext* pContext, sl::OBStream& data){
+	SQLCommand& sqlCommand = pContext->getSqlCommand();
+	const char* v = nullptr;
+	data >> v;
+	sqlCommand.save(Field(dbItemName()) = v);
+	return true;
+}
+
+bool DBTableItemMysqlString::makeTestData(sl::IBStream& data){
+	if(this->uType() > 0)
+		data << this->uType();
+	
+	const char* test = "dsfsdfasdaaaaaaaaaaaaaaaaaaa";
+	data << test;
+	return true;
 }
 
 bool DBTableItemMysqlUnicode::syncToDB(IDBInterface* pdbi, void* pData){
@@ -253,15 +506,79 @@ bool DBTableItemMysqlUnicode::syncToDB(IDBInterface* pdbi, void* pData){
 	return DBTableItemMysql::syncItemToDB(pdbi, _dbItemType.c_str(), _tableName.c_str(),
 				dbItemName(), length, _mysqlItemType, _flag, pData);
 }
+
+bool DBTableItemMysqlUnicode::writeItemSql(DBContext* pContext, sl::OBStream& data){
+	SQLCommand& sqlCommand = pContext->getSqlCommand();
+	const char* v = nullptr;
+	data >> v;
+	sqlCommand.save(Field(dbItemName()) = v);
+	return true;
+}
+
+bool DBTableItemMysqlUnicode::makeTestData(sl::IBStream& data){
+	if(this->uType() > 0)
+		data << this->uType();
+	
+	const char* test = "aaaaaaaaaa";
+	data << test;
+	return true;
+}
 	
 bool DBTableItemMysqlPython::syncToDB(IDBInterface* pdbi, void* pData){
 	return DBTableItemMysql::syncItemToDB(pdbi, _dbItemType.c_str(), _tableName.c_str(),
 				dbItemName(), 0, _mysqlItemType, _flag, pData);
 }
 
+bool DBTableItemMysqlPython::writeItemSql(DBContext* pContext, sl::OBStream& data){
+	SQLCommand& sqlCommand = pContext->getSqlCommand();
+	int32 dataLen = 0;
+	const void* pData = data.readBlob(dataLen);
+	if(!pData)
+		return false;
+
+	sqlCommand.save(Field(dbItemName()).addStruct(pData, dataLen));
+	return true;
+}
+
+bool DBTableItemMysqlPython::makeTestData(sl::IBStream& data){
+	if(this->uType() > 0)
+		data << this->uType();
+
+	int32 rand = sl::getRandom(0, 200);
+	char* test = (char*)alloca(rand);
+	for(int32 i = 0; i < rand; i++){
+		char num = sl::getRandom(0, 255);
+		test[i] = num;
+	}
+	data.addBlob(test, rand);
+	return true;
+}
+
 bool DBTableItemMysqlBlob::syncToDB(IDBInterface* pdbi, void* pData){
 	return DBTableItemMysql::syncItemToDB(pdbi, _dbItemType.c_str(), _tableName.c_str(),
 				dbItemName(), 0, _mysqlItemType, _flag, pData);
+}
+
+bool DBTableItemMysqlBlob::writeItemSql(DBContext* pContext, sl::OBStream& data){
+	SQLCommand& sqlCommand = pContext->getSqlCommand();
+	int32 dataLen = 0;
+	const void* pData = data.readBlob(dataLen);
+	if(!pData)
+		return false;
+
+	sqlCommand.save(Field(dbItemName()).addStruct(pData, dataLen));
+	return true;
+}
+
+bool DBTableItemMysqlBlob::makeTestData(sl::IBStream& data){
+	int32 rand = sl::getRandom(0, 200);
+	char* test = (char*)alloca(rand);
+	for(int32 i = 0; i < rand; i++){
+		char num = sl::getRandom(0, 255);
+		test[i] = num;
+	}
+	data.addBlob(test, rand);
+	return true;
 }
 
 DBTableMysql::DBTableMysql(const int64 tableId, const char* tableName)
@@ -282,8 +599,10 @@ bool DBTableMysql::initialize(){
 		const char* defaultVal = prop.second->getDefaultVal(_tableName.c_str());
 		DBTableItem* pDTItem = createItem(prop.first.c_str(), dataType, defaultVal);
 		pDTItem->setProp(prop.second);
+
 		if(!pDTItem->initialize(defaultVal))
 			return false;
+
 		addItem(pDTItem);
 	}
 
@@ -601,8 +920,15 @@ bool DBTableMysql::syncIndexToDB(IDBInterface* pdbi){
 
 	return true;
 }
-/*
-uint64 DBTableMysql::writeTable(IDBInterface* pdbi, uint64 dbid, sl::OBStream& stream, IObjectDefModule* defModule){
+
+uint64 DBTableMysql::writeTable(IDBInterface* pdbi, uint64 dbid, sl::OBStream& data){
+	SQLCommand& sqlCommand = static_cast<DataBaseMysql*>(_database)->createSqlCommand();
+	DBContext* pDBContext = NEW DBContext(tableName(), sqlCommand, dbid);
+
+	char fixedTableName[256];
+	SafeSprintf(fixedTableName, 256, TABLE_PREFIX "_%s", tableName());
+	sqlCommand.table(fixedTableName);
+
 	while(data.getSize() > 0){
 		int32 propId = 0;
 		data >> propId;
@@ -610,17 +936,216 @@ uint64 DBTableMysql::writeTable(IDBInterface* pdbi, uint64 dbid, sl::OBStream& s
 		DBTableItem* pTableItem = findItem(propId);
 		if(!pTableItem){
 			SLASSERT(false, "cant find item[%d] from table [%s]", propId, tableName());
-			return dbid;
+			return 0;
 		}
 
-		if(!pTableItem->writeItem(pdbi, dbid, data, defModule)){
-			return dbid;
+		if(!pTableItem->writeItemSql(pDBContext, data)){
+			return 0;
 		}
 	}
 
+	if(!writeDataToDB(pdbi, pDBContext, dbid == 0))
+		return 0;
+	
+	dbid = pContext->dbid();
+	DEL pContext;
 	return dbid;
 }
-*/
+
+bool DBTableMysql::queryTable(IDBInterface* pdbi, uint64 dbid, sl::IBStream& data){
+	SLASSERT(dbid > 0, "wtf");
+
+	SQLCommand& sqlCommand = pdbi->createSqlCommand();
+	DBContext* pDBContext = NEW DBContext(tableName(), sqlCommand, dbid); 
+
+	for(auto item : _tableFixedOrderItems){
+		if(!item->readItemSql(pDBContext))
+			return false;
+	}
+
+	if(!readDataFromDB(pdbi, pDBContext, data))
+		return false;
+
+	return true;
+}
+
+bool DBTableMysql::writeDataToDB(IDBInterface* pdbi, DBContext* pContext, bool isInsert){
+	SQLCommand& sqlCommand = pContext->getSqlCommand();
+	if(pContext->dbid() > 0)
+		pContext->optType() == DB_OPT_DELETE ? sqlCommand.where(Field(TABLE_ID_CONST_STR) == pContext->dbid()) :
+			sqlCommand.save(Field(TABLE_ID_CONST_STR) = pContext->dbid());
+	
+	if(pContext->dbid() <= 0 && pContext->parentDBId() > 0)
+		sqlCommand.save(Field(TABLE_PARENTID_CONST_STR) = pContext->parentDBId());
+	
+	sqlCommand.submit();
+	IMysqlResult* writeResult = pdbi->execSqlSync(sqlCommand.optType(), sqlCommand.toString());
+
+	if(!writeResult || writeResult->errCode() != 0){
+		SLASSERT(false, "writeDataToDB failed error:%s", result->errInfo());
+		return false;
+	}
+	
+	if(writeResult->optType() == DB_OPT_SAVE && pContext->dbid() <= 0)
+		pContext->setDBId(writeResult->insertId());
+		
+	SLASSERT(pContext->dbid() > 0, "wtf");
+		
+	//如果是删除操作的话，检查是否有子表需要删除
+	if(writeResult->optType() == DB_OPT_DELETE){		
+		DBTable* pDBTable = _database->findTable(pContext->tableName());
+		SLASSERT(pDBTable, "wtf");
+
+		const std::vector<DBTable*>& subDBTables = pDBTable->subTables();
+		for(auto subTable : subDBTables){
+			pContext->addSubContext(subTable->tableName(), NULL);
+		}
+	}
+	
+	DBContext::SUB_CONTEXTS& subDBContexts = pContext->subContexts();
+	for(auto contextItor : subDBContexts){
+		if(isInsert){
+			for(auto cItor : contextItor.second){
+				cItor->setParentDBId(pContext->dbid());
+				if(!writeDataToDB(pdbi, cItor, isInsert))
+					return false;
+			}
+		}
+		else{
+			char fixedSubTableName[256];
+			SafeSprintf(fixedSubTableName, 256, TABLE_PREFIX "_%s", contextItor.first.c_str());
+
+			SQLCommand& queryCommand = pdbi->createSqlCommand();
+			queryCommand.table(fixedSubTableName).where(Field(TABLE_PARENTID_CONST_STR) == pContext->dbid());
+			queryCommand.select(TABLE_ID_CONST_STR).get();
+
+			queryCommand.submit();
+			IMysqlResult* queryResult = pdbi->execSqlSync(queryCommand.optType(), queryCommand.toString());
+			if(!queryResult || queryResult->errCode() != 0){
+				SLASSERT(false, "writeDataToDB failed error:%s", result->errInfo());
+				return false;
+			}
+			DEL &queryCommand;
+			
+			int32 size = contextItor->second.size();
+			int32 dbSize = result->rowCount();
+
+			int32 idx = 0;
+			while(idx < dbSize){
+				//获取数据库中的dbid
+				uint64 subId = result->getDataInt64(idx, TABLE_ID_CONST_STR);
+				
+				if(idx < size){
+					//更新列表项，设置dbid
+					contextItor->second[idx]->setDBId(subId);
+				}
+				else{
+					//多余的执行删除操作
+					SQLCommand& delCommand = pdbi->createSqlCommand();
+					DBContext* subContext = NEW DBContext(subContextName.c_str(), delCommand, subId);
+
+					delCommand.table(fixedSubTableName).del();
+					contextItor->second.push_back(subContext);
+				}
+				idx++;
+			}
+
+			for(auto cItor : contextItor->second){
+				cItor->setParentDBId(pContext->dbid());
+				if(!writeDataToDB(pdbi, cItor, isInsert))
+					return false;
+			}
+		}
+	}
+	return true;
+}
+
+bool DBTableMysql::readDataFromDB(IDBInterface* pdbi, DBContext* pContext, sl::IBStream& data){
+	SQLCommand& sqlCommand = pContext->getSqlCommand();
+	if(pContext->dbid() > 0)
+		sqlCommand.where(Field(TABLE_ID_CONST_STR) == pContext->dbid());
+
+	if(pContext->parentDBId() > 0)
+		sqlCommand.where(Field(TABLE_PARENTID_CONST_STR) == pContext->parentDBId());
+
+	sqlCommand.submit();
+	IMysqlResult* readResult = pdbi->execSqlSync(sqlCommand.optType(), sqlCommand.toString());
+	if(!readResult || readResult->errCode() != 0){
+		if(readReult){
+			SLASSERT(false, "readDataFromDB failed, error:%s", readResult->errInfo());
+			readResult->release();
+		}
+		return false;
+	}
+	
+	DBTable* pDBTable = _database->findTable(pContext->tableName());
+	SLASSERT(pDBTable, "wtf");
+	const std::vector<DBTableItem*>& tableItems = pDBTable->tableItems(); 
+	for(auto item : tableItems){
+		if(!pDBTable->isChild()){
+			SLASSERT(item->utype() > 0, "wtf");
+			data << item->utype();
+		}
+		else{
+			data << rowCount;
+		}
+		
+		std::string dataType = item->getDataType()->getName();
+		for(int32 idx = 0; idx < rowCount; idx++){
+			if(dataType == "VECTOR2"){
+				char** dbItemNames = static_cast<DBTableItemMysqlVector2*>(item)->dbItemNames();	
+				SLASSERT(readReault->columnExist(dbItemNames[0]) && readResult->columnExist(dbItemNames[1]), "wtf");
+				float v1 = readResult->getDataFloat(idx, dbItemNames[0]);
+				float v2 = readResult->getDataFloat(idx, dbItemNames[1]);
+				data << v1 << v2;
+			}
+			else if(dataType == "VECTOR3"){
+				char** dbItemNames = static_cast<DBTableItemMysqlVector3*>(item)->dbItemNames();	
+				SLASSERT(readReault->columnExist(dbItemNames[0]) && readResult->columnExist(dbItemNames[1]) &&
+						readResult->columnExist(dbItemNames[2]), "wtf");
+				float v1 = readResult->getDataFloat(idx, dbItemNames[0]);
+				float v2 = readResult->getDataFloat(idx, dbItemNames[1]);
+				float v3 = readResult->getDataFloat(idx, dbItemNames[2]);
+				data << v1 << v2 << v3;
+			}
+			else if(dataType == "VECTOR4"){
+				char** dbItemNames = static_cast<DBTableItemMysqlVector4*>(item)->dbItemNames();	
+				SLASSERT(readReault->columnExist(dbItemNames[0]) && readResult->columnExist(dbItemNames[1]) &&
+						readResult->columnExist(dbItemNames[2]) && readResult->columnExist(dbItemNames[3]), "wtf");
+				float v1 = readResult->getDataFloat(idx, dbItemNames[0]);
+				float v2 = readResult->getDataFloat(idx, dbItemNames[1]);
+				float v3 = readResult->getDataFloat(idx, dbItemNames[2]);
+				float v4 = readResult->getDataFloat(idx, dbItemNames[3]);
+				data << v1 << v2 << v3 << v4;
+			}
+			else if(dataType == "FIXED_DICT"){
+				const KEYTYPE_MAP& keyTypes = static_cast<DBTableItemMysqlFixedDict*>(item)->keyTypes();
+				for(auto key : keyTypes){
+
+				}
+
+			}
+
+		}
+	}
+}
+
+bool DBTableMysql::writeItemSql(DBContext* pContext, sl::OBStream& data){
+	for(auto item : _tableFixedOrderItems){
+		if(!item->writeItemSql(pContext, data))
+			return false;
+	}
+	return true;
+}
+
+bool DBTableMysql::makeTestData(sl::IBStream& data){
+	for(auto item : _tableFixedOrderItems){
+		if(!item->makeTestData(data))
+			return false;
+	}
+	return true;
+}
+
 DataBaseMysql::DataBaseMysql(IDBInterface* pdbi)
 	:DataBase(pdbi)
 {}
@@ -646,6 +1171,24 @@ bool DataBaseMysql::syncToDB(){
 	for(auto itor : _tables){
 		if(!itor.second->syncToDB(_dbInterface))
 			return false;
+	}
+	return true;
+}
+
+bool DataBaseMysql::makeTest(){
+	for(auto table : _tables){
+		if(strcmp(table.second->tableName(), "Avatar") != 0)
+			continue;
+
+		if(table.second->isChild())
+			continue;
+		sl::BStream<102400> testData;
+		if(!table.second->makeTestData(testData)){
+			SLASSERT(false, "wtf");
+			return false;
+		}
+		sl::OBStream out = testData.out();
+		table.second->writeTable(_dbInterface, (uint64)21, out);
 	}
 	return true;
 }

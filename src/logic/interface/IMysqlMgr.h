@@ -151,11 +151,14 @@ public:
 	virtual int64 getDataInt64(const int32 row, const char* column) const = 0;
 	virtual const char* getDataString(const int32 row, const char* column) const = 0;
 	virtual const std::vector<std::string>& columns() const = 0;
+	virtual const uint64 affectedRows() const = 0;
+	virtual const uint64 insertId() const = 0;
+	virtual const int32 optType() const = 0;
 	virtual void release() = 0;
 };
 
-typedef std::function<void(sl::api::IKernel* pKernel, SQLCommand& sqlCommnand)> SQLCommnandFunc;
-typedef std::function<bool(sl::api::IKernel* pKernel, const int32 errCode, const int32 optType, const int32 affectedRow, IMysqlResult* result)> SQLExecCallback;
+typedef std::function<bool(sl::api::IKernel* pKernel, SQLCommand& sqlCommnand)> SQLCommnandFunc;
+typedef std::function<bool(sl::api::IKernel* pKernel, IMysqlResult* result)> SQLExecCallback;
 class IDBInterface{
 public:
 	virtual ~IDBInterface() {}
@@ -166,6 +169,7 @@ public:
 	virtual IMysqlResult* execSqlSync(const SQLCommnandFunc& f) = 0;
 	virtual IMysqlResult* execSqlSync(const int32 optType, const char* sql) = 0;
 	virtual IMysqlResult* getTableFields(const char* tableName) = 0;
+	virtual SQLCommand& createSqlCommand() = 0;
 
 	virtual const char* host() = 0;
 	virtual const int32 port() = 0;
