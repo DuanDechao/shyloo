@@ -40,6 +40,8 @@ public:
 	virtual bool syncToDB(IDBInterface* pdbi, void* data) = 0;
 	virtual bool isSameKey(const char* key) {return _itemName == key;}
 	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data) = 0;
+	virtual bool readItemSql(DBContext* pContext) = 0;
+	virtual bool addStream(DBContext* pContext, sl::IBStream& data) = 0;
 	virtual bool makeTestData(sl::IBStream& data) = 0;
 
 protected:
@@ -105,6 +107,7 @@ public:
 	void addTable(DBTable* pTable);
 	DBTable* findTable(const char* table);
 	DBTable* findTable(const int64 id);
+	inline IDBInterface* getDBInterface() {return _dbInterface;}
 
 protected:
 	IDBInterface*	_dbInterface;

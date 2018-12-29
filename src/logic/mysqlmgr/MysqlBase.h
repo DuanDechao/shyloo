@@ -30,7 +30,10 @@ public:
 	virtual int16 getDataInt16(const int32 i, const char* key) const { return sl::CStringUtils::StringAsInt16(getColData(i, key).c_str()); }
 	virtual int32 getDataInt32(const int32 i, const char* key) const { return sl::CStringUtils::StringAsInt32(getColData(i, key).c_str()); }
 	virtual int64 getDataInt64(const int32 i, const char* key) const { return sl::CStringUtils::StringAsInt64(getColData(i, key).c_str()); }
+	virtual float getDataFloat(const int32 i, const char* key) const { return sl::CStringUtils::StringAsFloat(getColData(i, key).c_str()); }
+	virtual double getDataDouble(const int32 i, const char* key) const { return sl::CStringUtils::StringAsDouble(getColData(i, key).c_str()); }
 	virtual const char* getDataString(const int32 i, const char* key) const { return getColData(i, key).c_str(); }
+	virtual const void* getDataBlob(const int32 i, const char* key, int32& dataSize) const { const std::string& data = getColData(i, key); dataSize = data.size(); return data.c_str();}
 	virtual int32 errCode() {return _errCode;}
 	virtual const char* errInfo() {return _errInfo.c_str();}
 	virtual const uint64 affectedRows() const {return _affectedRows;}

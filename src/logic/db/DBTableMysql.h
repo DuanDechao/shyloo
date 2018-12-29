@@ -21,7 +21,8 @@ public:
 	virtual void initDBItemName(const char* extraFlag = "");
 	virtual bool isSameKey(const char* key) {return strcmp(key, dbItemName()) == 0;}
 	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data) {return true;}
-	virtual bool readItemSql(DBContext* pContext) {return true;}
+	virtual bool readItemSql(DBContext* pContext);
+	virtual bool addStream(DBContext* pContext, sl::IBStream& data) {return true;}
 	virtual bool makeTestData(sl::IBStream& data) {return true;}
 	
 	const char* dbItemName() const {return _dbItemName;}
@@ -44,8 +45,7 @@ public:
 	
 	virtual bool syncToDB(IDBInterface* pdbi, void* data);
 	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
-	virtual bool readItemSql(DBContext* pContext);
-
+	virtual bool addStream(DBContext* pContext, sl::IBStream& data);
 	virtual bool makeTestData(sl::IBStream& data);
 };
 
@@ -63,6 +63,7 @@ public:
 	virtual bool isSameKey(const char* key);
 	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
 	virtual bool readItemSql(DBContext* pContext);
+	virtual bool addStream(DBContext* pContext, sl::IBStream& data);
 	virtual bool makeTestData(sl::IBStream& data);
 
 	const KEYTYPE_MAP& keyTypes() const {return _keyTypes;}
@@ -86,6 +87,7 @@ public:
 	virtual bool isSameKey(const char* key) {return false;}
 	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
 	virtual bool readItemSql(DBContext* pContext);
+	virtual bool addStream(DBContext* pContext, sl::IBStream& data);
 	virtual bool makeTestData(sl::IBStream& data);
 
 protected:
@@ -105,10 +107,9 @@ public:
 	virtual bool isSameKey(const char* key);
 	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
 	virtual bool readItemSql(DBContext* pContext);
+	virtual bool addStream(DBContext* pContext, sl::IBStream& data);
 	virtual bool makeTestData(sl::IBStream& data);
 	
-	char** dbItemNames() {return _dbItemNames;}
-
 protected:
 	char  _dbItemNames[3][256];
 };
@@ -126,9 +127,8 @@ public:
 	virtual bool isSameKey(const char* key);
 	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
 	virtual bool readItemSql(DBContext* pContext);
+	virtual bool addStream(DBContext* pContext, sl::IBStream& data);
 	virtual bool makeTestData(sl::IBStream& data);
-
-	char** dbItemNames() {return _dbItemNames;}
 
 protected:
 	char _dbItemNames[2][256];
@@ -147,9 +147,8 @@ public:
 	virtual bool isSameKey(const char* key);
 	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
 	virtual bool readItemSql(DBContext* pContext);
+	virtual bool addStream(DBContext* pContext, sl::IBStream& data);
 	virtual bool makeTestData(sl::IBStream& data);
-
-	char** dbItemNames() {return _dbItemNames;}
 
 protected:
 	char _dbItemNames[4][256];
@@ -165,7 +164,7 @@ public:
 
 	virtual bool syncToDB(IDBInterface* pdbi, void* pData);
 	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
-	virtual bool readItemSql(DBContext* pContext);
+	virtual bool addStream(DBContext* pContext, sl::IBStream& data);
 	virtual bool makeTestData(sl::IBStream& data);
 };
 
@@ -179,6 +178,7 @@ public:
 
 	virtual bool syncToDB(IDBInterface* pdbi, void* pData);
 	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
+	virtual bool addStream(DBContext* pContext, sl::IBStream& data);
 	virtual bool makeTestData(sl::IBStream& data);
 };
 
@@ -192,6 +192,7 @@ public:
 	
 	virtual bool syncToDB(IDBInterface* pdbi, void* pData);
 	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
+	virtual bool addStream(DBContext* pContext, sl::IBStream& data);
 	virtual bool makeTestData(sl::IBStream& data);
 };
 
@@ -205,6 +206,7 @@ public:
 
 	virtual bool syncToDB(IDBInterface* pdbi, void* pData);
 	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
+	virtual bool addStream(DBContext* pContext, sl::IBStream& data);
 	virtual bool makeTestData(sl::IBStream& data);
 };
 
@@ -230,6 +232,8 @@ public:
 	virtual uint64 writeTable(IDBInterface* pdbi, uint64 dbid, sl::OBStream& stream);
 	virtual bool queryTable(IDBInterface* pdbi, uint64 dbid, sl::IBStream& stream); 
 	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
+	virtual bool readItemSql(DBContext* pContext);
+	virtual bool addStream(DBContext* pContext, sl::IBStream& data);
 	virtual bool makeTestData(sl::IBStream& data);
 
 	bool writeDataToDB(IDBInterface* pdbi, DBContext* pContext, bool isInsert);

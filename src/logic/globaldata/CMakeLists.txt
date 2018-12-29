@@ -35,7 +35,7 @@ TARGET_LINK_LIBRARIES(GlobalData AttrGetter.lib)
 ENDIF(WIN32)
 
 IF(UNIX)
-TARGET_LINK_LIBRARIES(GlobalData libAttrGetter.so)
+TARGET_LINK_LIBRARIES(GlobalData)
 ENDIF(UNIX)
 
 

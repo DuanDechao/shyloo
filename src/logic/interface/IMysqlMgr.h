@@ -149,7 +149,9 @@ public:
 	virtual int16 getDataInt16(const int32 row, const char* column) const = 0;
 	virtual int32 getDataInt32(const int32 row, const char* column) const = 0;
 	virtual int64 getDataInt64(const int32 row, const char* column) const = 0;
+	virtual float getDataFloat(const int32 row, const char* column) const = 0;
 	virtual const char* getDataString(const int32 row, const char* column) const = 0;
+	virtual const void* getDataBlob(const int32 row, const char* column, int32& dataSize) const = 0;
 	virtual const std::vector<std::string>& columns() const = 0;
 	virtual const uint64 affectedRows() const = 0;
 	virtual const uint64 insertId() const = 0;

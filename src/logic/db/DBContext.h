@@ -15,10 +15,10 @@ public:
 		DEL &_sqlCommand;
 
 		for(auto itor : _subDBContexts){
-			for(auto context : itor->second){
+			for(auto context : itor.second){
 				DEL context;
 			}
-			itor->second.clear();
+			itor.second.clear();
 		}
 		_subDBContexts.clear();
 	}
@@ -42,12 +42,18 @@ public:
 	inline const char* tableName() const {return _tableName.c_str();}
 	inline void setParentDBId(const uint64 dbid) {_parentDBId = dbid;}
 	inline uint64 parentDBId() const {return _parentDBId;}
+	inline IMysqlResult* dbResult() const {return _dbResult;}
+	inline void setDBResult(IMysqlResult* result) {_dbResult = result;}
+	inline int32 dbRowIndex() const {return _dbRowIdx;}
+	inline void setDBRowIndex(const int32 idx) {_dbRowIdx = idx;} 
 
 protected:
-	uint64		 _dbid;
-	uint64		 _parentDBId;
-	SQLCommand&	 _sqlCommand;
-	SUB_CONTEXTS _subDBContexts;
-	std::string	 _tableName;
+	uint64			_dbid;
+	uint64			_parentDBId;
+	SQLCommand&		_sqlCommand;
+	SUB_CONTEXTS	_subDBContexts;
+	std::string		_tableName;
+	IMysqlResult*	_dbResult;
+	int32			_dbRowIdx;
 };
 #endif
