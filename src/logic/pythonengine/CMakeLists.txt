@@ -55,6 +55,7 @@ TARGET_LINK_LIBRARIES(PythonEngine slxml.lib shyloo.lib slpyscript.lib)
 ENDIF(WIN32)
 
 IF(UNIX)
-TARGET_LINK_LIBRARIES(PythonEngine libpython3.so)
+TARGET_LINK_LIBRARIES(PythonEngine libpython3.4m.so)
 ENDIF(UNIX)
+
 SET_PROPERTY(TARGET PythonEngine PROPERTY FOLDER "logic")

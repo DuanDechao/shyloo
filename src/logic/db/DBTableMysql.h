@@ -233,7 +233,7 @@ public:
 	virtual bool queryTable(IDBInterface* pdbi, uint64 dbid, sl::IBStream& stream); 
 	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
 	virtual bool readItemSql(DBContext* pContext);
-	virtual bool addStream(DBContext* pContext, sl::IBStream& data);
+	//virtual bool addStream(DBContext* pContext, sl::IBStream& data);
 	virtual bool makeTestData(sl::IBStream& data);
 
 	bool writeDataToDB(IDBInterface* pdbi, DBContext* pContext, bool isInsert);

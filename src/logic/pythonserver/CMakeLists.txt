@@ -88,6 +88,7 @@ TARGET_LINK_LIBRARIES(PythonServer slxml.lib shyloo.lib slpyscript.lib)
 ENDIF(WIN32)
 
 IF(UNIX)
-TARGET_LINK_LIBRARIES(PythonServer libpython3.so)
+TARGET_LINK_LIBRARIES(PythonServer libpython3.4m.so)
 ENDIF(UNIX)
+
 SET_PROPERTY(TARGET PythonServer PROPERTY FOLDER "logic")

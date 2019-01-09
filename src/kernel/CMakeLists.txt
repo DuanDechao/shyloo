@@ -139,5 +139,5 @@ ENDIF(WIN32)
 
 IF(UNIX)
 	SET(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin/Hybrid")
-	TARGET_LINK_LIBRARIES(shyloo libslxml.so libslnet.so libsltimer.so libslshm.so dl pthread)
+	TARGET_LINK_LIBRARIES(shyloo libslxml.so libslnet.so libsltimer.so libslshm.so dl pthread mysqlclient)
 ENDIF(UNIX)
