@@ -11,9 +11,6 @@ public:
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
 
-	bool installPyScript(const char* resPath, const char* userPath);
-	virtual void installScriptModuleMethod(PyCFunction f, const char* funcName);
-	virtual void installScriptModuleType(PyTypeObject* scriptType, const char* typeName);
 	virtual void installScriptModuleMethod(const char* funcName, PyCFunction f);
 	virtual void installScriptModuleType(PyTypeObject* scriptType, const char* typeName);
 	virtual PyObject* getBaseModule() {return getScript().getBaseModule();}
