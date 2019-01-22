@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <modules path="./">
+	<module name="DebugHelper" />
 	<module name="ResMgr" />
 	<module name="Harbor" />
-	<module name="DebugHelper" />
 	<module name="Cluster" />
 	<module name="EventEngine" />
    	<module name="IdMgr" />
