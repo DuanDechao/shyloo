@@ -48,11 +48,7 @@ private:
     uint32      _flags; 
 };
 
-<<<<<<< HEAD
-class Witness{
-=======
 class Witness: public IWitness{
->>>>>>> shipping
 public:
     typedef std::list<ObjectRef*> AOI_OBJECTS;
     typedef std::map<uint64, ObjectRef*> AOI_OBJECTS_MAP;
