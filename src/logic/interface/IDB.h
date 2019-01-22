@@ -93,13 +93,15 @@ public:
 	virtual void update(const char* tableName, const DBUpdateCommandFunc& f, const DBCallBack& cb) = 0;
 	virtual void save(const char* tableName, const DBSaveCommandFunc& f, const DBCallBack& cb) = 0;
 	virtual void del(const char* tableName, const DBDeleteCommandFunc& f, const DBCallBack& cb) = 0;
+	virtual void execRawSql(const int32 optType, const char* sql, const DBCallBack& cb) = 0;
 };
 
 class IDB : public sl::api::IModule{
 public:
 	virtual ~IDB() {}
 
-	virtual IDBCall* create(int64 threadId, const int64 id, const char* file, const int32 line, const void* context, const int32 size = 0) = 0;
+//	virtual IDBCall* create(int64 threadId, const int64 id, const char* file, const int32 line, const void* context, const int32 size = 0) = 0;
+//	virtual IDBInterface* getInterface() = 0;
 };
 
 #define CREATE_DB_CALL(_db, _threadId, _id) _db->create(_threadId, _id, __FILE__, __LINE__, nullptr)

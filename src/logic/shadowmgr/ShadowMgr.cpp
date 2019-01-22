@@ -202,7 +202,7 @@ void ShadowMgr::onSyncTime(sl::api::IKernel* pKernel, IObject* object, int64){
 	for (int32 i = 0; i < shadowSyncProps->rowCount(); i++){
 		const IRow* row = shadowSyncProps->getRow(i);
 		const IProp* prop = (const IProp*)row->getDataInt64(OCTableMacro::SHADOW_SYNC_PROP::PROP);
-		SLASSERT(prop && (prop->getSetting(object) & prop_def::copy), "wtf");
+		//SLASSERT(prop && (prop->getSetting(object) & prop_def::copy), "wtf");
 
 		shadow::Attribute attr;
 		attr.name = prop->getName();

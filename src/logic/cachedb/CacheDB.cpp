@@ -9,7 +9,7 @@
 bool CacheDB::initialize(sl::api::IKernel * pKernel){
 	_kernel = pKernel;
 
-	char path[256] = { 0 };
+	/*char path[256] = { 0 };
 	SafeSprintf(path, sizeof(path), "%s/cache_db.xml", pKernel->getEnvirPath());
 	sl::XmlReader conf;
 	if (!conf.loadXml(path)){
@@ -81,6 +81,7 @@ bool CacheDB::initialize(sl::api::IKernel * pKernel){
 		}
 		_tables[tableDesc.name] = tableDesc;
 	}
+*/
 
 	return true;
 }

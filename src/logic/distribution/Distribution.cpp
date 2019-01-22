@@ -49,9 +49,8 @@ void Distribution::onGateDistributeLogic(sl::api::IKernel* pKernel, const int32 
 			_distributes[actorId] = logic;
 	}
 
-	IArgs<3, 128> res;
+	sl::BStream<128> res;
 	res << agentId << actorId << logic;
-	res.fix();
 	_harbor->send(nodeType, nodeId, NodeProtocol::SCENEMGR_MSG_DISTRIBUTE_LOGIC_ACK, res.out());
 }
 

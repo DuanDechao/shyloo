@@ -5,13 +5,16 @@ namespace sl
 namespace db
 {
 SLDBConnection::SLDBConnection(ISLDBConnectionPool* pConnPool){
+	mysql_library_init(0, NULL, NULL);
 	mysql_init(&m_mysqlHandler);
 	m_pConnPool = pConnPool;
 }
 
 SLDBConnection::~SLDBConnection(){
-	if (isActive())
+	if (isActive()){
 		mysql_close(&m_mysqlHandler);
+		mysql_library_end();
+	}
 }
 
 void SLDBConnection::release(){
@@ -43,7 +46,7 @@ ISLDBResult* SLDBConnection::executeWithResult(const char* commandSql){
 		return NULL;
 
 	if (mysql_real_query(&m_mysqlHandler, commandSql, (unsigned long)strlen(commandSql))){
-		SLASSERT(false, "mysql query sql:%s failed", commandSql);
+	//	SLASSERT(false, "mysql query sql:%s failed, error: %s", commandSql, mysql_error(&m_mysqlHandler));
 		return NULL;
 	}
 	
@@ -59,7 +62,7 @@ bool SLDBConnection::execute(const char* commandSql){
 		return false;
 
 	if (mysql_real_query(&m_mysqlHandler, commandSql, (unsigned long)strlen(commandSql))){
-		SLASSERT(false, "mysql query sql:%s failed", commandSql);
+	//	SLASSERT(false, "mysql query sql:%s failed, error: %s", commandSql, mysql_error(&m_mysqlHandler));
 		return false;
 	}
 	return true;
@@ -78,6 +81,14 @@ unsigned int SLDBConnection::getLastErrno(){
 
 const char* SLDBConnection::getLastError(){
 	return mysql_error(&m_mysqlHandler);
+}
+	
+const uint64 SLDBConnection::getAffectedRows(){
+	return mysql_affected_rows(&m_mysqlHandler);
+}
+
+const uint64 SLDBConnection::getInsertId(){
+	return mysql_insert_id(&m_mysqlHandler);
 }
 
 bool SLDBConnection::connectDBSvr(){
@@ -101,6 +112,22 @@ bool SLDBConnection::connectDBSvr(){
 
 bool SLDBConnection::isActive(){
 	return mysql_ping(&m_mysqlHandler) == 0;
+}
+
+ISLDBResult* SLDBConnection::getTableFields(const char* tableName){
+	if (!isActive())
+		return NULL;
+
+	MYSQL_RES* result = mysql_list_fields(&m_mysqlHandler, tableName, NULL);
+	if(!result){
+	//	SLASSERT(false, "SLDBConnection::getTableFields from table(%s) failed, error %s", tableName, mysql_error(&m_mysqlHandler));
+		return NULL;
+	}
+	SLDBResult* res = SLDBResult::create();
+	SLASSERT(res, "create SLDBResult failed!");
+	res->setResult(result);
+
+	return res;
 }
 
 

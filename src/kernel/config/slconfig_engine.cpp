@@ -8,86 +8,66 @@ namespace sl
 {
 namespace core
 {
-bool ConfigEngine::initialize()
-{
-	m_stCoreConfig.sLoopduration = 0;
-	m_stCoreConfig.sTimerlooptick = 0;
-	m_stCoreConfig.sAsynclooptick = 0;
-	m_stCoreConfig.sAsyncThreadNum = 0;
-	m_stCoreConfig.sNetlooptick = 0;
-
-	return loadModuleConfig() && loadCoreConfig();
+bool ConfigEngine::initialize(){
+	m_stCoreConfig.gameUpdateTick = 100;
+	m_stCoreConfig.maxAsyncThreadNum = 0;
+	m_stCoreConfig.channelWriteBufferSize = -1;
+	m_stCoreConfig.channelReadBufferSize = -1;
+	
+	char coreFile[MAX_PATH] = {0};
+	SafeSprintf(coreFile, sizeof(coreFile), "%s/../../res/server/shyloo_defs.xml", sl::getAppPath());
+	
+	const char* moduleName = Kernel::getInstance()->getCmdArg("name");
+	SLASSERT(moduleName, "invaild cmd params");
+	char moduleFile[MAX_PATH];
+	SafeSprintf(moduleFile, sizeof(moduleFile), "%s/../../res/server/modules/%s.xml", sl::getAppPath(), moduleName);
+	
+	return loadCoreConfig(coreFile) && loadModuleConfig(moduleFile);
 }
 
-bool ConfigEngine::ready()
-{
+bool ConfigEngine::ready(){
 	return true;
 }
 
-bool ConfigEngine::destory()
-{
+bool ConfigEngine::destory(){
 	DEL this;
 	return true;
 }
 
-bool ConfigEngine::loadCoreConfig(){
-	const char* name = Kernel::getInstance()->getCmdArg("name");
-	SLASSERT(name, "invalid command args, there is no name");
-
-	char path[MAX_PATH] = {0};
-	SafeSprintf(path, sizeof(path), "%s/core/server_conf.xml", sl::getAppPath());
-	m_coreFile = path;
-
+bool ConfigEngine::loadCoreConfig(const char* path){
 	XmlReader server_conf;
 	if (!server_conf.loadXml(path)){
 		SLASSERT(false, "not find core file %s", path);
 		return false;
 	}
-
-	//char envirPath[MAX_PATH] = { 0 };
-	m_envirPath = server_conf.root()["envir"][0].getAttributeString("path");
-	m_envirPath += "/";
-
-	m_ipcPath = server_conf.root()["ipc"][0].getAttributeString("path");
-	m_ipcPath += "/";
-
-	char moduleConfPath[MAX_PATH] = { 0 };
-	SafeSprintf(moduleConfPath, sizeof(moduleConfPath), "%s/core/%s/conf.xml", sl::getAppPath(), name);
-	XmlReader conf;
-	if (!conf.loadXml(moduleConfPath)){
-		SLASSERT(false, "can not load module core file %s", moduleConfPath);
-		return false;
+	
+	if(server_conf.root().subNodeExist("gameUpdateHertz")){
+		int32 gameUpdateHertz = server_conf.root()["gameUpdateHertz"][0].getValueInt32();
+		m_stCoreConfig.gameUpdateTick = SECOND / gameUpdateHertz;
 	}
-	m_configFile = moduleConfPath;
 
-	char logPath[MAX_PATH] = { 0 };
-	SafeSprintf(logPath, sizeof(logPath), "%s/%s", sl::getAppPath(), server_conf.root()["log"][0].getAttributeString("path"));
-	m_stCoreConfig.logPath = logPath;
-	m_stCoreConfig.logPath += "/";
-	m_stCoreConfig.logFile = string(name) + "_" + Kernel::getInstance()->getCmdArg("node_id");
-	m_stCoreConfig.logFormat = server_conf.root()["log"][0].getAttributeString("format");
+	if(server_conf.root().subNodeExist("maxAsyncThreadNum")){
+		m_stCoreConfig.maxAsyncThreadNum = server_conf.root()["maxAsyncThreadNum"][0].getValueInt32();
+	}
 
-	m_stCoreConfig.sNetlooptick = conf.root()["net"][0].getAttributeInt32("tick");
-	m_stCoreConfig.sTimerlooptick = conf.root()["timer"][0].getAttributeInt32("tick");
-	m_stCoreConfig.sIpclooptick = conf.root()["ipc"][0].getAttributeInt32("tick");
-	m_stCoreConfig.sLoopduration = conf.root()["loop"][0].getAttributeInt32("tick");
-	if (conf.root().subNodeExist("async")){
-		m_stCoreConfig.sAsynclooptick = conf.root()["async"][0].getAttributeInt32("tick");
-		m_stCoreConfig.sAsyncThreadNum = conf.root()["async"][0].getAttributeInt32("threadNum");
+	if(server_conf.root().subNodeExist("channelCommon")){
+		const sl::ISLXmlNode& channelCommonNode = server_conf.root()["channelCommon"][0];
+		if(channelCommonNode.subNodeExist("readBufferSize")){
+			m_stCoreConfig.channelReadBufferSize = channelCommonNode["readBufferSize"][0].getValueInt32();
+		}
+
+		if(channelCommonNode.subNodeExist("writeBufferSize")){
+			m_stCoreConfig.channelWriteBufferSize = channelCommonNode["writeBufferSize"][0].getValueInt32();
+		}
 	}
 	return true;
 }
 
-bool ConfigEngine::loadModuleConfig(){
-	const char* moduleName = Kernel::getInstance()->getCmdArg("name");
-	SLASSERT(moduleName, "invaild cmd params");
-
-	char path[MAX_PATH];
-	SafeSprintf(path, sizeof(path), "%s/core/%s/module.xml", sl::getAppPath(), moduleName);
-
+bool ConfigEngine::loadModuleConfig(const char* moduleFile){
 	sl::XmlReader reader;
-	if (!reader.loadXml(path)){
+	if (!reader.loadXml(moduleFile)){
 		SLASSERT(false, "load module config failed");
+        printf("load module xml file[%s] failed\n", moduleFile);
 		return false;
 	}
 

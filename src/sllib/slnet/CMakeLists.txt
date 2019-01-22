@@ -62,6 +62,12 @@ SET(SL_LIB_NET
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slnet_module.cpp"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slconnector.h"
 	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slconnector.cpp"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slwebsocket_protocol.h"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slwebsocket_protocol.cpp"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slwebsocket_packet_filter.h"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slwebsocket_packet_filter.cpp"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slpacket_filter.h"
+	"${PROJECT_SOURCE_DIR}/src/sllib/slnet/slpacket_filter.cpp"
 )
 
 SOURCE_GROUP(api FILES ${SL_LIB_API})

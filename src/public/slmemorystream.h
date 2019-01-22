@@ -12,7 +12,7 @@
 
 #ifndef _SL_MEMORYSTREAM_H_
 #define _SL_MEMORYSTREAM_H_
-#include "slobjectpool.h"
+//#include "slobjectpool.h"
 #include "slmemorystream_converter.h"
 namespace sl
 {
@@ -365,7 +365,7 @@ public:
 			append(src, cnt);
 	}
 
-	void appendBlob(const std::string& datas)
+	void appendBlobWithSize(const std::string& datas)
 	{
 		uint32 len = (uint32)datas.size();
 		(*this) << len;
@@ -373,12 +373,27 @@ public:
 		if(len > 0)
 			append(datas.data(), len);
 	}
+	
+	void appendBlob(const std::string& datas)
+	{
+		uint32 len = (uint32)datas.size();
+		if(len > 0)
+			append(datas.data(), len);
+	}
 
-	void appendBlob(const MemoryStream* stream)
+
+	void appendBlobWithSize(const MemoryStream* stream)
 	{
 		uint32 len = (uint32)stream->length();
 		(*this) << len;
 		
+		if(len > 0)
+			append(*stream);
+	}
+	
+	void appendBlob(const MemoryStream* stream)
+	{
+		uint32 len = (uint32)stream->length();
 		if(len > 0)
 			append(*stream);
 	}
@@ -426,6 +441,23 @@ public:
 
 	}
 
+	int32 readBlob(std::string& datas){
+		if(length() <= 0)
+			return 0;
+
+		int32 rsize = 0;
+		(*this) >> rsize;
+		if((size_t)rsize > length())
+			return 0;
+
+		if(rsize > 0){
+			datas.assign((char*)(data() + rpos()), rsize);
+			read_skip(rsize);
+		}
+
+		return rsize;
+	}
+
 	void put(int32 pos, const uint8* src, uint32 cnt)
 	{
 		if(pos + cnt > (int32)size()){
@@ -440,7 +472,7 @@ protected:
 	std::vector<uint8> data_;
 };
 
-CREATE_OBJECT_POOL(MemoryStream);
+//CREATE_OBJECT_POOL(MemoryStream);
 
 }//namesapce sl
 #endif

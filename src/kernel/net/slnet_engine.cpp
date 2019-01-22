@@ -1,5 +1,6 @@
 #include "slnet_engine.h"
 #include "slnet_session.h"
+#include "slconfig_engine.h"
 #include "sltime.h"
 #include "slxml_reader.h"
 #ifdef SL_OS_WINDOWS
@@ -36,25 +37,21 @@ char g_localIpPrefix[MAX_LOCAL_IP_PREFIX_NUM][MAX_IP_LEN] = {
 	"192.168.",
 };
 
+#define DEFAULT_BUFFER_SIZE 16777216
+
+NetEngine::NetEngine(){
+	m_ip[0] = 0;
+	m_localIp[0] = 0;
+	m_pSLNetModule = NULL;
+}
+
 NetEngine::~NetEngine(){
-	if (m_pSLNetModule)
+	if (m_pSLNetModule){
 		m_pSLNetModule->release();
+	}
 }
 
 bool NetEngine::initialize(){
-	char path[MAX_PATH] = { 0 };
-	SafeSprintf(path, sizeof(path), "%s/core/server_conf.xml", sl::getAppPath());
-	XmlReader server_conf;
-	if (!server_conf.loadXml(path)){
-		SLASSERT(false, "not find core file %s", path);
-		return false;
-	}
-
-	if (server_conf.root()["server"][0].hasAttribute("pubIp")){
-		const char* pubIp = server_conf.root()["server"][0].getAttributeString("pubIp");
-		SafeSprintf(m_ip, sizeof(m_ip), "%s", pubIp);
-	}
-
 	if (strcmp(m_ip, "") == 0)
 		readInternetIp();
 
@@ -81,6 +78,10 @@ bool NetEngine::addTcpServer(sl::api::ITcpServer* server, const char* ip, const 
 	if (nullptr == pListener)
 		return false;
 
+	const sCoreConfig* pCoreConfig = ConfigEngine::getInstance()->getCoreConfig();
+	sendSize = pCoreConfig->channelWriteBufferSize < 0 ? sendSize : pCoreConfig->channelWriteBufferSize;
+	recvSize = pCoreConfig->channelReadBufferSize < 0 ? recvSize : pCoreConfig->channelReadBufferSize;
+
 	pListener->setBufferSize(recvSize, sendSize);
 	pListener->setPacketParser(NEW NetPacketParser);
 	pListener->setSessionFactory(NEW ServerSessionFactory(server));
@@ -88,8 +89,30 @@ bool NetEngine::addTcpServer(sl::api::ITcpServer* server, const char* ip, const 
 		//SLASSERT(false);
 		return false;
 	}
+
+	server->setListenPort(pListener->getListenPort());
 	return true;
 }
+
+bool NetEngine::addTelnetServer(sl::api::ITcpServer* server, const char* ip, const short port){
+	if(nullptr == m_pSLNetModule)
+		return false;
+
+	ISLListener* pListener = m_pSLNetModule->createListener();
+	if (nullptr == pListener)
+		return false;
+
+	pListener->setBufferSize(DEFAULT_BUFFER_SIZE, DEFAULT_BUFFER_SIZE);
+	pListener->setSessionFactory(NEW ServerSessionFactory(server));
+	if (!pListener->start(ip, port)){
+		//SLASSERT(false);
+		return false;
+	}
+
+	server->setListenPort(pListener->getListenPort());
+	return true;
+}
+
 bool NetEngine::addTcpClient(sl::api::ITcpSession* session, const char* ip, const short port, int sendSize, int recvSize){
 	if (nullptr == m_pSLNetModule)
 		return false;
@@ -98,6 +121,10 @@ bool NetEngine::addTcpClient(sl::api::ITcpSession* session, const char* ip, cons
 	if (nullptr == pConnector)
 		return false;
 
+	const sCoreConfig* pCoreConfig = ConfigEngine::getInstance()->getCoreConfig();
+	sendSize = pCoreConfig->channelWriteBufferSize < 0 ? sendSize : pCoreConfig->channelWriteBufferSize;
+	recvSize = pCoreConfig->channelReadBufferSize < 0 ? recvSize : pCoreConfig->channelReadBufferSize;
+	
 	pConnector->setBufferSize(recvSize, sendSize);
 	pConnector->setPacketParser(NEW NetPacketParser);
 	NetSession* pNetSession = NetSession::create(session);
@@ -112,7 +139,7 @@ bool NetEngine::addTcpClient(sl::api::ITcpSession* session, const char* ip, cons
 
 int64 NetEngine::loop(int64 overTime){
 	int64 startTime = sl::getTimeMilliSecond();
-	m_pSLNetModule->run(overTime / 5);
+	m_pSLNetModule->run(overTime);
 	//ECHO_ERROR("netengine loop");
 	return sl::getTimeMilliSecond() - startTime;
 }
@@ -170,7 +197,6 @@ void NetEngine::readInternetIp(){
     for(ifaddrs* addr = addrs; addr; addr = addr->ifa_next){
 		if(strcmp(addr->ifa_name, "lo") == 0)
 			continue;
-		
 		if(addr->ifa_addr->sa_family == AF_INET){
 			char ip[MAX_IP_LEN];
 			inet_ntop(AF_INET, &(((sockaddr_in*)addr->ifa_addr)->sin_addr), ip, MAX_IP_LEN);
@@ -182,6 +208,9 @@ void NetEngine::readInternetIp(){
 				else{
 					if(!isLocalIp(ip)){
 						SafeSprintf(m_ip, sizeof(m_ip), "%s", ip);
+					}
+					else{
+						SafeSprintf(m_localIp, sizeof(m_localIp), "%s", ip);
 					}
 				}
 			}

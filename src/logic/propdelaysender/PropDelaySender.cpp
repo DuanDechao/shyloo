@@ -95,7 +95,7 @@ void PropDelaySender::sendToSelf(sl::api::IKernel* pKernel, IObject* object){
 	SLASSERT(selfProps, "wtf");
 	int32 propCount = selfProps->rowCount();
 	if (propCount > 0){
-		sl::IBStream<game::MAX_PACKET_SIZE> args;
+		sl::BStream<game::MAX_PACKET_SIZE> args;
 		args << (int64)object->getID() << propCount;
 		for (int32 i = 0; i < propCount; i++){
 			const IRow* row = selfProps->getRow(i);
@@ -123,7 +123,7 @@ void PropDelaySender::sendToOthers(sl::api::IKernel* pKernel, IObject* object){
 	SLASSERT(sharedProps, "wtf");
 	int32 propCount = sharedProps->rowCount();
 	if (propCount > 0){
-		sl::IBStream<game::MAX_PACKET_SIZE> args;
+		sl::BStream<game::MAX_PACKET_SIZE> args;
 		args << (int64)object->getID() << propCount;
 		for (int32 i = 0; i < propCount; i++){
 			const IRow* row = sharedProps->getRow(i);

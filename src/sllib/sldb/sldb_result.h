@@ -10,7 +10,8 @@ namespace db{
 class SLDBResult : public ISLDBResult{
 public:
 	inline static SLDBResult* create(){
-		return CREATE_FROM_POOL(s_pool);
+		return NEW SLDBResult();
+		//return CREATE_FROM_POOL(s_pool);
 	}
 	
 	virtual bool SLAPI next();
@@ -27,13 +28,18 @@ public:
 	virtual float SLAPI toFloat(const int32 index);
 	virtual const char* SLAPI toString(const int32 index);
 	
-	virtual unsigned int SLAPI fieldNum() const { return _filedNum; }
+	virtual unsigned int SLAPI fieldNum() const { return _fieldNum; }
 	virtual unsigned int SLAPI rowNum() const { return _rowNum; }
 	virtual const char* SLAPI fieldName(const int32 index) const;
 	virtual const char* SLAPI fieldValue(const int32 index) const;
 	virtual unsigned long SLAPI fieldLength(const int32 index) const;
+	virtual unsigned long SLAPI fieldDBLength(const int32 index) const;
+	virtual unsigned long SLAPI fieldDBMaxLength(const int32 index) const;
+	virtual unsigned int SLAPI fieldFlags(const int32 index) const;
+	virtual int	SLAPI fieldType(const int32 index) const;
 
 	void setResult(MYSQL& mysql);
+	void setResult(MYSQL_RES* result);
 
 private:
 	friend sl::SLPool<SLDBResult>;
@@ -47,7 +53,7 @@ private:
 	MYSQL_ROW		_currRow;
 
 	unsigned long*	_curRowfieldLengths;
-	unsigned int	_filedNum;
+	unsigned int	_fieldNum;
 	unsigned int    _rowNum;
 
 	static sl::SLPool<SLDBResult> s_pool;

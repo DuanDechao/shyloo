@@ -13,7 +13,7 @@ public:
 
     inline bool isInstalled() const {return _removing;}
 
-    inline void setRange(float xz, float y) { _rangeXZ = xz; _rangeY = y;}
+    inline void setRange(float xz, float y) { _rangeXZ = xz + 0.001; _rangeY = y + 0.001;}
     inline float rangeXZ() const {return _rangeXZ;}
     inline float rangeY() const {return _rangeY;}
 

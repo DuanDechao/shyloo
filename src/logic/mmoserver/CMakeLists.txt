@@ -13,6 +13,12 @@ SET(MMOSERVER
     "${PROJECT_SOURCE_DIR}/src/logic/mmoserver/CellApp.cpp"
     "${PROJECT_SOURCE_DIR}/src/logic/mmoserver/DBMgr.h"
     "${PROJECT_SOURCE_DIR}/src/logic/mmoserver/DBMgr.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/mmoserver/CellAppMgr.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/mmoserver/CellAppMgr.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/mmoserver/BaseAppMgr.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/mmoserver/BaseAppMgr.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/mmoserver/ForwardMsgBuffer.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/mmoserver/ForwardMsgBuffer.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/mmoserver/main.cpp"
 )
 
@@ -35,7 +41,7 @@ TARGET_LINK_LIBRARIES(MmoServer AttrGetter.lib slxml.lib)
 ENDIF(WIN32)
 
 IF(UNIX)
-TARGET_LINK_LIBRARIES(MmoServer libAttrGetter.so)
+TARGET_LINK_LIBRARIES(MmoServer)
 ENDIF(UNIX)
 
 #SET_PROPERTY(TARGET Gate PROPERTY FOLDER "core")

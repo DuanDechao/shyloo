@@ -37,10 +37,9 @@ ObjectPropInfo::~ObjectPropInfo(){
 		DEL tableInfo._tableColumn;
 		}*/
 
-	/*for (auto* layout : _layouts){
-		if (layout)
+	for (auto* layout : _propLayouts){
 		DEL layout;
-		}*/
+	}
 
 	_propLayouts.clear();
 	_props.clear();
@@ -98,7 +97,7 @@ bool ObjectPropInfo::loadProps(const sl::ISLXmlNode& props, PROP_DEFDINE_MAP& de
 	return true;
 }
 
-const IProp* ObjectPropInfo::loadProp(const char* name, const int8 type, const int32 size, const int32 setting, const int32 index, const int64 extra, bool isTemp){
+const IProp* ObjectPropInfo::loadProp(const char* name, const int8 type, const int32 size, const int32 setting, const int32 index, const void* extra, const char* defaultVal, bool isTemp){
 	PropLayout* layout = NEW PropLayout();
 	layout->_name = name;
 	layout->_offset = _size;
@@ -110,6 +109,7 @@ const IProp* ObjectPropInfo::loadProp(const char* name, const int8 type, const i
 	layout->_index = index;
 	layout->_setting = setting;
     layout->_extra = extra;
+	layout->_defaultVal = defaultVal;
 
 	_propLayouts.push_back(layout);
 

@@ -5,6 +5,10 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include "slmemorystream.h"
+#include <sstream>
+#include "slbinary_stream.h"
+#include "utf8/utf8.h"
 using namespace std;
 namespace sl
 {
@@ -54,6 +58,31 @@ public:
 			}
 		}
 	}
+
+    static std::vector< std::string > splits(const std::string& s, const std::string& delim, const bool keep_empty = true) {
+        std::vector< std::string > result;
+
+        if (delim.empty()) {
+            result.push_back(s);
+            return result;
+        }
+
+        std::string::const_iterator substart = s.begin(), subend;
+
+        while (true) {
+            subend = std::search(substart, s.end(), delim.begin(), delim.end());
+            std::string temp(substart, subend);
+            if (keep_empty || !temp.empty()) {
+                result.push_back(temp);
+            }
+            if (subend == s.end()) {
+                break;
+            }
+            substart = subend + delim.size();
+        }
+
+        return result;
+    }
 
 	/*
 		·Ö¸îname = value ´®
@@ -123,6 +152,10 @@ public:
 	}
 
 		
+	static int32 StringAsInt32(const std::string& str){
+		return StringAsInt32(str.c_str());
+	}
+
 	static int32 StringAsInt32(const char* pStr){
 		SLASSERT(pStr, "is null pointer");
 		return atoi(pStr);
@@ -132,6 +165,10 @@ public:
 		char str[128] ={0};
 		SafeSprintf(str, 127, "%d", val);
 		return str;
+	}
+
+	static float StringAsFloat(const std::string& str){
+		return StringAsFloat(str.c_str());
 	}
 
 	static float StringAsFloat(const char* pstr){
@@ -145,6 +182,10 @@ public:
 		return str;
 	}
 
+	static int64 StringAsInt64(const std::string& str){
+		return StringAsInt64(str.c_str());
+	}
+
 	static int64 StringAsInt64(const char* pstr){
 		SLASSERT(pstr, "is null pointer");
 		return atoll(pstr);
@@ -154,6 +195,24 @@ public:
 		char str[128] ={0};
 		SafeSprintf(str, 127, "%lld", val);
 		return str;
+	}
+
+	static uint64 StringAsUint64(const std::string& str){
+		return StringAsUint64(str.c_str());
+	}
+
+	static uint64 StringAsUint64(const char* pstr){
+		SLASSERT(pstr, "is null pointer");
+		std::stringstream sstream;
+		sstream << pstr;
+
+		uint64 val = 0;
+		sstream >> val;
+		return val;
+	}
+	
+	static int16 StringAsInt16(const std::string& str){
+		return StringAsInt16(str.c_str());
 	}
 
 	static int16 StringAsInt16(const char* pStr){
@@ -167,6 +226,10 @@ public:
 		return str;
 	}
 
+	static int8 StringAsInt8(const std::string& str){
+		return StringAsInt8(str.c_str());
+	}
+
 	static int8 StringAsInt8(const char* pStr){
 		SLASSERT(pStr, "is null pointer");
 		return (int8)StringAsInt32(pStr);
@@ -176,6 +239,24 @@ public:
 		char str[128] = { 0 };
 		SafeSprintf(str, 127, "%d", val);
 		return str;
+	}
+	
+	static double StringAsDouble(const std::string& str){
+		return StringAsDouble(str.c_str());
+	}
+
+	static double StringAsDouble(const char* pStr){
+		SLASSERT(pStr, "is null pointer");
+		std::stringstream sstream;
+		sstream << pStr;
+
+		double val = 0;
+		sstream >> val;
+		return val;
+	}
+
+	static bool StringAsBoolean(const std::string& str){
+		return StringAsBoolean(str.c_str());
 	}
 
 	static bool StringAsBoolean(const char* pStr){
@@ -234,6 +315,33 @@ public:
 
 		return ccattr;
 	};
+
+	static void wchar2char(const wchar_t* ts, sl::IBStream& pOutStream){
+		int len = (int)((wcslen(ts) +1) * sizeof(wchar_t));
+		size_t slen = wcstombs((char*)pOutStream.getContext(), ts, len);
+		if((size_t)-1 != slen){
+			*((char*)pOutStream.getContext() + slen) = 0;
+			pOutStream.skip(slen + 1);
+		}
+	}
+	static bool wchar2utf8(const std::wstring& wstr, std::string& utf8str){
+		try{
+			std::string utf8str2;
+			utf8str2.resize(wstr.size() * 4);                   // allocate for most long case
+
+			char* oend = utf8::utf16to8(wstr.c_str(), 
+									wstr.c_str() + wstr.size(), &utf8str2[0]);
+
+			utf8str2.resize(oend - (&utf8str2[0]));             // remove unused tail
+			utf8str = utf8str2;
+		}
+		catch (std::exception){
+			utf8str = "";
+			return false;
+		}
+
+		return true;
+	}
 };
 
 }//namespace sl

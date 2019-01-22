@@ -1,41 +1,22 @@
 #ifndef _SL_CORE_MYSQL_MGR_H_
 #define _SL_CORE_MYSQL_MGR_H_
 #include "IMysqlMgr.h"
-#include <vector>
-#include "sldb.h"
-#include "slikernel.h"
 #include "slsingleton.h"
-#include <functional>
-using namespace sl::db;
-
-class TestHandler : public IMysqlHandler{
-public:
-	virtual bool onSuccess(sl::api::IKernel* pKernel, const int32 optType, const int32 affectedRow, IMysqlResult* result){
-		return true;
-	}
-	virtual bool onFailed(sl::api::IKernel* pKernel, const int32 optType, const int32 errCode){
-		return false;
-	}
-	virtual void onRelease(){ DEL this; }
-};
+#include <map>
+class DBInterface;
 class MysqlMgr : public IMysqlMgr, public sl::SLHolder<MysqlMgr>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
 
-	virtual void execSql(const int64 id, IMysqlHandler* handler, const SQLCommnandFunc& f);
-	virtual void execSql(const int64 id, IMysqlHandler* handler, const char* sql, const char* table, const int8 optType);
-	virtual void stopSql(IMysqlHandler* handler);
+	virtual IDBInterface* createDBInterface(const char* host, const int32 port, const char* user, const char* pwd, const char* dbName, const char* charset, int32 threadNum = 1);
+	virtual void closeDBInterface(const char* host, const int32 port, const char* dbName);
 
-	static int32 escapeString(char* dest, const int32 destSize, const char* src, const int32 srcSize);
+	sl::api::IKernel* getKernel() {return _kernel;}
 
-	void test();
 private:
 	sl::api::IKernel* _kernel;
-	ISLDBConnectionPool* _dbConnectionPool;
-	std::vector<ISLDBConnection*> _dbConnections;
-	IMysqlBase* _handler;
-	static ISLDBConnection* _escapeConnection;
+	std::map<std::string, DBInterface*> _dbInterfaces;
 };
 #endif

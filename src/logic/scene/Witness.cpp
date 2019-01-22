@@ -21,9 +21,7 @@ void Witness::attach(IObject* object){
     _object = object;
     _lastBasePos.z = -FLT_MAX;
     _lastBaseDir.yaw(-FLT_MAX);
-
-    setAoiRadius(50);
-
+    setAoiRadius(3);
     onAttach(object);
 }
 
@@ -122,6 +120,13 @@ void Witness::uninstallAOITrigger(){
     AOI_OBJECTS::iterator iterEnd = _aoiObjects.end();
     for(; iter != iterEnd; ++iter)
         _onLeaveAOI((*iter));
+}
+
+void Witness::installAOITrigger(){
+    if(_aoiTrigger && _object){
+        CoordinateNode* pObjectNode = (CoordinateNode*)_object->getPropInt64(Scene::getInstance()->getPropCoordinateNode());
+        _aoiTrigger->reinstall(pObjectNode);
+    }
 }
 
 void Witness::onEnterSpace(Space* pSpace){

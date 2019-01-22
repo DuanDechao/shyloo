@@ -38,6 +38,12 @@ bool TableColumn::loadColumnConfig(const sl::ISLXmlNode& root){
 	return true;
 }
 
+bool TableColumn::appendColumnConfig(const int16 dataType, const int32 typeSize, bool isKey){
+	addColumn(dataType, _size, typeSize, isKey);
+	_pool = ObjectMgr::getInstance()->findRowPool(_size, 100);
+	return true;
+}
+
 void TableColumn::poolInit(TableControl* table) const{
 	_pool->init(table, this);
 }
@@ -82,7 +88,7 @@ const void* TableRow::getData(const int32 col, const int8 type, int32 & size) co
 		SLASSERT(false, "have invaild Column Info");
 		return nullptr;
 	}
-	size = info->_size;
+	//size = info->_size;
 	return _pRowData->getData(info);
 }
 

@@ -14,6 +14,7 @@ public:
 	void checkHighGear();
 	void updateToLowGear();
 	void update();
+	int64 getNextExp(int32 maxOffsetSlot);
 
 public:
 	SLList*			_slots;

@@ -8,33 +8,29 @@
 
 class IHarbor;
 class IMysqlMgr;
-class DB : public IDB, public sl::SLHolder<DB> {
-	enum{
-		SIZE_32 = 32,
-		SIZE_64 = 64,
-		SIZE_128 = 128,
-		SIZE_256 = 256,
-		SIZE_512 = 512,
-		SIZE_1024 = 1024,
-		SIZE_2048 = 2048,
-		SIZE_4096 = 4096
-	};
+class DataBase;
+class DB : public IDB, public sl::api::ITimer, public sl::SLHolder<DB> {
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
-
-	virtual IDBCall* create(int64 threadId, const int64 id, const char* file, const int32 line, const void* context, const int32 size = 0);
-
+	
 	IMysqlMgr* getMysqlMgr(){ return _mysql; }
+	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){}
+	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick);
+	virtual void onTerminate(sl::api::IKernel* pKernel, bool beForced, int64 timetick){}
+	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick){}
+	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick){}
 
 	void test();
 
 private:
 	sl::api::IKernel*	_kernel;
 	DB*					_self;
+	IDBInterface*		_dbInterface;
 	IHarbor*			_harbor;
 	IMysqlMgr*			_mysql;
+	DataBase*			_database;
 };
 
 

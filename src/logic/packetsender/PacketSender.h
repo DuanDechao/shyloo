@@ -9,6 +9,11 @@ public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
+	
+	//virtual void sendToClient(IObject* object, int32 messageId, const sl::OBStream& args);
+	//virtual void sendToCell(IObject* object, int32 messageId, const sl::OBStream& args);
+	//virtual void sendToBase(IObject* object. int32 messageId, const sl::OBStream& args);
+
 
 	virtual void send(int32 gate, int64 id, int32 messageId, const void* context, const int32 size, int8 delay = 0);
 	virtual void send(int32 gate, int64 id, int32 messageId, const sl::OBStream& args, int8 delay = 0);

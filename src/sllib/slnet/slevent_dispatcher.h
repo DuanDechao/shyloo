@@ -38,6 +38,8 @@ public:
 	inline EventPoller* pPoller() {return _pPoller;}
 
 	int processNetwork(int64 overTime);
+	uint64 getSpareTime() const;
+	void clearSpareTime();
 
 protected:
 	int8			_breakProcessing;

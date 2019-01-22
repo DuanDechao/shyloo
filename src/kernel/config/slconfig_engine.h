@@ -16,26 +16,16 @@ public:
 	const sModuleConfig* getModuleConfig();
 	const sCoreConfig* getCoreConfig();
 
-	virtual const char* getEnvirPath() { return m_envirPath.c_str(); }
-	virtual const char* getIpcPath() { return m_ipcPath.c_str(); }
-	virtual const char* getCoreFile() { return m_coreFile.c_str(); }
-	virtual const char* getConfigFile() { return m_configFile.c_str(); }
+	bool loadCoreConfig(const char* path);
+	bool loadModuleConfig(const char* path);
 
 private:
 	ConfigEngine(){}
 	~ConfigEngine(){}
 
 private:
-	bool loadModuleConfig();
-	bool loadCoreConfig();
-
-private:
 	sModuleConfig	m_stModuleConfig;
 	sCoreConfig		m_stCoreConfig;
-	std::string		m_coreFile;
-	std::string		m_configFile;
-	std::string		m_envirPath;
-	std::string     m_ipcPath;
 };
 }
 }

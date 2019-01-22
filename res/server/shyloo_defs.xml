@@ -1,0 +1,27 @@
+<root>
+	<gameUpdateHertz> 10 </gameUpdateHertz>
+	<maxAsyncThreadNum> 5 </maxAsyncThreadNum>
+	<hostID> 1 </hostID>
+
+	<channelCommon>
+		<readBufferSize>	16777216	</readBufferSize>
+		<writeBufferSize>	16777216	</writeBufferSize>
+	</channelCommon>
+
+	<ids>
+		<desiredSize> 1000 </desiredSize>
+	</ids>
+
+	<master>
+		<ip> 127.0.0.1 </ip>
+		<port> 7700 </port>
+		<consolePort> 12580 </consolePort>
+	</master>
+	
+	<dbmgr>
+		<mysql>
+			<host> 127.0.0.1 </host>
+			<port> 3306 </port>
+		</mysql>
+	</dbmgr>
+</root>

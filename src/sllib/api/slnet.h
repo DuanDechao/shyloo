@@ -39,6 +39,7 @@ public:
 	virtual void SLAPI setPacketParser(ISLPacketParser* poPacketParser) = 0;
 	virtual bool SLAPI start(const char* pszIP, uint16 wPort, bool bReUseAddr = true) = 0;
 	virtual bool SLAPI stop(void) = 0;
+	virtual uint16 SLAPI getListenPort(void) = 0;
 	virtual void SLAPI release(void) = 0;
 };
 
@@ -54,11 +55,13 @@ public:
 class ISLSessionFactory{
 public:
 	virtual ISLSession* SLAPI createSession(ISLChannel* poChannel) = 0;
+	virtual void SLAPI release() = 0;
 };
 
 class ISLPacketParser{
 public:
 	virtual int32 SLAPI parsePacket(const char* pDataBuf, int32 len) = 0;
+	virtual void SLAPI release() = 0;
 };
 
 class ISLNet{
@@ -67,6 +70,8 @@ public:
 	virtual ISLConnector* SLAPI createConnector() = 0;
 	virtual bool SLAPI run(int64 overtime) = 0;
 	virtual void SLAPI release() = 0;
+	virtual uint64 getSpareTime() = 0;
+	virtual void clearSpareTime() = 0;
 };
 
 extern "C" SL_DLL_API sl::network::ISLNet* SLAPI getSLNetModule(void);

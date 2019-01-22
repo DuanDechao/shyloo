@@ -75,10 +75,8 @@ void SceneClientMgr::notifySceneMgrAppearScene(sl::api::IKernel* pKernel, IObjec
 
 	object->setTempInt8(OCTempProp::IS_APPEAR, 1);
 
-	IArgs<2, 256> args;
+	sl::BStream<256> args;
 	args << object->getID() << object->getPropInt32(attr_def::gate);
-	args.fix();
-
 	_harbor->send(NodeType::SCENEMGR, 1, NodeProtocol::LOGIC_MSG_NOTIFY_SCENEMGR_APPEAR_SCENE, args.out());
 }
 
@@ -142,7 +140,7 @@ void SceneClientMgr::notifySceneMgrEnterScene(sl::api::IKernel* pKernel, IObject
 	evt.object = object;
 	_eventEngine->execEvent(logic_event::EVENT_LOGIC_PREPARE_ENTER_SCENE, &evt, sizeof(evt));
 	
-	IArgs<15, 1024> args;
+	sl::OBStream<1024> args;
 	args << object->getID();
 	args << object->getPropString(attr_def::scene);
 	args << object->getPropFloat(attr_def::x);
@@ -150,8 +148,6 @@ void SceneClientMgr::notifySceneMgrEnterScene(sl::api::IKernel* pKernel, IObject
 	args << object->getPropFloat(attr_def::z);
 	args << object->getPropInt32(attr_def::gate);
 	args << object->getPropFloat(attr_def::vision);
-	args.fix();
-
 	_harbor->send(NodeType::SCENEMGR, 1, NodeProtocol::LOGIC_MSG_NOTIFY_SCENEMGR_ENTER_SCENE, args.out());
 
 	_eventEngine->execEvent(logic_event::EVENT_LOGIC_ENTER_SCENE, &evt, sizeof(evt));
@@ -162,10 +158,8 @@ void SceneClientMgr::notifySceneMgrLeaveScene(sl::api::IKernel* pKernel, IObject
 	evt.object = object;
 	_eventEngine->execEvent(logic_event::EVENT_LOGIC_PREPARE_LEAVE_SCENE, &evt, sizeof(evt));
 
-	IArgs<15, 1024> args;
+	sl::OBStream<1024> args;
 	args << object->getID();
-	args.fix();
-
 	_harbor->send(NodeType::SCENEMGR, 1, NodeProtocol::LOGIC_MSG_NOTIFY_SCENEMGR_LEAVE_SCENE, args.out());
 
 	_eventEngine->execEvent(logic_event::EVENT_LOGIC_LEAVE_SCENE, &evt, sizeof(evt));
@@ -246,9 +240,8 @@ void SceneClientMgr::onSyncToSceneTime(sl::api::IKernel* pKernel, IObject* objec
 	float y = object->getPropFloat(attr_def::y);
 	float z = object->getPropFloat(attr_def::z);
 
-	IArgs<10, 1024> args;
+	sl::OBStream<1024> args;
 	args << object->getID() << x << y << z;
-	args.fix();
 	_harbor->prepareSend(NodeType::SCENEMGR, 1, NodeProtocol::LOGIC_MSG_SYNC_SCENE, args.getSize());
 	_harbor->send(NodeType::SCENEMGR, 1, args.getContext(), args.getSize());
 

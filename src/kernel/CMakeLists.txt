@@ -111,7 +111,7 @@ ADD_EXECUTABLE(shyloo
 	${SL_KERNEL_CONFIG}
 	${SL_KERNEL_ASYNC}
 	${SL_KERNEL_LOG}
-	${SL_KERNEL_IPC}
+	#	${SL_KERNEL_IPC}
 	${SL_KERNEL}
 )
 ENDIF(WIN32)
@@ -127,17 +127,17 @@ ADD_EXECUTABLE(shyloo
     ${SL_KERNEL_CONFIG}
     ${SL_KERNEL_ASYNC}
     ${SL_KERNEL_LOG}
-    ${SL_KERNEL_IPC}
+	#${SL_KERNEL_IPC}
     ${SL_KERNEL}
 )
 ENDIF(UNIX)
 
 IF(WIN32)
-SET(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/build/windows")
-TARGET_LINK_LIBRARIES(shyloo slxml.lib slnet.lib sltimer.lib slshm.lib)
+	SET(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin/Hybrid")
+	TARGET_LINK_LIBRARIES(shyloo slxml.lib slnet.lib sltimer.lib slshm.lib)
 ENDIF(WIN32)
 
 IF(UNIX)
-SET(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/build/linux")
-TARGET_LINK_LIBRARIES(shyloo libslxml.so libslnet.so libsltimer.so libslshm.so)
+	SET(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin/Hybrid")
+	TARGET_LINK_LIBRARIES(shyloo libslxml.so libslnet.so libsltimer.so libslshm.so dl pthread mysqlclient)
 ENDIF(UNIX)

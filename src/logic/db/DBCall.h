@@ -6,10 +6,10 @@
 #include "slpool.h"
 
 class DB;
-class DBCall : public IDBCall, public IMysqlHandler, public IDBCallSource{
+class DBCall : public IDBCall, public IDBCallSource{
 public:
-	DBCall(DB* db, int64 threadId, int64 id) 
-		:_db(db),
+	DBCall(IDBInterface* pdbi, int64 threadId, int64 id) 
+		:_dbInterface(pdbi),
 		 _threadId(threadId),
 		 _id(id)
 	{}
@@ -19,6 +19,7 @@ public:
 	virtual void update(const char* tableName, const DBUpdateCommandFunc& f, const DBCallBack& cb);
 	virtual void del(const char* tableName, const DBDeleteCommandFunc& f, const DBCallBack& cb);
 	virtual void save(const char* tableName, const DBSaveCommandFunc& f, const DBCallBack& cb);
+	virtual void execRawSql(const int32 optType, const char* sql, const DBCallBack& cb);
 
 
 	virtual bool onSuccess(sl::api::IKernel* pKernel, const int32 optType, const int32 affectedRow, IMysqlResult* result);
@@ -28,22 +29,22 @@ public:
 	virtual void release() = 0;
 
 protected:
-	DB*			_db;
-	DBCallBack	_cb;
-	int64		_threadId;
-	int64		_id;
+	IDBInterface*	_dbInterface;
+	DBCallBack		_cb;
+	int64			_threadId;
+	int64			_id;
 };
 
 template<int32 maxSize>
 class DBContext : public DBCall{
 public:
-	DBContext(DB* db, int64 threadId, int64 id)
-		:DBCall(db, threadId, id),
+	DBContext(IDBInterface* pdbi, int64 threadId, int64 id)
+		:DBCall(pdbi, threadId, id),
 		_size(0)
 	{}
 
-	static IDBCall* create(DB* db, int64 threadId, int64 id){
-		return CREATE_FROM_POOL(s_pool, db, threadId, id);
+	static IDBCall* create(IDBInterface* pdbi, int64 threadId, int64 id){
+		return CREATE_FROM_POOL(s_pool, pdbi, threadId, id);
 	}
 
 	void setContext(const void* context, const int32 size){

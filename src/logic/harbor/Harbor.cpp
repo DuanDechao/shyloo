@@ -1,9 +1,15 @@
 #include "Harbor.h"
 #include "slxml_reader.h"
 #include "slargs.h"
-
+#include "IDebugHelper.h"
+std::unordered_map<std::string, int32> Harbor::s_nodeTypes;
+std::unordered_map<int32, std::string> Harbor::s_nodeNames;
 sl::api::ITcpSession* NodeSessionTcpServer::mallocTcpSession(sl::api::IKernel* pKernel){
 	return NodeSession::create(_harbor);
+}
+
+void NodeSessionTcpServer::setListenPort(uint16 port){
+	_harbor->setPort(port);
 }
 
 sl::api::ITcpSession* NodeSessionIpcServer::mallocTcpSession(sl::api::IKernel* pKernel){
@@ -38,45 +44,23 @@ private:
 
 bool Harbor::initialize(sl::api::IKernel * pKernel){
 	_pKernel = pKernel;
-	
-    XmlReader server_conf;
-	if (!server_conf.loadXml(pKernel->getCoreFile())){
-		SLASSERT(false, "can not load core file %s", pKernel->getCoreFile());
+	_useIpc = false;
+	_nodeId = 0;
+	_port = 0;
+
+	if(!initNodeTypes(pKernel)){
+		SLASSERT(false, "wtf");
 		return false;
 	}
 
-	const sl::xml::ISLXmlNode& harbor_conf = server_conf.root()["harbor"][0];
-	_sendSize = harbor_conf.getAttributeInt32("send");
-	_recvSize = harbor_conf.getAttributeInt32("recv");
-	_useIpc = harbor_conf.getAttributeBoolean("useIpc");
-	const sl::xml::ISLXmlNode& nodes = harbor_conf["node"];
-	for (int32 i = 0; i < nodes.count(); i++){
-		int32 type = nodes[i].getAttributeInt32("type");
-		_nodeNames[type] = nodes[i].getAttributeString("name");
-	}
+	const char* serverName = pKernel->getCmdArg("name");
+	_nodeType = s_nodeTypes[serverName];
 
-	if (harbor_conf.subNodeExist("pipe")){
-		const sl::xml::ISLXmlNode& pipes = harbor_conf["pipe"];
-		for (int32 i = 0; i < pipes.count(); i++){
-			int64 type1 = pipes[i].getAttributeInt64("node1");
-			int64 type2 = pipes[i].getAttributeInt64("node2");
-
-			_nodeSize[(type1 | (type2 << 32))] = pipes[i].getAttributeInt32("size");
-		}
-	}
-
-	XmlReader conf;
-	if (!conf.loadXml(pKernel->getConfigFile())){
-		SLASSERT(false, "can not load config file %s", pKernel->getConfigFile());
-		return false;
-	}
-	_nodeType = conf.root()["harbor"][0].getAttributeInt32("type");
-	_nodeId = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("node_id"));
-	
 	if (pKernel->getCmdArg("harbor"))
 		_port = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("harbor"));
-	else
-		_port = 0;
+
+	if(pKernel->getCmdArg("node_id"))
+		_nodeId = sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("node_id"));
 
     return true;
 }
@@ -94,7 +78,7 @@ bool Harbor::launched(sl::api::IKernel * pKernel){
 		return false;
 	}
 
-	START_TIMER(this, 0, 1, 500);
+	startListening(pKernel);
 	return true; 
 }
 
@@ -107,35 +91,77 @@ bool Harbor::destory(sl::api::IKernel * pKernel){
 		DEL _pIpcServer;
 	_pIpcServer = nullptr;
 
+	for(auto cbItor : _allCBPool){
+		for(auto* cb : cbItor.second){
+			DEL cb;
+		}
+	}
+
 	DEL this;
 
 	return true;
 }
 
+bool Harbor::initNodeTypes(sl::api::IKernel* pKernel){
+	s_nodeTypes["gate"] = NodeType::GATE;
+	s_nodeTypes["master"] = NodeType::MASTER;
+	s_nodeTypes["slave"] = NodeType::SLAVE;
+	s_nodeTypes["game"] = NodeType::LOGIC;
+	s_nodeTypes["scene"] = NodeType::SCENE;
+	s_nodeTypes["dbmgr"] = NodeType::DATABASE;
+	s_nodeTypes["logger"] = NodeType::LOGGER;
+	s_nodeNames[NodeType::GATE] = "gate";
+	s_nodeNames[NodeType::MASTER] = "master";
+	s_nodeNames[NodeType::SLAVE] = "slave";
+	s_nodeNames[NodeType::LOGIC] = "game";
+	s_nodeNames[NodeType::SCENE] = "scene";
+	s_nodeNames[NodeType::DATABASE] = "dbmgr";
+	s_nodeNames[NodeType::LOGGER] = "logger";
+	return true;
+}
+
+bool Harbor::isNodeConnected(const int32 nodeType, const int32 nodeId){
+	auto itor = _connectedNodes.find(nodeType);
+	if(itor == _connectedNodes.end())
+		return false;
+
+	return itor->second & (uint64)(1 << nodeId);
+}
+
+int32 Harbor::allocNodeIdByType(const int32 nodeType){
+	int32 nodeId = 0;
+	auto itor = _lastAllocNodeId.find(nodeType);
+	if(itor != _lastAllocNodeId.end())
+		_lastAllocNodeId[nodeType]++;
+	else
+		_lastAllocNodeId[nodeType] = 1;
+
+	auto nodeItor = _allNode.find(nodeType);
+	if(nodeItor != _allNode.end()){
+		while(nodeItor->second.find(_lastAllocNodeId[nodeType]) != nodeItor->second.end()){
+			_lastAllocNodeId[nodeType]++;
+		}
+	}
+	return _lastAllocNodeId[nodeType];
+}
+
 void Harbor::onNodeOpen(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const char* ip, int32 nodePort, NodeSession* session){
-	int64 idx = (int64)_nodeType | (((int64)nodeType) << 32);
-	auto itor = _nodeSize.find(idx);
-	if (itor != _nodeSize.end()){
-		session->adjustSendBuffSize(itor->second);
-		TRACE_LOG("node [%s:%d] adjust send buff %d", _nodeNames[nodeType].c_str(), nodeId, itor->second);
-	}
-
-	idx = (int64)nodeType | (((int64)_nodeType) << 32);
-	itor = _nodeSize.find(idx);
-	if (itor != _nodeSize.end()){
-		session->adjustRecvBuffSize(itor->second);
-		TRACE_LOG("node [%s:%d] adjust recv buff %d", _nodeNames[nodeType].c_str(), nodeId, itor->second);
-	}
-
 	_allNode[nodeType].insert(std::make_pair(nodeId, session));
+
+	if(_connectedNodes.find(nodeType) == _connectedNodes.end())
+		_connectedNodes[nodeType] = 0;
+
+	_connectedNodes[nodeType] |= (uint64)(1 << nodeId);
+	
 	for (auto& listener : _listenerPool){
 		listener->onOpen(pKernel, nodeType, nodeId, ip, nodePort);
 	}
-	TRACE_LOG("node[%s:%d] from[%s:%d] opened", _nodeNames[nodeType].c_str(), _nodeId, ip, nodePort);
+	INFO_LOG("node[%s:%d] from[%s:%d] opened\n", s_nodeNames[nodeType].c_str(), nodeId, ip, nodePort);
 }
 
 void Harbor::onNodeClose(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId){
 	_allNode[nodeType].erase(nodeId);
+	_connectedNodes[nodeType] &= ~((uint64)(1 << nodeId));
 	
 	for (auto& listener : _listenerPool){
 		listener->onClose(pKernel, nodeType, nodeId);
@@ -159,8 +185,8 @@ void Harbor::addNodeListener(INodeListener* pNodeListener){
 	_listenerPool.push_back(pNodeListener);
 }
 
-void Harbor::connect(const char* ip, const int32 port, const int32 nodeType, const int32 nodeId, bool ipcTransfor){
-	if (_useIpc && ipcTransfor){
+void Harbor::connect(const char* ip, const int32 port, const int32 nodeType, const int32 nodeId, bool isIpcTransfor){
+	if (_useIpc && isIpcTransfor){
 		sl::api::IKernel* pKernel = _pKernel;
 		NodeSession* pSession = (NodeSession *)_pIpcServer->mallocTcpSession(_pKernel);
 		SLASSERT(pSession, "wtf");
@@ -169,7 +195,7 @@ void Harbor::connect(const char* ip, const int32 port, const int32 nodeType, con
 
 		int64 localId = (int64)_nodeId | ((int64)_nodeType << 32);
 		int64 remoteId = (int64)nodeId | ((int64)nodeType << 32);
-		if (!_pKernel->addIPCClient(pSession, localId, remoteId, _sendSize, _recvSize)){
+		if (!_pKernel->addIPCClient(pSession, localId, remoteId)){
 			START_TIMER(pSession, 0, TIMER_BEAT_FOREVER, RECONNECT_INTERVAL);
 			ERROR_LOG("connect [%s:%d] failed!", ip, port);
 		}
@@ -184,7 +210,7 @@ void Harbor::connect(const char* ip, const int32 port, const int32 nodeType, con
 		pSession->setConnect(ip, port);
 		pSession->setNodeInfo(nodeType, nodeId);
 
-		if (!_pKernel->startTcpClient(pSession, ip, port, _sendSize, _recvSize)){
+		if (!_pKernel->startTcpClient(pSession, ip, port)){
 			START_TIMER(pSession, 0, TIMER_BEAT_FOREVER, RECONNECT_INTERVAL);
 			ERROR_LOG("connect [%s:%d] failed!", ip, port);
 		}
@@ -203,10 +229,7 @@ void Harbor::rgsNodeMessageHandler(int32 messageId, const NodeCB& handler){
 }
 
 void Harbor::startListening(sl::api::IKernel* pKernel){
-	if (!_port)
-		return;
-
-	if (pKernel->startTcpServer(_pTcpServer, "0.0.0.0", _port, _sendSize, _recvSize)){
+	if (pKernel->startTcpServer(_pTcpServer, "0.0.0.0", _port)){
 		TRACE_LOG("start tcp server[%s:%d] success", "0.0.0.0", _port);
 	}
 	else{
@@ -242,6 +265,23 @@ void Harbor::send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& ar
 	itor1->second->send(args.getContext(), args.getSize());
 }
 
+void Harbor::send(int32 nodeType, int32 nodeId, int32 messageId, const sl::OBStream& args){
+	auto itor = _allNode.find(nodeType);
+	if (itor == _allNode.end()){
+		ERROR_LOG("send data but can't find node[%s:%d]", getNodeName(nodeType), nodeId);
+		return;
+	}
+
+	auto itor1 = itor->second.find(nodeId);
+	if (itor1 == itor->second.end()){
+		ERROR_LOG("send data but can't find node[%s:%d]", getNodeName(nodeType), nodeId);
+		return;
+	}
+	
+	itor1->second->prepareSendNodeMessage(messageId, args.getSize());
+	itor1->second->send(args.getContext(), args.getSize());
+}
+
 void Harbor::prepareSend(int32 nodeType, int32 nodeId, int32 messageId, int32 size){
 	auto itor = _allNode[nodeType].find(nodeId);
 	if (itor != _allNode[nodeType].end()){
@@ -269,8 +309,57 @@ void Harbor::broadcast(int32 nodeType, int32 messageId, const OArgs& args){
 	}
 }
 
+void Harbor::broadcast(int32 nodeType, int32 messageId, const sl::OBStream& args){
+	auto itor = _allNode.find(nodeType);
+	if (itor == _allNode.end()){
+		//SLASSERT(false, "wtf");
+		return;
+	}
+
+	for (auto node : itor->second){
+		node.second->prepareSendNodeMessage(messageId, args.getSize());
+		node.second->send(args.getContext(), args.getSize());
+	}
+}
+
+void Harbor::broadcast(int32 messageId, const OArgs& args, std::unordered_map<int32, std::set<int32>>& exclude){
+	for (auto nodeType : _allNode){
+		auto excludeNodes = exclude.find(nodeType.first);
+		bool isNodeTypeExclude = (excludeNodes != exclude.end());	
+		for (auto node : nodeType.second){
+			if(isNodeTypeExclude && excludeNodes->second.find(node.first) != excludeNodes->second.end()){
+				continue;
+			}
+			node.second->prepareSendNodeMessage(messageId, args.getSize());
+			node.second->send(args.getContext(), args.getSize());
+		}
+	}
+}
+
+void Harbor::broadcast(int32 messageId, const sl::OBStream& args, std::unordered_map<int32, std::set<int32>>& exclude){
+	for (auto nodeType : _allNode){
+		auto excludeNodes = exclude.find(nodeType.first);
+		bool isNodeTypeExclude = (excludeNodes != exclude.end());	
+		for (auto node : nodeType.second){
+			if(isNodeTypeExclude && excludeNodes->second.find(node.first) != excludeNodes->second.end()){
+				continue;
+			}
+			node.second->prepareSendNodeMessage(messageId, args.getSize());
+			node.second->send(args.getContext(), args.getSize());
+		}
+	}
+}
 
 void Harbor::broadcast(int32 messageId, const OArgs& args){
+	for (auto nodeType : _allNode){
+		for (auto node : nodeType.second){
+			node.second->prepareSendNodeMessage(messageId, args.getSize());
+			node.second->send(args.getContext(), args.getSize());
+		}
+	}
+}
+
+void Harbor::broadcast(int32 messageId, const sl::OBStream& args){
 	for (auto nodeType : _allNode){
 		for (auto node : nodeType.second){
 			node.second->prepareSendNodeMessage(messageId, args.getSize());
@@ -298,8 +387,4 @@ void Harbor::broadcast(int32 nodeType, const void* context, const int32 size){
 	for (auto node : itor->second){
 		node.second->send(context, size);
 	}
-}
-
-void Harbor::onTime(sl::api::IKernel* pKernel, int64 timetick){
-	startListening(pKernel);
 }

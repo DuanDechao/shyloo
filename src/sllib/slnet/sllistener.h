@@ -15,6 +15,7 @@ public:
 	virtual bool SLAPI start(const char* pszIP, uint16 wPort, bool bReUseAddr = true);
 	virtual bool SLAPI stop(void);
 	virtual void SLAPI release(void);
+	virtual uint16 SLAPI getListenPort(void);
 
 private:
 	NetworkInterface*		_pNetworkInterface;

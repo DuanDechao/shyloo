@@ -15,13 +15,13 @@
 class IProp;
 
 namespace prop_def {
-	enum EntityDBFlags{
+	enum ObjectDBFlag{
 		persistent = 0x00000001,
 		index = 0x00000002,
 		identifier = 0x00000004,
 	};
 	
-	enum EntityDataFlag{
+	enum ObjectDataFlag{
 		ED_FLAG_UNKNOWN = 0x00000000,						//Î´¶¨Òå
 		CELL_PUBLIC = 0x00010000,					//Ïà¹ØËùÓÐcell¹ã²¥
 		CELL_PRIVATE = 0x00020000,					//µ±Ç°cell
@@ -32,6 +32,25 @@ namespace prop_def {
 		BASE = 0x00400000,							//µ±Ç°base
 		OTHER_CLIENTS = 0x00800000,					//cell¹ã²¥ºÍÆäËû¿Í»§¶Ë
 	};
+	
+	enum ObjectDataFlagRelation{
+		//所有与baseapp有关系的标志
+		OBJECT_BASE_DATA_FLAGS = ObjectDataFlag::BASE | ObjectDataFlag::BASE_AND_CLIENT,
+		//所有与cellapp相关的标志
+		OBJECT_CELL_DATA_FLAGS = ObjectDataFlag::CELL_PUBLIC | ObjectDataFlag::CELL_PRIVATE | ObjectDataFlag::ALL_CLIENTS | ObjectDataFlag::CELL_PUBLIC_AND_OWN | ObjectDataFlag::OTHER_CLIENTS | ObjectDataFlag::OWN_CLIENT,
+		//所有与client有关的标志
+		OBJECT_CLIENT_DATA_FLAGS = ObjectDataFlag::BASE_AND_CLIENT | ObjectDataFlag::ALL_CLIENTS | ObjectDataFlag::CELL_PUBLIC_AND_OWN | ObjectDataFlag::OTHER_CLIENTS | ObjectDataFlag::OWN_CLIENT,
+		//own
+		OBJECT_CLINET_OWN_DATA_FLAGS = ObjectDataFlag::BASE_AND_CLIENT | ObjectDataFlag::ALL_CLIENTS | ObjectDataFlag::CELL_PUBLIC_AND_OWN | ObjectDataFlag::OWN_CLIENT,
+		//other
+		OBJECT_CLIENT_OTHER_DATA_FLAGS = ObjectDataFlag::ALL_CLIENTS | ObjectDataFlag::OTHER_CLIENTS,
+	};
+
+
+    enum ObjectPropType{
+        PROP = 0x00000000,
+        METHOD = 0x10000000,
+    };
 }
 
 struct ATTR_API attr_def{

@@ -27,6 +27,7 @@ public:
 	virtual void rgsGateListener(IGateListener* listener) = 0;
     virtual void sendMsgToAgent(const int64 agentId, const void* ntext, const int32 size, const int32 delay = 0) = 0;
     virtual void setGateOnline(const int64 agentId) = 0;
+	virtual void sendToClient(const int64 id, const int32 msgId, const sl::OBStream& buf) = 0;
 };
 
 #define RGS_GATE_HANDLER(gate, messageId, handler) gate->rgsGateMessageHandler(messageId, std::bind(&handler, this, std::placeholders::_1, std::placeholders::_2,  std::placeholders::_3, std::placeholders::_4), #handler)

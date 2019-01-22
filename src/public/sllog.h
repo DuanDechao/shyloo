@@ -297,26 +297,26 @@ public:
 		m_szLine[0] = 0;
 
 		if(m_uiFormat & ETime){
-			iRet = SafeSprintf(pLine, iSize, "[%s]", m_tickReset ? sl::getTimeStr(m_logTick).c_str() : sl::getCurrentTimeStr().c_str());
+			iRet = SafeSprintf(pLine, iSize, "%s - ", m_tickReset ? sl::getTimeStr(m_logTick).c_str() : sl::getCurrentTimeStr().c_str());
 			pLine += iRet;
 			iSize -= iRet;
 			m_tickReset = false;
 		}
 
 		if(m_uiFormat & EProcessId){
-			iRet = SafeSprintf(pLine, iSize, "[%d]", static_cast<int>(GetNowProcessId()));
+			iRet = SafeSprintf(pLine, iSize, "%d - ", static_cast<int>(GetNowProcessId()));
 			pLine += iRet;
 			iSize -= iRet;
 		}
 
 		if(m_uiFormat & EThreadId){
-			iRet = SafeSprintf(pLine, iSize, "[%d]", static_cast<int>(GetNowProcessId()));
+			iRet = SafeSprintf(pLine, iSize, "%d - ", static_cast<int>(GetNowProcessId()));
 			pLine += iRet;
 			iSize -= iRet;
 		}
 
 		if(m_uiFormat & EType){
-			iRet = SafeSprintf(pLine, iSize, "[%s]", GetFilterDesc(filter));
+			iRet = SafeSprintf(pLine, iSize, "%s - ", GetFilterDesc(filter));
 			pLine += iRet;
 			iSize -= iRet;
 		}
@@ -355,6 +355,12 @@ public:
 					ShiftFiles(szFilePath, m_iMaxLogSize, m_iMaxLogNum);
 				else
 					ShiftFiles(szFilePath, 0x7FFFFFFF, 0x7FFFFFFF);
+			}
+			else{
+				//printf("[ERROR] cant stat log file %s\n", szFilePath);
+				if(!(m_uiFormat & EStdOut)){
+					printf("%s", m_szLine);
+				}
 			}
 		}
 
@@ -421,12 +427,12 @@ public:
 		// 两种方式获取, 这里选择第一种
 	#if 1
 		switch (iFilter){
-		case ETrace: return "trace";
-		case EDebug: return "debug";
-		case EWarning: return "warn";
-		case EInfo: return "info";
-		case EError: return "error";
-		case EFatal: return "fatal";
+		case ETrace: return "TRACE";
+		case EDebug: return "DEBUG";
+		case EWarning: return "WARN";
+		case EInfo: return "INFO";
+		case EError: return "ERROR";
+		case EFatal: return "FATAL";
 		default: return "";
 		}
 

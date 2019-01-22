@@ -5,8 +5,8 @@
 #include <float.h>
 
 RangeTrigger::RangeTrigger(CoordinateNode* origin, float xz, float y)
-    :_rangeXZ(fabs(xz)),
-     _rangeY(fabs(y)),
+    :_rangeXZ(fabs(xz) + 0.001),
+     _rangeY(fabs(y) + 0.001),
      _origin(origin),
      _positiveBoundary(NULL),
      _negativeBoundary(NULL),

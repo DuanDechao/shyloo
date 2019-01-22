@@ -75,7 +75,7 @@ const void* MMObject::getData(const IProp* prop, const bool temp, const int8 typ
 	//SLASSERT(layout, "wtf");
 	if (layout != nullptr){
 		//SLASSERT(layout->_type == type && layout->_size >= size && layout->_isTemp == temp, "wtf");
-		if (layout->_type == type && layout->_size >= size){
+		if ((layout->_type == type || type == -1) && layout->_size >= size){
 			size = layout->_size;
 			return _memory->getData(layout);
 		}

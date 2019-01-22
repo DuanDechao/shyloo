@@ -36,7 +36,7 @@ AINode* AILoader::loadNode(sl::api::IKernel* pKernel, const sl::xml::ISLXmlNode*
 		condition = NEW AICondition(node->getAttributeString("condition"));
 	}
 
-	auto itor = s_nodeLoadFuncs.find(node->value());
+	auto itor = s_nodeLoadFuncs.find(node->name());
 	if (itor == s_nodeLoadFuncs.end()){
 		SLASSERT(false, "wtf");
 		return nullptr;

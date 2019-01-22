@@ -40,6 +40,12 @@ bool ObjectMgr::destory(sl::api::IKernel * pKernel){
 			DEL itor->second;
 	}
 	_allProps.clear();
+	
+	for (auto itor = _allTempProps.begin(); itor != _allTempProps.end(); ++itor){
+		if (itor->second)
+			DEL itor->second;
+	}
+	_allTempProps.clear();
 
 	for (auto itor = _objPropInfo.begin(); itor != _objPropInfo.end(); ++itor){
 		if (itor->second)
@@ -80,7 +86,7 @@ void ObjectMgr::onTime(sl::api::IKernel* pKernel, int64 timetick){
 	//uint64 playerId = player->getID();
 	//ECHO_TRACE("player id:%llu", player->getID());
 }
-
+/*
 bool ObjectMgr::initPropDefineConfig(sl::api::IKernel * pKernel){
 	char path[256] = { 0 };
 	SafeSprintf(path, sizeof(path), "%s/object.xml", pKernel->getEnvirPath());
@@ -109,7 +115,22 @@ bool ObjectMgr::initPropDefineConfig(sl::api::IKernel * pKernel){
 	}
 	return true;
 }
+*/
+bool ObjectMgr::appendTableColumnInfo(const char* tableName, const int16 type, const int32 typeSize, bool isKey){
+	int32 nameId = sl::CalcStringUniqueId(tableName);
+	auto itor = _tablesInfo.find(nameId);
+	if(itor == _tablesInfo.end()){
+		TableColumn* pTableColumn = NEW TableColumn();
+		pTableColumn->appendColumnConfig(type, typeSize, isKey);
+		_tablesInfo.insert(make_pair(nameId, pTableColumn));
+	}
+	else{
+		_tablesInfo[nameId]->appendColumnConfig(type, typeSize, isKey);
+	}
 
+	return true;
+}
+/*
 bool ObjectMgr::loadObjectPropConfig(sl::api::IKernel * pKernel){
 	char path[256] = { 0 };
 	SafeSprintf(path, sizeof(path)-1, "%s/dccenter", pKernel->getEnvirPath());
@@ -150,6 +171,7 @@ ObjectPropInfo* ObjectMgr::createTemplate(sl::api::IKernel* pKernel, const char*
 	if (propConf.root().hasAttribute("parent")){
 		ObjectPropInfo* parentProp = queryTemplate(pKernel, propConf.root().getAttributeString("parent"));
 		SLASSERT(parentProp, "where is %s xml", propConf.root().getAttributeString("parent"));
+		printf("where is %s xml\n", propConf.root().getAttributeString("parent"));
 		if (parentProp == nullptr)
 			return nullptr;
 
@@ -160,6 +182,7 @@ ObjectPropInfo* ObjectMgr::createTemplate(sl::api::IKernel* pKernel, const char*
 	}
 
 	if (!propInfo->loadFrom(propConf.root(), _propDefine)){
+		printf("ObjectMgr loadPropInfo[%s] failed!!\n", objectName);
 		DEL propInfo;
 		return nullptr;
 	}
@@ -173,6 +196,41 @@ ObjectPropInfo* ObjectMgr::queryTemplate(sl::api::IKernel* pKernel, const char* 
 		return itor->second;
 
 	return createTemplate(pKernel, objectName);
+}
+*/
+const int32 ObjectMgr::getObjectType(const char* objectType){
+    auto itor = _objPropInfo.find(objectType);
+    if(itor == _objPropInfo.end())
+        return -1;
+    return itor->second->getObjTypeId();
+}
+
+const IProp* ObjectMgr::appendObjectProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index, const void* extra, const char* defaultVal){
+	ObjectPropInfo* propInfo = nullptr;
+	auto itor = _objPropInfo.find(objectName);
+	if (itor != _objPropInfo.end()){
+		propInfo = itor->second;
+	}
+	else{
+		propInfo = NEW ObjectPropInfo(_nextObjTypeId++, objectName, nullptr);
+		_objPropInfo[objectName] = propInfo;
+	}
+
+	return propInfo->loadProp(propName, type, size, setting, index, extra, defaultVal);
+}
+
+const IProp* ObjectMgr::appendObjectTempProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index, const void* extra, const char* defaultVal){
+	ObjectPropInfo* propInfo = nullptr;
+	auto itor = _objPropInfo.find(objectName);
+	if (itor != _objPropInfo.end()){
+		propInfo = itor->second;
+	}
+	else{
+		propInfo = NEW ObjectPropInfo(_nextObjTypeId++, objectName, nullptr);
+		_objPropInfo[objectName] = propInfo;
+	}
+
+	return propInfo->loadProp(propName, type, size, setting, index, extra, defaultVal, true);
 }
 
 const int32 ObjectMgr::getObjectType(const char* objectType){
@@ -217,7 +275,7 @@ const IProp* ObjectMgr::setObjectProp(const char* propName, const int32 objTypeI
 		prop = itor->second;
 	}
 	else{
-		prop = NEW ObjectProp(sl::CalcStringUniqueId(propName), (int32)_objectTypeSize);
+		prop = NEW ObjectProp(propName, (int32)_objectTypeSize);
 		_allProps[propName] = prop;
 	}
 	prop->setLayout(objTypeId, layout);
@@ -231,7 +289,7 @@ const IProp* ObjectMgr::setObjectTempProp(const char* propName, const int32 objT
 		prop = itor->second;
 	}
 	else{
-		prop = NEW ObjectProp(sl::CalcStringUniqueId(propName), (int32)_objectTypeSize);
+		prop = NEW ObjectProp(propName, (int32)_objectTypeSize);
 		_allTempProps[propName] = prop;
 	}
 	prop->setLayout(objTypeId, layout);

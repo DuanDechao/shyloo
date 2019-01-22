@@ -41,9 +41,8 @@ bool DataLand::destory(sl::api::IKernel * pKernel){
 }
 
 void DataLand::askLand(const char* table, const int32 keyCount, const OArgs& data, const char* key, int8 opt, bool sync){
-	IArgs<50, 2048> args;
-	args << opt << sync << table << key << keyCount << data;
-	args.fix();
+	sl::BStream<2048> args;
+	//args << opt << sync << table << key << keyCount << data;
 	_harbor->send(NodeType::DATABASE, 1, NodeProtocol::CLUSTER_MSG_ASK_DATA_LAND, args.out());
 }
 

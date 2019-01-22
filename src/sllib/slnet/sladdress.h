@@ -18,8 +18,8 @@ public:
 	const char* ipAsString() const;
 	bool isNone() const {return _ip == 0;}
 
-	inline uint32 ip() const { return _ip; }
-	inline uint16 port() const { return _port; }
+	inline uint32 ip() const { return ntohl(_ip); }
+	inline uint16 port() const { return ntohs(_port); }
 
 	static int32 string2ip(const char* str, uint32& address);
 	static int32 ip2string(uint32 address, char* str);

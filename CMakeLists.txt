@@ -4,11 +4,11 @@ PROJECT(shyloo)
 option(USE_32BITS OFF)
 
 IF(WIN32)
-	LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/build/windows)
+	LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/bin/Hybrid)
 	SET(CMAKE_C_FLAGS_DEBUG_INIT "/D_DEBUG /Zm8192000 /MTd /Zi /Ob0 /Od /RTC1")
 	SET(CMAKE_C_FLAGS_MINSIZEREL_INIT "/MT /Zm8192000 /O1 /Ob1 /D NDEBUG")
 	SET(CMAKE_C_FLAGS_RELWITHDEBINFO_INIT "/MT /Zm8192000 /Zi /O2 /Ob1 /D NDEBUG")
-	SET(LIBRARY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/build/windows")
+	SET(LIBRARY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin/Hybrid")
 	MESSAGE(STATUS "WINDOWS")
 	IF(CMAKE_CL_64)
 		MESSAGE(STATUS "x64")
@@ -19,9 +19,9 @@ IF(WIN32)
 ENDIF(WIN32)
 
 IF(UNIX)
-	SET(LIBRARY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/build/linux")
-	LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/build/linux)
-	SET(CMAKE_CXX_FLAGS "-std=c++0x -Wall -lpthread -rdynamic -ldl -Dlinux -lmysqlclient -Wl,-rpath,./")
+	SET(LIBRARY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin/Hybrid")
+	LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/bin/Hybrid)
+	SET(CMAKE_CXX_FLAGS "-std=c++0x -Wall -rdynamic -Dlinux -lmysqlclient -Wl,-rpath,./")
 	SET(CMAKE_CXX_FLAGS_DEBUG "-g -D_DEBUG -o0 -pg -L${PROJECT_SOURCE_DIR}/thirdlibrary/debug ")
 	SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -L${PROJECT_SOURCE_DIR}/thirdlibrary/release")
 	SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -L${PROJECT_SOURCE_DIR}/thirdlibrary/release")
@@ -47,8 +47,8 @@ SET(SL_LIB_API
 SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/slfile_utils.h"
 	"${PROJECT_SOURCE_DIR}/src/public/sllog.h"
-	#"${PROJECT_SOURCE_DIR}/src/public/slmemorystream.h"
-	#"${PROJECT_SOURCE_DIR}/src/public/slmemorystream_converter.h"
+	"${PROJECT_SOURCE_DIR}/src/public/slmemorystream.h"
+	"${PROJECT_SOURCE_DIR}/src/public/slmemorystream_converter.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slmutex.h"
 	#"${PROJECT_SOURCE_DIR}/src/public/slobj_reload_check.h"
 	#"${PROJECT_SOURCE_DIR}/src/public/slobjectpool.h"
@@ -80,7 +80,12 @@ SET(PUBLIC
 	"${PROJECT_SOURCE_DIR}/src/public/slobject_allocator.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slobject_pool.h"
 	"${PROJECT_SOURCE_DIR}/src/public/slmath.h"
+    "${PROJECT_SOURCE_DIR}/src/public/slsha1.h"
+    "${PROJECT_SOURCE_DIR}/src/public/slsha1.cpp"
+    "${PROJECT_SOURCE_DIR}/src/public/slbase64.h"
+    "${PROJECT_SOURCE_DIR}/src/public/slbase64.cpp"
 )
+
 
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/sllib)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/kernel)

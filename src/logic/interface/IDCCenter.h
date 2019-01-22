@@ -24,6 +24,7 @@ enum{
 
 	DTYPE_CANT_BE_KEY,
 	DTYPE_FLOAT = DTYPE_CANT_BE_KEY,
+	DTYPE_DOUBLE,
 	DTYPE_STRUCT,
 	DTYPE_BLOB
 };
@@ -32,10 +33,25 @@ class IObject;
 class IProp{
 public:
 	virtual const int32 getName() const = 0;
+	virtual const char* getNameString() const = 0;
 	virtual const int8 getType(IObject* object) const = 0;
 	virtual const int32 getSetting(IObject* object) const = 0;
 	virtual const int32 getIndex(IObject* object) const = 0;
-    virtual const int64 getExtra(IObject* object) const = 0;
+    virtual const void* getExtra(IObject* object) const = 0;
+    virtual const int32 getSize(IObject* object) const = 0;
+	virtual const char* getDefaultVal(IObject* object) const = 0;
+	virtual const int8 getType(const char* objectType) const = 0;
+	virtual const int32 getSetting(const char* objectType) const = 0;
+	virtual const int32 getIndex(const char* objectType) const = 0;
+    virtual const void* getExtra(const char* objectType) const = 0;
+	virtual const int32 getSize(const char* objectType) const = 0;
+	virtual const char* getDefaultVal(const char* objectType) const = 0;
+    virtual const int8 getType(const int32 objTypeId) const = 0;
+    virtual const int32 getSetting(const int32 objTypeId) const = 0;
+    virtual const int32 getIndex(const int32 objTypeId) const = 0;
+    virtual const void* getExtra(const int32 objTypeId) const = 0;
+    virtual const int32 getSize(const int32 objTypeId) const = 0;
+	virtual const char* getDefaultVal(const int32 objTypeId) const = 0;
 };
 
 class IRow{
@@ -48,7 +64,8 @@ public:
 	virtual int32 getDataInt32(const int32 col) const = 0;
 	virtual int64 getDataInt64(const int32 col) const = 0;
 	virtual float getDataFloat(const int32 col) const = 0;
-	virtual const char * getDataString(const int32 col) const = 0;
+	virtual const char* getDataString(const int32 col) const = 0;
+	virtual const void* getDataBlob(const int32 col, int32& size) const = 0;
 
 	virtual void setDataInt8(const int32 col, const int8 value) const = 0;
 	virtual void setDataInt16(const int32 col, const int16 value) const = 0;
@@ -56,6 +73,7 @@ public:
 	virtual void setDataInt64(const int32 col, const int64 value) const = 0;
 	virtual void setDataFloat(const int32 col, const float value) const = 0;
 	virtual void setDataString(const int32 col, const char * value) const = 0;
+	virtual void setDataBlob(const int32 col, const void* data, const int32 size) const = 0;
 };
 
 
@@ -114,6 +132,7 @@ public:
 	virtual bool setPropUint64(const IProp* prop, const uint64 data, const bool sync = true) = 0;
 
 	virtual bool setPropFloat(const IProp* prop, const float data, const bool sync = true) = 0;
+	virtual bool setPropDouble(const IProp* prop, const double data, const bool sync = true) = 0;
 	virtual bool setPropString(const IProp* prop, const char* data, const bool sync = true) = 0;
 	virtual bool setPropStruct(const IProp* prop, const void* data, const int32 size, const bool sync = true) = 0;
 	virtual bool setPropBlob(const IProp* prop, const void* data, const int32 size, const bool sync = true) = 0;
@@ -123,6 +142,7 @@ public:
 	virtual bool setTempInt32(const IProp* prop, const int32 data) = 0;
 	virtual bool setTempInt64(const IProp* prop, const int64 data) = 0;
 	virtual bool setTempFloat(const IProp* prop, const float data) = 0;
+	virtual bool setTempDouble(const IProp* prop, const double data) = 0;
 	virtual bool setTempString(const IProp* prop, const char* data) = 0;
 	virtual bool setTempStruct(const IProp* prop, const void* data, const int32 size) = 0;
 	virtual bool setTempBlob(const IProp* prop, const void* data, const int32 size) = 0;
@@ -138,15 +158,18 @@ public:
 	virtual uint64 getPropUint64(const IProp* prop) const = 0;
 
 	virtual float getPropFloat(const IProp* prop) const = 0;
+	virtual double getPropDouble(const IProp* prop) const = 0;
 	virtual const char* getPropString(const IProp* prop) const = 0;
 	virtual const void* getPropStruct(const IProp* prop, int32& size) const = 0;
 	virtual const void* getPropBlob(const IProp* prop, int32& size) const = 0;
+	virtual const void* getPropData(const IProp* prop, int32& size) const = 0;
 
 	virtual int8 getTempInt8(const IProp* prop) const = 0;
 	virtual int16 getTempInt16(const IProp* prop) const = 0;
 	virtual int32 getTempInt32(const IProp* prop) const = 0;
 	virtual int64 getTempInt64(const IProp* prop) const = 0;
 	virtual float getTempFloat(const IProp* prop) const = 0;
+	virtual double getTempDouble(const IProp* prop) const = 0;
 	virtual const char* getTempString(const IProp* prop) const = 0;
 	virtual const void* getTempStruct(const IProp* prop, int32& size) const = 0;
 	virtual const void* getTempBlob(const IProp* prop, int32& size) const = 0;
@@ -169,10 +192,11 @@ public:
 	virtual void recover(IObject* object) = 0;
 	virtual IObject* findObject(const uint64 id) = 0;
 	virtual ITableControl* createStaticTable(const char* name, const char* model, const char* file, const int32 line) = 0;
-	virtual const IProp* appendObjectProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index, const int64 extra) = 0;
-	virtual const IProp* appendObjectTempProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index, const int64 extra) = 0;
+	virtual const IProp* appendObjectProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index, const void* extra, const char* defaultVal = "") = 0;
+	virtual const IProp* appendObjectTempProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index, const void* extra, const char* defaultVal = "") = 0;
 	virtual void setObjectTypeSize(const int32 size) = 0;
     virtual const int32 getObjectType(const char* objectName) = 0;
+	virtual bool appendTableColumnInfo(const char* tableName, const int16 type, const int32 typeSize, bool isKey) = 0;
 };
 
 #define CREATE_OBJECT(mgr, ...) mgr->create(__FILE__, __LINE__, __VA_ARGS__)

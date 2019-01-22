@@ -3,6 +3,8 @@
 #include "slikernel.h"
 #include "slimodule.h"
 #include "slbinary_stream.h"
+#include <unordered_map>
+#include <set>
 class OArgs;
 class INodeListener{
 public:
@@ -21,16 +23,25 @@ public:
 	virtual void prepareSend(int32 nodeType, int32 nodeId, int32 messageId, int32 size) = 0;
 	virtual void send(int32 nodeType, int32 nodeId, const void* pContext, const int32 size) = 0;
 	virtual void send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& args) = 0;
+	virtual void send(int32 nodeType, int32 nodeId, int32 messageId, const sl::OBStream& args) = 0;
 	virtual void broadcast(int32 nodeType, int32 messageId, const OArgs& args) = 0;
+	virtual void broadcast(int32 nodeType, int32 messageId, const sl::OBStream& args) = 0;
+	virtual void broadcast(int32 messageId, const OArgs& args, std::unordered_map<int32, std::set<int32>>& exclude) = 0;
+	virtual void broadcast(int32 messageId, const sl::OBStream& args, std::unordered_map<int32, std::set<int32>>& exclude) = 0;
 	virtual void broadcast(int32 messageId, const OArgs& args) = 0;
+	virtual void broadcast(int32 messageId, const sl::OBStream& args) = 0;
 	virtual void prepareBroadcast(int32 nodeType, const int32 messageId, const int32 size) = 0;
 	virtual void broadcast(int32 nodeType, const void* context, const int32 size) = 0;
 	virtual void rgsNodeArgsMessageHandler(int32 messageId, const NodeArgsCB& handler) = 0;
 	virtual void rgsNodeMessageHandler(int32 messageId, const NodeCB& handler) = 0;
-	virtual void connect(const char* ip, const int32 port, const int32 nodeType, const int32 nodeId, bool ipcTransfor = false) = 0;
-	virtual int32 getNodeType() const = 0;
-	virtual int32 getNodeId() const = 0;
+	virtual void connect(const char* ip, const int32 port, const int32 nodeType, const int32 nodeId, bool isIpcTransfor = false) = 0;
+	virtual const int32 getNodeType() const = 0;
+	virtual const int32 getNodeId() const = 0;
 	virtual const char* getNodeName(int32 nodeType) = 0;
+	virtual const char* getNodeTypeStr() const = 0;
+	virtual void setPort(uint16 port) = 0;
+	virtual void setLocalNodeId(int32 nodeId) = 0;
+	virtual bool isNodeConnected(const int32 nodeType, const int32 nodeId) = 0;
 };
 
 #define RGS_NODE_HANDLER(harbor, messageId, handler) harbor->rgsNodeMessageHandler(messageId, std::bind(&handler, this, std::placeholders::_1, std::placeholders::_2,  std::placeholders::_3, std::placeholders::_4))

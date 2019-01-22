@@ -4,13 +4,17 @@ INCLUDE_DIRECTORIES(
 	"${PROJECT_SOURCE_DIR}/src/logic/interface"
 	"${PROJECT_SOURCE_DIR}/src/logic/define"
 	"${PROJECT_SOURCE_DIR}/src/sllib/api"
+	"${PROJECT_SOURCE_DIR}/thirdlibrary/mysql/x64/include"
 )
 
 SET(DATABASE
-	"${PROJECT_SOURCE_DIR}/src/logic/db/DBCall.h"
-	"${PROJECT_SOURCE_DIR}/src/logic/db/DBCall.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/db/DBContext.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/db/DB.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/db/DB.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/db/DBTable.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/db/DBTable.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/db/DBTableMysql.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/db/DBTableMysql.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/db/main.cpp"
 )
 

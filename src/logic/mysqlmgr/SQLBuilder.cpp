@@ -1,20 +1,24 @@
 #include "SQLBuilder.h"
 #include "MysqlMgr.h"
-
-SQLBuilder::SQLBuilder()
+#include "DBInterface.h"
+SQLBuilder::SQLBuilder(DBInterface* dbInterface)
 	:_table(""),
 	 _optType(DB_OPT_NONE),
 	 _limit(0),
 	 _selectExpr("*"),
-	 _finalExpr("")
+	 _finalExpr(""),
+	 _dbInterface(dbInterface),
+	 _isRawSql(false)
 {}
 
-SQLBuilder::SQLBuilder(const char* sql, const char* table, const int8 optType)
-	:_table(table),
+SQLBuilder::SQLBuilder(DBInterface* dbInterface, int32 optType, const char* sql)
+	:_table(""),
 	_optType(optType),
 	_limit(0),
 	_selectExpr("*"),
-	_finalExpr(string(sql))
+	_finalExpr(string(sql)),
+	_dbInterface(dbInterface),
+	_isRawSql(true)
 {}
 
 SQLBuilder::~SQLBuilder(){
@@ -123,10 +127,10 @@ bool SQLBuilder::submit(){
 		SLASSERT(false, "invaild sql command");
 		return false;
 	}
-
+	
 	if (_finalExpr != "")
 		return true;
-
+	
 	switch (_optType){
 		case DB_OPT_INSERT:{
 			if (_optType != DB_OPT_INSERT || _valuesExpr.exprs().empty()){
@@ -268,7 +272,7 @@ void SQLBuilder::escapeString(string& dest, const SetExpr* val){
 	}else{
 		int32 srcSize = (int32)(val->value().size());
 		char* destStr = (char*)alloca(srcSize * 2 + 3);
-		int32 escapeLen = MysqlMgr::escapeString(destStr, srcSize * 2 + 3, val->value().c_str(), srcSize);
+		int32 escapeLen = _dbInterface->escapeString(destStr, srcSize * 2 + 3, val->value().c_str(), srcSize);
 		dest.append("'");
 		dest.append(destStr, escapeLen);
 		dest.append("'");

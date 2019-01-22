@@ -4,7 +4,7 @@
 #include <vector>
 #include <list>
 #include "IDCCenter.h"
-
+#include "Scene.h"
 class IObject;
 class SceneNodeData{
 public:
@@ -13,7 +13,8 @@ public:
 
     inline static SceneNodeData* create(IObject* object) {
         SceneNodeData* nodeData =  NEW SceneNodeData(object);
-        object->setPropInt64(_objectPropSceneData, (int64)nodeData);
+        const IProp* sceneData = Scene::getInstance()->getPropSceneNodeData();
+        object->setPropInt64(sceneData, (int64)nodeData);
         return nodeData;
     }
 
@@ -29,13 +30,19 @@ public:
     }
 
     inline static void addWitnessed(IObject* object, IObject* witness){
-        SceneNodeData* nodeData = (SceneNodeData*)object->getPropInt64(_objectPropSceneData);
-        if(nodeData)
-            nodeData->addWitnessed(witness);
+        const IProp* sceneDataProp = Scene::getInstance()->getPropSceneNodeData();
+        SceneNodeData* nodeData = (SceneNodeData*)object->getPropInt64(sceneDataProp);
+        if(!nodeData){
+            SceneNodeData* newSceneData = SceneNodeData::create(object);
+            object->setPropInt64(sceneDataProp, (int64)newSceneData);
+            nodeData = newSceneData;
+        }
+        nodeData->addWitnessed(witness);
     }
 
     inline static void delWitnessed(IObject* object, IObject* witness){
-        SceneNodeData* nodeData = (SceneNodeData*)object->getPropInt64(_objectPropSceneData);
+        const IProp* sceneData = Scene::getInstance()->getPropSceneNodeData();
+        SceneNodeData* nodeData = (SceneNodeData*)object->getPropInt64(sceneData);
         if(nodeData)
             nodeData->delWitnessed(witness);
     }
@@ -45,7 +52,5 @@ private:
     IObject*                _object;
     std::list<uint64>       _witnesses;
     int32                   _witnessesCount;
-    static const IProp*     _objectPropSceneData;
-
 };
 #endif

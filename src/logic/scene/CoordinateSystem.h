@@ -28,7 +28,7 @@ public:
     void moveNodeX(CoordinateNode* pNode, float px, CoordinateNode* pCurrNode);
     void moveNodeY(CoordinateNode* pNode, float py, CoordinateNode* pCurrNode);
     void moveNodeZ(CoordinateNode* pNode, float pz, CoordinateNode* pCurrNode);
-
+    void debugNodes();
 private:
     uint32 _size;
     CoordinateNode* _xCoordinateHead;

@@ -268,6 +268,7 @@ public:
 				}
 			}
 		}
+		closedir(dp);
 	}
 #endif
 

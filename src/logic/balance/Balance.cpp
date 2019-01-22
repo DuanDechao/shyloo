@@ -37,8 +37,8 @@ bool Balance::launched(sl::api::IKernel * pKernel){
 	_harbor->addNodeListener(this);
 	_agent->setListener(this);
 
-	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::GATE_MSG_GATE_REGISTER, Balance::onGateRegister);
-	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::GATE_MSG_LOAD_REPORT, Balance::onGateLoadReport);
+	RGS_NODE_HANDLER(_harbor, NodeProtocol::GATE_MSG_GATE_REGISTER, Balance::onGateRegister);
+	RGS_NODE_HANDLER(_harbor, NodeProtocol::GATE_MSG_LOAD_REPORT, Balance::onGateLoadReport);
 
 	START_TIMER(_self, 0, TIMER_BEAT_FOREVER, LOGIN_ALLOW_INTERVAL);
 
@@ -85,10 +85,11 @@ void Balance::onAgentClose(sl::api::IKernel* pKernel, const int64 id){
 	}
 }
 
-void Balance::onGateRegister(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
+void Balance::onGateRegister(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args){
 	SLASSERT(_gates.find(nodeId) == _gates.end(), "wtf");
-	const char* ip = args.getString(0);
-	const int32 port = args.getInt32(1);
+	const char* ip = nullptr;
+	int32 port = 0;
+	args >> ip >> port;
 	TRACE_LOG("new gate node[%d] register", nodeId);
 
 	GateInfo& gate = _gates[nodeId];
@@ -98,14 +99,15 @@ void Balance::onGateRegister(sl::api::IKernel* pKernel, const int32 nodeType, co
 	gate.load = 0;
 }
 
-void Balance::onGateLoadReport(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
+void Balance::onGateLoadReport(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args){
 	auto itor = _gates.find(nodeId);
 	if (itor == _gates.end()){
 		SLASSERT(false, "wtf");
 		return;
 	}
 
-	const int32 load = args.getInt32(0);
+	int32 load = 0;
+	args >> load;
 	GateInfo& info = _gates[nodeId];
 	info.load = load;
 }
@@ -155,12 +157,11 @@ void Balance::sendGate(sl::api::IKernel* pKernel, int64 agentId){
 		return;
 	}
 
-	IArgs<1, 64> args;
+	sl::BStream<64> args;
 	args << agentId;
-	args.fix();
 	_harbor->send(NodeType::GATE, gate->nodeId, NodeProtocol::BALANCE_MSG_SYNC_LOGIN_TICKET, args.out());
 
-	sl::IBStream<128> ack;
+	sl::BStream<128> ack;
 	ack << gate->ip.c_str() << gate->port << agentId;
 	sl::OBStream out = ack.out();
 
@@ -172,7 +173,7 @@ void Balance::sendGate(sl::api::IKernel* pKernel, int64 agentId){
 }
 
 void Balance::sendTicket(sl::api::IKernel* pKernel, int64 agentId, int32 ticket){
-	sl::IBStream<256> ack;
+	sl::BStream<256> ack;
 	ack << (ticket - _passTicket);
 	sl::OBStream out = ack.out();
 

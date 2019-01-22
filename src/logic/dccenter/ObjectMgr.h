@@ -15,12 +15,13 @@ public:
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
 
-	virtual const IProp* appendObjectProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index, const int64 extra);
-	virtual const IProp* appendObjectTempProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index, const int64 extra);
+	virtual const IProp* appendObjectProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index, const void* extra, const char* defaultVal = "");
+	virtual const IProp* appendObjectTempProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index, const void* extra, const char* defaultVal = "");
 	virtual const IProp* getPropByName(const char* name) const;
 	virtual const IProp* getTempPropByName(const char* name) const;
 	virtual const IProp* getPropByNameId(const int32 name) const;
     virtual const int32 getObjectType(const char* objectType);
+	virtual bool appendTableColumnInfo(const char* tableName, const int16 type, const int32 typeSize, bool isKey);
 
 	virtual void setObjectTypeSize(const int32 size){ _objectTypeSize = size; }
 
@@ -49,11 +50,11 @@ public:
 	void test();
 
 private:
-	bool initPropDefineConfig(sl::api::IKernel * pKernel);
-	bool loadObjectPropConfig(sl::api::IKernel * pKernel);
+	//bool initPropDefineConfig(sl::api::IKernel * pKernel);
+	//bool loadObjectPropConfig(sl::api::IKernel * pKernel);
 
-	ObjectPropInfo* createTemplate(sl::api::IKernel* pKernel, const char* objectName);
-	ObjectPropInfo* queryTemplate(sl::api::IKernel* pKernel, const char* objectName);
+	//ObjectPropInfo* createTemplate(sl::api::IKernel* pKernel, const char* objectName);
+	//ObjectPropInfo* queryTemplate(sl::api::IKernel* pKernel, const char* objectName);
 
 private:
 	typedef std::unordered_map<sl::SLString<MAX_PROP_NAME_LEN>, int32> PROP_DEFINE_MAP;

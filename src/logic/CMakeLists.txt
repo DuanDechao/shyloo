@@ -2,6 +2,7 @@
 SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IGate.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IHarbor.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/ICluster.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IDCCenter.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IIdMgr.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IAgent.h"
@@ -9,7 +10,6 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IEventEngine.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IFSM.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IMysqlMgr.h"
-	"${PROJECT_SOURCE_DIR}/src/logic/interface/ICapacity.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IDistribution.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IAccount.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IRoleMgr.h"
@@ -29,16 +29,21 @@ SET(SL_LOGIC_INTERFACE
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IOCCommand.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IRelation.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IClient.h"
-	"${PROJECT_SOURCE_DIR}/src/logic/interface/IMonitor.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IStarter.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IChat.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IGD.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/IPythonEngine.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/DBType.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/interface/SQLBase.h"
-	"${PROJECT_SOURCE_DIR}/src/logic/interface/IEntityDef.h"
-	"${PROJECT_SOURCE_DIR}/src/logic/interface/IEntityMgr.h"
+    "${PROJECT_SOURCE_DIR}/src/logic/interface/IObjectDef.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IPythonEngine.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IPythonServer.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/ITelnetServer.h"
     "${PROJECT_SOURCE_DIR}/src/logic/interface/IMmoServer.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IResMgr.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/INavigation.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IGlobalData.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/interface/IDebugHelper.h"
 )
 
 SET(SL_LOGIC_DEFINE
@@ -52,13 +57,9 @@ SET(SL_LOGIC_DEFINE
 	"${PROJECT_SOURCE_DIR}/src/logic/define/MonitorProtocol.h"
 ) 
 
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/attrgetter)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/attrgetter)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/harbor)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/agent)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/slave)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/starter)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/capacity)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/master)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/cluster)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/dccenter)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/idmgr)
@@ -66,35 +67,37 @@ ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/gate)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/db)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/eventengine)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/mysqlmgr)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/scriptengine)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/dbcreator)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/distribution)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/scriptengine)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/distribution)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/account)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/rolemgr)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/logic)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/redis)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/cachedb)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/ai)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/playermgr)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/client)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/robot)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/rolemgr)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/logic)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/redis)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/cachedb)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/ai)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/playermgr)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/client)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/robot)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/packetsender)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/propdelaysender)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/propdelaysender)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/scene)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/objecttimer)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/objectlocator)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/shadowmgr)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/command)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/relation)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/balance)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/monitor)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/monitorclient)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/objectlocator)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/shadowmgr)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/command)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/relation)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/balance)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/monitorclient)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/online)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/startnodestrategy)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/chat)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/gd)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/chat)
+#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/gd)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/pythonengine)
-#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/entitydef)
-ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/entitymgr)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/pythonserver)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/objectdef)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/mmoserver)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/resmgr)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/navigation)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/globaldata)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/telnetserver)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/src/logic/debughelper)
 

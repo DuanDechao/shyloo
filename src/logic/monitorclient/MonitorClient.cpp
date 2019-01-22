@@ -51,7 +51,7 @@ void MonitorClient::onServerDisConnected(sl::api::IKernel* pKernel){
 }
 
 void MonitorClient::shutDownServer(sl::api::IKernel* pKernel){
-	sl::IBStream<32> args;
+	sl::BStream<32> args;
 	sendToSvr(pKernel, MonitorProtocol::CLIENT_SHUTDOWN_SERVER_REQ, args.out());
 }
 

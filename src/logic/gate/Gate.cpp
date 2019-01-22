@@ -13,6 +13,7 @@
 #include "slxml_reader.h"
 #include "slstring_utils.h"
 #include <algorithm>
+#include "IDebugHelper.h"
 
 #define REPORT_LOAD_INTERVAL 1000
 #define TICKET_EXPIRE_TIME 10000
@@ -72,20 +73,14 @@ private:
 bool Gate::initialize(sl::api::IKernel * pKernel){
 	_self = this;
     _kernel = pKernel;
-
-	sl::XmlReader svrConf;
-	if (!svrConf.loadXml(pKernel->getCoreFile())){
-		SLASSERT(false, "cant load core file");
-		return false;
-	}
-	_isQueneOn = svrConf.root()["balance"][0].getAttributeInt32("max_tickets") > 0;
+	_isQueneOn = false;
 
 	return true;
 }
 
 bool Gate::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_harbor, Harbor);
-	FIND_MODULE(_cacheDB, CacheDB);
+	//FIND_MODULE(_cacheDB, CacheDB);
 	FIND_MODULE(_IdMgr, IdMgr);
 	FIND_MODULE(_agent, Agent);
 
@@ -93,10 +88,10 @@ bool Gate::launched(sl::api::IKernel * pKernel){
 	_harbor->addNodeListener(this);
 
 	//RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENEMGR_MSG_DISTRIBUTE_LOGIC_ACK, Gate::onSceneMgrDistributeLogic);
-	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::ACCOUNT_MSG_BIND_ACCOUNT_ACK, Gate::onAccountBindAccountAck);
-	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::ACCOUNT_MSG_KICK_FROM_ACCOUNT, Gate::onAccountKickFromAccount);
+	RGS_NODE_HANDLER(_harbor, NodeProtocol::ACCOUNT_MSG_BIND_ACCOUNT_ACK, Gate::onAccountBindAccountAck);
+	RGS_NODE_HANDLER(_harbor, NodeProtocol::ACCOUNT_MSG_KICK_FROM_ACCOUNT, Gate::onAccountKickFromAccount);
 	//RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_BIND_PLAYER_ACK, Gate::onLogicBindPlayerAck);
-	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::BALANCE_MSG_SYNC_LOGIN_TICKET, Gate::onBalanceSyncLoginTicket);
+	RGS_NODE_HANDLER(_harbor, NodeProtocol::BALANCE_MSG_SYNC_LOGIN_TICKET, Gate::onBalanceSyncLoginTicket);
 	//RGS_NODE_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_TRANSFOR, Gate::onLogicTransforToAgent);
 	//RGS_NODE_HANDLER(_harbor, NodeProtocol::LOGIC_MSG_BROCAST, Gate::onLogicBrocastToAgents);
 	//RGS_NODE_HANDLER(_harbor, NodeProtocol::GATE_MSG_BROCAST, Gate::onLogicBrocastToAgents);
@@ -123,10 +118,9 @@ bool Gate::destory(sl::api::IKernel * pKernel){
 
 void Gate::onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* ip, const int32 port){
 	if (nodeType == NodeType::BALANCE){
-		IArgs<2, 256> args;
+		sl::BStream<256> args;
 		args << pKernel->getInternetIp();
 		args << sl::CStringUtils::StringAsInt32(pKernel->getCmdArg("agent"));
-		args.fix();
 		_harbor->send(NodeType::BALANCE, 1, NodeProtocol::GATE_MSG_GATE_REGISTER, args.out());
 	}
 }
@@ -147,9 +141,8 @@ void Gate::onClose(sl::api::IKernel* pKernel, const int32 nodeType, const int32 
 }
 
 void Gate::onTime(sl::api::IKernel* pKernel, int64 timetick){
-	IArgs<1, 32> args;
+	sl::BStream<32> args;
 	args << (int32)_sessions.size();
-	args.fix();
 	_harbor->send(NodeType::BALANCE, 1, NodeProtocol::GATE_MSG_LOAD_REPORT, args.out());
 
 	auto itor = _agentTickets.begin();
@@ -232,9 +225,8 @@ void Gate::reset(sl::api::IKernel* pKernel, int64 id, int8 state){
 	}
 
 	if (oldState > GATE_STATE_NONE && state == GATE_STATE_NONE){
-		IArgs<3, 128> args;
+		sl::BStream<128> args;
 		args << session.agentId << session.accountId;
-		args.fix();
 		_harbor->send(NodeType::DATABASE, 1, NodeProtocol::GATE_MSG_UNBIND_ACCOUNT_REQ, args.out());
 
 		session.accountId = 0;
@@ -259,7 +251,7 @@ void Gate::send(int64 agentId, const void* context, const int32 size){
 	}
 }
 
-void Gate::sendToClient(sl::api::IKernel* pKernel, const int64 id, const int32 msgId, const OBStream& buf){
+void Gate::sendToClient(const int64 id, const int32 msgId, const OBStream& buf){
 	int32 header[2];
 	header[0] = msgId;
 	header[1] = buf.getSize() + sizeof(int32)* 2;
@@ -269,12 +261,12 @@ void Gate::sendToClient(sl::api::IKernel* pKernel, const int64 id, const int32 m
 }
 
 void Gate::sendLoginAck(sl::api::IKernel* pKernel, Session& session, int32 errCode){
-	IBStream<4096> buf;
+	BStream<4096> buf;
 	buf << (int32)errCode;
-	sendToClient(pKernel, session.agentId, ServerMsgID::SERVER_MSG_LOGIN_RSP, buf.out());
+	sendToClient(session.agentId, ServerMsgID::SERVER_MSG_LOGIN_RSP, buf.out());
 }
 
-/*void Gate::onSceneMgrDistributeLogic(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
+/*void Gate::onSceneMgrDistributeLogic(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args){
 	int64 agentId = args.getInt64(0);
 	int64 actorId = args.getInt64(1);
 	int32 logic = args.getInt32(2);
@@ -306,10 +298,11 @@ void Gate::sendLoginAck(sl::api::IKernel* pKernel, Session& session, int32 errCo
 	}
 }*/
 
-void Gate::onAccountBindAccountAck(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
-	int64 agentId = args.getInt64(0);
-	int64 accountId = args.getInt64(1);
-	int32 errorCode = args.getInt32(2);
+void Gate::onAccountBindAccountAck(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args){
+	int64 agentId = 0;
+	int64 accountId = 0;
+	int32 errorCode = 0;
+	args >> agentId >> accountId >> errorCode;
 
 	if (_sessions.find(agentId) != _sessions.end()){
 		Session& session = _sessions[agentId];
@@ -343,8 +336,9 @@ void Gate::onAccountBindAccountAck(sl::api::IKernel* pKernel, const int32 nodeTy
 	}
 }
 
-void Gate::onAccountKickFromAccount(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
-	int64 agentId = args.getInt64(0);
+void Gate::onAccountKickFromAccount(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args){
+	int64 agentId = 0;
+	args >> agentId;
 	if (_sessions.find(agentId) != _sessions.end()){
 		SLASSERT(_sessions[agentId].state >= GATE_STATE_BINDING, "wtf");
 
@@ -365,7 +359,7 @@ void Gate::setGateOnline(const int64 agentId){
 }
 
 
-/*void Gate::onLogicBindPlayerAck(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
+/*void Gate::onLogicBindPlayerAck(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args){
 	int32 errCode = args.getInt32(0);
 	int64 actorId = args.getInt64(1);
 	int64 accountId = args.getInt64(2);
@@ -393,8 +387,10 @@ void Gate::setGateOnline(const int64 agentId){
 	}
 }*/
 
-void Gate::onBalanceSyncLoginTicket(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args){
-	_agentTickets[args.getInt64(0)] = sl::getTimeMilliSecond();
+void Gate::onBalanceSyncLoginTicket(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args){
+	int64 agentId = 0;
+	args >> agentId;
+	_agentTickets[agentId] = sl::getTimeMilliSecond();
 }
 
 void Gate::sendMsgToAgent(const int64 agentId , const void* context, const int32 size, const int32 delay){
@@ -513,7 +509,8 @@ void Gate::onLogicBrocastToAllAgents(sl::api::IKernel* pKernel, const int32 node
 void Gate::onClientLoginReq(sl::api::IKernel* pKernel, const int64 id, const OBStream& args){
 	const char* accountName = nullptr;
 	int64 ticket = 0;
-	if (!args.readString(accountName) || !args.readInt64(ticket))
+    const char* password = nullptr;
+	if (!args.readString(accountName) || !args.readString(password))
 		return;
 
 	SLASSERT(_sessions.find(id) != _sessions.end(), "not find agent!");
@@ -530,8 +527,8 @@ void Gate::onClientLoginReq(sl::api::IKernel* pKernel, const int64 id, const OBS
 		_agentTickets.erase(ticket);
 	}
 
-	int64 accountId = 0;
-	bool success = _cacheDB->readByIndex("account", [&](sl::api::IKernel* pKernel, ICacheDBReader* reader){
+	int64 accountId = 34465756878;
+	/*bool success = _cacheDB->readByIndex("account", [&](sl::api::IKernel* pKernel, ICacheDBReader* reader){
 		reader->readColumn("accountId");
 	}, [&accountId](sl::api::IKernel* pKernel, ICacheDBReadResult* result){
 		if (result->count() == 1)
@@ -547,16 +544,19 @@ void Gate::onClientLoginReq(sl::api::IKernel* pKernel, const int64 id, const OBS
 		SLASSERT(success, "write db failed");
 	}
 	SLASSERT(accountId, "can't get accountID");
-
+*/
 	session.accountId = accountId;
 	session.state = GATE_STATE_AUTHENING;
 
-	IArgs<3, 128> inArgs;
+    for (auto* listener : _gateListeners)
+        listener->onGateLogined(pKernel, session.agentId); 
+
+	/*IArgs<3, 128> inArgs;
 	inArgs << session.agentId << session.accountId;
 	inArgs.fix();
 
 	_harbor->send(NodeType::DATABASE, 1, NodeProtocol::GATE_MSG_BIND_ACCOUNT_REQ, inArgs.out());
-
+*/
 	printf("client[%s:%lld] login...\n", accountName, accountId);
 }
 

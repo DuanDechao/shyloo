@@ -28,10 +28,10 @@ bool AOI::launched(sl::api::IKernel * pKernel){
 	FIND_MODULE(_packetSender, PacketSender);
 	FIND_MODULE(_eventEngine, EventEngine);
 
-	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENE_MSG_ADD_INTERESTER, AOI::onSceneAddInterester);
-	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENE_MSG_ADD_WATCHER, AOI::onSceneAddWatcher);
-	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENE_MSG_REMOVE_INTERESTER, AOI::onSceneRemoveInterester);
-	RGS_NODE_ARGS_HANDLER(_harbor, NodeProtocol::SCENE_MSG_REMOVE_WATCHER, AOI::onSceneRemoveWatcher);
+	RGS_NODE_HANDLER(_harbor, NodeProtocol::SCENE_MSG_ADD_INTERESTER, AOI::onSceneAddInterester);
+	RGS_NODE_HANDLER(_harbor, NodeProtocol::SCENE_MSG_ADD_WATCHER, AOI::onSceneAddWatcher);
+	RGS_NODE_HANDLER(_harbor, NodeProtocol::SCENE_MSG_REMOVE_INTERESTER, AOI::onSceneRemoveInterester);
+	RGS_NODE_HANDLER(_harbor, NodeProtocol::SCENE_MSG_REMOVE_WATCHER, AOI::onSceneRemoveWatcher);
 
 	RGS_EVENT_HANDLER(_eventEngine, logic_event::EVENT_LOGIC_ENTER_VISION, AOI::onObjectEnterVision);
 
@@ -84,10 +84,11 @@ bool AOI::isNeighbor(IObject* object, const int64 id){
 	return interesters->findRow(id) != nullptr;
 }
 
-void AOI::onSceneAddInterester(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args){
-	int64 id = args.getInt64(0);
-	int64 interesterId = args.getInt64(1);
-	int32 type = args.getInt32(2);
+void AOI::onSceneAddInterester(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args){
+	int64 id = 0;
+	int64 interesterId = 0;
+	int32 type = 0;
+	args >> id >> interesterId >> type;
 
 	IObject* object = _objectMgr->findObject(id);
 	SLASSERT(object, "wtf");
@@ -96,11 +97,12 @@ void AOI::onSceneAddInterester(sl::api::IKernel* pKernel, int32 nodeType, int32 
 		addInterester(pKernel, object, interesterId, type);
 }
 
-void AOI::onSceneAddWatcher(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args){
-	int64 id = args.getInt64(0);
-	int64 watcherId = args.getInt64(1);
-	int32 gate = args.getInt32(2);
-	int32 logic = args.getInt32(3);
+void AOI::onSceneAddWatcher(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args){
+	int64 id = 0;
+	int64 watcherId = 0;
+	int32 gate = 0;
+	int32 logic = 0;
+	args >> id >> watcherId >> gate >> logic;
 
 	IObject* object = _objectMgr->findObject(id);
 	SLASSERT(object, "wtf");
@@ -108,9 +110,10 @@ void AOI::onSceneAddWatcher(sl::api::IKernel* pKernel, int32 nodeType, int32 nod
 		addWatcher(pKernel, object, watcherId, logic, gate);
 }
 
-void AOI::onSceneRemoveInterester(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args){
-	int64 id = args.getInt64(0);
-	int64 interesterId = args.getInt64(1);
+void AOI::onSceneRemoveInterester(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args){
+	int64 id = 0;
+	int64 interesterId = 0;
+	args >> id >> interesterId;
 
 	IObject* object = _objectMgr->findObject(id);
 	SLASSERT(object, "wtf");
@@ -119,9 +122,10 @@ void AOI::onSceneRemoveInterester(sl::api::IKernel* pKernel, int32 nodeType, int
 		removeInterester(pKernel, object, interesterId);
 }
 
-void AOI::onSceneRemoveWatcher(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const OArgs& args){
-	int64 id = args.getInt64(0);
-	int64 watcherId = args.getInt64(1);
+void AOI::onSceneRemoveWatcher(sl::api::IKernel* pKernel, int32 nodeType, int32 nodeId, const sl::OBStream& args){
+	int64 id = 0;
+	int64 watcherId = 0;
+	args >> id >> watcherId;
 
 	IObject* object = _objectMgr->findObject(id);
 	SLASSERT(object, "wtf");

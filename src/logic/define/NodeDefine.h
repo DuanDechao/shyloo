@@ -3,6 +3,7 @@
 enum NodeType{
 	SLAVE = -3,
 	MASTER = -2,
+	LOGGER = -1,
 	GATE = 1,
 	LOGIC = 2,
 	SCENE = 3,
@@ -12,5 +13,6 @@ enum NodeType{
 	LOGIN = 7,
 	DATABASE = 8,
 	BALANCE = 9,
+	CLIENT = 10,
 };
 #endif

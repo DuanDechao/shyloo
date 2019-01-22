@@ -1,10 +1,12 @@
 #ifndef __EVENT_ID_H__
 #define __EVENT_ID_H__
 #include "slmulti_sys.h"
+#include "slbinary_stream.h"
 class IObject;
 namespace logic_event{
 	enum{
-		EVENT_PRE_SHUTDOWN = 1,
+		EVENT_SERVER_READY = 1,
+		EVENT_PRE_SHUTDOWN,
 		EVENT_SHUTDOWN_NOTIFY,
 		EVENT_SHUTDOWN_CLOSE,
 		EVENT_SHUTDOWN_COMPLETE,
@@ -21,10 +23,12 @@ namespace logic_event{
         EVENT_NEW_OBJECT_CREATED,
         EVENT_CREATE_CELL_ENTITY,
         EVENT_CELL_ENTITY_CREATED,
+		EVENT_PROXY_CREATED,
         
         EVENT_GATE_LOGINED,
         EVENT_PROXY_ENTITY_CREATED,
         EVENT_ENTITY_CREATED_FROM_DB_CALLBACK,
+		EVENT_REMOTE_METHOD_CALL,
 
 		EVENT_LOGIC_PLAYER_RECONNECT = 1000,
 		EVENT_LOGIC_PLAYER_ONLINE,
@@ -47,6 +51,8 @@ namespace logic_event{
 		EVENT_LOGIC_SEE_SOMEONE,
 		EVENT_LOGIC_MISS_SOMEONE,
 		EVENT_LOGIC_PLAYER_GATE_LOST,
+		EVENT_LOGIC_CREATE_BASE_ANYWHERE,
+		EVENT_LOGIC_CREATE_BASE_ANYWHERE_CALLBACK,
 
 		EVENT_SCENE_ENTER_SCENE = 2000,
 		EVENT_SCENE_APPEAR_SCENE,
@@ -61,13 +67,17 @@ namespace logic_event{
 		IObject* object;
 	};
 
-    struct CreateCellEntity{
-        const char* entityType;
-        uint64 entityId;
-        int32 remoteNodeId;
+    struct CellEntityCreated{
+        IObject* object;
+		const void* cellData;
+		const int32 cellDataSize;
+		const void* initData;
+		const int32 initDataSize;
+        int32 baseNodeId;
+		bool hasClient;
     };
 
-    struct CellEntityCreated{
+    struct CellEntityCreatedFromCell{
         uint64 entityId;
         int32 remoteNodeId;
     };
@@ -84,10 +94,9 @@ namespace logic_event{
     };
 
     struct EntityCreatedFromDBCallBack{
-        const char* entityType;
+		IObject* object;
         uint64 dbid;
         uint64 callbackId;
-        uint64 entityId;
         bool success;
         bool wasActive;        
     };
@@ -156,6 +165,32 @@ namespace logic_event{
 	struct ChatAddress{
 		const char* ip;
 		int32 port;
+	};
+
+	struct StartUp{
+	};
+
+	struct ProxyCreated{
+		IObject* object;
+		int64 agentId;
+	};
+	
+	struct CreateBaseAnywhere{
+		IObject* object;
+		const void* initData;
+		const int32 dataSize;
+	};
+
+	struct CreateBaseAnywhereCallback{
+		uint64 callbackId;
+		const char* entityType;
+		uint64 entityId;
+		int32 createNodeId;
+	}; 
+
+	struct RemoteMethodCall{
+		uint64 objectId;
+		const sl::OBStream& stream;
 	};
 }
 #endif

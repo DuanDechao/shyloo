@@ -23,15 +23,22 @@ public:
 	virtual const char* SLAPI fieldName(const int32 index) const = 0;
 	virtual const char* SLAPI fieldValue(const int32 index) const = 0;
 	virtual unsigned long SLAPI fieldLength(const int32 index) const = 0;
+	virtual unsigned long SLAPI fieldDBLength(const int32 index) const = 0;
+	virtual unsigned long SLAPI fieldDBMaxLength(const int32 index) const = 0;
+	virtual unsigned int SLAPI fieldFlags(const int32 index) const = 0;
+	virtual int	SLAPI fieldType(const int32 index) const = 0;
 };
 
 class ISLDBConnection{
 public:
 	virtual bool SLAPI reOpen() = 0;
 	virtual ISLDBResult* SLAPI executeWithResult(const char* commandSql) = 0;
+	virtual ISLDBResult* SLAPI getTableFields(const char* tableName) = 0;
 	virtual bool SLAPI execute(const char* commandSql) = 0;
 	virtual unsigned int SLAPI getLastErrno(void) = 0;
 	virtual const char* SLAPI getLastError(void) = 0;
+	virtual const uint64 SLAPI getAffectedRows(void) = 0;
+	virtual const uint64 SLAPI getInsertId(void) = 0;
 	virtual unsigned long SLAPI escapeString(char* dest, const char* src, unsigned long srcSize) = 0;
 	virtual void SLAPI release(void) = 0;
 };

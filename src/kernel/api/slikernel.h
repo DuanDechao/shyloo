@@ -65,6 +65,7 @@ class ITcpServer{
 public:
 	virtual ~ITcpServer(){}
 	virtual ITcpSession* mallocTcpSession(IKernel* pKernel) = 0;
+	virtual void setListenPort(uint16 port) = 0;
 };
 
 class IIPCServer{
@@ -123,6 +124,30 @@ private:
 	IAsyncBase* _base;
 };
 
+class ILogger{
+public:
+	virtual ~ILogger() {}
+	virtual void pushHeader(const char* header) = 0;
+	virtual void setFileHandler(const char* file) = 0;
+	virtual void setSyslogHandler(const char* file) = 0;
+	virtual void setLogLevel(const int32 level) = 0;
+	virtual void setLogPath(const char* path) = 0;
+
+	virtual void traceLog(const char* format, ...) = 0; 
+	virtual void errorLog(const char* format, ...) = 0;
+	virtual void infoLog(const char* format, ...) = 0;
+	virtual void debugLog(const char* format, ...) = 0;
+	virtual void warningLog(const char* format, ...) = 0;
+	virtual void fatalLog(const char* format, ...) = 0;
+	
+	virtual const char* headers() const  = 0;
+	virtual const char* fileHandler() const  = 0;
+	virtual const char* sysLogHandler() const = 0;
+	virtual const int32 logLevel() const = 0;
+	virtual const char* logPath() const = 0;
+
+};
+
 class IKernel{
 public:
 	virtual ~IKernel() {}
@@ -131,14 +156,17 @@ public:
 	virtual bool destory() = 0;
 
 	//net interface
-	virtual bool startTcpServer(api::ITcpServer * server, const char* ip, const int32 port, int32 sendSize, int32 recvSize) = 0;
-	virtual bool startTcpClient(api::ITcpSession * client, const char* ip, const int32 port, int32 sendSize, int32 recvSize) = 0;
+	virtual bool startTcpServer(api::ITcpServer * server, const char* ip, const int32 port, int32 sendSize = 0, int32 recvSize = 0) = 0;
+	virtual bool startTelnetServer(sl::api::ITcpServer* server, const char* ip, const int32 port) = 0;
+	virtual bool startTcpClient(api::ITcpSession * client, const char* ip, const int32 port, int32 sendSize = 0, int32 recvSize = 0) = 0;
 	virtual const char* getInternetIp() = 0;
 	virtual const char* getLocalIp() = 0;
+	virtual uint64 getSpareTime() = 0;
+	virtual void clearSpareTime() = 0;
 
 	//ipc interface
 	virtual bool addIPCServer(sl::api::ITcpServer* server, const int64 serverId) = 0;
-	virtual bool addIPCClient(sl::api::ITcpSession* session, const int64 clientId, const int64 serverId, const int32 sendSize, const int32 recvSize) = 0;
+	virtual bool addIPCClient(sl::api::ITcpSession* session, const int64 clientId, const int64 serverId, const int32 sendSize = 0, const int32 recvSize = 0) = 0;
 
 	//timer interface
 	virtual bool startTimer(api::ITimer* timer, int64 delay, int32 count, int64 interval, const char* file, const int32 line) = 0;
@@ -150,23 +178,19 @@ public:
 	virtual IModule * findModule(const char * name) = 0;
 	virtual const char* getCmdArg(const char* name) = 0;
 	
-	//config interface
-	virtual const char* getCoreFile() = 0;
-	virtual const char* getConfigFile() = 0;
-	virtual const char* getEnvirPath() = 0;
-	virtual const char* getIpcPath() = 0;
-
 	//async interface
 	virtual void startAsync(const int64 threadId, IAsyncHandler* handler, const char* debug) = 0;
 	virtual void stopAsync(IAsyncHandler* handler) = 0;
 
 	//log interface
 	virtual void syncLog(int32 filter, const char* log, const char* file, const int32 line) = 0;
-	virtual void asyncLog(int32 filter, const char* log, const char* file, const int32 line) = 0;
+//`	virtual void asyncLog(int32 filter, const char* log, const char* file, const int32 line) = 0;
+	virtual ILogger* createLogger() = 0;
+	
+	virtual bool reloadCoreConfig(const char* coreFile) = 0;
 
 	virtual void shutdown() = 0;
 	virtual bool isShutdown() = 0;
-
 };
 
 extern "C" KERNEL_API sl::api::IKernel* getCore();
@@ -197,41 +221,42 @@ struct SLModule{
 #define TIMER_BEAT_FOREVER	-1
 
 #define SLMODULE(name) (sl::api::SLModule<I##name>::instance(#name))
-
+/*
 #define INFO_LOG(format, ...) { \
 	char log[8192]; \
 	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
-	pKernel->asyncLog(0x8, log, __FILE__, __LINE__); \
+	getLogger()->asyncLog(0x8, log, __FILE__, __LINE__); \
 }
 
 #define DEBUG_LOG(format, ...) { \
 	char log[8192]; \
 	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
-	pKernel->asyncLog(0x10, log, __FILE__, __LINE__); \
+	getLogger()->asyncLog(0x10, log, __FILE__, __LINE__); \
 }
 
 #define WARNING_LOG(format, ...) { \
 	char log[8192]; \
 	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
-	pKernel->asyncLog(0x4, log, __FILE__, __LINE__); \
+	getLogger()->asyncLog(0x4, log, __FILE__, __LINE__); \
 }
 
 #define ERROR_LOG(format, ...) { \
 	char log[8192]; \
 	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
-	pKernel->asyncLog(0x2, log, __FILE__, __LINE__); \
+	getLogger()->asyncLog(0x2, log, __FILE__, __LINE__); \
 }
 
 #define TRACE_LOG(format, ...) { \
 	char log[8192]; \
 	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
-	pKernel->asyncLog(0x20, log, __FILE__, __LINE__); \
+	getLogger()->asyncLog(0x20, log, __FILE__, __LINE__); \
 }
 
 #define IMPORTANT_LOG(format, ...) { \
 	char log[8192]; \
 	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
-	pKernel->syncLog(0x10, log, __FILE__, __LINE__); \
 }
-
+	//syncLog(0x10, log, __FILE__, __LINE__); \
+}
+*/
 #endif

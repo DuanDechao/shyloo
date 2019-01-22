@@ -52,6 +52,7 @@ bool CoordinateSystem::insert(CoordinateNode* pNode){
     pNode->setZ(_zCoordinateHead->z());
     _zCoordinateHead->setPrevZ(pNode);
     pNode->setNextZ(_zCoordinateHead);
+    _zCoordinateHead = pNode;
 
     pNode->setCoordinateSystem(this);
     ++_size;
@@ -155,9 +156,35 @@ void CoordinateSystem::releaseNodes(){
     _releases.clear();
     
 }
+void CoordinateSystem::debugNodes(){
+    CoordinateNode* pNode = _xCoordinateHead;
+/*    printf("-------------------------------x Coordinate debug start---------------------------------\n");
+    while(pNode){
+        printf("node %p: isLeftTriggerNode:%d isRightTriggerNode:%d isObjectNode:%d isRightTriggerNode:xx(%f) yy(%f) zz(%f) oldX(%f) oldY(%f) oldZ(%f) x(%f) y(%f) z(%f)\n", pNode, pNode->hasFlags(CoordinateNode::COORDINATE_NODE_FLAG_NEGATIVE_BOUNDARY), pNode->hasFlags(CoordinateNode::COORDINATE_NODE_FLAG_POSITIVE_BOUNDARY), pNode->hasFlags(CoordinateNode::COORDINATE_NODE_FLAG_OBJECT), pNode->xx(), pNode->yy(), pNode->zz(), pNode->oldX(), pNode->oldY(), pNode->oldZ(), pNode->x(), pNode->y(), pNode->z());
+        pNode =pNode->nextX();
+    }
+    printf("-------------------------------x Coordinate debug end------------------------------\n");
+
+   pNode = _yCoordinateHead;
+    printf("-------------------------------y Coordinate debug start---------------------------------\n");
+    while(pNode){
+        printf("node %p: isLeftTriggerNode:%d isRightTriggerNode:%d isObjectNode:%d isRightTriggerNode:xx(%f) yy(%f) zz(%f) oldX(%f) oldY(%f) oldZ(%f) x(%f) y(%f) z(%f)\n", pNode, pNode->hasFlags(CoordinateNode::COORDINATE_NODE_FLAG_NEGATIVE_BOUNDARY), pNode->hasFlags(CoordinateNode::COORDINATE_NODE_FLAG_POSITIVE_BOUNDARY), pNode->hasFlags(CoordinateNode::COORDINATE_NODE_FLAG_OBJECT), pNode->xx(), pNode->yy(), pNode->zz(), pNode->oldX(), pNode->oldY(), pNode->oldZ(), pNode->x(), pNode->y(), pNode->z());
+        pNode =pNode->nextY();
+    }
+    printf("-------------------------------y Coordinate debug end------------------------------\n");*/
+    
+   pNode = _zCoordinateHead;
+    printf("-------------------------------z Coordinate debug start---------------------------------\n");
+    while(pNode){
+        printf("node %p: isLeftTriggerNode:%d isRightTriggerNode:%d isObjectNode:%d isRightTriggerNode:xx(%f) yy(%f) zz(%f) oldX(%f) oldY(%f) oldZ(%f) x(%f) y(%f) z(%f)\n", pNode, pNode->hasFlags(CoordinateNode::COORDINATE_NODE_FLAG_NEGATIVE_BOUNDARY), pNode->hasFlags(CoordinateNode::COORDINATE_NODE_FLAG_POSITIVE_BOUNDARY), pNode->hasFlags(CoordinateNode::COORDINATE_NODE_FLAG_OBJECT), pNode->xx(), pNode->yy(), pNode->zz(), pNode->oldX(), pNode->oldY(), pNode->oldZ(), pNode->x(), pNode->y(), pNode->z());
+
+        pNode =pNode->nextZ();
+    }
+    printf("-------------------------------z Coordinate debug end------------------------------\n"); 
+}
 
 void CoordinateSystem::update(CoordinateNode* pNode){
-    printf("CoordindateNode starting update... old:%f %f %f curr:%f %f %f\n", pNode->oldX(), pNode->oldY(), pNode->oldZ(), pNode->xx(), pNode->yy(), pNode->zz());
+    //printf("CoordindateNode[%p] starting update... old:%f %f %f curr:%f %f %f\n", pNode, pNode->oldX(), pNode->oldY(), pNode->oldZ(), pNode->xx(), pNode->yy(), pNode->zz());
     if(pNode->xx() != pNode->oldX()){
         while(true){
             CoordinateNode* pCurrNode = pNode->prevX();
@@ -360,8 +387,8 @@ void CoordinateSystem::moveNodeY(CoordinateNode* pNode, float py, CoordinateNode
         pCurrNode->setPrevY(pNode);
         if(pPreNode){
             pPreNode->setNextY(pNode);
-            if(pNode == _yCoordinateHead && pNode->nextX())
-                _yCoordinateHead = pNode->nextX();
+            if(pNode == _yCoordinateHead && pNode->nextY())
+                _yCoordinateHead = pNode->nextY();
         }
         else{
             _yCoordinateHead = pNode;

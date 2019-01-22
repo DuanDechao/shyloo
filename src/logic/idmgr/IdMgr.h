@@ -3,9 +3,10 @@
 #include "slikernel.h"
 #include "IIdMgr.h"
 #include "slsingleton.h"
-class IHarbor;
-class OArgs;
-class IdMgr :public IIdMgr, public sl::api::ITimer, public sl::SLHolder<IdMgr>{
+#include "IHarbor.h"
+#include "ICluster.h"
+class sl::OBStream;
+class IdMgr :public IIdMgr, public INodeListener, public IServerProcessHandler, public sl::api::ITimer, public sl::SLHolder<IdMgr>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);
@@ -16,18 +17,23 @@ public:
 	virtual void onTerminate(sl::api::IKernel* pKernel, bool beForced, int64 timetick){}
 	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick) {}
+	
+	virtual bool onServerReady(sl::api::IKernel* pKernel);
+	virtual bool onServerReadyForLogin(sl::api::IKernel* pKernel) {return true;}
+	virtual bool onServerReadyForShutDown(sl::api::IKernel* pKernel) {return true;}
+	virtual bool onServerShutDown(sl::api::IKernel* pKernel) {return true;}
+
+	virtual void onOpen(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const char* ip, const int32 port);
+	virtual void onClose(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId);
 
 	virtual uint64 allocID();
-	void askIds(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
-	void giveIds(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const OArgs& args);
-
-private:
-	uint64 generateId();
+	virtual uint64 generateLocalId();
+	void askIds(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args);
+	void giveIds(sl::api::IKernel* pKernel, const int32 nodeType, const int32 nodeId, const sl::OBStream& args);
 
 private:
 	IdMgr*				_self;
 	IHarbor*			_harbor;
-	int32				_svrNodeType;
 	int32				_areaId;
 	int32				_poolSize;
 	std::vector<uint64>	_idPool;

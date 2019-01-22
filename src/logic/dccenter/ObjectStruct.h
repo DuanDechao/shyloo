@@ -12,8 +12,9 @@ struct PropLayout : public MemLayout{
 	int8	_type;
 	int32	_setting;
 	int32   _index;
-    int64   _extra;
+    const void*   _extra;
 	sl::SLString<MAX_PROP_NAME_LEN> _name;
+	sl::SLString<256> _defaultVal;
 };
 
 typedef std::unordered_map<sl::SLString<MAX_PROP_NAME_LEN>, int32> PROP_DEFDINE_MAP;
@@ -33,7 +34,7 @@ public:
 	inline const vector<const IProp*>& getObjectProp(bool parenter = false) const { return parenter ? _props : _selfProps; }
 
 	bool loadFrom(const sl::ISLXmlNode& root, PROP_DEFDINE_MAP& defines);
-	const IProp* loadProp(const char* name, const int8 type, const int32 size, const int32 setting, const int32 index, const int64 extra, bool isTemp = false);
+	const IProp* loadProp(const char* name, const int8 type, const int32 size, const int32 setting, const int32 index, const void* extra, const char* defaultVal, bool isTemp = false);
 
 	MMObject* create() const;
 	void recover(MMObject* object) const;
