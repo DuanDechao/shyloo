@@ -233,41 +233,6 @@ const IProp* ObjectMgr::appendObjectTempProp(const char* objectName, const char*
 	return propInfo->loadProp(propName, type, size, setting, index, extra, defaultVal, true);
 }
 
-const int32 ObjectMgr::getObjectType(const char* objectType){
-    auto itor = _objPropInfo.find(objectType);
-    if(itor == _objPropInfo.end())
-        return -1;
-    return itor->second->getObjTypeId();
-}
-
-const IProp* ObjectMgr::appendObjectProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index, const int64 extra){
-	ObjectPropInfo* propInfo = nullptr;
-	auto itor = _objPropInfo.find(objectName);
-	if (itor != _objPropInfo.end()){
-		propInfo = itor->second;
-	}
-	else{
-		propInfo = NEW ObjectPropInfo(_nextObjTypeId++, objectName, nullptr);
-		_objPropInfo[objectName] = propInfo;
-	}
-
-	return propInfo->loadProp(propName, type, size, setting, index, extra);
-}
-
-const IProp* ObjectMgr::appendObjectTempProp(const char* objectName, const char* propName, const int8 type, const int32 size, const int32 setting, const int32 index, const int64 extra){
-	ObjectPropInfo* propInfo = nullptr;
-	auto itor = _objPropInfo.find(objectName);
-	if (itor != _objPropInfo.end()){
-		propInfo = itor->second;
-	}
-	else{
-		propInfo = NEW ObjectPropInfo(_nextObjTypeId++, objectName, nullptr);
-		_objPropInfo[objectName] = propInfo;
-	}
-
-	return propInfo->loadProp(propName, type, size, setting, index, extra, true);
-}
-
 const IProp* ObjectMgr::setObjectProp(const char* propName, const int32 objTypeId, PropLayout* layout){
 	ObjectProp * prop = nullptr;
 	auto itor = _allProps.find(propName);
