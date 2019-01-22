@@ -25,6 +25,15 @@ ObjectDefModule::ObjectDefModule(const char* moduleName, ObjectDefModule* parent
 }
 
 ObjectDefModule::~ObjectDefModule(){
+	if(_selfPropDefInfo.size() > 0){
+		for(auto* defInfoItor : _selfPropDefInfo){
+			DEL defInfoItor;
+		}
+	}
+
+	_selfPropDefInfo.clear();
+	_propsDefInfo.clear();
+	_methodsDefInfo.clear();
 }
 
 bool ObjectDefModule::initialize(){
@@ -201,6 +210,7 @@ bool ObjectDefModule::loadDefPropertys(const char* moduleName, const sl::ISLXmlN
         info->_extra = dataType;
 		info->_defaultVal = defaultVal;
 		_propsDefInfo.push_back(info);
+		_selfPropDefInfo.push_back(info);
 		appendObjectProp(info);
 	}
 
@@ -266,6 +276,7 @@ bool ObjectDefModule::loadDefMethods(const char* moduleName, const int8 type, co
         info->_type = type;
         info->_extra = pArgsList;
         _methodsDefInfo.push_back(info);
+		_selfPropDefInfo.push_back(info);
 
         appendObjectProp(info, true, true);    
 	}

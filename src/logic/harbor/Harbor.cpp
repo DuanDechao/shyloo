@@ -91,6 +91,12 @@ bool Harbor::destory(sl::api::IKernel * pKernel){
 		DEL _pIpcServer;
 	_pIpcServer = nullptr;
 
+	for(auto cbItor : _allCBPool){
+		for(auto* cb : cbItor.second){
+			DEL cb;
+		}
+	}
+
 	DEL this;
 
 	return true;
@@ -262,13 +268,13 @@ void Harbor::send(int32 nodeType, int32 nodeId, int32 messageId, const OArgs& ar
 void Harbor::send(int32 nodeType, int32 nodeId, int32 messageId, const sl::OBStream& args){
 	auto itor = _allNode.find(nodeType);
 	if (itor == _allNode.end()){
-		ECHO_ERROR("send data but can't find node[%s:%d]", getNodeName(nodeType), nodeId);
+		ERROR_LOG("send data but can't find node[%s:%d]", getNodeName(nodeType), nodeId);
 		return;
 	}
 
 	auto itor1 = itor->second.find(nodeId);
 	if (itor1 == itor->second.end()){
-		ECHO_ERROR("send data but can't find node[%s:%d]", getNodeName(nodeType), nodeId);
+		ERROR_LOG("send data but can't find node[%s:%d]", getNodeName(nodeType), nodeId);
 		return;
 	}
 	

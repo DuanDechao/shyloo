@@ -19,6 +19,7 @@ bool PythonEngine::launched(sl::api::IKernel * pKernel){
 }
 
 bool PythonEngine::destory(sl::api::IKernel * pKernel){
+	getScript().uninstall();
 	DEL this;
 	return true;
 }

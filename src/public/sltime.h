@@ -324,30 +324,31 @@ namespace sl{
 		return (int64)std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	}
 
-	inline const std::string getCurrentTimeStr(const char* format = "%4d-%02d-%02d %02d:%02d:%02d"){
-		time_t tmp = time(nullptr);
+	inline const std::string getCurrentTimeStr(const char* format = "%4d-%02d-%02d %02d:%02d:%02d,%03d"){
+		struct timeval tv;
+		gettimeofday(&tv, NULL);
 		char info[128];
 #ifdef SL_OS_WINDOWS
 		tm t;
-		localtime_s(&t, &tmp);
-		SafeSprintf(info, sizeof(info), format, t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec);
+		localtime_s(&t, &tv.tv_sec);
+		SafeSprintf(info, sizeof(info), format, t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, tv.tv_usec / 1000);
 #else
-		tm* t = localtime(&tmp);
-		SafeSprintf(info, sizeof(info), format, t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
+		tm* t = localtime(&tv.tv_sec);
+		SafeSprintf(info, sizeof(info), format, t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec, tv.tv_usec/ 1000);
 #endif
 		return info;
 	}
 
-	inline const std::string getTimeStr(const int64 tick, const char* format = "%4d-%02d-%02d %02d:%02d:%02d"){
+	inline const std::string getTimeStr(const int64 tick, const char* format = "%4d-%02d-%02d %02d:%02d:%02d,%03d"){
 		time_t tmp = (time_t)(tick / 1000);
 		char info[128];
 #ifdef SL_OS_WINDOWS
 		tm t;
 		localtime_s(&t, &tmp);
-		SafeSprintf(info, sizeof(info), format, t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec);
+		SafeSprintf(info, sizeof(info), format, t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, tick % 1000);
 #else
 		tm* t = localtime(&tmp);
-		SafeSprintf(info, sizeof(info), format, t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
+		SafeSprintf(info, sizeof(info), format, t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec, tick % 1000);
 #endif
 		
 		return info;

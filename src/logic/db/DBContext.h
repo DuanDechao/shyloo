@@ -8,7 +8,8 @@ public:
 		:_sqlCommand(sqlCommand),
 		_dbid(dbid),
 		_parentDBId(0),
-		_tableName(tableName)
+		_tableName(tableName),
+		_dbResult(NULL)
 	{}
 
 	virtual ~DBContext(){
@@ -21,6 +22,11 @@ public:
 			itor.second.clear();
 		}
 		_subDBContexts.clear();
+
+		if(_dbResult){
+			_dbResult->release();
+			_dbResult = NULL;
+		}
 	}
 
 	void addSubContext(std::string tableName, DBContext* context){

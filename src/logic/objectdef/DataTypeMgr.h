@@ -5,6 +5,7 @@
 #include "IDCCenter.h"
 #include "IObjectDef.h"
 #include "slxml_reader.h"
+#include <set>
 class DataTypeMgr{
 public:
 	typedef std::unordered_map<std::string, uint16> TYPE_MAP;
@@ -15,13 +16,14 @@ public:
 	virtual ~DataTypeMgr();
 
 	static bool initialize(const char* aliasFile);
+	static void release();
 	static uint16 getType(const char* name);
 	static uint16 getType(const uint32 uid);
 	static IDataType* getDataType(const sl::ISLXmlNode& typeNode);
 	static IDataType* getDataType(const char* name);
 	static IDataType* getDataType(const uint32 uid);
 	static void addDataType(const char* name, IDataType* dataType);
-	static const std::unordered_map<std::string, IDataType*>& getAllDataType(){return _dataTypes;}
+	static const std::unordered_map<std::string, IDataType*>& getAllDataType() {return _dataTypes;}
 	static bool loadAlias(const char* file);
 
 private:
@@ -30,5 +32,6 @@ private:
 	static UID_TYPE_MAP _uidTypeMap;
 	static UID_DATATYPE_MAP _uidDataTypeMap;
 	static uint32 _dataTypeUID; 
+	static std::set<IDataType*> _allDataTypes;
 };
 #endif

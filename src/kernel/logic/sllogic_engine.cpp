@@ -29,22 +29,30 @@ bool LogicEngine::initialize(){
 		SafeSprintf(path, sizeof(path), "%s/%slib%s.so", sl::getAppPath(), pModuleConfig->strModulePath.c_str(), (*itor).c_str());
 		//»ñÈ¡dllÂ·¾¶
 		void* handle = dlopen(path, RTLD_LAZY);
-		if(!handle)
-            printf("dlopen so %s failed, error[%s]\n", path, dlerror());
+		if(!handle){
+            KERNEL_FATAL("dlopen so %s failed, error[%s]", path, dlerror());
+			return false;
+		}
 
 		GetModuleFun fun = (GetModuleFun) dlsym(handle, "GetLogicModule");
-		SLASSERT(fun, "get function:GetLogicModule error[%s]", (*itor).c_str());
+		if(!fun){
+			KERNEL_ERROR("get function:GetLogicModule error[%s]", (*itor).c_str());
+			return false;
+		}
 #endif
 
 #ifdef SL_OS_WINDOWS
 		SafeSprintf(path, sizeof(path), "%s/%s/%s.dll", sl::getAppPath(), pModuleConfig->strModulePath.c_str(), (*itor).c_str());
 		HINSTANCE hinst = ::LoadLibrary(path);
 		api::GetModuleFun fun = (api::GetModuleFun)::GetProcAddress(hinst, NAME_OF_GET_LOGIC_FUN);
-		SLASSERT(fun, "get function:GetLogicModule error[%d]", GetLastError());
+		if(!fun){
+			KERNEL_ERROR(fun, "get function:GetLogicModule error[%s]", (*itor).c_str());
+			return false;
+		}
 #endif // SL_OS_WINDOWS
 
 		if(!fun){
-			printf("canot get dll[%s], error[%d]\n", path, SL_ERRNO);
+			KERNEL_FATAL("canot get dll[%s], error[%d]", path, SL_ERRNO);
 			return false;
 		}
 
@@ -54,7 +62,7 @@ bool LogicEngine::initialize(){
 			const char* pName = plogic->getName();
 			std::map<std::string, api::IModule *>::iterator mitor = m_mapModule.find(pName);
 			if(mitor != m_mapModule.end()){
-				printf("can't find module[%s]\n", pName);
+				KERNEL_ERROR("can't find module[%s]", pName);
 				return false;
 			}
 
@@ -70,11 +78,10 @@ bool LogicEngine::initialize(){
 		std::vector<api::IModule *>::iterator vitor = m_vecModule.begin();
 		std::vector<api::IModule *>::iterator viend = m_vecModule.end();
 		while(vitor != viend){
-			KERNEL_LOG("initializing name %s.", (*vitor)->getName());
+			KERNEL_INFO("initializing module %s.", (*vitor)->getName());
 			bool res = (*vitor)->initialize(core::Kernel::getInstance());
 			if(!res){
-				SLASSERT(false, "initialize name %s failed.\n", (*vitor)->getName());
-				KERNEL_ERROR("initialize name %s failed.", (*vitor)->getName());
+				KERNEL_ERROR("initialize module %s failed.", (*vitor)->getName());
 				return false;
 			}
 			++vitor;
@@ -83,12 +90,12 @@ bool LogicEngine::initialize(){
 		vitor = m_vecModule.begin();
 		while(vitor != viend){
 			bool res = (*vitor)->launched(Kernel::getInstance());
-			KERNEL_LOG("launching name %s.", (*vitor)->getName());
+			KERNEL_INFO("launching module %s.", (*vitor)->getName());
 			if(!res){
-				SLASSERT(false, "launch name %s failed.\n", (*vitor)->getName());
-				KERNEL_ERROR("launch name %s failed.", (*vitor)->getName());
+				KERNEL_ERROR("launch module %s failed.", (*vitor)->getName());
 				return false;
 			}
+			(*vitor)->setInited(true);
 			++vitor;
 		}
 	}
@@ -97,15 +104,11 @@ bool LogicEngine::initialize(){
 }
 
 bool LogicEngine::destory(){
-	DEL this;
-	return true;
-}
-
-LogicEngine::~LogicEngine(){
 	std::map<std::string, api::IModule *>::iterator itor = m_mapModule.begin();
 	std::map<std::string, api::IModule *>::iterator iend = m_mapModule.end();
 	while(itor != iend){
-		if(NULL != itor->second){
+		if(NULL != itor->second && itor->second->isInited()){
+			KERNEL_INFO("destroy module %s", itor->second->getName());
 			itor->second->destory(Kernel::getInstance());
 			itor->second = NULL;
 		}
@@ -113,18 +116,13 @@ LogicEngine::~LogicEngine(){
 	}
 
 	m_mapModule.clear();
-
-	std::vector<api::IModule *>::iterator vitor = m_vecModule.begin();
-	std::vector<api::IModule *>::iterator viend = m_vecModule.end();
-
-	while(vitor != viend){
-		if(*vitor != NULL){
-
-		}
-		++vitor;
-	}
 	m_vecModule.clear();
 
+	DEL this;
+	return true;
+}
+
+LogicEngine::~LogicEngine(){
 }
 
 api::IModule* LogicEngine::findModule(const char* pModuleName){

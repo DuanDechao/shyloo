@@ -12,6 +12,7 @@ using namespace network;
 class NetPacketParser : public ISLPacketParser{
 public:
 	virtual int32 SLAPI parsePacket(const char* pDataBuf, int32 len);
+	virtual void SLAPI release() { DEL this;}
 };
 
 class NetSession: public ISLSession, public api::IPipe{
@@ -50,6 +51,7 @@ public:
 	ServerSessionFactory(ITcpServer* pServer) : _server(pServer){}
 	virtual ~ServerSessionFactory(){}
 	virtual ISLSession* SLAPI createSession(ISLChannel* poChannel);
+	virtual void SLAPI release() { DEL this; }
 
 private:
 	ITcpServer*		_server;

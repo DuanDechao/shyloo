@@ -12,8 +12,8 @@
 bool Logger::initialize(sl::api::IKernel * pKernel){
 	_self = this;
 	_kernel = pKernel;
+	_mainThreadId = pthread_self();
 	_logger = log4cxx::Logger::getLogger("");
-	_mainThreadID = pthread_self();
 	_tickMaxBufferedLogs = 1000;
 	_hasBufferedLogPackets = 0;
 	_bufferedLogPackets.reserve(_tickMaxBufferedLogs);
@@ -50,10 +50,6 @@ void Logger::changeLogger(const std::string& name){
 }
 
 void Logger::printMsg(const char* format, ...){
-	if(_mainThreadID != pthread_self()){
-		printf("logger is not on mainThread[%d:%d], %s\n", _mainThreadID, pthread_self(), format);
-		return;
-	}
 	va_list argList;
 	va_start(argList, format);
 	char buf[2048];
@@ -62,10 +58,6 @@ void Logger::printMsg(const char* format, ...){
 }
 
 void Logger::errorMsg(const char* format, ...){
-	if(_mainThreadID != pthread_self()){
-		printf("logger is not on mainThread[%d:%d], %s\n", _mainThreadID, pthread_self(), format);
-		return;
-	}
 	va_list argList;
 	va_start(argList, format);
 	onMessage(LOG_LEVEL::ERROR, format, argList);
@@ -73,10 +65,6 @@ void Logger::errorMsg(const char* format, ...){
 }
 
 void Logger::infoMsg(const char* format, ...){
-	if(_mainThreadID != pthread_self()){
-		printf("logger is not on mainThread[%d:%d], %s\n", _mainThreadID, pthread_self(), format);
-		return;
-	}
 	va_list argList;
 	va_start(argList, format);
 	onMessage(LOG_LEVEL::INFO, format, argList);
@@ -84,10 +72,6 @@ void Logger::infoMsg(const char* format, ...){
 }
 
 void Logger::debugMsg(const char* format, ...){
-	if(_mainThreadID != pthread_self()){
-		printf("logger is not on mainThread[%d:%d], %s\n", _mainThreadID, pthread_self(), format);
-		return;
-	}
 	va_list argList;
 	va_start(argList, format);
 	onMessage(LOG_LEVEL::DEBUG, format, argList);
@@ -95,10 +79,6 @@ void Logger::debugMsg(const char* format, ...){
 }
 
 void Logger::warningMsg(const char* format, ...){
-	if(_mainThreadID != pthread_self()){
-		printf("logger is not on mainThread[%d:%d], %s\n", _mainThreadID, pthread_self(), format);
-		return;
-	}
 	va_list argList;
 	va_start(argList, format);
 	onMessage(LOG_LEVEL::WARNING, format, argList);
@@ -106,10 +86,6 @@ void Logger::warningMsg(const char* format, ...){
 }
 
 void Logger::fatalMsg(const char* format, ...){
-	if(_mainThreadID != pthread_self()){
-		printf("logger is not on mainThread[%d:%d], %s\n", _mainThreadID, pthread_self(), format);
-		return;
-	}
 	va_list argList;
 	va_start(argList, format);
 	onMessage(LOG_LEVEL::FATAL, format, argList);
@@ -179,7 +155,7 @@ void Logger::onMessage(const int8 logType, const char* format, va_list argp){
 	if(_hasBufferedLogPackets >= _tickMaxBufferedLogs){
 		//清空buffer
 		_hasBufferedLogPackets = 0;
-		ERROR_LOG("Logger::onMessage: discard logs");
+		printf("Logger::onMessage: discard logs\n");
 		return;
 	}
 
@@ -214,7 +190,7 @@ void Logger::writeLog(LOG_ITEM* pLogItem){
 	time_t tt = static_cast<time_t>(pLogItem->t);
 	tm* aTm = localtime(&tt);
 	if(!aTm){
-		ERROR_LOG("Logger::writeLog: log error\n");
+		printf("Logger::writeLog: log error\n");
 		return;
 	}
 	char timeBuf[256];

@@ -27,11 +27,14 @@ int32 MysqlBase::realExecSql(SQLCommand* sqlCommand, ISLDBConnection* dbConnecti
 	mysqlResult->setOptType(sqlCommand->optType());
 	if (sqlCommand->optType() == DB_OPT_QUERY){
 		ISLDBResult* dbResult = dbConnection->executeWithResult(sqlCommand->toString());
-		if (!dbResult){
-			errCode = dbConnection->getLastErrno();
+		errCode = dbConnection->getLastErrno();
+		if (!dbResult || errCode){
 			mysqlResult->setErrCode(errCode);
 			const char* errInfo = dbConnection->getLastError();
 			mysqlResult->setErrInfo(errInfo);
+			if(dbResult){
+				dbResult->release();
+			}
 	//		SLASSERT(false, "sql command exec %s failed, error:%s", sqlCommand->toString(), errInfo);
 			return errCode;
 		}
@@ -40,6 +43,7 @@ int32 MysqlBase::realExecSql(SQLCommand* sqlCommand, ISLDBConnection* dbConnecti
 		while (dbResult->next()){
 			mysqlResult->setColData(dbResult);
 		}
+		dbResult->release();
 	}
 	else{
 		if (!dbConnection->execute(sqlCommand->toString())){
@@ -63,6 +67,9 @@ int32 MysqlBase::getTableFields(ISLDBConnection* dbConnection, const char* table
 		mysqlResult->setErrCode(errCode);
 		const char* errInfo = dbConnection->getLastError();
 		mysqlResult->setErrInfo(errInfo);
+		if(dbResult){
+			dbResult->release();
+		}
 		SLASSERT(false, "getTableField from table(%s) failed, error:%s", tableName, errInfo);
 		return errCode;
 	}
@@ -71,6 +78,7 @@ int32 MysqlBase::getTableFields(ISLDBConnection* dbConnection, const char* table
 	while(dbResult->next()){
 		mysqlResult->setColData(dbResult);
 	}
+	dbResult->release();
 	return errCode;
 }
 

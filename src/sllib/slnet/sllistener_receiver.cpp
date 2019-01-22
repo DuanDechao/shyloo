@@ -20,8 +20,15 @@ ListenerReceiver::ListenerReceiver(EndPoint* endpoint, NetworkInterface* network
 ListenerReceiver::~ListenerReceiver(){
 	_endpoint = nullptr;
 	_networkInterface = nullptr;
-	_pSessionFactory = nullptr;
-	_pPacketParser = nullptr;
+	if(_pSessionFactory){
+		_pSessionFactory->release();
+		_pSessionFactory = nullptr;
+	}
+	
+	if(_pPacketParser){
+		_pPacketParser->release();
+		_pPacketParser = nullptr;
+	}
 	_sendSize = 0;
 	_recvSize = 0;
 }

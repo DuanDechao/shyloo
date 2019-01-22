@@ -124,6 +124,30 @@ private:
 	IAsyncBase* _base;
 };
 
+class ILogger{
+public:
+	virtual ~ILogger() {}
+	virtual void pushHeader(const char* header) = 0;
+	virtual void setFileHandler(const char* file) = 0;
+	virtual void setSyslogHandler(const char* file) = 0;
+	virtual void setLogLevel(const int32 level) = 0;
+	virtual void setLogPath(const char* path) = 0;
+
+	virtual void traceLog(const char* format, ...) = 0; 
+	virtual void errorLog(const char* format, ...) = 0;
+	virtual void infoLog(const char* format, ...) = 0;
+	virtual void debugLog(const char* format, ...) = 0;
+	virtual void warningLog(const char* format, ...) = 0;
+	virtual void fatalLog(const char* format, ...) = 0;
+	
+	virtual const char* headers() const  = 0;
+	virtual const char* fileHandler() const  = 0;
+	virtual const char* sysLogHandler() const = 0;
+	virtual const int32 logLevel() const = 0;
+	virtual const char* logPath() const = 0;
+
+};
+
 class IKernel{
 public:
 	virtual ~IKernel() {}
@@ -160,13 +184,13 @@ public:
 
 	//log interface
 	virtual void syncLog(int32 filter, const char* log, const char* file, const int32 line) = 0;
-	virtual void asyncLog(int32 filter, const char* log, const char* file, const int32 line) = 0;
+//`	virtual void asyncLog(int32 filter, const char* log, const char* file, const int32 line) = 0;
+	virtual ILogger* createLogger() = 0;
 	
 	virtual bool reloadCoreConfig(const char* coreFile) = 0;
 
 	virtual void shutdown() = 0;
 	virtual bool isShutdown() = 0;
-
 };
 
 extern "C" KERNEL_API sl::api::IKernel* getCore();
@@ -201,37 +225,38 @@ struct SLModule{
 #define INFO_LOG(format, ...) { \
 	char log[8192]; \
 	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
-	pKernel->asyncLog(0x8, log, __FILE__, __LINE__); \
+	getLogger()->asyncLog(0x8, log, __FILE__, __LINE__); \
 }
 
 #define DEBUG_LOG(format, ...) { \
 	char log[8192]; \
 	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
-	pKernel->asyncLog(0x10, log, __FILE__, __LINE__); \
+	getLogger()->asyncLog(0x10, log, __FILE__, __LINE__); \
 }
 
 #define WARNING_LOG(format, ...) { \
 	char log[8192]; \
 	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
-	pKernel->asyncLog(0x4, log, __FILE__, __LINE__); \
+	getLogger()->asyncLog(0x4, log, __FILE__, __LINE__); \
 }
 
 #define ERROR_LOG(format, ...) { \
 	char log[8192]; \
 	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
-	pKernel->asyncLog(0x2, log, __FILE__, __LINE__); \
+	getLogger()->asyncLog(0x2, log, __FILE__, __LINE__); \
 }
 
 #define TRACE_LOG(format, ...) { \
 	char log[8192]; \
 	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
-	pKernel->asyncLog(0x20, log, __FILE__, __LINE__); \
+	getLogger()->asyncLog(0x20, log, __FILE__, __LINE__); \
 }
-*/
+
 #define IMPORTANT_LOG(format, ...) { \
 	char log[8192]; \
 	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
-	pKernel->syncLog(0x10, log, __FILE__, __LINE__); \
 }
-
+	//syncLog(0x10, log, __FILE__, __LINE__); \
+}
+*/
 #endif

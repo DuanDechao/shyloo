@@ -39,9 +39,16 @@ char g_localIpPrefix[MAX_LOCAL_IP_PREFIX_NUM][MAX_IP_LEN] = {
 
 #define DEFAULT_BUFFER_SIZE 16777216
 
+NetEngine::NetEngine(){
+	m_ip[0] = 0;
+	m_localIp[0] = 0;
+	m_pSLNetModule = NULL;
+}
+
 NetEngine::~NetEngine(){
-	if (m_pSLNetModule)
+	if (m_pSLNetModule){
 		m_pSLNetModule->release();
+	}
 }
 
 bool NetEngine::initialize(){

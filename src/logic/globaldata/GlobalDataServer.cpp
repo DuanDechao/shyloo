@@ -27,6 +27,7 @@ bool GlobalDataServer::launched(sl::api::IKernel * pKernel){
 }
 
 bool GlobalDataServer::destory(sl::api::IKernel * pKernel){
+	DEL _globalData;
 	DEL this;
 	return true;
 }

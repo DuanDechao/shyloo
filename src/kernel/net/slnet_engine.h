@@ -35,7 +35,7 @@ public:
 	bool isLocalIp(const char* ip);
 
 private:
-	NetEngine(){}
+	NetEngine();
 	~NetEngine();
 
 private:

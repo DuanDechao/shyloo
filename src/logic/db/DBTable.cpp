@@ -19,6 +19,12 @@ DBTable::DBTable(const int64 tableId, const char* tableName)
 	 _sync(false)
 {}
 
+DBTable::~DBTable(){
+	for(auto* itemItor : _tableFixedOrderItems){
+		DEL itemItor;
+	}
+}
+
 void DBTable::addItem(DBTableItem* item){
 	_tableItems[item->uType()] = item;
 	_tableFixedOrderItems.push_back(item);
@@ -44,6 +50,12 @@ DataBase::DataBase(IDBInterface* pdbi)
 	:_dbInterface(pdbi)
 {}
 
+DataBase::~DataBase(){
+	for(auto tableItor : _tables){
+		DEL tableItor.second;
+	}
+}
+
 void DataBase::addTable(DBTable* pTable){
 	auto itor = _tables.find(pTable->tableName());
 	if(itor != _tables.end())
@@ -54,6 +66,7 @@ void DataBase::addTable(DBTable* pTable){
 	if(idItor != _idToTables.end())
 		return;
 	_idToTables[pTable->tableId()] = pTable;
+	pTable->setDataBase(this);
 }
 
 DBTable* DataBase::findTable(const char* tableName){

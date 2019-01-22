@@ -37,10 +37,9 @@ ObjectPropInfo::~ObjectPropInfo(){
 		DEL tableInfo._tableColumn;
 		}*/
 
-	/*for (auto* layout : _layouts){
-		if (layout)
+	for (auto* layout : _propLayouts){
 		DEL layout;
-		}*/
+	}
 
 	_propLayouts.clear();
 	_props.clear();

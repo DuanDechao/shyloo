@@ -17,6 +17,7 @@ public:
 	IModule(){
 		m_pNextModule = nullptr;
 		m_pName[MODULE_NAME_LENGTH -1] = 0;
+		m_inited = false;
 	}
 
 	bool setNext(IModule * & pModule){
@@ -37,10 +38,13 @@ public:
 		return m_pName;
 	}
 
+	inline void setInited(bool inited) { m_inited = inited;}
+	inline bool isInited() {return m_inited;}
 
 private:
 	IModule*		m_pNextModule;
 	char			m_pName[MODULE_NAME_LENGTH];
+	bool			m_inited;
 };
 
 typedef IModule * (*GetModuleFun)(void);

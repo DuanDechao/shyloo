@@ -62,8 +62,8 @@ private:
 private:
 	Logger*				_self;
 	sl::api::IKernel*	_kernel;
+	ThreadID			_mainThreadId;
 	log4cxx::LoggerPtr  _logger;
-	ThreadID			_mainThreadID;
 	std::vector<sl::BStream<1024>> _bufferedLogPackets;
 	int32				_tickMaxBufferedLogs;
 	int32				_hasBufferedLogPackets;

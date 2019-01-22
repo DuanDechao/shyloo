@@ -37,7 +37,6 @@ public:
 	bool operator != (const SLString& buff) const { return strcmp(m_szBuf, buff.m_szBuf); }
 	bool operator < (const SLString& buff) const { return (strcmp(m_szBuf, buff.m_szBuf)) < 0; }
 
-
 	SLString& operator = (const char* str){
 		SafeMemset(m_szBuf, sizeof(m_szBuf), 0, sizeof(m_szBuf));
 

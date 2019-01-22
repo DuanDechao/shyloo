@@ -18,7 +18,6 @@ bool ResMgr::initialize(sl::api::IKernel * pKernel){
 
 	updatePaths();
 	
-	TRACE_LOG("ResMgr::initialize:---- SL_ROOT:%s, SL_RES_PATH:%s SL_BIN_PATH:%s", _env._rootPath.c_str(), _env._resPath.c_str(), _env._binPath.c_str());
 	if(getPySysResPath() == "" || getPyUserResPath() == "" || getPyUserScriptsPath() == ""){
 		ERROR_LOG("ResMgr::initialize: not set environment, (SL_ROOT=%s, SL_RES_PATH=%s, SL_BIN_PATH=%s) invalid",
 				_env._rootPath.c_str(), _env._resPath.c_str(), _env._binPath.c_str());
@@ -263,6 +262,11 @@ bool ResMgr::getResValueBoolean(const char* attr){
 }
 
 const char* ResMgr::getResValue(const char* attr){
+	if(!attr){
+		SLASSERT(false, "ResMgr::getResValue: attr == NULL");
+		return "";
+	}
+
 	auto itor = _resValueCache.find(attr);
 	if(itor != _resValueCache.end())
 		return itor->second.c_str();
@@ -272,20 +276,18 @@ const char* ResMgr::getResValue(const char* attr){
 	std::string strAttr = attr;
 
 	subAttrs = sl::CStringUtils::splits(strAttr, "/");
-	const char* resValue = getResValue(resFile.c_str(), subAttrs);
-	resValue = resValue ? resValue : "";
-	_resValueCache[attr] = resValue;
+	_resValueCache[attr] = getResValue(resFile.c_str(), subAttrs);
 	return _resValueCache[attr].c_str();
 }
 
-const char* ResMgr::getResValue(const char* resPath, const std::vector<std::string>& attrs){
+std::string ResMgr::getResValue(const char* resPath, const std::vector<std::string>& attrs){
 	sl::XmlReader resConf;
 	if (!resConf.loadXml(resPath)){
 		SLASSERT(false, "cant load core file");
 		return NULL;
 	}
 
-	const char* retValue = NULL;
+	std::string retValue = "";
 	if(resConf.root().subNodeExist("parentFile")){
 		std::string parentFile = matchRes(resConf.root()["parentFile"][0].getValueString());
 		retValue = getResValue(parentFile.c_str(), attrs);

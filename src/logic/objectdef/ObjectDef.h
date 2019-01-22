@@ -11,7 +11,6 @@
 
 #define MAX_PROP_NAME_LEN 64
 #define MAX_OBJECT_NAME_LEN 64
-class EntityProp;
 class ObjectDefModule;
 class ObjectDef: public IObjectDef, public sl::SLHolder<ObjectDef>{
 public:
@@ -38,7 +37,6 @@ private:
 private:
 	typedef std::unordered_map<sl::SLString<MAX_PROP_NAME_LEN>, int32> PROP_DEFINE_MAP;
 	typedef std::unordered_map<sl::SLString<MAX_OBJECT_NAME_LEN>, sl::SLString<game::MAX_PATH_LEN>> PROP_CONFIG_PATH_MAP;
-	typedef std::unordered_map<sl::SLString<MAX_OBJECT_NAME_LEN>, EntityProp *> OBJECT_MODEL_MAP;
 	
 	typedef uint16	SCRIPT_TYPE_UID;
 	typedef std::unordered_map<std::string, SCRIPT_TYPE_UID> SCRIPT_TYPE_UID_MAP;
@@ -50,7 +48,6 @@ private:
 
 	PROP_DEFINE_MAP				_propDefine;
 	PROP_CONFIG_PATH_MAP		_propConfigsPath;
-	OBJECT_MODEL_MAP			_objPropInfo;
 	MODEL_DEF_MAP				_modelDefMap;
 	TYPE_MODELDEF_MAP           _typeModelDefMap;
 

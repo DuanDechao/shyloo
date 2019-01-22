@@ -9,13 +9,18 @@
 class IHarbor;
 class IMysqlMgr;
 class DataBase;
-class DB : public IDB, public sl::SLHolder<DB> {
+class DB : public IDB, public sl::api::ITimer, public sl::SLHolder<DB> {
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);
 	virtual bool destory(sl::api::IKernel * pKernel);
 	
 	IMysqlMgr* getMysqlMgr(){ return _mysql; }
+	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){}
+	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick);
+	virtual void onTerminate(sl::api::IKernel* pKernel, bool beForced, int64 timetick){}
+	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick){}
+	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick){}
 
 	void test();
 

@@ -55,7 +55,7 @@ public:
 			const uint32 dataLength, const int32 flag, enum_field_types mysqlItemType)
 		:DBTableItemMysql(itemName, dataType, dbItemType, dataLength, flag, mysqlItemType)
 	{}
-	virtual ~DBTableItemMysqlFixedDict(){}
+	virtual ~DBTableItemMysqlFixedDict();
 	
 	virtual bool initialize(const char* defaultVal);
 	virtual bool syncToDB(IDBInterface* pdbi, void* pData);
@@ -251,9 +251,8 @@ public:
 
 	virtual bool initialize();
 	virtual bool syncToDB();
-	virtual bool makeTest();
-	
-	SQLCommand& createSqlCommand() {return _dbInterface->createSqlCommand();}
+	virtual bool writeTest();
+	virtual bool readTest();
 };
 
 #endif

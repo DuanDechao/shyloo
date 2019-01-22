@@ -63,7 +63,7 @@ class DBTable{
 public:
 	typedef std::map<int32, DBTableItem*> TABLEITEM_MAP;
 	DBTable(const int64 tableId, const char* tableName);
-	virtual ~DBTable(){}
+	virtual ~DBTable();
 
 	inline const char* tableName() const {return _tableName.c_str();}
 	inline const int64 tableId() const {return _tableId;} 
@@ -82,6 +82,7 @@ public:
 	virtual DBTableItem* createItem(const char* itemName, IDataType* dataType, const char* defaultVal) = 0;
 	virtual bool syncToDB(IDBInterface* pdbi) = 0;
 	virtual uint64 writeTable(IDBInterface* pdbi, uint64 dbid, sl::OBStream& stream);
+	virtual bool queryTable(IDBInterface* pdbi, uint64 dbid, sl::IBStream& stream){return true;}
 	virtual bool makeTestData(sl::IBStream& data) = 0;
 
 protected:
@@ -98,11 +99,12 @@ protected:
 class DataBase{
 public:
 	DataBase(IDBInterface* dbInferface);
-	virtual ~DataBase(){}
+	virtual ~DataBase();
 
 	virtual bool initialize() = 0;
 	virtual bool syncToDB() = 0;
-	virtual bool makeTest() = 0;
+	virtual bool writeTest() = 0;
+	virtual bool readTest() = 0;
 
 	void addTable(DBTable* pTable);
 	DBTable* findTable(const char* table);

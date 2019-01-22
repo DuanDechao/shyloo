@@ -55,11 +55,13 @@ public:
 class ISLSessionFactory{
 public:
 	virtual ISLSession* SLAPI createSession(ISLChannel* poChannel) = 0;
+	virtual void SLAPI release() = 0;
 };
 
 class ISLPacketParser{
 public:
 	virtual int32 SLAPI parsePacket(const char* pDataBuf, int32 len) = 0;
+	virtual void SLAPI release() = 0;
 };
 
 class ISLNet{

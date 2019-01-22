@@ -17,8 +17,8 @@ extern "C" KERNEL_API sl::api::IKernel* getCore(){
 	return Kernel::getInstance();
 }
 
-api::IKernel* Kernel::getInstance(){
-	static api::IKernel* p = nullptr;
+Kernel* Kernel::getInstance(){
+	static Kernel* p = nullptr;
 	if (!p){
 		p = NEW Kernel;
 		if (!p->ready()){
@@ -43,11 +43,20 @@ bool Kernel::ready(){
 
 bool Kernel::initialize(int32 argc, char ** argv){
 	_shutDown = false;
+	_kernelLogger = NULL;
 	parse(argc, argv);
 
-	return ConfigEngine::getInstance()->initialize() &&
-		LogEngine::getInstance()->initialize() &&
-		TimerEngine::getInstance()->initialize() &&
+	bool ret = ConfigEngine::getInstance()->initialize() &&
+		LogEngine::getInstance()->initialize();
+
+	_kernelLogger = LogEngine::getInstance()->createLogger();
+	const char* serverName = getCmdArg("name");
+	const char* nodeId = getCmdArg("node_id");
+	_kernelLogger->pushHeader(serverName);
+	_kernelLogger->pushHeader(nodeId);
+	_kernelLogger->pushHeader(" - ");
+
+	return TimerEngine::getInstance()->initialize() &&
 		NetEngine::getInstance()->initialize() &&
 	//	IPCEngine::getInstance()->initialize() &&
 		AsyncEngine::getInstance()->initialize() &&
@@ -161,8 +170,8 @@ void Kernel::syncLog(int32 filter, const char* log, const char* file, const int3
 	LogEngine::getInstance()->logSync(filter, log, file, line);
 }
 
-void Kernel::asyncLog(int32 filter, const char* log, const char* file, const int32 line){
-	LogEngine::getInstance()->logAsync(filter, log, file, line);
+sl::api::ILogger* Kernel::createLogger(){
+	LogEngine::getInstance()->createLogger();
 }
 
 bool Kernel::addIPCServer(sl::api::ITcpServer* server, const int64 serverId){

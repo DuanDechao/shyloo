@@ -31,7 +31,7 @@ public:
 private:
 	std::string matchRes(const char* res);
 	const char* getResValue(const char* attr);
-	const char* getResValue(const char* resPath, const std::vector<std::string>& attrs);
+	std::string getResValue(const char* resPath, const std::vector<std::string>& attrs);
 	bool reloadCoreConfig(sl::api::IKernel* pKernel, const char* resPath);
 
 private:

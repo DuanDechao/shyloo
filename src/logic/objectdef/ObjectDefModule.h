@@ -14,6 +14,16 @@
 #define MAX_OBJECT_NAME_LEN 64
 
 struct PropDefInfo{
+	PropDefInfo():
+		_type(0),
+		_flags(0),
+		_index(0),
+		_size(0),
+		_extra(NULL),
+		_name(""),
+		_defaultVal("")
+	{}
+
 	int8	_type;
 	int32	_flags;
 	int32   _index;
@@ -21,14 +31,6 @@ struct PropDefInfo{
     const void*  _extra;
 	sl::SLString<MAX_PROP_NAME_LEN> _name;
 	sl::SLString<256> _defaultVal;
-};
-
-struct MethodDefInfo{
-    int8   _type;
-    int32  _flags;
-    int32  _index;
-    vector<uint8> _argsType;
-    sl::SLString<MAX_PROP_NAME_LEN> _name; 
 };
 
 class IProp;
@@ -98,7 +100,8 @@ private:
 	bool								_hasClient;
 	bool								_persistent;
 	std::vector<PropDefInfo*>			_propsDefInfo;
-    std::vector<PropDefInfo*>           _methodsDefInfo;
+    std::vector<PropDefInfo*>			_methodsDefInfo;
+	std::vector<PropDefInfo*>			_selfPropDefInfo;
     PROPS_MAP                           _props;
     PROPS_MAP                           _persistentProps;
     PROPS_MAP                           _cellProps;

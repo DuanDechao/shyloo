@@ -40,6 +40,12 @@ bool ObjectMgr::destory(sl::api::IKernel * pKernel){
 			DEL itor->second;
 	}
 	_allProps.clear();
+	
+	for (auto itor = _allTempProps.begin(); itor != _allTempProps.end(); ++itor){
+		if (itor->second)
+			DEL itor->second;
+	}
+	_allTempProps.clear();
 
 	for (auto itor = _objPropInfo.begin(); itor != _objPropInfo.end(); ++itor){
 		if (itor->second)

@@ -9,6 +9,7 @@ public:
 
 	//安装和卸载脚本模块
 	virtual bool install(const char* pythonHomeDir, const char* pyPaths, const char* moduleName);
+	virtual bool uninstall();
 
 	inline PyObject* getBaseModule() const { return _baseModule; }
 	inline PyObject* getMathModule() const { return _mathModule; }

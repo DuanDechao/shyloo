@@ -1,10 +1,12 @@
 #include "DataTypeMgr.h"
 #include <algorithm>
 #include "IPythonServer.h"
+#include "IIdMgr.h"
 DataTypeMgr::TYPE_MAP DataTypeMgr::_typeMap;
 DataTypeMgr::DATATYPE_MAP DataTypeMgr::_dataTypes;
 DataTypeMgr::UID_TYPE_MAP DataTypeMgr::_uidTypeMap;
 DataTypeMgr::UID_DATATYPE_MAP DataTypeMgr::_uidDataTypeMap;
+std::set<IDataType*> DataTypeMgr::_allDataTypes;
 uint32 DataTypeMgr::_dataTypeUID = 0;
 bool DataTypeMgr::initialize(const char* aliasFile){
 	//初始化一些基本类别
@@ -48,6 +50,13 @@ bool DataTypeMgr::loadAlias(const char* file){
 	return true;
 }
 
+void DataTypeMgr::release(){
+	for(auto typeItor : _allDataTypes){
+		DEL typeItor;
+	}
+	_dataTypes.clear();
+}
+
 uint16 DataTypeMgr::getType(const char* name){
 	auto itor = _typeMap.find(name);
 	if (itor != _typeMap.end())
@@ -65,8 +74,13 @@ uint16 DataTypeMgr::getType(const uint32 uid){
 IDataType* DataTypeMgr::getDataType(const sl::ISLXmlNode& typeNode){
 	const char* name = typeNode.getValueString();
 	IDataType* dataType = getDataType(name);
-	if(!dataType)
-		return SLMODULE(PythonServer)->createPyDataTypeFromXml(name, &typeNode);
+	if(!dataType){
+		dataType = SLMODULE(PythonServer)->createPyDataTypeFromXml(name, &typeNode);
+		if(dataType){
+			std::string dataTypeName = std::string("_") + sl::CStringUtils::Int64AsString(SLMODULE(IdMgr)->generateLocalId()) + name;
+			addDataType(dataTypeName.c_str(), dataType);
+		}
+	}
 	return dataType;
 }
 IDataType* DataTypeMgr::getDataType(const char* name){
@@ -75,8 +89,9 @@ IDataType* DataTypeMgr::getDataType(const char* name){
 		return itor->second;
 
 	IDataType* dataType = SLMODULE(PythonServer)->createPyDataType(name);
-	if(dataType)
+	if(dataType){
 		addDataType(name, dataType);
+	}
 	return dataType;
 }
 
@@ -99,5 +114,6 @@ void DataTypeMgr::addDataType(const char* name, IDataType* dataType){
 	_uidDataTypeMap[_dataTypeUID] = dataType;
 	dataType->setUid(_dataTypeUID);
 	dataType->setType(_typeMap[name]);
+	_allDataTypes.insert(dataType);
 }
 

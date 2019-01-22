@@ -108,6 +108,7 @@ IMysqlResult* DBInterface::execSqlSync(const int32 optType, const char* sql){
 
 	MysqlResult* result = NEW MysqlResult();
 	MysqlBase::realExecSql(sqlCommand, _syncConnection, result);
+	DEL sqlCommand;
 	return result;
 }
 

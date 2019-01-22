@@ -144,7 +144,7 @@ void Cluster::updateLoad(sl::api::IKernel* pKernel, int64 timetick, int64 passTi
 	pKernel->clearSpareTime();
 
 	if(spareTimePercent < 0.f || spareTimePercent > 1.f){
-		SLASSERT(false, "spareTime calc error!!!!");
+		printf("spareTime calc error!!!!: %f", spareTimePercent);
 	}
 
 	if(spareTimePercent < 0.f)

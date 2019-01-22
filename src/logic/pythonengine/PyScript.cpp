@@ -30,7 +30,6 @@ bool PyScript::install(const char* pythonHomeDir, const char* pyPaths, const cha
 	sl::CStringUtils::RepleaceAll(pyUserPaths, ";", ":");
 #endif
 
-    printf("%s\n", pyUserPaths.c_str());
 	wchar_t* pwpyUserPath = sl::CStringUtils::char2wchar(pyUserPaths.c_str());
 	Py_SetPath(pwpyUserPath);
 	free(pwpyUserPath);
@@ -66,6 +65,11 @@ bool PyScript::install(const char* pythonHomeDir, const char* pyPaths, const cha
 	sl::pyscript::ScriptStdErr::installScript(NULL);
 	sl::pyscript::ScriptStdOut::installScript(NULL);
 
+	return true;
+}
+
+bool PyScript::uninstall(){
+	Py_Finalize();
 	return true;
 }
 

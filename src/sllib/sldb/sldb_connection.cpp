@@ -5,13 +5,16 @@ namespace sl
 namespace db
 {
 SLDBConnection::SLDBConnection(ISLDBConnectionPool* pConnPool){
+	mysql_library_init(0, NULL, NULL);
 	mysql_init(&m_mysqlHandler);
 	m_pConnPool = pConnPool;
 }
 
 SLDBConnection::~SLDBConnection(){
-	if (isActive())
+	if (isActive()){
 		mysql_close(&m_mysqlHandler);
+		mysql_library_end();
+	}
 }
 
 void SLDBConnection::release(){

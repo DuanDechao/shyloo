@@ -29,6 +29,12 @@ bool ObjectDef::launched(sl::api::IKernel * pKernel){
 }
 
 bool ObjectDef::destory(sl::api::IKernel * pKernel){
+	for(auto defItor : _typeModelDefMap){
+		DEL defItor.second;
+	}
+	_typeModelDefMap.clear();
+
+	DataTypeMgr::release();
 	DEL this;
 	return true;
 }

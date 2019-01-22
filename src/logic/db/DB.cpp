@@ -6,6 +6,7 @@
 //#include "DBCall.h"
 #include "IResMgr.h"
 #include "DBTableMysql.h"
+#include "IDebugHelper.h"
 bool DB::initialize(sl::api::IKernel * pKernel){
 	_self = this;
 	_kernel = pKernel;
@@ -28,21 +29,30 @@ bool DB::launched(sl::api::IKernel * pKernel){
 	}
 	_database = NEW DataBaseMysql(_dbInterface);
 	if(!_database->initialize() || !_database->syncToDB()){
-		SLASSERT(false, "wtf");
+		ERROR_LOG("DB initialize failed!");
 		return false;
 	}
 
-	test();
+	//test();
+	START_TIMER(_self, 0, 1, 2000);
 	return true;
 }
 
 bool DB::destory(sl::api::IKernel * pKernel){
+	if(_database){
+		DEL _database;
+	}
 	DEL this;
 	return true;
 }
+void DB::onTime(sl::api::IKernel* pKernel, int64 timetick){
+	test();
+	pKernel->shutdown();
+}
 
 void DB::test(){
-	_database->makeTest();
+//	_database->readTest();
+//	_kernel->shutdown();
 }
 
 

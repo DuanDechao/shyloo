@@ -2,6 +2,7 @@
 #include "IDB.h"
 #include "IDCCenter.h"
 #include<limits.h>
+#include "IDebugHelper.h"
 // 常规的buf长度
 #define SQL_BUF 65535
 #define MYSQL_ENGINE_TYPE "InnoDB"
@@ -26,14 +27,19 @@ bool DBTableItemMysql::syncItemToDB(IDBInterface* pdbi, const char* dbDataType, 
 		}
 	 }
 	 
-	 printf("syncItemToDB: %s->%s(%s)\n", tableName, itemName, dbDataType);
+	 TRACE_LOG("syncItemToDB: %s->%s(%s)", tableName, itemName, dbDataType);
 	 
 	 char sqlBuf[SQL_BUF];
 	 SafeSprintf(sqlBuf, SQL_BUF, "ALTER TABLE `" TABLE_PREFIX "_%s` ADD `%s` %s;", tableName, itemName, dbDataType);
 	 IMysqlResult* updateResult = pdbi->execSqlSync(DB_OPT_UPDATE, sqlBuf);
 	 if(!updateResult || (updateResult->errCode() != 0 && updateResult->errCode() != 1060 /*Duplicate column name*/)){
-		SLASSERT(false, "DBTableMysql::syncItemToDB %s failed from table(%s) failed, error:%s", itemName, tableName, updateResult->errInfo());
-		updateResult->release();
+		 if(updateResult){
+			ERROR_LOG("DBTableMysql::syncItemToDB exec sql(%s) failed, error:%d(%s)", sqlBuf, updateResult->errCode(), updateResult->errInfo());
+			updateResult->release();
+		 }
+		 else{
+			 ERROR_LOG("DBTableMysql::syncItemToDB exec sql(%s) failed, error: no result", sqlBuf);
+		 }
 		return false;
 	 }
 
@@ -41,8 +47,14 @@ bool DBTableItemMysql::syncItemToDB(IDBInterface* pdbi, const char* dbDataType, 
 		SafeSprintf(sqlBuf, SQL_BUF, "ALTER TABLE `" TABLE_PREFIX "_%s` MODIFY COLUMN `%s` %s;", tableName, itemName, dbDataType);
 		IMysqlResult* modifyResult = pdbi->execSqlSync(DB_OPT_UPDATE, sqlBuf);
 		if(!modifyResult || modifyResult->errCode() != 0){
-			SLASSERT(false, "DBTableMysql::syncItemToDB %s failed from table(%s) failed, error:%s", itemName, tableName, modifyResult->errInfo());
-			modifyResult->release();
+			if(modifyResult){
+				ERROR_LOG("DBTableMysql::syncItemToDB exec sql(%s) failed, error:%d(%s)", sqlBuf, modifyResult->errCode(), modifyResult->errInfo());
+				modifyResult->release();
+			}
+			else{
+				ERROR_LOG("DBTableMysql::syncItemToDB exec sql(%s) failed, error: no result", sqlBuf);
+			}
+			updateResult->release();
 			return false;
 		}
 		modifyResult->release();
@@ -216,6 +228,14 @@ bool DBTableItemMysqlDigit::makeTestData(sl::IBStream& data){
 	}
 	return true;
 }
+
+DBTableItemMysqlFixedDict::~DBTableItemMysqlFixedDict(){
+	for(auto itor = _keyTypes.begin(); itor != _keyTypes.end(); itor++){
+		if(itor->second){
+			DEL itor->second;
+		}
+	}
+}
 	
 bool DBTableItemMysqlFixedDict::initialize(const char* defaultVal){
 	std::vector<std::pair<std::string, IDataType*>> keyTypes = _dataType->dictDataType();
@@ -378,8 +398,8 @@ bool DBTableItemMysqlArray::writeItemSql(DBContext* pContext, sl::OBStream& data
 		}
 		else{
 			for(int32 idx = 0; idx < size; idx++){
-				DataBaseMysql* database = static_cast<DataBaseMysql*>(_parentTable->dataBase());
-				SQLCommand& sqlCommand = database->createSqlCommand();
+				DataBase* database = _parentTable->dataBase();
+				SQLCommand& sqlCommand = database->getDBInterface()->createSqlCommand();
 				DBContext* newDBContext = NEW DBContext(_childTable->tableName(), sqlCommand, 0);
 				sqlCommand.table(fixedTableName);
 				if(!static_cast<DBTableMysql*>(_childTable)->writeItemSql(newDBContext, data))
@@ -394,10 +414,15 @@ bool DBTableItemMysqlArray::writeItemSql(DBContext* pContext, sl::OBStream& data
 
 bool DBTableItemMysqlArray::readItemSql(DBContext* pContext){
 	if(_childTable){
-		SQLCommand& newSqlCommand = static_cast<DataBaseMysql*>(_parentTable->dataBase())->createSqlCommand();
+		SQLCommand& newSqlCommand = _parentTable->dataBase()->getDBInterface()->createSqlCommand();
 		DBContext* pSubContext = NEW DBContext(_childTable->tableName(), newSqlCommand, 0);
+		
+		char fixedTableName[256];
+		SafeSprintf(fixedTableName, 256, TABLE_PREFIX "_%s", _childTable->tableName());
+		newSqlCommand.table(fixedTableName);
+
 		pContext->addSubContext(_childTable->tableName(), pSubContext);
-		static_cast<DBTableMysql*>(_childTable)->readItemSql(pContext);
+		static_cast<DBTableMysql*>(_childTable)->readItemSql(pSubContext);
 	}
 	return true;
 }
@@ -798,8 +823,10 @@ bool DBTableMysql::initialize(){
 		DBTableItem* pDTItem = createItem(prop.first.c_str(), dataType, defaultVal);
 		pDTItem->setProp(prop.second);
 
-		if(!pDTItem->initialize(defaultVal))
+		if(!pDTItem->initialize(defaultVal)){
+			ERROR_LOG("Item(%s) of table(%s) initialize failed", pDTItem->itemName(), tableName());
 			return false;
+		}
 
 		addItem(pDTItem);
 	}
@@ -899,12 +926,12 @@ DBTableItem* DBTableMysql::createItem(const char* itemName, IDataType* dataType,
 	else if(typeName == "STRING"){
 		char sqlItemType[1024];
 		SafeSprintf(sqlItemType, 1024, "varchar(@DATALEN@) not null default '%s'", defaultVal);
-		pDTItem = NEW DBTableItemMysqlString(itemName, dataType, sqlItemType, 0, NOT_NULL_FLAG | BINARY_FLAG, FIELD_TYPE_VAR_STRING);
+		pDTItem = NEW DBTableItemMysqlString(itemName, dataType, sqlItemType, 0, NOT_NULL_FLAG, FIELD_TYPE_VAR_STRING);
 	}
 	else if(typeName == "UNICODE"){
 		char sqlItemType[1024];
 		SafeSprintf(sqlItemType, 1024, "varchar(@DATALEN@) not null default '%s'", defaultVal);
-		pDTItem = NEW DBTableItemMysqlUnicode(itemName, dataType, sqlItemType, 0, NOT_NULL_FLAG | BINARY_FLAG, FIELD_TYPE_VAR_STRING);
+		pDTItem = NEW DBTableItemMysqlUnicode(itemName, dataType, sqlItemType, 0, NOT_NULL_FLAG, FIELD_TYPE_VAR_STRING);
 	}
 	else if(typeName == "PYTHON"){
 		pDTItem = NEW DBTableItemMysqlPython(itemName, dataType, "blob", 0, BINARY_FLAG | BLOB_FLAG, FIELD_TYPE_BLOB);
@@ -960,7 +987,7 @@ bool DBTableMysql::syncToDB(IDBInterface* pdbi){
 	std::string extItem = "";
 
 	if(isChild())
-		extItem = ", " TABLE_PARENTID_CONST_STR " bigint(20) unsigned NOT NULL, INDEX(" TABLE_PARENTID_CONST_STR ")";
+		extItem = ", " TABLE_PARENTID_CONST_STR " bigint(20) unsigned NOT NULL default 0, INDEX(" TABLE_PARENTID_CONST_STR ")";
 
 	SafeSprintf(sqlBuf, SQL_BUF, "CREATE TABLE IF NOT EXISTS " TABLE_PREFIX "_%s "
 			"(id bigint(20) unsigned AUTO_INCREMENT, PRIMARY KEY idKey (" TABLE_ID_CONST_STR ")%s)"
@@ -968,28 +995,42 @@ bool DBTableMysql::syncToDB(IDBInterface* pdbi){
 
 	IMysqlResult* result = pdbi->execSqlSync(DB_OPT_UPDATE, sqlBuf);
 	if(!result || result->errCode() != 0){
-		SLASSERT(false, "DBTableMysql::syncToDB error:%d(%s)", result->errCode(), result->errInfo());
+		if(result){
+			ERROR_LOG("DBTableMysql::syncToDB exec sql(%s) error:%d(%s)", sqlBuf, result->errCode(), result->errInfo());
+			result->release();
+		}
+		else{
+			ERROR_LOG("DBTableMysql::syncToDB exec sql(%s) error, no result", sqlBuf);
+		}
 		return false;
 	}
+	result->release();
 
 	char fixTableName[128];
 	SafeSprintf(fixTableName, 128, TABLE_PREFIX "_%s", tableName());
 	IMysqlResult* fieldResult = pdbi->getTableFields(fixTableName);
 	if(!fieldResult || fieldResult->errCode() != 0){
-		SLASSERT(false, "DBTableMysql::syncToDB getTableField error %d(%s)", fieldResult->errCode(), fieldResult->errInfo());
+		if(fieldResult){
+			ERROR_LOG("DBTableMysql::syncToDB getTableField(%s) error %d(%s)", fixTableName,  fieldResult->errCode(), fieldResult->errInfo());
+			fieldResult->release();
+		}
+		else{
+			ERROR_LOG("DBTableMysql::syncToDB getTableField(%s) error, no result", fixTableName);
+		}
 		return false;
 	}
 	
 	//同步table的field
 	for(auto item : _tableItems){
 		if(!item.second->syncToDB(pdbi, fieldResult)){
-			SLASSERT(false, "item %s from table[%s] syncToDB failed", item.second->itemName(), tableName());
+			fieldResult->release();
+			ERROR_LOG("item %s from table[%s] syncToDB failed", item.second->itemName(), tableName());
 			return false;
 		}
 	}
 
 	const std::vector<std::string>& columns = fieldResult->columns();
-
+	
 	//检查是否有需要删除的表字段
 	for(auto column : columns){
 		if(column == TABLE_ID_CONST_STR || column == TABLE_PARENTID_CONST_STR)
@@ -1008,11 +1049,20 @@ bool DBTableMysql::syncToDB(IDBInterface* pdbi){
 			SafeSprintf(sqlBuf, SQL_BUF, "ALTER TABLE %s DROP COLUMN %s", fixTableName, column.c_str());
 			IMysqlResult* result = pdbi->execSqlSync(DB_OPT_UPDATE, sqlBuf);
 			if(!result || result->errCode() != 0){
-				SLASSERT(false, "DBTableMysql::syncToDB drop column(%s) from table(%s) failed, error:%s", column.c_str(), fixTableName, result->errInfo());
+				if(result){
+					ERROR_LOG("DBTableMysql::syncToDB exec sql(%s) failed, error:%d(%s)", sqlBuf,  result->errCode(), result->errInfo());
+					result->release();
+				}
+				else{
+					ERROR_LOG("DBTableMysql::syncToDB exec sql(%s) failed, error: no reuslt", sqlBuf);
+				}
 				return false;
 			}
+			result->release();
 		}
 	}
+	
+	fieldResult->release();
 
 	//同步表索引
 	if(!syncIndexToDB(pdbi)){
@@ -1040,7 +1090,13 @@ bool DBTableMysql::syncIndexToDB(IDBInterface* pdbi){
 	SafeSprintf(sqlStr, SQL_BUF, "SHOW INDEX FROM " TABLE_PREFIX "_%s", tableName());
 	IMysqlResult* result = pdbi->execSqlSync(DB_OPT_QUERY, sqlStr);
 	if(!result || result->errCode() != 0){
-		SLASSERT(false, "DBTableMysql::syncToIndexDB show index from table(%s) failed, error:%s", tableName(), result->errInfo());
+		if(result){
+			ERROR_LOG("DBTableMysql::syncToIndexDB exec sql(%s) failed, error:%d(%s)", sqlStr, result->errCode(), result->errInfo());
+			result->release();
+		}
+		else{
+			ERROR_LOG("DBTableMysql::syncToIndexDB exec sql(%s) failed, error: no result");
+		}
 		return false;
 	}
 	
@@ -1060,6 +1116,7 @@ bool DBTableMysql::syncIndexToDB(IDBInterface* pdbi){
 		
 		currTableKeys[columnName] = keyType;
 	}
+	result->release();
 
 	bool needSync = false;
 	SafeSprintf(sqlStr, SQL_BUF, "ALTER TABLE " TABLE_PREFIX "_%s ", tableName());
@@ -1112,15 +1169,22 @@ bool DBTableMysql::syncIndexToDB(IDBInterface* pdbi){
 
 	IMysqlResult* updateResult = pdbi->execSqlSync(DB_OPT_UPDATE, sqlStr);
 	if(!updateResult || updateResult->errCode() != 0){
-		SLASSERT(false, "DBTableMysql::syncIndexToDB failed from table(%s) failed, error:%s", tableName(), updateResult->errInfo());
+		if(updateResult){
+			ERROR_LOG("DBTableMysql::syncIndexToDB exec sql(%s) failed, error:%d(%s)", sqlStr, updateResult->errCode(), updateResult->errInfo());
+			updateResult->release();
+		}
+		else{
+			ERROR_LOG("DBTableMysql::syncIndexToDB exec sql(%s) failed, error: no result", sqlStr);
+		}
 		return false;
 	}
+	updateResult->release();
 
 	return true;
 }
 
 uint64 DBTableMysql::writeTable(IDBInterface* pdbi, uint64 dbid, sl::OBStream& data){
-	SQLCommand& sqlCommand = static_cast<DataBaseMysql*>(_database)->createSqlCommand();
+	SQLCommand& sqlCommand = _database->getDBInterface()->createSqlCommand();
 	DBContext* pDBContext = NEW DBContext(tableName(), sqlCommand, dbid);
 
 	char fixedTableName[256];
@@ -1155,6 +1219,10 @@ bool DBTableMysql::queryTable(IDBInterface* pdbi, uint64 dbid, sl::IBStream& dat
 
 	SQLCommand& sqlCommand = pdbi->createSqlCommand();
 	DBContext* pDBContext = NEW DBContext(tableName(), sqlCommand, dbid); 
+	
+	char fixedTableName[256];
+	SafeSprintf(fixedTableName, 256, TABLE_PREFIX "_%s", tableName());
+	sqlCommand.table(fixedTableName);
 
 	for(auto item : _tableFixedOrderItems){
 		if(!item->readItemSql(pDBContext))
@@ -1169,21 +1237,28 @@ bool DBTableMysql::queryTable(IDBInterface* pdbi, uint64 dbid, sl::IBStream& dat
 
 bool DBTableMysql::writeDataToDB(IDBInterface* pdbi, DBContext* pContext, bool isInsert){
 	SQLCommand& sqlCommand = pContext->getSqlCommand();
-	if(pContext->dbid() > 0)
+	if(pContext->dbid() > 0){
 		pContext->optType() == DB_OPT_DELETE ? sqlCommand.where(Field(TABLE_ID_CONST_STR) == pContext->dbid()) :
 			sqlCommand.save(Field(TABLE_ID_CONST_STR) = pContext->dbid());
+	}
 	
-	if(pContext->dbid() <= 0 && pContext->parentDBId() > 0)
+	if(pContext->dbid() <= 0 && pContext->parentDBId() > 0){
 		sqlCommand.save(Field(TABLE_PARENTID_CONST_STR) = pContext->parentDBId());
+	}
 	
 	sqlCommand.submit();
 	IMysqlResult* writeResult = pdbi->execSqlSync(sqlCommand.optType(), sqlCommand.toString());
-
 	if(!writeResult || writeResult->errCode() != 0){
-		SLASSERT(false, "writeDataToDB failed error:%s", writeResult->errInfo());
+		if(writeResult){
+			ERROR_LOG("writeDataToDB failed error:%d(%s)", writeResult->errCode(), writeResult->errInfo());
+			writeResult->release();
+		}
+		else{
+			ERROR_LOG("writeDataToDB failed error: no result");
+		}
 		return false;
 	}
-	
+
 	if(writeResult->optType() == DB_OPT_SAVE && pContext->dbid() <= 0)
 		pContext->setDBId(writeResult->insertId());
 		
@@ -1199,6 +1274,7 @@ bool DBTableMysql::writeDataToDB(IDBInterface* pdbi, DBContext* pContext, bool i
 			pContext->addSubContext(subTable->tableName(), NULL);
 		}
 	}
+	writeResult->release();
 	
 	DBContext::SUB_CONTEXTS& subDBContexts = pContext->subContexts();
 	for(auto contextItor : subDBContexts){
@@ -1220,7 +1296,13 @@ bool DBTableMysql::writeDataToDB(IDBInterface* pdbi, DBContext* pContext, bool i
 			queryCommand.submit();
 			IMysqlResult* queryResult = pdbi->execSqlSync(queryCommand.optType(), queryCommand.toString());
 			if(!queryResult || queryResult->errCode() != 0){
-				SLASSERT(false, "writeDataToDB failed error:%s", queryResult->errInfo());
+				if(queryResult){
+					ERROR_LOG("writeDataToDB failed error:%d(%s)", queryResult->errCode(), queryResult->errInfo());
+					queryResult->release();
+				}
+				else{
+					ERROR_LOG("writeDataToDB failed error: no result");
+				}
 				return false;
 			}
 			DEL &queryCommand;
@@ -1247,6 +1329,7 @@ bool DBTableMysql::writeDataToDB(IDBInterface* pdbi, DBContext* pContext, bool i
 				}
 				idx++;
 			}
+			queryResult->release();
 
 			for(auto cItor : contextItor.second){
 				cItor->setParentDBId(pContext->dbid());
@@ -1268,12 +1351,16 @@ bool DBTableMysql::readDataFromDB(IDBInterface* pdbi, DBContext* pContext, sl::I
 	if(pContext->parentDBId() > 0)
 		sqlCommand.where(Field(TABLE_PARENTID_CONST_STR) == pContext->parentDBId());
 
+	sqlCommand.get();
 	sqlCommand.submit();
 	IMysqlResult* readResult = pdbi->execSqlSync(sqlCommand.optType(), sqlCommand.toString());
 	if(!readResult || readResult->errCode() != 0){
 		if(readResult){
-			SLASSERT(false, "readDataFromDB failed, error:%s", readResult->errInfo());
+			ERROR_LOG("readDataFromDB failed, error:%d(%s)",readResult->errCode(), readResult->errInfo());
 			readResult->release();
+		}
+		else{
+			ERROR_LOG("readDataFromDB failed, error: no result");
 		}
 		return false;
 	}
@@ -1357,7 +1444,7 @@ bool DataBaseMysql::syncToDB(){
 	return true;
 }
 
-bool DataBaseMysql::makeTest(){
+bool DataBaseMysql::writeTest(){
 	for(auto table : _tables){
 		if(strcmp(table.second->tableName(), "Avatar") != 0)
 			continue;
@@ -1374,3 +1461,21 @@ bool DataBaseMysql::makeTest(){
 	}
 	return true;
 }
+
+bool DataBaseMysql::readTest(){
+	for(auto table : _tables){
+		if(strcmp(table.second->tableName(), "Avatar") != 0)
+			continue;
+
+		sl::BStream<102400> testData;
+		if(!table.second->queryTable(_dbInterface, (uint64)21, testData)){
+			SLASSERT(false, "wtf");
+			return false;
+		}
+
+		sl::OBStream out = testData.out();
+		table.second->writeTable(_dbInterface, (uint64)21, out);
+	}
+	return true;
+}
+

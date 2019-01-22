@@ -6,13 +6,14 @@
 #include "slimodule.h"
 #include "slmulti_sys.h"
 #include <unordered_map>
+#include "sllog.h"
 namespace sl
 {
 namespace core
 {
-class Kernel: public api::IKernel,public IApplication{
+class Kernel: public api::IKernel, public IApplication{
 public:
-	static IKernel* getInstance();
+	static Kernel* getInstance();
 
 	virtual bool ready();
 	virtual bool initialize(int32 argc, char ** argv);
@@ -50,11 +51,15 @@ public:
 
 	//log interface
 	virtual void syncLog(int32 filter, const char* log, const char* file, const int32 line);
-	virtual void asyncLog(int32 filter, const char* log, const char* file, const int32 line);
+//yy	virtual void asyncLog(int32 filter, const char* log, const char* file, const int32 line);
+	virtual sl::api::ILogger* createLogger();
 
 	virtual void shutdown() { _shutDown = true; }
 	virtual bool isShutdown() { return _shutDown; }
+	
 	void loop();
+
+	sl::api::ILogger* kernelLogger() {return _kernelLogger;}
 
 public:
 	Kernel(){}
@@ -63,22 +68,18 @@ public:
 	void parse(int argc, char** argv);
 
 private:
-	bool	_shutDown;
+	bool		_shutDown;
 	std::unordered_map<std::string, std::string> _args;
+	sl::api::ILogger*	_kernelLogger;
 };
 }
 }
 
-#define KERNEL_LOG(format, ...) { \
-	char log[8192]; \
-	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
-	Kernel::getInstance()->asyncLog(0x20, log, __FILE__, __LINE__); \
-}
-
-#define KERNEL_ERROR(format, ...) { \
-	char log[8192]; \
-	SafeSprintf(log, 8192, format, ##__VA_ARGS__); \
-	Kernel::getInstance()->asyncLog(0x2, log, __FILE__, __LINE__); \
-}
+#define KERNEL_TRACE(format, a...)			sl::core::Kernel::getInstance()->kernelLogger()->traceLog(format, ##a)
+#define KERNEL_INFO(format, a...)			sl::core::Kernel::getInstance()->kernelLogger()->infoLog(format, ##a)
+#define KERNEL_DEBUG(format, a...)			sl::core::Kernel::getInstance()->kernelLogger()->debugLog(format, ##a)
+#define KERNEL_WARNING(format, a...)        sl::core::Kernel::getInstance()->kernelLogger()->warningLog(format, ##a)
+#define KERNEL_ERROR(format, a...)			sl::core::Kernel::getInstance()->kernelLogger()->errorLog(format, ##a)
+#define KERNEL_FATAL(format, a...)			sl::core::Kernel::getInstance()->kernelLogger()->fatalLog(format, ##a)
 
 #endif

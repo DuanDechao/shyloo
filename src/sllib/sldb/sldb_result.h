@@ -10,7 +10,8 @@ namespace db{
 class SLDBResult : public ISLDBResult{
 public:
 	inline static SLDBResult* create(){
-		return CREATE_FROM_POOL(s_pool);
+		return NEW SLDBResult();
+		//return CREATE_FROM_POOL(s_pool);
 	}
 	
 	virtual bool SLAPI next();

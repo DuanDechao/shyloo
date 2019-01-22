@@ -48,8 +48,8 @@ IDataType* PyDataType::createDataType(const char* typeName, const sl::ISLXmlNode
 			DEL fixedDict;
 			return NULL;
 		}
-		std::string dataTypeName = std::string("_") + sl::CStringUtils::Int64AsString(SLMODULE(IdMgr)->generateLocalId()) + typeName;
-		SLMODULE(ObjectDef)->addExtraDataType(dataTypeName.c_str(), fixedDict);
+		//std::string dataTypeName = std::string("_") + sl::CStringUtils::Int64AsString(SLMODULE(IdMgr)->generateLocalId()) + typeName;
+		//SLMODULE(ObjectDef)->addExtraDataType(dataTypeName.c_str(), fixedDict);
 		return fixedDict;
 
 	}else if(strcmp(typeName,"ARRAY") == 0){
@@ -58,8 +58,8 @@ IDataType* PyDataType::createDataType(const char* typeName, const sl::ISLXmlNode
 			DEL fixedArray;
 			return NULL;
 		}
-		std::string dataTypeName = std::string("_") + sl::CStringUtils::Int64AsString(SLMODULE(IdMgr)->generateLocalId()) + typeName;
-		SLMODULE(ObjectDef)->addExtraDataType(dataTypeName.c_str(), fixedArray);
+		//std::string dataTypeName = std::string("_") + sl::CStringUtils::Int64AsString(SLMODULE(IdMgr)->generateLocalId()) + typeName;
+		//SLMODULE(ObjectDef)->addExtraDataType(dataTypeName.c_str(), fixedArray);
 		return fixedArray;
 
 	}

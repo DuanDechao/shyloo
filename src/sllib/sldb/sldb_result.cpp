@@ -51,7 +51,8 @@ bool SLDBResult::next(){
 }
 
 void SLDBResult::release(){
-	s_pool.recover(this);
+	DEL this;
+	//s_pool.recover(this);
 }
 
 int8 SLDBResult::toInt8(const int32 index){
