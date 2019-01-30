@@ -1,6 +1,5 @@
 #include "PyScript.h"
 #include "slstring_utils.h"
-#include "IResMgr.h"
 #include "pyscript/pickler.h"
 #include "pyscript/py_gc.h"
 #include "pyscript/scriptstdouterrhook.h"
@@ -13,7 +12,7 @@
 					"../../../server/res/server/scripts/common/Lib/site-packages;"		\
 					"../../../server/res/server/scripts/common/Lib/dist-packages"
 					
-bool PyScript::install(const char* pythonHomeDir, const char* pyPaths, const char* moduleName){
+bool PyScript::install(sl::api::IKernel* pKernel, const char* pythonHomeDir, const char* pyPaths, const char* moduleName){
 	//设置python的环境变量
     printf("%s\n", pythonHomeDir);
 	wchar_t* pwpySysResPath = sl::CStringUtils::char2wchar(pythonHomeDir);
@@ -22,7 +21,7 @@ bool PyScript::install(const char* pythonHomeDir, const char* pyPaths, const cha
 
 	std::string pyUserPaths = pyPaths;
 	std::string pySysPath = SCRIPT_PATH;
-	std::string pyUserResPath = SLMODULE(ResMgr)->getPyUserResPath();
+	std::string pyUserResPath = pKernel->getUserResPath();
 	sl::CStringUtils::RepleaceAll(pySysPath, "../../../server/res/", pyUserResPath);
 	pyUserPaths += pySysPath;
 

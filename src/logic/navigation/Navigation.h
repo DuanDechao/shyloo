@@ -2,8 +2,9 @@
 #define __SL_FRAMEWORK_NAVIGATION_H__
 #include "slikernel.h"
 #include "INavigation.h"
+#include "slsingleton.h"
 #include <unordered_map>
-class Navigation :public INavigation{
+class Navigation :public INavigation, public sl::SLHolder<Navigation>{
 public:
 	virtual bool initialize(sl::api::IKernel * pKernel);
 	virtual bool launched(sl::api::IKernel * pKernel);
@@ -16,8 +17,11 @@ public:
 
 	void test();
 
+	sl::api::IKernel* getKernel() {return _kernel;}
+
 private:
 	static Navigation*	s_self;
+	sl::api::IKernel*	_kernel;
 	std::unordered_map<std::string, INavigationHandler*> _navHandlers;
 };
 

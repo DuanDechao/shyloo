@@ -4,29 +4,40 @@
 class DBInterface;
 class SQLBuilder : public ISQLBuilder{
 public:
-	SQLBuilder(DBInterface* dbInterface);
-	SQLBuilder(DBInterface* dbInterface, int32 optType, const char* sql);
-	~SQLBuilder();
+	static SQLBuilder* create(sl::db::ISLDBConnection* dbConnect){
+		return NEW SQLBuilder(dbConnect);
+	}
 
-	ISQLBuilder* table(const char* tableName);
-	ISQLBuilder* select(const char* field);
-	ISQLBuilder* where(const Expr& expr);
-	ISQLBuilder* orWhere(const Expr& expr);
-	ISQLBuilder* insert(const SetExpr* val);
-	ISQLBuilder* get(const int32 limit);
-	ISQLBuilder* update(const SetExpr* val);
-	ISQLBuilder* save(const SetExpr* val);
-	ISQLBuilder* del();
+	static SQLBuilder* create(sl::db::ISLDBConnection* dbConnect, int32 optType, const char* sql){
+		return NEW SQLBuilder(dbConnect, optType, sql);
+	}
 
-	inline int32 optType() const { return _optType; }
-	inline bool isRawSql() const {return _isRawSql;}
-	inline const char* toString() { SLASSERT(_finalExpr != "", "wtf");  return _finalExpr.c_str(); }
-	inline bool checkVaild() { return (_optType > DB_OPT_NONE) && (_table != "" || isRawSql()); }
-	bool submit();
-	void escapeString(string& dest, const SetExpr* val);
+	virtual ISQLBuilder* table(const char* tableName);
+	virtual ISQLBuilder* select(const char* field);
+	virtual ISQLBuilder* where(const Expr& expr);
+	virtual ISQLBuilder* orWhere(const Expr& expr);
+	virtual ISQLBuilder* insert(const SetExpr* val);
+	virtual ISQLBuilder* get(const int32 limit);
+	virtual ISQLBuilder* update(const SetExpr* val);
+	virtual ISQLBuilder* save(const SetExpr* val);
+	virtual ISQLBuilder* del();
+
+	virtual int32 optType() const { return _optType; }
+	virtual const char* toString() { SLASSERT(_finalExpr != "", "wtf");  return _finalExpr.c_str(); }
+	virtual bool submit();
+	virtual void release() {DEL this;}
 
 private:
-	DBInterface*	_dbInterface;
+	SQLBuilder(sl::db::ISLDBConnection* dbConnect);
+	SQLBuilder(sl::db::ISLDBConnection* dbConnect, int32 optType, const char* sql);
+	~SQLBuilder();
+	
+	void escapeString(string& dest, const SetExpr* val);
+	inline bool isRawSql() const {return _isRawSql;}
+	inline bool checkVaild() { return (_optType > DB_OPT_NONE) && (_table != "" || isRawSql()); }
+
+private:
+	sl::db::ISLDBConnection* _dbConnect;
 	string			_table;
 	int32			_optType;
 	int32			_limit;

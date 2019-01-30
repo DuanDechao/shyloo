@@ -11,6 +11,8 @@ SET(DATABASE
 	"${PROJECT_SOURCE_DIR}/src/logic/db/DBContext.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/db/DB.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/db/DB.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/db/DBTask.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/db/DBTask.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/db/DBTable.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/db/DBTable.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/db/DBTableMysql.h"

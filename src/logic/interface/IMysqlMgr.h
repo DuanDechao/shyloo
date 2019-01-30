@@ -21,111 +21,117 @@ public:
 
 	virtual int32 optType() const = 0;
 	virtual const char* toString() = 0;
-	virtual bool checkVaild() = 0;
 	virtual bool submit() = 0;
+	virtual void release() = 0;
 };
 
 class SQLCommand{
 public:
-	SQLCommand(ISQLBuilder* sqlBuilder) :_sqlBuilder(sqlBuilder){}
-	~SQLCommand(){
-		if (_sqlBuilder)
-			DEL _sqlBuilder;
-
-		_sqlBuilder = nullptr; 
+	static SQLCommand* create(ISQLBuilder* sqlBuilder){
+		return NEW SQLCommand(sqlBuilder);
 	}
-
+	void release(){
+		DEL this;
+	}
 	int32 optType() const { return _sqlBuilder->optType(); }
 	const char* toString(){ return _sqlBuilder->toString(); }
-	bool checkVaild(){ return _sqlBuilder->checkVaild(); }
 	bool submit(){ return _sqlBuilder->submit(); }
 
-	SQLCommand& table(const char* tableName){ _sqlBuilder->table(tableName); return *this;}
-	SQLCommand& get(const int32 limit = 0){ _sqlBuilder->get(limit); return *this;}
-	SQLCommand& del(){ _sqlBuilder->del(); return *this;}
+	SQLCommand* table(const char* tableName){ _sqlBuilder->table(tableName); return this;}
+	SQLCommand* get(const int32 limit = 0){ _sqlBuilder->get(limit); return this;}
+	SQLCommand* del(){ _sqlBuilder->del(); return this;}
 
 	template<typename... Args>
-	SQLCommand& select(const char* field, Args... args){
+	SQLCommand* select(const char* field, Args... args){
 		return selectInner(field, args...);
 	}
 	template<typename... Args>
-	SQLCommand& selectInner(const char* field, Args... args){
+	SQLCommand* selectInner(const char* field, Args... args){
 		_sqlBuilder->select(field);
 		return selectInner(args...);
 	}
-	SQLCommand& selectInner(const char* field){
+	SQLCommand* selectInner(const char* field){
 		_sqlBuilder->select(field);
-		return *this;
+		return this;
 	}
 
 	template<typename... Args>
-	SQLCommand& where(const Expr& expr, Args... args){
+	SQLCommand* where(const Expr& expr, Args... args){
 		return whereInner(expr, args...);
 	}
 	template<typename... Args>
-	SQLCommand& whereInner(const Expr& expr, Args... args){
+	SQLCommand* whereInner(const Expr& expr, Args... args){
 		_sqlBuilder->where(expr);
 		return whereInner(args...);
 	}
-	SQLCommand& whereInner(const Expr& expr){
+	SQLCommand* whereInner(const Expr& expr){
 		_sqlBuilder->where(expr);
-		return *this;
+		return this;
 	}
 
 	template<typename... Args>
-	SQLCommand& orWhere(const Expr& expr, Args... args){
+	SQLCommand* orWhere(const Expr& expr, Args... args){
 		return orWhereInner(expr, args...);
 	}
 	template<typename... Args>
-	SQLCommand& orWhereInner(const Expr& expr, Args... args){
+	SQLCommand* orWhereInner(const Expr& expr, Args... args){
 		_sqlBuilder->orWhere(expr);
 		return orWhereInner(args...);
 	}
-	SQLCommand& orWhereInner(const Expr& expr){
+	SQLCommand* orWhereInner(const Expr& expr){
 		_sqlBuilder->orWhere(expr);
-		return *this;
+		return this;
 	}
 
 	template<typename... Args>
-	SQLCommand& insert(const SetExpr* val, Args... args){
+	SQLCommand* insert(const SetExpr* val, Args... args){
 		return insertInner(val, args...);
 	}
 	template<typename... Args>
-	SQLCommand& insertInner(const SetExpr* val, Args... args){
+	SQLCommand* insertInner(const SetExpr* val, Args... args){
 		_sqlBuilder->insert(val);
 		return insertInner(args...);
 	}
-	SQLCommand& insertInner(const SetExpr* val){
+	SQLCommand* insertInner(const SetExpr* val){
 		_sqlBuilder->insert(val);
-		return *this;
+		return this;
 	}
 
 	template<typename... Args>
-	SQLCommand& update(const SetExpr* val, Args... args){
+	SQLCommand* update(const SetExpr* val, Args... args){
 		return updateInner(val, args...);
 	}
 	template<typename... Args>
-	SQLCommand& updateInner(const SetExpr* val, Args... args){
+	SQLCommand* updateInner(const SetExpr* val, Args... args){
 		_sqlBuilder->update(val);
 		return updateInner(val, args...);
 	}
-	SQLCommand& updateInner(const SetExpr* val){
+	SQLCommand* updateInner(const SetExpr* val){
 		_sqlBuilder->update(val);
-		return *this;
+		return this;
 	}
 
 	template<typename... Args>
-	SQLCommand& save(const SetExpr* val, Args... args){
+	SQLCommand* save(const SetExpr* val, Args... args){
 		return saveInner(val, args...);
 	}
 	template<typename... Args>
-	SQLCommand& saveInner(const SetExpr* val, Args... args){
+	SQLCommand* saveInner(const SetExpr* val, Args... args){
 		_sqlBuilder->save(val);
 		return saveInner(val, args...);
 	}
-	SQLCommand& saveInner(const SetExpr* val){
+	SQLCommand* saveInner(const SetExpr* val){
 		_sqlBuilder->save(val);
-		return *this;
+		return this;
+	}
+
+private:
+	SQLCommand(ISQLBuilder* sqlBuilder) :_sqlBuilder(sqlBuilder){}
+	~SQLCommand(){
+		if (_sqlBuilder){
+			_sqlBuilder->release();
+		}
+		_sqlBuilder = nullptr; 
 	}
 
 private:
@@ -159,19 +165,23 @@ public:
 	virtual void release() = 0;
 };
 
-typedef std::function<bool(sl::api::IKernel* pKernel, SQLCommand& sqlCommnand)> SQLCommnandFunc;
+typedef std::function<bool(sl::api::IKernel* pKernel, SQLCommand* sqlCommnand)> SQLCommnandFunc;
 typedef std::function<bool(sl::api::IKernel* pKernel, IMysqlResult* result)> SQLExecCallback;
 class IDBInterface{
 public:
 	virtual ~IDBInterface() {}
+	virtual void release() = 0;
 	//异步执行sql语句，子线程
-	virtual void execSql(const int64 id, const SQLCommnandFunc& command, const SQLExecCallback& cb) = 0;
-	virtual void execSql(const int64 id, const int32 optType, const char* sql, const SQLExecCallback& cb) = 0;
+	virtual bool execSql(const int64 id, const SQLCommnandFunc& command, const SQLExecCallback& cb) = 0;
+	virtual bool execSql(const int64 id, const int32 optType, const char* sql, const SQLExecCallback& cb) = 0;
+	virtual bool execSql(const int64 id, SQLCommand* sqlCommand, const SQLExecCallback& cb) = 0;
+
 	//同步执行sql语句
-	virtual IMysqlResult* execSqlSync(const SQLCommnandFunc& f) = 0;
-	virtual IMysqlResult* execSqlSync(const int32 optType, const char* sql) = 0;
-	virtual IMysqlResult* getTableFields(const char* tableName) = 0;
-	virtual SQLCommand& createSqlCommand() = 0;
+	virtual IMysqlResult* execSqlSync(const int64 id, const SQLCommnandFunc& f) = 0;
+	virtual IMysqlResult* execSqlSync(const int64 id, const int32 optType, const char* sql) = 0;
+	virtual IMysqlResult* execSqlSync(const int64 id, SQLCommand* sqlCommand) = 0;
+	virtual IMysqlResult* getTableFields(const int64 id, const char* tableName) = 0;
+	virtual SQLCommand* createSqlCommand(const int64 id) = 0;
 
 	virtual const char* host() = 0;
 	virtual const int32 port() = 0;
@@ -179,13 +189,12 @@ public:
 	virtual const char* passwd() = 0;
 	virtual const char* dbName() = 0;
 	virtual const char* charset() = 0;
-	virtual const int32 threadCount() = 0;
+	virtual const int32 connectNum() = 0;
 };
 
 class IMysqlMgr : public sl::api::IModule{
 public:
 	virtual  ~IMysqlMgr(){}
-	virtual IDBInterface* createDBInterface(const char* host, const int32 port, const char* user, const char* pwd, const char* dbName, const char* charset, int32 threadNum = 1) = 0;
-	virtual void closeDBInterface(const char* host, const int32 port, const char* dbName) = 0;
+	virtual IDBInterface* createDBInterface(const char* host, const int32 port, const char* user, const char* pwd, const char* dbName, const char* charset) = 0;
 };
 #endif

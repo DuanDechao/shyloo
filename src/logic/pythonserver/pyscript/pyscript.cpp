@@ -1,6 +1,5 @@
 #include "pyscript.h"
 #include "slstring_utils.h"
-#include "IResMgr.h"
 #include "pickler.h"
 #include "py_gc.h"
 #define SCRIPT_PATH																		\

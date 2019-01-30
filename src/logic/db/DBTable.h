@@ -105,6 +105,11 @@ public:
 	virtual bool syncToDB() = 0;
 	virtual bool writeTest() = 0;
 	virtual bool readTest() = 0;
+	virtual bool getTestData(const char* tableName, sl::IBStream& testData) = 0;
+	virtual bool queryTable(const char* tableName, const uint64 dbid, sl::IBStream& stream) = 0;
+	virtual bool queryTable(const int32 tableId, const uint64 dbid, sl::IBStream& stream) = 0;
+	virtual uint64 writeTable(const char* tableName, const uint64 dbid, sl::OBStream& stream) = 0;
+	virtual uint64 writeTable(const int32 tableId, const uint64 dbid, sl::OBStream& stream) = 0;
 
 	void addTable(DBTable* pTable);
 	DBTable* findTable(const char* table);

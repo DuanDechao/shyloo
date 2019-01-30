@@ -174,9 +174,21 @@ public:
 	virtual void pauseTimer(api::ITimer* timer) = 0;
 	virtual void resumeTimer(api::ITimer* timer) = 0;
 
-	// logic interface
+	//module interface
 	virtual IModule * findModule(const char * name) = 0;
+
+	//config interface
 	virtual const char* getCmdArg(const char* name) = 0;
+	virtual const char* getSysResPath() = 0;
+	virtual const char* getUserResPath() = 0;
+	virtual const char* getUserScriptsPath() = 0; 
+	virtual bool hasRes(const char* res) = 0;
+	virtual const char* matchRes(const char* res) = 0;
+	virtual int32 getResValueInt32(const char* attr) = 0;
+	virtual int64 getResValueInt64(const char* attr) = 0;
+	virtual const char* getResValueString(const char* attr) = 0;
+	virtual bool getResValueBoolean(const char* attr) = 0;
+	virtual int32 maxAsyncThreadNum() = 0;
 	
 	//async interface
 	virtual void startAsync(const int64 threadId, IAsyncHandler* handler, const char* debug) = 0;
@@ -187,8 +199,6 @@ public:
 //`	virtual void asyncLog(int32 filter, const char* log, const char* file, const int32 line) = 0;
 	virtual ILogger* createLogger() = 0;
 	
-	virtual bool reloadCoreConfig(const char* coreFile) = 0;
-
 	virtual void shutdown() = 0;
 	virtual bool isShutdown() = 0;
 };

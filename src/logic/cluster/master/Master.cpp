@@ -3,18 +3,18 @@
 #include "slargs.h"
 #include "IHarbor.h"
 #include "NodeDefine.h"
-#include "IResMgr.h"
+//#include "IResMgr.h"
 #include "IAgent.h"
 
 bool Master::initialize(sl::api::IKernel * pKernel){
 	if(SLMODULE(Harbor)->getNodeType() != NodeType::MASTER)
 		return true;
 	
-	int32 port = SLMODULE(ResMgr)->getResValueInt32("master/port");
+	int32 port = pKernel->getResValueInt32("master/port");
 	SLMODULE(Harbor)->setPort(port);
 	SLMODULE(Harbor)->setLocalNodeId(1);
 
-	int32 consolePort = SLMODULE(ResMgr)->getResValueInt32("master/consolePort");
+	int32 consolePort = pKernel->getResValueInt32("master/consolePort");
 	SLMODULE(Agent)->setPort(consolePort);
 
 	return true;

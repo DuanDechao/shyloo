@@ -12,7 +12,7 @@
 #include "IIdMgr.h"
 #include "ScriptDefModule.h"
 #include "EntityMailBox.h"
-#include "IResMgr.h"
+//#include "IResMgr.h"
 #include "PyDataType.h"
 #include "pyscript/py_gc.h"
 #include "IPythonEngine.h"
@@ -415,7 +415,7 @@ PyObject* PythonServer::__py__hasRes(PyObject* self, PyObject* args){
 		return 0;
 	}
 
-	return PyBool_FromLong(SLMODULE(ResMgr)->hasRes(resPath));
+	return PyBool_FromLong(s_self->getKernel()->hasRes(resPath));
 
 }
 
@@ -433,8 +433,9 @@ PyObject* PythonServer::__py__getResFullPath(PyObject* self, PyObject* args){
 		PyErr_PrintEx(0);
 		return 0;
 	}
-	std::string fullResPath = SLMODULE(ResMgr)->matchRes(resPath);
-	return PyUnicode_FromString(fullResPath.c_str()); 
+
+	const char* fullResPath = s_self->getKernel()->matchRes(resPath);
+	return PyUnicode_FromString(fullResPath); 
 }
 
 PyObject* PythonServer::__py__addSpaceGeometryMapping(PyObject* self, PyObject* args){

@@ -2,13 +2,14 @@
 #define SL_PY_SCRIPT_SCRIPT_H
 #include <string>
 #include "Python.h"
+#include "slikernel.h"
 class PyScript{
 public:
 	PyScript():_baseModule(NULL), _mathModule(NULL), _extraModule(NULL){}
 	virtual ~PyScript(){}
 
 	//安装和卸载脚本模块
-	virtual bool install(const char* pythonHomeDir, const char* pyPaths, const char* moduleName);
+	virtual bool install(sl::api::IKernel* pKernel, const char* pythonHomeDir, const char* pyPaths, const char* moduleName);
 	virtual bool uninstall();
 
 	inline PyObject* getBaseModule() const { return _baseModule; }

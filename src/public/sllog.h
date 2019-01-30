@@ -105,6 +105,7 @@ private:
 	unsigned int	m_uiFormat;
 	int64			m_logTick;
 	bool            m_tickReset;
+	ThreadID		m_logThreadId;
 		
 	int				m_iMaxLogSize;
 	int				m_iMaxLogNum;
@@ -132,6 +133,7 @@ public:
 		m_pFile = 0;
 		m_logTick = 0;
 		m_tickReset = false;
+		m_logThreadId = 0;
 	}
 
 	virtual ~CLogT() {}
@@ -247,6 +249,7 @@ public:
 	}
 
 	inline void ResetLogTick(int64 tick) { m_logTick = tick; m_tickReset = true; }
+	inline void resetLogThreadId(ThreadID threadId) { m_logThreadId = threadId; }
 	//真正执行Log的函数
 	int VLog(ELogFilter filter, const char* szFormat, va_list ap){
 #ifndef _DEBUG
@@ -304,13 +307,13 @@ public:
 		}
 
 		if(m_uiFormat & EProcessId){
-			iRet = SafeSprintf(pLine, iSize, "%d - ", static_cast<int>(GetNowProcessId()));
+			iRet = SafeSprintf(pLine, iSize, "%d - ", m_logThreadId ? (int)m_logThreadId : static_cast<int>(GetNowProcessId()));
 			pLine += iRet;
 			iSize -= iRet;
 		}
 
 		if(m_uiFormat & EThreadId){
-			iRet = SafeSprintf(pLine, iSize, "%d - ", static_cast<int>(GetNowProcessId()));
+			iRet = SafeSprintf(pLine, iSize, "%d - ", m_logThreadId ? (int)m_logThreadId : static_cast<int>(GetNowProcessId()));
 			pLine += iRet;
 			iSize -= iRet;
 		}

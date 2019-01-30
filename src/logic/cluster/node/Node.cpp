@@ -1,7 +1,7 @@
 #include "Node.h"
 #include "NodeProtocol.h"
 #include "NodeDefine.h"
-#include "IResMgr.h"
+//#include "IResMgr.h"
 #include "IHarbor.h"
 bool Node::initialize(sl::api::IKernel * pKernel){
 	_self = this;
@@ -12,8 +12,8 @@ bool Node::launched(sl::api::IKernel * pKernel){
 	if (SLMODULE(Harbor)->getNodeType() != NodeType::MASTER){
 		RGS_NODE_HANDLER(SLMODULE(Harbor), NodeProtocol::MASTER_MSG_NEW_NODE, Node::newNodeComing);
 
-		_masterIp = SLMODULE(ResMgr)->getResValueString("master/ip");
-		_masterPort = SLMODULE(ResMgr)->getResValueInt32("master/port");
+		_masterIp = pKernel->getResValueString("master/ip");
+		_masterPort = pKernel->getResValueInt32("master/port");
 		SLMODULE(Harbor)->connect(_masterIp.c_str(), _masterPort, -2, 1);
 
 		SLMODULE(Harbor)->addNodeListener(this);

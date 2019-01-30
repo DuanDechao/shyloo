@@ -3,130 +3,146 @@
 #include "SQLBuilder.h"
 #include "slxml_reader.h"
 #include "MysqlMgr.h"
-DBInterface::DBInterface(const char* host, const int32 port, const char* user, const char* pwd, const char* dbName, const char* charset, int32 threadCount)
+DBInterface::DBInterface(const char* host, const int32 port, const char* user, const char* pwd, const char* dbName, const char* charset)
 	:_host(host),
 	_port(port),
 	_user(user),
 	_pwd(pwd),
 	_dbName(dbName),
 	_charset(charset),
-	_threadCount(threadCount),
-	_dbConnectionPool(NULL),
-	_escapeConnection(NULL)
+	_connectNum(1),
+	_dbConnectionPool(NULL)
 {
-	threadCount = threadCount <= 0 ? 1: threadCount;
-	_dbConnectionPool = newDBConnectionPool(threadCount + 1, host, port, user, pwd, dbName, charset);
+	_connectNum = MysqlMgr::getInstance()->getKernel()->maxAsyncThreadNum();
+	_connectNum = _connectNum <= 0 ? 1 : _connectNum;
+	_dbConnectionPool = newDBConnectionPool(_connectNum, host, port, user, pwd, dbName, charset);
 	SLASSERT(_dbConnectionPool, "create connectionPool failed");
 	
-	for (int32 i = 0; i < threadCount; i++){
+	for (int32 i = 0; i < _connectNum; i++){
 		ISLDBConnection* dbConn = _dbConnectionPool->allocConnection();
 		SLASSERT(dbConn, "create db connection failed");
 		_dbConnections.push_back(dbConn);
 	}
-
-	_escapeConnection = _dbConnectionPool->allocConnection();
-	SLASSERT(_escapeConnection, "create db connection failed");
-	_syncConnection = _dbConnectionPool->allocConnection();
-	SLASSERT(_syncConnection, "create db connection failed");
 }
 
 DBInterface::~DBInterface(){
 	for (auto& dbConn : _dbConnections){
-		if (dbConn)
+		if (dbConn){
 			dbConn->release();
+		}
 	}
 	_dbConnections.clear();
 
-	if (_escapeConnection)
-		_escapeConnection->release();
-	_escapeConnection = nullptr;
-	
-	if (_syncConnection)
-		_syncConnection->release();
-	_syncConnection = nullptr;
+	if(_dbConnectionPool){
+		_dbConnectionPool->release();
+	}
+	_dbConnectionPool = NULL;
 }
 
-void DBInterface::execSql(const int64 id, const SQLCommnandFunc& f, const SQLExecCallback& cb){
-	SQLCommand* sqlCommand = NEW SQLCommand(NEW SQLBuilder(this));
-	if (!f || !f(MysqlMgr::getInstance()->getKernel(), *sqlCommand)){
-		DEL sqlCommand;
-		return;
+bool DBInterface::execSql(const int64 id, const SQLCommnandFunc& f, const SQLExecCallback& cb){
+	ISLDBConnection* dbConn = _dbConnections[(uint64)id % _dbConnections.size()];
+	SQLCommand* sqlCommand = SQLCommand::create(SQLBuilder::create(dbConn));
+	if (!f || !f(MysqlMgr::getInstance()->getKernel(), sqlCommand)){
+		sqlCommand->release();
+		return false;
 	}
 
 	if (!sqlCommand->submit()){
 		SLASSERT(false, "sqlCommand is inVaild");
-		DEL sqlCommand;
-		return;
+		sqlCommand->release();
+		return false;
 	}
 
-	ISLDBConnection* dbConn = _dbConnections[(uint64)id % _dbConnections.size()];
 	MysqlBase* mysqlBase = NEW MysqlBase(dbConn, sqlCommand, cb);
-	
 	MysqlMgr::getInstance()->getKernel()->startAsync(id, mysqlBase, "exec mysql command");
+	return true;
 }
 
-void DBInterface::execSql(const int64 id, const int32 optType, const char* sql, const SQLExecCallback& cb){
+bool DBInterface::execSql(const int64 id, const int32 optType, const char* sql, const SQLExecCallback& cb){
 	SLASSERT(sql && strcmp(sql, "") != 0, "wtf");
-	SQLCommand* sqlCommand = NEW SQLCommand(NEW SQLBuilder(this, optType, sql));
+	ISLDBConnection* dbConn = _dbConnections[(uint64)id % _dbConnections.size()];
+	SQLCommand* sqlCommand = SQLCommand::create(SQLBuilder::create(dbConn, optType, sql));
 	if (!sqlCommand->submit()){
 		SLASSERT(false, "not commit like update、insert、delete、update");
-		DEL sqlCommand;
-		return;
+		sqlCommand->release();
+		return false;
 	}
 
-	ISLDBConnection* dbConn = _dbConnections[(uint64)id % _dbConnections.size()];
 	MysqlBase* mysqlBase = NEW MysqlBase(dbConn, sqlCommand, cb);
-
 	MysqlMgr::getInstance()->getKernel()->startAsync(id, mysqlBase, "exec mysql command");
+	return true;
 }
 
-IMysqlResult* DBInterface::execSqlSync(const SQLCommnandFunc& f){
-	SQLCommand* sqlCommand = NEW SQLCommand(NEW SQLBuilder(this));
-	if (!f || !f(MysqlMgr::getInstance()->getKernel(), *sqlCommand)){
-		DEL sqlCommand;
+bool DBInterface::execSql(const int64 id, SQLCommand* sqlCommand, const SQLExecCallback& cb){
+	if (!sqlCommand->submit()){
+		SLASSERT(false, "sqlCommand is inVaild");
+		return false;
+	}
+	
+	ISLDBConnection* dbConn = _dbConnections[(uint64)id % _dbConnections.size()];
+	MysqlBase* mysqlBase = NEW MysqlBase(dbConn, sqlCommand, cb);
+	MysqlMgr::getInstance()->getKernel()->startAsync(id, mysqlBase, "exec mysql command");
+	return true;
+}
+
+IMysqlResult* DBInterface::execSqlSync(const int64 id, const SQLCommnandFunc& f){
+	ISLDBConnection* syncConnection = _dbConnections[(uint64)id % _dbConnections.size()];
+	SQLCommand* sqlCommand = SQLCommand::create(SQLBuilder::create(syncConnection));
+	if (!f || !f(MysqlMgr::getInstance()->getKernel(), sqlCommand)){
+		sqlCommand->release();
 		return NULL;
 	}
 	
 	if (!sqlCommand->submit()){
 		SLASSERT(false, "sqlCommand is inVaild");
-		DEL sqlCommand;
+		sqlCommand->release();
 		return NULL;
 	}
 	
 	MysqlResult* result = NEW MysqlResult();
-	MysqlBase::realExecSql(sqlCommand, _syncConnection, result);
+	MysqlBase::realExecSql(sqlCommand, syncConnection, result);
+	sqlCommand->release();
 	return result;
 }
 
-IMysqlResult* DBInterface::execSqlSync(const int32 optType, const char* sql){
-	SQLCommand* sqlCommand = NEW SQLCommand(NEW SQLBuilder(this, optType, sql));
+IMysqlResult* DBInterface::execSqlSync(const int64 id, const int32 optType, const char* sql){
+	ISLDBConnection* syncConnection = _dbConnections[(uint64)id % _dbConnections.size()];
+	SQLCommand* sqlCommand = SQLCommand::create(SQLBuilder::create(syncConnection, optType, sql));
 	if (!sqlCommand->submit()){
 		SLASSERT(false, "not commit like update、insert、delete、update");
-		DEL sqlCommand;
+		sqlCommand->release();
 		return NULL;
 	}
 
 	MysqlResult* result = NEW MysqlResult();
-	MysqlBase::realExecSql(sqlCommand, _syncConnection, result);
-	DEL sqlCommand;
+	MysqlBase::realExecSql(sqlCommand, syncConnection, result);
+	sqlCommand->release();
 	return result;
 }
 
-int32 DBInterface::escapeString(char* dest, const int32 destSize, const char* src, const int32 srcSize){
-	int32 len = _escapeConnection->escapeString(dest, src, srcSize);
-	len = len > destSize ? destSize : len;
-	return len;
-}
-
-IMysqlResult* DBInterface::getTableFields(const char* tableName){
+IMysqlResult* DBInterface::execSqlSync(const int64 id, SQLCommand* sqlCommand){
+	if (!sqlCommand->submit()){
+		SLASSERT(false, "sqlCommand is inVaild");
+		return NULL;
+	}
+	
+	ISLDBConnection* syncConnection = _dbConnections[(uint64)id % _dbConnections.size()];
 	MysqlResult* result = NEW MysqlResult();
-	MysqlBase::getTableFields(_syncConnection, tableName, result);
+	MysqlBase::realExecSql(sqlCommand, syncConnection, result);
 	return result;
 }
 
-SQLCommand& DBInterface::createSqlCommand(){
-	SQLCommand* sqlCommand = NEW SQLCommand(NEW SQLBuilder(this));
-	return *sqlCommand;
+IMysqlResult* DBInterface::getTableFields(const int64 id, const char* tableName){
+	ISLDBConnection* syncConnection = _dbConnections[(uint64)id % _dbConnections.size()];
+	MysqlResult* result = NEW MysqlResult();
+	MysqlBase::getTableFields(syncConnection, tableName, result);
+	return result;
+}
+
+SQLCommand* DBInterface::createSqlCommand(const int64 id){
+	ISLDBConnection* syncConnection = _dbConnections[(uint64)id % _dbConnections.size()];
+	SQLCommand* sqlCommand = SQLCommand::create(SQLBuilder::create(syncConnection));
+	return sqlCommand;
 }
 
 void DBInterface::test(){

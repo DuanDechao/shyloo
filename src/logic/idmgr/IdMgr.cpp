@@ -7,7 +7,7 @@
 #include "slargs.h"
 #include "sltime.h"
 #include "NodeDefine.h"
-#include "IResMgr.h"
+//#include "IResMgr.h"
 #define SEQUENCE_MASK 0x001F
 #define TIMETICK_MASK 0x0001FFFFFFFFFFFF
 #define AREA_MASK	  0x03FF
@@ -20,8 +20,8 @@ bool IdMgr::initialize(sl::api::IKernel * pKernel){
 	_self = this;
 	_bIsMultiProcess = true;
 	if (_bIsMultiProcess){
-		_areaId = SLMODULE(ResMgr)->getResValueInt32("hostID");
-		_poolSize = SLMODULE(ResMgr)->getResValueInt32("ids/desiredSize");
+		_areaId = pKernel->getResValueInt32("hostID");
+		_poolSize = pKernel->getResValueInt32("ids/desiredSize");
 	}
 	return true;
 }

@@ -95,12 +95,12 @@ private:
 	bool loadAllScriptModules(sl::api::IKernel* pKernel, std::vector<PyTypeObject*>& scriptBaseTypes);
 	bool isLoadScriptModule(const IObjectDefModule* defModule);
 	bool loadEntryScript(sl::api::IKernel* pKernel);
-	inline PyScript& getScript() {return _pyScript;} 
+	//inline PyScript& getScript() {return _pyScript;} 
 
 private:
 	static PythonServer*								s_self;
 	sl::api::IKernel*									_kernel;
-	PyScript											_pyScript;
+	//PyScript											_pyScript;
 	std::unordered_map<std::string, PyMethodDef>		_scriptMethods;
 
 	Entities*											_entities;

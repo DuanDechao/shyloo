@@ -1,5 +1,5 @@
 #include "PythonEngine.h"
-#include "IResMgr.h"
+//#include "IResMgr.h"
 #include "NodeProtocol.h"
 #include "IHarbor.h"
 #include "NodeDefine.h"
@@ -25,12 +25,12 @@ bool PythonEngine::destory(sl::api::IKernel * pKernel){
 }
 
 bool PythonEngine::initPyEnvir(sl::api::IKernel* pKernel){
-	if(SLMODULE(ResMgr)->getPyUserScriptsPath().size() == 0){
+	if(strcmp(pKernel->getUserScriptsPath(), "") == 0){
 		ERROR_LOG("PythonEngine::initialize: SL_RES_PATH error");
 		return false;
 	}
 	
-	std::string userScriptsPath = SLMODULE(ResMgr)->getPyUserScriptsPath();
+	std::string userScriptsPath = pKernel->getUserScriptsPath();
 	std::string pyPaths = userScriptsPath + "common;";
 
     if(SLMODULE(Harbor)->getNodeType() == NodeType::LOGIC){
@@ -44,9 +44,9 @@ bool PythonEngine::initPyEnvir(sl::api::IKernel* pKernel){
     pyPaths += userScriptsPath + "common_server;";
     pyPaths += userScriptsPath + "common/data;";
 	
-	std::string userResPath = SLMODULE(ResMgr)->getPyUserResPath();
+	std::string userResPath = pKernel->getUserResPath();
 	userResPath += "server/scripts/common";
-	return getScript().install(userResPath.c_str(), pyPaths.c_str(), "shyloo");
+	return getScript().install(pKernel, userResPath.c_str(), pyPaths.c_str(), "shyloo");
 }
 
 void PythonEngine::installScriptModuleMethod(const char* funcName, PyCFunction f){

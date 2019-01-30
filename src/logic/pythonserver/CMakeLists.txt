@@ -28,8 +28,8 @@ SET(PYSCRIPT
 	 "${PROJECT_SOURCE_DIR}/src/logic/pythonserver/pyscript/sequence.cpp"
 	 "${PROJECT_SOURCE_DIR}/src/logic/pythonserver/pyscript/py_gc.h"
 	 "${PROJECT_SOURCE_DIR}/src/logic/pythonserver/pyscript/py_gc.cpp"
-	 "${PROJECT_SOURCE_DIR}/src/logic/pythonserver/pyscript/pyscript.h"
-	 "${PROJECT_SOURCE_DIR}/src/logic/pythonserver/pyscript/pyscript.cpp"
+	 #	 "${PROJECT_SOURCE_DIR}/src/logic/pythonserver/pyscript/pyscript.h"
+	 #"${PROJECT_SOURCE_DIR}/src/logic/pythonserver/pyscript/pyscript.cpp"
 )
 
 SET(PYTHONSERVER

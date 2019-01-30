@@ -106,10 +106,6 @@ const char* Kernel::getCmdArg(const char* name){
 	return nullptr;
 }
 
-bool Kernel::reloadCoreConfig(const char* coreFile){
-	return ConfigEngine::getInstance()->loadCoreConfig(coreFile); 
-}
-
 bool Kernel::startTcpServer(api::ITcpServer * server, const char* ip, const int32 port, int32 sendSize, int32 recvSize){
 	return NetEngine::getInstance()->addTcpServer(server, ip, port, sendSize, recvSize);
 }
@@ -182,6 +178,46 @@ bool Kernel::addIPCServer(sl::api::ITcpServer* server, const int64 serverId){
 bool Kernel::addIPCClient(sl::api::ITcpSession* session, const int64 clientId, const int64 serverId, const int32 sendSize, const int32 recvSize){
 	return true;
 	//return IPCEngine::getInstance()->addIPCClient(session, clientId, serverId, sendSize, recvSize);
+}
+	
+const char* Kernel::getSysResPath(){
+	return ConfigEngine::getInstance()->getSysResPath();
+}
+
+const char* Kernel::getUserResPath(){
+	return ConfigEngine::getInstance()->getUserResPath();
+}
+
+const char* Kernel::getUserScriptsPath(){
+	return ConfigEngine::getInstance()->getUserScriptsPath();
+}
+
+bool Kernel::hasRes(const char* res){
+	return ConfigEngine::getInstance()->hasRes(res);
+}
+
+const char* Kernel::matchRes(const char* res){
+	return ConfigEngine::getInstance()->matchRes(res);
+}
+
+int32 Kernel::getResValueInt32(const char* attr){
+	return ConfigEngine::getInstance()->getResValueInt32(attr);
+}
+
+int64 Kernel::getResValueInt64(const char* attr){
+	return ConfigEngine::getInstance()->getResValueInt64(attr);
+}
+
+const char* Kernel::getResValueString(const char* attr){
+	return ConfigEngine::getInstance()->getResValueString(attr);
+}
+
+bool Kernel::getResValueBoolean(const char* attr){
+	return ConfigEngine::getInstance()->getResValueBoolean(attr);
+}
+
+int32 Kernel::maxAsyncThreadNum(){
+	return ConfigEngine::getInstance()->getCoreConfig()->maxAsyncThreadNum;
 }
 
 void Kernel::parse(int argc, char** argv){

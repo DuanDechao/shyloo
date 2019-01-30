@@ -20,6 +20,8 @@ void AsyncThread::start(){
 void AsyncThread::terminate(){
 	_terminate = true;
 	_thread.join();
+
+	loop(30 * SECOND);
 }
 
 void AsyncThread::add(AsyncBase* base){
@@ -39,7 +41,7 @@ void AsyncThread::loop(int64 overTime){
 }
 
 void AsyncThread::threadProc(){
-	while (!_terminate){
+	while (!_terminate || !_runningQueue.isEmpty()){
 		AsyncBase* base = nullptr;
 		if (_runningQueue.read(base)){
 			base->onExecute();

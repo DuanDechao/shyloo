@@ -9,13 +9,14 @@
 #include "sllog.h"
 #include "slmutex.h"
 #include "slikernel.h"
+#include "slcycle_queue.h"
 
 namespace sl{
 namespace core{
 using namespace sl::api;
 class LogNode :public sl::ISLListNode{
 public:
-	LogNode(ILogger* logger) :_logger(logger),_filter(0),_tick(0), _file(""), _line(0), _log("") {}
+	LogNode(ILogger* logger) :_logger(logger),_filter(0),_tick(0), _file(""), _line(0), _log(""), _threadId(0) {}
 	~LogNode(){}
 
 	inline void setTick(int64 tick) { _tick = tick; }
@@ -37,6 +38,7 @@ public:
 private:
 	int32					_filter;
 	int64					_tick;
+	ThreadID				_threadId;
 	sl::SLString<MAX_PATH>	_file;
 	int32					_line;
 	sl::SLString<10240>		_log;
@@ -99,18 +101,18 @@ private:
 	LogEngine(){}
 	~LogEngine(){}
 
+	bool queuesIsEmpty();
+
 private:
-	std::thread		_thread;
-	sl::SLList		_waitQueue;
-	sl::SLList		_readyQueue;
-	sl::SLList		_runningQueue;
-	sl::CLog		_syncLogFile;
-	sl::CLog		_asyncLogFile;
-	int64           _lastAsyncWriteTick;
-	std::vector<ILogger*> _loggers;
-	sl::spin_mutex  _mutex;
-	bool            _terminate;
-	ThreadID		_mainThreadId;
+	typedef std::unordered_map<ThreadID, sl::CycleQueue<LogNode*>*> LOG_QUEUES;
+	std::thread				_thread;
+	LOG_QUEUES				_runningQueues;
+	sl::CLog				_syncLogFile;
+	sl::CLog				_asyncLogFile;
+	int64					_lastAsyncWriteTick;
+	std::vector<ILogger*>	_loggers;
+	bool					_terminate;
+	ThreadID				_mainThreadId;
 };
 
 }

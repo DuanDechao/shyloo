@@ -4,16 +4,22 @@
 class DBContext{
 public:
 	typedef std::unordered_map<std::string, std::vector<DBContext*>> SUB_CONTEXTS;
-	DBContext(const char* tableName, SQLCommand& sqlCommand, const uint64 dbid)
-		:_sqlCommand(sqlCommand),
+	DBContext(IDBInterface* pdbi, const char* tableName, const uint64 dbid)
+		:_pdbi(pdbi),
 		_dbid(dbid),
 		_parentDBId(0),
 		_tableName(tableName),
-		_dbResult(NULL)
-	{}
+		_dbResult(NULL),
+		_threadId(0)
+	{
+		_sqlCommand = pdbi->createSqlCommand(dbid);
+	}
 
 	virtual ~DBContext(){
-		DEL &_sqlCommand;
+		if(_sqlCommand){
+			_sqlCommand->release();
+		}
+		_sqlCommand = NULL;
 
 		for(auto itor : _subDBContexts){
 			for(auto context : itor.second){
@@ -35,6 +41,7 @@ public:
 			_subDBContexts[tableName] = empty; 
 		}
 		else{
+			context->setThreadId(threadId());
 			_subDBContexts[tableName].push_back(context);	
 		}
 	}
@@ -43,8 +50,9 @@ public:
 
 	inline uint64 dbid() const {return _dbid;}
 	inline void setDBId(const uint64 dbid) {_dbid = dbid;}
-	inline SQLCommand& getSqlCommand() {return _sqlCommand;}
-	inline const int32 optType() const {return _sqlCommand.optType();}
+	inline IDBInterface* getDBInterface() {return _pdbi;}
+	inline SQLCommand* getSqlCommand() {return _sqlCommand;}
+	inline const int32 optType() const {return _sqlCommand->optType();}
 	inline const char* tableName() const {return _tableName.c_str();}
 	inline void setParentDBId(const uint64 dbid) {_parentDBId = dbid;}
 	inline uint64 parentDBId() const {return _parentDBId;}
@@ -52,14 +60,18 @@ public:
 	inline void setDBResult(IMysqlResult* result) {_dbResult = result;}
 	inline int32 dbRowIndex() const {return _dbRowIdx;}
 	inline void setDBRowIndex(const int32 idx) {_dbRowIdx = idx;} 
+	inline void setThreadId(const int64 threadId) {_threadId = threadId;}
+	inline const uint64 threadId() const {return _threadId;}
 
 protected:
 	uint64			_dbid;
 	uint64			_parentDBId;
-	SQLCommand&		_sqlCommand;
+	IDBInterface*	_pdbi;
+	SQLCommand*		_sqlCommand;
 	SUB_CONTEXTS	_subDBContexts;
 	std::string		_tableName;
 	IMysqlResult*	_dbResult;
 	int32			_dbRowIdx;
+	uint64			_threadId;
 };
 #endif

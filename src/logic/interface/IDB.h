@@ -95,10 +95,15 @@ public:
 	virtual void del(const char* tableName, const DBDeleteCommandFunc& f, const DBCallBack& cb) = 0;
 	virtual void execRawSql(const int32 optType, const char* sql, const DBCallBack& cb) = 0;
 };
-
+typedef std::function<void(sl::api::IKernel* pKernel, bool success, const char* tableName, const int32 tableId, sl::OBStream& data)> QueryTableCallBack;
+typedef std::function<void(sl::api::IKernel* pKernel, bool success, const char* tableName, const int32 tableId, const int64 insertId)> WriteTableCallBack;
 class IDB : public sl::api::IModule{
 public:
 	virtual ~IDB() {}
+	virtual bool queryTable(const char* tableName, const uint64 id, const QueryTableCallBack& cb) = 0;
+	virtual bool queryTable(const int32 tableId, const uint64 id, const QueryTableCallBack& cb) = 0;
+	virtual bool writeTable(const char* tableName, const uint64 id, sl::OBStream& data, const WriteTableCallBack& cb) = 0;
+	virtual bool writeTable(const int32 tableId, const uint64 id, sl::OBStream& data, const WriteTableCallBack& cb) = 0;
 
 //	virtual IDBCall* create(int64 threadId, const int64 id, const char* file, const int32 line, const void* context, const int32 size = 0) = 0;
 //	virtual IDBInterface* getInterface() = 0;

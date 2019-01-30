@@ -1,6 +1,5 @@
 <root>
 	<gameUpdateHertz> 10 </gameUpdateHertz>
-	<maxAsyncThreadNum> 5 </maxAsyncThreadNum>
 	<hostID> 1 </hostID>
 
 	<channelCommon>
@@ -19,6 +18,7 @@
 	</master>
 	
 	<dbmgr>
+		<maxAsyncThreadNum> 5 </maxAsyncThreadNum>
 		<mysql>
 			<host> 127.0.0.1 </host>
 			<port> 3306 </port>

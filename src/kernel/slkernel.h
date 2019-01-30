@@ -19,6 +19,7 @@ public:
 	virtual bool initialize(int32 argc, char ** argv);
 	virtual bool destory();
 
+	//module interface
 	virtual api::IModule * findModule(const char * name);
 
 	//net interface
@@ -43,7 +44,16 @@ public:
 	
 	// config interface
 	virtual const char* getCmdArg(const char* name);
-	virtual bool reloadCoreConfig(const char* coreFile);
+	virtual const char* getSysResPath();
+	virtual const char* getUserResPath();
+	virtual const char* getUserScriptsPath(); 
+	virtual bool hasRes(const char* res);
+	virtual const char* matchRes(const char* res);
+	virtual int32 getResValueInt32(const char* attr);
+	virtual int64 getResValueInt64(const char* attr);
+	virtual const char* getResValueString(const char* attr);
+	virtual bool getResValueBoolean(const char* attr);
+	virtual int32 maxAsyncThreadNum();
 
 	//async interface
 	virtual void startAsync(const int64 threadId, api::IAsyncHandler* handler, const char* debug);

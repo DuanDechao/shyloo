@@ -1,6 +1,5 @@
 #include "Navigation.h"
 #include "slstring_utils.h"
-#include "IResMgr.h"
 #include "slfile_utils.h"
 #include "NavMeshHandler.h"
 Navigation* Navigation::s_self = nullptr;
@@ -26,8 +25,7 @@ INavigationHandler* Navigation::loadNavigation(const char* resPath, const std::m
 	if(iter != _navHandlers.end())
 		return iter->second;
 
-	std::string path = resPath;
-	path = SLMODULE(ResMgr)->matchRes(path);
+	std::string path = Navigation::getInstance()->getKernel()->matchRes(resPath);
 	if(path.size() == 0)
 		return NULL;
 	

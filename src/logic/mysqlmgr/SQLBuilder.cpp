@@ -1,35 +1,37 @@
 #include "SQLBuilder.h"
 #include "MysqlMgr.h"
 #include "DBInterface.h"
-SQLBuilder::SQLBuilder(DBInterface* dbInterface)
+SQLBuilder::SQLBuilder(ISLDBConnection* dbConnect)
 	:_table(""),
 	 _optType(DB_OPT_NONE),
 	 _limit(0),
 	 _selectExpr("*"),
 	 _finalExpr(""),
-	 _dbInterface(dbInterface),
+	 _dbConnect(dbConnect),
 	 _isRawSql(false)
 {}
 
-SQLBuilder::SQLBuilder(DBInterface* dbInterface, int32 optType, const char* sql)
+SQLBuilder::SQLBuilder(ISLDBConnection* dbConnect, int32 optType, const char* sql)
 	:_table(""),
 	_optType(optType),
 	_limit(0),
 	_selectExpr("*"),
 	_finalExpr(string(sql)),
-	_dbInterface(dbInterface),
+	_dbConnect(dbConnect),
 	_isRawSql(true)
 {}
 
 SQLBuilder::~SQLBuilder(){
 	for (auto& wWxpr : _whereExpr.exprs()){
-		if (wWxpr)
+		if (wWxpr){
 			DEL wWxpr;
+		}
 	}
 
 	for (auto& vExpr : _valuesExpr.exprs()){
-		if (vExpr)
+		if (vExpr){
 			DEL vExpr;
+		}
 	}
 
 	_whereExpr.exprs().clear();
@@ -272,7 +274,8 @@ void SQLBuilder::escapeString(string& dest, const SetExpr* val){
 	}else{
 		int32 srcSize = (int32)(val->value().size());
 		char* destStr = (char*)alloca(srcSize * 2 + 3);
-		int32 escapeLen = _dbInterface->escapeString(destStr, srcSize * 2 + 3, val->value().c_str(), srcSize);
+		int32 escapeLen = _dbConnect->escapeString(destStr, val->value().c_str(), srcSize);
+		escapeLen = escapeLen > (srcSize * 2 + 3) ? (srcSize * 2 + 3) : escapeLen;
 		dest.append("'");
 		dest.append(destStr, escapeLen);
 		dest.append("'");

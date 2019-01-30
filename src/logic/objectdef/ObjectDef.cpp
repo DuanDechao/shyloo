@@ -7,11 +7,10 @@
 #include "IDCCenter.h"
 #include "IHarbor.h"
 #include "NodeProtocol.h"
-#include "IResMgr.h"
 bool ObjectDef::initialize(sl::api::IKernel * pKernel){
 	_self = this;
 	_kernel = pKernel;
-	std::string entitiesPath = SLMODULE(ResMgr)->getPyUserScriptsPath();
+	std::string entitiesPath = pKernel->getUserScriptsPath();
 	std::string aliasFilePath = entitiesPath + "defs/alias.xml";
 	if (!ObjectDefModule::initialize() || !DataTypeMgr::initialize(aliasFilePath.c_str())){
 		SLASSERT(false, "wtf");
@@ -40,7 +39,7 @@ bool ObjectDef::destory(sl::api::IKernel * pKernel){
 }
 
 bool ObjectDef::loadObjectsConfig(sl::api::IKernel* pKernel){
-	std::string entitiesPath = SLMODULE(ResMgr)->getPyUserScriptsPath();
+	std::string entitiesPath = pKernel->getUserScriptsPath();
 	std::string entitiesFile = entitiesPath + "entities.xml";
 	std::string defFilePath = entitiesPath + "defs/";
 	sl::XmlReader conf;

@@ -231,14 +231,13 @@ public:
 	virtual bool initialize();
 	virtual uint64 writeTable(IDBInterface* pdbi, uint64 dbid, sl::OBStream& stream);
 	virtual bool queryTable(IDBInterface* pdbi, uint64 dbid, sl::IBStream& stream); 
-	virtual bool writeItemSql(DBContext* pContext, sl::OBStream& data);
-	virtual bool readItemSql(DBContext* pContext);
-	//virtual bool addStream(DBContext* pContext, sl::IBStream& data);
 	virtual bool makeTestData(sl::IBStream& data);
 
-	bool writeDataToDB(IDBInterface* pdbi, DBContext* pContext, bool isInsert);
-	bool readDataFromDB(IDBInterface* pdbi, DBContext* pContext, sl::IBStream& data);
 	void initDBItemName();
+	bool writeDataToDB(DBContext* pContext, bool isInsert);
+	bool readDataFromDB(DBContext* pContext, sl::IBStream& data);
+	bool writeItemSql(DBContext* pContext, sl::OBStream& data);
+	bool readItemSql(DBContext* pContext);
 
 protected:
 	bool syncIndexToDB(IDBInterface* pdbi);
@@ -251,8 +250,13 @@ public:
 
 	virtual bool initialize();
 	virtual bool syncToDB();
+	virtual bool queryTable(const char* tableName, const uint64 dbid, sl::IBStream& stream);
+	virtual bool queryTable(const int32 tableId, const uint64 dbid, sl::IBStream& stream);
+	virtual uint64 writeTable(const char* tableName, const uint64 dbid, sl::OBStream& stream);
+	virtual uint64 writeTable(const int32 tableId, const uint64 dbid, sl::OBStream& stream);
 	virtual bool writeTest();
 	virtual bool readTest();
+	virtual bool getTestData(const char* tableName, sl::IBStream& testData);
 };
 
 #endif

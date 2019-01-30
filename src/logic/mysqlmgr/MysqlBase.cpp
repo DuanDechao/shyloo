@@ -9,8 +9,9 @@ MysqlBase::MysqlBase(ISLDBConnection* dbConn, SQLCommand* sqlCommand, const SQLE
 {}
 
 MysqlBase::~MysqlBase(){
-	if (_sqlCommand)
-		DEL _sqlCommand;
+	if (_sqlCommand){
+		_sqlCommand->release();
+	}
 
 	_sqlCommand = nullptr;
 	_dbConnection = nullptr;
@@ -22,7 +23,7 @@ bool MysqlBase::onExecute(sl::api::IKernel* pKernel){
 }
 
 int32 MysqlBase::realExecSql(SQLCommand* sqlCommand, ISLDBConnection* dbConnection, MysqlResult* mysqlResult){
-	SLASSERT(sqlCommand->checkVaild(), "invaild sql command");
+	//SLASSERT(sqlCommand->checkVaild(), "invaild sql command");
 	int32 errCode = 0;
 	mysqlResult->setOptType(sqlCommand->optType());
 	if (sqlCommand->optType() == DB_OPT_QUERY){

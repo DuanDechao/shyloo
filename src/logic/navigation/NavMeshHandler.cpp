@@ -1,8 +1,8 @@
 #include "NavMeshHandler.h"
-#include "IResMgr.h"
 #include "slfile_utils.h"
 #include "DetourCommon.h"
 #include "IDebugHelper.h"
+#include "Navigation.h"
 static float frand(){
 	return (float)rand() / (float)RAND_MAX;
 }
@@ -10,8 +10,7 @@ INavigationHandler* NavMeshHandler::create(const char* resPath, const std::map<i
 	if(!resPath || strcmp(resPath, "") == 0)
 		return NULL;
 
-	std::string path = resPath;
-	path = SLMODULE(ResMgr)->matchRes(path);
+	std::string path = Navigation::getInstance()->getKernel()->matchRes(resPath);
 	if(path.size() == 0)
 		return NULL;
 
