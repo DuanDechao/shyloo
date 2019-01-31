@@ -18,6 +18,10 @@ void AsyncThread::start(){
 }
 
 void AsyncThread::terminate(){
+	while(!_runningQueue.isEmpty() || !_completeQueue.isEmpty()){
+		loop(30 * SECOND);
+	}
+
 	_terminate = true;
 	_thread.join();
 
