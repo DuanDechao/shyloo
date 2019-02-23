@@ -17,6 +17,17 @@ struct PropLayout : public MemLayout{
 	sl::SLString<256> _defaultVal;
 };
 
+struct DictLayout : public PropLayout{
+	DictLayout():_innerOffset(0){}
+
+	int32	_innerOffset;
+	std::unordered_map<std::string, PropLayout*> _dictEles;
+};
+
+struct ArrayLayout : public PropLayout{
+	PropLayout*	_arrayProp;
+}; 
+
 typedef std::unordered_map<sl::SLString<MAX_PROP_NAME_LEN>, int32> PROP_DEFDINE_MAP;
 class MMObject;
 class ObjectPropInfo{

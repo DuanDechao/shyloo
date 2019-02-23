@@ -38,7 +38,10 @@ public:
     virtual const int32 getIndex(const int32 objTypeId) const;
     virtual const void* getExtra(const int32 objTypeId) const;
     virtual const int32 getSize(const int32 objTypeId) const;
-	virtual const char* getDefaultVal(const int32 objTypeId) const;
+	virtual const char* getDefaultVal(const int32 objTypeId) const; 
+	
+	virtual ISubProp* addDictProp(const int32 objTypeId, const char* elePropName, const int32 type, const int32 size);
+	virtual ISubProp* addArrayProp(const int32 objTypeId, const int32 type, const int32 size);
 
 
 	inline void setLayout(const int32 objTypeId, PropLayout* layout){
@@ -53,10 +56,23 @@ public:
 			return _layouts[objTypeId - 1];
 		return nullptr;
 	}
-private:
+
+protected:
 	PropLayout**	_layouts;
     sl::SLString<MAX_PROP_NAME_LEN> _nameStr;
 	int32			_name;
 	int32			_size;
+};
+
+class ObjectSubProp : public ISubProp{
+public:
+	ObjectSubProp(PropLayout* layout) : _layout(layout){}
+	virtual ~ObjectSubProp() {}
+
+	virtual ISubProp* addDictProp(const char* elePropName, const int32 type, const int32 size);
+	virtual ISubProp* addArrayProp(const int32 type, const int32 size);
+
+private:
+	PropLayout*		_layout;
 };
 #endif

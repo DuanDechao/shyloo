@@ -113,3 +113,97 @@ const char* ObjectProp::getDefaultVal(const char* objectType) const{
     
     return _layouts[objTypeId -1]->_defaultVal.c_str();
 }
+	
+ISubProp* ObjectProp::addDictProp(const int32 objTypeId, const char* elePropName, const int32 type, const int32 size){
+	PropLayout* layout = NULL;
+	if(type == DTYPE_DICT){
+		layout = NEW DictLayout();
+	}
+	else if(type == DTYPE_ARRAY){
+		layout = NEW ArrayLayout();
+	}
+	else {
+		layout = NEW PropLayout();
+	}
+
+	layout->_name = elePropName;
+	layout->_type = type;
+	layout->_size = size;
+
+	SLASSERT(objTypeId > 0 && objTypeId <= _size && _layouts[objTypeId - 1], "wtf");
+	struct DictLayout* dictLayout = static_cast<struct DictLayout*>(_layouts[objTypeId -1]);
+
+	layout->_offset = dictLayout->_innerOffset;
+	dictLayout->_innerOffset += size;
+	dictLayout->_dictEles[elePropName] = layout;
+
+	return NEW ObjectSubProp(layout); 
+}
+
+ISubProp* ObjectProp::addArrayProp(const int32 objTypeId, const int32 type, const int32 size){
+	PropLayout* layout = NULL;
+	if(type == DTYPE_DICT){
+		layout = NEW DictLayout();
+	}
+	else if(type == DTYPE_ARRAY){
+		layout = NEW ArrayLayout();
+	}
+	else {
+		layout = NEW PropLayout();
+	}
+
+	layout->_type = type;
+	layout->_size = size;
+
+	SLASSERT(objTypeId > 0 && objTypeId <= _size && _layouts[objTypeId - 1], "wtf");
+	struct ArrayLayout* arrayLayout = static_cast<struct ArrayLayout*>(_layouts[objTypeId -1]);
+	arrayLayout->_arrayProp = layout;
+
+	return NEW ObjectSubProp(layout);
+}
+
+ISubProp* ObjectSubProp::addDictProp(const char* elePropName, const int32 type, const int32 size){
+	PropLayout* layout = NULL;
+	if(type == DTYPE_DICT){
+		layout = NEW DictLayout();
+	}
+	else if(type == DTYPE_ARRAY){
+		layout = NEW ArrayLayout();
+	}
+	else {
+		layout = NEW PropLayout();
+	}
+
+	layout->_name = elePropName;
+	layout->_type = type;
+	layout->_size = size;
+
+	
+	struct DictLayout* dictLayout = static_cast<struct DictLayout*>(_layout);
+	layout->_offset = dictLayout->_innerOffset;
+	dictLayout->_innerOffset += size;
+	dictLayout->_dictEles[elePropName] = layout;
+
+	return NEW ObjectSubProp(layout);
+}
+
+ISubProp* ObjectSubProp::addArrayProp(const int32 type, const int32 size){
+	PropLayout* layout = NULL;
+	if(type == DTYPE_DICT){
+		layout = NEW DictLayout();
+	}
+	else if(type == DTYPE_ARRAY){
+		layout = NEW ArrayLayout();
+	}
+	else {
+		layout = NEW PropLayout();
+	}
+
+	layout->_type = type;
+	layout->_size = size;
+	struct ArrayLayout* arrayLayout = static_cast<struct ArrayLayout*>(_layout);
+	arrayLayout->_arrayProp = layout;
+
+	return NEW ObjectSubProp(layout);
+}
+

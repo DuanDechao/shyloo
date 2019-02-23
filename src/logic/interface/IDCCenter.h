@@ -26,7 +26,9 @@ enum{
 	DTYPE_FLOAT = DTYPE_CANT_BE_KEY,
 	DTYPE_DOUBLE,
 	DTYPE_STRUCT,
-	DTYPE_BLOB
+	DTYPE_BLOB,
+	DTYPE_DICT,
+	DTYPE_ARRAY
 };
 
 class IObject;
@@ -52,6 +54,12 @@ public:
     virtual const void* getExtra(const int32 objTypeId) const = 0;
     virtual const int32 getSize(const int32 objTypeId) const = 0;
 	virtual const char* getDefaultVal(const int32 objTypeId) const = 0;
+};
+
+class ISubProp{
+public:
+	virtual ISubProp* addDictProp(const char* elePropName, const int32 type, const int32 size) = 0;
+	virtual ISubProp* addArrayProp(const int32 type, const int32 size) = 0;
 };
 
 class IRow{
