@@ -44,8 +44,8 @@ public:
 	static PyObject* __py__getResFullPath(PyObject* self, PyObject* args);
     
 	virtual void onInit(sl::api::IKernel* pKernel, int64 timetick){ printf("OnInit------------- %lld\n", sl::getTimeMilliSecond());}
-	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){ test();}
-	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick){ printf("OnTime------------------%lld\n", sl::getTimeMilliSecond());}
+	virtual void onStart(sl::api::IKernel* pKernel, int64 timetick){}
+	virtual void onTime(sl::api::IKernel* pKernel, int64 timetick){ test();}
 	virtual void onTerminate(sl::api::IKernel* pKernel, bool beForced, int64 timetick){}
 	virtual void onPause(sl::api::IKernel* pKernel, int64 timetick){}
 	virtual void onResume(sl::api::IKernel* pKernel, int64 timetick){}

@@ -67,9 +67,9 @@ void IdMgr::onTime(sl::api::IKernel* pKernel, int64 timetick){
 }
 
 uint64 IdMgr::allocID(){
-	if (!_bIsMultiProcess){
+//	if (!_bIsMultiProcess){
 		return _self->generateLocalId();
-	}
+//	}
 
 	SLASSERT(_idPool.size() > 0, "wtf");
 	uint64 newId = *(_idPool.rbegin());

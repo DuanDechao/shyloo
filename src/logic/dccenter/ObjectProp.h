@@ -41,7 +41,9 @@ public:
 	virtual const char* getDefaultVal(const int32 objTypeId) const; 
 	
 	virtual ISubProp* addDictProp(const int32 objTypeId, const char* elePropName, const int32 type, const int32 size);
+	virtual ISubProp* addDictProp(const char* objectType, const char* elePropName, const int32 type, const int32 size);
 	virtual ISubProp* addArrayProp(const int32 objTypeId, const int32 type, const int32 size);
+	virtual ISubProp* addArrayProp(const char* objectType, const int32 type, const int32 size);
 
 
 	inline void setLayout(const int32 objTypeId, PropLayout* layout){
@@ -71,6 +73,7 @@ public:
 
 	virtual ISubProp* addDictProp(const char* elePropName, const int32 type, const int32 size);
 	virtual ISubProp* addArrayProp(const int32 type, const int32 size);
+	virtual const int8 getType() const {return _layout->_type;}
 
 private:
 	PropLayout*		_layout;

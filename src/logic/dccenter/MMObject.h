@@ -82,6 +82,8 @@ public:
 	virtual const void* getPropStruct(const IProp* prop, int32& size) const {size = 0; return getData(prop, false, DTYPE_STRUCT, size); }
 	virtual const void* getPropBlob(const IProp* prop, int32& size) const { size = 0; return getData(prop, false, DTYPE_BLOB, size); }
 	virtual const void* getPropData(const IProp* prop, int32& size) const { size = 0; return getData(prop, false, -1, size);}
+	virtual IDict* getPropDict(const IProp* prop) const {int32 size = 0; return (IDict*)getData(prop, false, DTYPE_DICT, size);}
+	virtual IArray* getPropArray(const IProp* prop) const {int32 size = 0; return (IArray*)getData(prop, false, DTYPE_ARRAY, size);}
 
 	virtual int8 getTempInt8(const IProp* prop) const { int32 size = sizeof(int8); return *(int8*)getData(prop, true, DTYPE_INT8, size); }
 	virtual int16 getTempInt16(const IProp* prop) const { int32 size = sizeof(int16); return *(int16*)getData(prop, true, DTYPE_INT16, size); }
@@ -99,6 +101,19 @@ public:
 
 	virtual bool rgsPropChangeCB(const IProp* prop, const PropCallBack& cb, const char* info) { _propCBPool.Register(prop, cb, info); return true; }
 
+	int32 addArrayMemory(const PropLayout* layout){
+		OMemory* memory = NEW OMemory(layout->_size * 5 + sizeof(int32));
+		_arrayMemory.push_back(memory);
+		return _arrayMemory.size();
+	}
+
+	OMemory* getArrayMemory(const int32 index){
+		if(index >= 1 && index <= _arrayMemory.size()){
+			return _arrayMemory[index -1];
+		}
+		return NULL;
+	}
+
 private:
 	inline void propCall(const IProp* prop, const bool sync){
 		_propCBPool.Call(prop, ObjectMgr::getInstance()->getKernel(), this, _name.c_str(), prop, sync);
@@ -112,6 +127,7 @@ private:
 	const ObjectPropInfo*						_poPropInfo;
 	std::unordered_map<int32, TableControl*>	_tables;
 	OMemory*									_memory;
+	std::vector<OMemory*>						_arrayMemory;
 	ObjectFSM*									_objectFSM;
 	PROP_CB_POOL								_propCBPool;
 	

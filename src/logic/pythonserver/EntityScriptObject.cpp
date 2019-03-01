@@ -42,21 +42,24 @@ PyObject* EntityScriptObject::delTimer(int32 timerId){
 
 
 PyObject* EntityScriptObject::onScriptGetAttribute(PyObject* attr){
-	PyObject* pyValue = ScriptObject::onScriptGetAttribute(attr);
-	if(PyErr_Occurred() && !pyValue){
-		PyErr_Clear();
-	}
-	if(!pyValue){
-		pyValue = _pScriptModule->scriptGetObjectAttribute(this, attr);
-		ScriptObject::onScriptSetAttribute(attr, pyValue);
-	}
-	return pyValue;
+//	PyObject* pyValue = ScriptObject::onScriptGetAttribute(attr);
+//	if(PyErr_Occurred() && !pyValue){
+//		PyErr_Clear();
+//	}
+//	if(!pyValue){
+	wchar_t* pyUnicodeWideString = PyUnicode_AsWideCharString(attr, NULL);
+	char* keyStr = sl::CStringUtils::wchar2char(pyUnicodeWideString);
+	PyMem_Free(pyUnicodeWideString);
+	PyObject* ret = _pScriptModule->scriptGetObjectAttribute(this, attr);
+	return ret;
+//		ScriptObject::onScriptSetAttribute(attr, pyValue);
+//	}
+//	return pyValue;
 }
 
 int EntityScriptObject::onScriptSetAttribute(PyObject* attr, PyObject* value){
-	int32 ret = ScriptObject::onScriptSetAttribute(attr, value);
-	_pScriptModule->scriptSetObjectAttribute(this, attr, value);
-	return ret;
+	//int32 ret = ScriptObject::onScriptSetAttribute(attr, value);
+	return _pScriptModule->scriptSetObjectAttribute(this, attr, value);
 }
 
 
@@ -119,7 +122,7 @@ PyObject* EntityScriptObject::createArgsPyObjectFromStream(const sl::OBStream& s
 	pyArgsTuple = PyTuple_New(argSize);
 
 	for(int32 index=0; index<argSize; ++index){
-		PyObject* pyitem = (PyObject*)(argsType[index]->createFromStream(stream));
+		PyObject* pyitem = (PyObject*)(argsType[index]->createScriptObject(stream));
 		if(pyitem == NULL){
 			ECHO_ERROR("MethodDescription::createFromStream: %s arg[%d][%s] is NULL.\n", 
 				_pScriptModule->getModuleName(), index, argsType[index]->getName());

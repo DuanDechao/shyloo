@@ -114,6 +114,13 @@ const char* ObjectProp::getDefaultVal(const char* objectType) const{
     return _layouts[objTypeId -1]->_defaultVal.c_str();
 }
 	
+ISubProp* ObjectProp::addDictProp(const char* objectType, const char* elePropName, const int32 type, const int32 size){
+	int32 objTypeId = SLMODULE(ObjectMgr)->getObjectType(objectType);
+	SLASSERT(objTypeId > 0 && objTypeId <= _size && _layouts[objTypeId - 1], "wtf");
+
+	return addDictProp(objTypeId, elePropName, type, size);
+}
+
 ISubProp* ObjectProp::addDictProp(const int32 objTypeId, const char* elePropName, const int32 type, const int32 size){
 	PropLayout* layout = NULL;
 	if(type == DTYPE_DICT){
@@ -135,9 +142,17 @@ ISubProp* ObjectProp::addDictProp(const int32 objTypeId, const char* elePropName
 
 	layout->_offset = dictLayout->_innerOffset;
 	dictLayout->_innerOffset += size;
-	dictLayout->_dictEles[elePropName] = layout;
+	string propKey = elePropName;
+	dictLayout->_dictEles[propKey] = layout;
 
 	return NEW ObjectSubProp(layout); 
+}
+
+ISubProp* ObjectProp::addArrayProp(const char* objectType, const int32 type, const int32 size){
+	int32 objTypeId = SLMODULE(ObjectMgr)->getObjectType(objectType);
+	SLASSERT(objTypeId > 0 && objTypeId <= _size && _layouts[objTypeId - 1], "wtf");
+
+	return addArrayProp(objTypeId, type, size);
 }
 
 ISubProp* ObjectProp::addArrayProp(const int32 objTypeId, const int32 type, const int32 size){

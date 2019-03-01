@@ -10,16 +10,31 @@ class IProp;
 typedef std::unordered_map<std::string, const IProp*> PROPS_MAP;
 typedef std::unordered_map<int32, const IProp*> PROPS_IDMAP;
 
+class IArray;
 class IDataType: public sl::ISLListNode {
 public:
 	virtual ~IDataType() {}
-	virtual void addToStream(sl::IBStream& stream, void* value) = 0;
-	virtual void addToObject(IObject* object, const IProp* prop, void* value) = 0;
-	virtual void* createFromStream(const sl::OBStream& stream) = 0;
-	virtual void* createFromObject(IObject* object, const IProp* prop) = 0;
+
+	/* 将脚本对象转化成C++stream 
+	 * 具体可为python对象或lua对象*/
+	virtual bool addScriptObject(sl::IBStream& stream, void* value) = 0;
+
+	/*将脚本对象数据直接设置成MMObject的属性数据*/
+	virtual bool addScriptObject(IObject* object, const IProp* prop, void* value) = 0;
+
+	/**/
+	virtual bool addScriptObject(IArray* array, const int32 index, void* value) = 0;
+
+	/*从stream中创建对应DataType的脚本对象*/
+	virtual void* createScriptObject(const sl::OBStream& stream) = 0;
+
+	/*创建MMObject某个prop属性的脚本对象数据*/
+	virtual void* createScriptObject(IObject* object, const IProp* prop) = 0;
+
+	virtual void* createScriptObject(IArray* array, const int32 index) = 0;
+
 	virtual void setUid(const uint16 id) = 0;
 	virtual const uint16 getUid() const = 0;
-	virtual void setType(const int8 type) = 0;
 	virtual const int8 getType() const = 0;
 	virtual const char* getName() const = 0;
 	virtual const int32 getSize() const = 0;

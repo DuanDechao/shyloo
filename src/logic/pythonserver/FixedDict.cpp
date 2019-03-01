@@ -138,7 +138,7 @@ void FixedDict::initialize(const sl::OBStream& streamInitData, bool isPersistent
 			else if(iter->second->dataType->type() == DATA_TYPE_FIXEDARRAY)
 				val1 = ((FixedArrayType*)iter->second->dataType)->createFromStreamEx(streamInitData, isPersistentsStream);
 			else*/
-			val1 = (PyObject*)(iter->second->createFromStream(streamInitData));
+			val1 = (PyObject*)(iter->second->createScriptObject(streamInitData));
 			PyDict_SetItemString(pyDict_, iter->first.c_str(), val1);
 			
 			// 由于PyDict_SetItem会增加引用因此需要减

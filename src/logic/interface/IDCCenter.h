@@ -32,6 +32,7 @@ enum{
 };
 
 class IObject;
+class ISubProp;
 class IProp{
 public:
 	virtual const int32 getName() const = 0;
@@ -54,10 +55,16 @@ public:
     virtual const void* getExtra(const int32 objTypeId) const = 0;
     virtual const int32 getSize(const int32 objTypeId) const = 0;
 	virtual const char* getDefaultVal(const int32 objTypeId) const = 0;
+
+	virtual ISubProp* addDictProp(const int32 objTypeId, const char* elePropName, const int32 type, const int32 size) = 0;
+	virtual ISubProp* addDictProp(const char* objectType, const char* elePropName, const int32 type, const int32 size) = 0;
+	virtual ISubProp* addArrayProp(const int32 objTypeId, const int32 type, const int32 size) = 0;
+	virtual ISubProp* addArrayProp(const char* objectType, const int32 type, const int32 size) = 0;
 };
 
 class ISubProp{
 public:
+	virtual const int8 getType() const = 0;
 	virtual ISubProp* addDictProp(const char* elePropName, const int32 type, const int32 size) = 0;
 	virtual ISubProp* addArrayProp(const int32 type, const int32 size) = 0;
 };
@@ -120,6 +127,91 @@ public:
 typedef std::function<void(sl::api::IKernel *, IObject *, const char *, const IProp *, const bool)> PropCallBack;
 #define RGS_PROP_CHANGER(obj, prop, cb) obj->rgsPropChangeCB(prop, std::bind(&cb, this, std::placeholders::_1, std::placeholders::_2,  std::placeholders::_3, std::placeholders::_4, std::placeholders::_5), #cb)
 
+class IArray;
+class IDict{
+public:
+	virtual ~IDict() {}
+
+	virtual bool setPropInt8(const char* name, const int8 data) = 0;
+	virtual bool setPropInt16(const char* name, const int16 data) = 0;
+	virtual bool setPropInt32(const char* name, const int32 data) = 0;
+	virtual bool setPropInt64(const char* name, const int64 data) = 0;
+
+	virtual bool setPropUint8(const char* name, const uint8 data) = 0;
+	virtual bool setPropUint16(const char* name, const uint16 data) = 0;
+	virtual bool setPropUint32(const char* name, const uint32 data) = 0;
+	virtual bool setPropUint64(const char* name, const uint64 data) = 0;
+	
+	virtual bool setPropFloat(const char* name, const float data) = 0;
+	virtual bool setPropDouble(const char* name, const double data) = 0;
+	virtual bool setPropString(const char* name, const char* data) = 0;
+	virtual bool setPropStruct(const char* name, const void* data, const int32 size) = 0;
+	virtual bool setPropBlob(const char* name, const void* data, const int32 size) = 0;
+
+	virtual int8 getPropInt8(const char* name) const = 0;
+	virtual int16 getPropInt16(const char* name) const = 0;
+	virtual int32 getPropInt32(const char* name) const = 0;
+	virtual int64 getPropInt64(const char* name) const = 0;
+
+	virtual uint8 getPropUint8(const char* name) const = 0;
+	virtual uint16 getPropUint16(const char* name) const = 0;
+	virtual uint32 getPropUint32(const char* name) const = 0;
+	virtual uint64 getPropUint64(const char* name) const = 0;
+
+	virtual float getPropFloat(const char* name) const = 0;
+	virtual double getPropDouble(const char* name) const = 0;
+	virtual const char* getPropString(const char* name) const = 0;
+	virtual const void* getPropStruct(const char* name, int32& size) const = 0;
+	virtual const void* getPropBlob(const char* name, int32& size) const = 0;
+	virtual const void* getPropData(const char* name, int32& size) const = 0;
+
+	virtual IDict* getPropDict(const char* name) const = 0;
+	virtual IArray* getPropArray(const char* name) const = 0;
+};
+
+class IArray{
+public:
+	virtual ~IArray() {}
+
+	virtual int32 size() = 0;
+	virtual void remove(const int32 index) = 0;
+	virtual bool setPropInt8(const int32 index, const int8 data) = 0;
+	virtual bool setPropInt16(const int32 index, const int16 data) = 0;
+	virtual bool setPropInt32(const int32 index, const int32 data) = 0;
+	virtual bool setPropInt64(const int32 index, const int64 data) = 0;
+
+	virtual bool setPropUint8(const int32 index, const uint8 data) = 0;
+	virtual bool setPropUint16(const int32 index, const uint16 data) = 0;
+	virtual bool setPropUint32(const int32 index, const uint32 data) = 0;
+	virtual bool setPropUint64(const int32 index, const uint64 data) = 0;
+	
+	virtual bool setPropFloat(const int32 index, const float data) = 0;
+	virtual bool setPropDouble(const int32 index, const double data) = 0;
+	virtual bool setPropString(const int32 index, const char* data) = 0;
+	virtual bool setPropStruct(const int32 index, const void* data, const int32 size) = 0;
+	virtual bool setPropBlob(const int32 index, const void* data, const int32 size) = 0;
+
+	virtual int8 getPropInt8(const int32 index) const = 0;
+	virtual int16 getPropInt16(const int32 index) const = 0;
+	virtual int32 getPropInt32(const int32 index) const = 0;
+	virtual int64 getPropInt64(const int32 index) const = 0;
+
+	virtual uint8 getPropUint8(const int32 index) const = 0;
+	virtual uint16 getPropUint16(const int32 index) const = 0;
+	virtual uint32 getPropUint32(const int32 index) const = 0;
+	virtual uint64 getPropUint64(const int32 index) const = 0;
+
+	virtual float getPropFloat(const int32 index) const = 0;
+	virtual double getPropDouble(const int32 index) const = 0;
+	virtual const char* getPropString(const int32 index) const = 0;
+	virtual const void* getPropStruct(const int32 index, int32& size) const = 0;
+	virtual const void* getPropBlob(const int32 index, int32& size) const = 0;
+	virtual const void* getPropData(const int32 index, int32& size) const = 0;
+
+	virtual IDict* getPropDict(const int32 index) const = 0;
+	virtual IArray* getPropArray(const int32 index) const = 0;
+};
+
 class IObject{
 public:
     virtual ~IObject() {}
@@ -171,6 +263,8 @@ public:
 	virtual const void* getPropStruct(const IProp* prop, int32& size) const = 0;
 	virtual const void* getPropBlob(const IProp* prop, int32& size) const = 0;
 	virtual const void* getPropData(const IProp* prop, int32& size) const = 0;
+	virtual IDict* getPropDict(const IProp* prop) const = 0;
+	virtual IArray* getPropArray(const IProp* prop) const = 0;
 
 	virtual int8 getTempInt8(const IProp* prop) const = 0;
 	virtual int16 getTempInt16(const IProp* prop) const = 0;
@@ -187,8 +281,7 @@ public:
 	virtual bool rgsPropChangeCB(const IProp* prop, const PropCallBack& cb, const char* info) = 0;
 };
 
-class IObjectMgr : public sl::api::IModule
-{
+class IObjectMgr : public sl::api::IModule{
 public:
 	virtual ~IObjectMgr() {}
 
