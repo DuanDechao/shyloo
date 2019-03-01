@@ -206,7 +206,7 @@ bool ObjectDefModule::loadDefPropertys(const char* moduleName, const sl::ISLXmlN
 		info->_size = dataType->getSize();
 		info->_index = propIndex;
 		info->_flags = flags;
-		info->_type = DataTypeMgr::getType(strType);
+		info->_type = dataType->getType();
         info->_extra = dataType;
 		info->_defaultVal = defaultVal;
 		_propsDefInfo.push_back(info);
@@ -286,9 +286,29 @@ bool ObjectDefModule::loadDefMethods(const char* moduleName, const int8 type, co
 
 bool ObjectDefModule::appendObjectProp(PropDefInfo* defInfo, bool isMethod, bool isTemp){
 	const IProp* prop = isTemp ? SLMODULE(ObjectMgr)->appendObjectTempProp(_moduleName.c_str(), defInfo->_name.c_str(), defInfo->_type, defInfo->_size, defInfo->_flags, defInfo->_index, defInfo->_extra, defInfo->_defaultVal.c_str()) : SLMODULE(ObjectMgr)->appendObjectProp(_moduleName.c_str(), defInfo->_name.c_str(), defInfo->_type, defInfo->_size, defInfo->_flags, defInfo->_index, defInfo->_extra, defInfo->_defaultVal.c_str());
+
 	if (!prop){
 		SLASSERT(false, "wtf");
 		return false;
+	}
+
+	if(!isMethod && defInfo->_type == DTYPE_ARRAY){
+		IDataType* dataType = (IDataType*)defInfo->_extra;
+		IDataType* subDataType = dataType->arrayDataType();
+		ISubProp* subProp =  const_cast<IProp*>(prop)->addArrayProp(_moduleName.c_str(), subDataType->getType(), subDataType->getSize());
+		appendObjectSubProp(subProp, subDataType);
+	}
+	
+	if(!isMethod && defInfo->_type == DTYPE_DICT){
+		IDataType* dataType = (IDataType*)defInfo->_extra;
+		std::vector<std::pair<string, IDataType*>> subDataTypeVec = dataType->dictDataType();
+		auto subPropItor = subDataTypeVec.begin();
+		for(; subPropItor != subDataTypeVec.end(); ++subPropItor){
+			const char* subPropName = subPropItor->first.c_str();
+			IDataType* subDataType = subPropItor->second;
+			ISubProp* subProp =  const_cast<IProp*>(prop)->addDictProp(_moduleName.c_str(), subPropName, subDataType->getType(), subDataType->getSize());
+			appendObjectSubProp(subProp, subDataType);
+		}
 	}
     
     PROPS_MAP* propMap = &_props;
@@ -311,6 +331,26 @@ bool ObjectDefModule::appendObjectProp(PropDefInfo* defInfo, bool isMethod, bool
 		_persistentProps[defInfo->_name.c_str()] = prop;
 
     return true;
+}
+
+void ObjectDefModule::appendObjectSubProp(ISubProp* prop, IDataType* dataType){
+	if(prop->getType() == DTYPE_ARRAY){
+		IDataType* subDataType = dataType->arrayDataType();
+		ISubProp* subProp =  prop->addArrayProp(subDataType->getType(), subDataType->getSize());
+		appendObjectSubProp(subProp, subDataType);
+	}
+
+	if(prop->getType() == DTYPE_DICT){
+		std::vector<std::pair<string, IDataType*>> subDataTypeVec = dataType->dictDataType();
+		auto subPropItor = subDataTypeVec.begin();
+		for(; subPropItor != subDataTypeVec.end(); ++subPropItor){
+			const char* subPropName = subPropItor->first.c_str();
+			IDataType* subDataType = subPropItor->second;
+			ISubProp* subProp =  prop->addDictProp(subPropName, subDataType->getType(), subDataType->getSize());
+			appendObjectSubProp(subProp, subDataType);
+		}
+	}
+
 }
 
 const IProp* ObjectDefModule::getPropByUid(const int32 uid) const{

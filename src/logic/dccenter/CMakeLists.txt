@@ -9,6 +9,10 @@ INCLUDE_DIRECTORIES(
 SET(DCCENTER
 	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/ObjectStruct.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/ObjectStruct.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/DataDict.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/DataDict.cpp"
+	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/DataArray.h"
+	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/DataArray.cpp"
 	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/Memory.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/ObjectProp.h"
 	"${PROJECT_SOURCE_DIR}/src/logic/dccenter/ObjectProp.cpp"

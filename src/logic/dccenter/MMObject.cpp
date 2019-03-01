@@ -2,6 +2,8 @@
 #include "TableControl.h"
 #include "ObjectProp.h"
 #include "ObjectFSM.h"
+#include "DataDict.h"
+#include "DataArray.h"
 
 MMObject::MMObject(const char* name, const ObjectPropInfo* pPropInfo)
 	:_name(name),
@@ -76,8 +78,24 @@ const void* MMObject::getData(const IProp* prop, const bool temp, const int8 typ
 	if (layout != nullptr){
 		//SLASSERT(layout->_type == type && layout->_size >= size && layout->_isTemp == temp, "wtf");
 		if ((layout->_type == type || type == -1) && layout->_size >= size){
-			size = layout->_size;
-			return _memory->getData(layout);
+			if(layout->_type == DTYPE_DICT){
+				DataDict* dict = NEW DataDict(this, static_cast<const DictLayout*>(layout)->_dictEles, _memory->getData(layout), layout->_size);
+				return dict;
+			}
+			else if(layout->_type == DTYPE_ARRAY){
+				int32 arrayMemIndex = *(int32*)_memory->getData(layout);
+				if(arrayMemIndex == 0){
+					arrayMemIndex = const_cast<MMObject*>(this)->addArrayMemory(static_cast<const ArrayLayout*>(layout)->_arrayProp);
+					_memory->setData(layout, &arrayMemIndex, sizeof(int32));
+				}
+				OMemory* memory = const_cast<MMObject*>(this)->getArrayMemory(arrayMemIndex);
+				DataArray* array = NEW DataArray(this, static_cast<const ArrayLayout*>(layout)->_arrayProp, memory);
+				return array;
+			}
+			else{
+				size = layout->_size;
+				return _memory->getData(layout);
+			}
 		}
 	}
 	return nullptr;

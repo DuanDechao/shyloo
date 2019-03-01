@@ -297,33 +297,38 @@ public:
 		return ccattr;
 	};
 
-	static char* wchar2char(const wchar_t* ts, size_t* outlen = NULL)
-	{
+	static char* wchar2char(const wchar_t* ts, size_t* outlen = NULL){
 		int len = (int)((wcslen(ts) + 1) * sizeof(wchar_t));
 		char* ccattr = (char *)malloc(len);
 		memset(ccattr, 0, len);
 
 		size_t slen = wcstombs(ccattr, ts, len);
+		if((size_t)-1 == slen){
+			free(ccattr);
+			return NULL;
+		}
 
-		if (outlen)
-		{
-			if ((size_t)-1 != slen)
-				*outlen = slen;
-			else
-				*outlen = 0;
+		if (outlen){
+			*outlen = slen;
 		}
 
 		return ccattr;
-	};
-
-	static void wchar2char(const wchar_t* ts, sl::IBStream& pOutStream){
-		int len = (int)((wcslen(ts) +1) * sizeof(wchar_t));
-		size_t slen = wcstombs((char*)pOutStream.getContext(), ts, len);
-		if((size_t)-1 != slen){
-			*((char*)pOutStream.getContext() + slen) = 0;
-			pOutStream.skip(slen + 1);
-		}
 	}
+
+	static bool wchar2char(const wchar_t* ts, sl::IBStream& pOutStream){
+		int len = (int)((wcslen(ts) +1) * sizeof(wchar_t));
+		if(pOutStream.getSize() < len)
+			return false;
+
+		size_t slen = wcstombs((char*)pOutStream.getContext(), ts, len);
+		if((size_t)-1 == slen)
+			return false;
+
+		*((char*)pOutStream.getContext() + slen) = 0;
+		pOutStream.skip(slen + 1);
+		return true;
+	}
+
 	static bool wchar2utf8(const std::wstring& wstr, std::string& utf8str){
 		try{
 			std::string utf8str2;

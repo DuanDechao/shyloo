@@ -39,7 +39,7 @@ void RemoteEntityMethod::addArgsToStream(const int32 entityType, const IProp* me
 	for(int32 i = 0; i < argsCount; i++){
 		PyObject* pyArg = PyTuple_GetItem(args, i);
 		IDataType** argType = (IDataType**)(methodProp->getExtra(entityType));
-		argType[i]->addToStream(stream, pyArg);
+		argType[i]->addScriptObject(stream, pyArg);
 	}
 }
 

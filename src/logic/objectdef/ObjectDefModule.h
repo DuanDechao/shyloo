@@ -34,6 +34,7 @@ struct PropDefInfo{
 };
 
 class IProp;
+class ISubProp;
 class IObject;
 class IMethod;
 class RemoteEntityMethod;
@@ -88,6 +89,7 @@ private:
 	bool loadDefMethods(const char* moduleName, const int8 type, const sl::ISLXmlNode& root);
 
     bool appendObjectProp(PropDefInfo* layout, bool isMethod = false, bool isTemp = false);
+	void appendObjectSubProp(ISubProp* prop, IDataType* dataType);
 
 private:
 	//½Å±¾Àà±ð

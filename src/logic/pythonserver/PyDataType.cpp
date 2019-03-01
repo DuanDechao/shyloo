@@ -14,25 +14,9 @@
 #include "IPythonEngine.h"
 std::unordered_map<std::string, IDataType*> PyDataType::s_pyDataTypes;
 bool PyDataType::initialize(){
-
 	FixedArray::installScript(SLMODULE(PythonEngine)->getBaseModule());
 	FixedDict::installScript(SLMODULE(PythonEngine)->getBaseModule());
 	return true;
-}
-
-
-void* PyDataType::createFromObject(IObject* object, const IProp* prop){
-	int32 size = 0;
-	const void* data = object->getPropData(prop, size);
-	const sl::OBStream stream((const char*)data, size);
-	return createFromStream(stream);
-}
-
-void PyDataType::addToObject(IObject* object, const IProp* prop, void* value){
-	int32 size = 0;
-	const char* data = (const char*)(object->getPropData(prop, size));
-	sl::IBStream stream(const_cast<char*>(data), size);
-	addToStream(stream, value);
 }
 
 void PyDataType::addDataTypeInfo(sl::IBStream& stream){
@@ -121,252 +105,519 @@ IDataType* PyDataType::createDataType(const char* typeName){
 	return dataType;
 }
 
-void UInt64Type::addToStream(sl::IBStream& stream, void* value){
-	PyObject* pyValue = (PyObject*)value;
-	uint64 v = static_cast<uint64>(PyLong_AsUnsignedLongLong(pyValue));
-	if(PyErr_Occurred()){
-		PyErr_Clear();
-		v = (uint64)PyLong_AsUnsignedLong(pyValue);
-		if(PyErr_Occurred()){
-			PyErr_Clear();
-			v = (uint64)PyLong_AsLong(pyValue);
+bool UInt64Type::addScriptObject(sl::IBStream& stream, void* value){
+	uint64 val = 0;
+	if(!addScriptObject(val, value))
+		return false;
 
-			if(PyErr_Occurred()){
-				PyErr_Clear();
-				PyErr_Format(PyExc_TypeError, "UInt64Type::addToStream: pyValue(%s) is wrong!",
-						(pyValue == NULL) ? "NULL": pyValue->ob_type->tp_name);
-
-				PyErr_PrintEx(0);
-
-				v = 0;
-			}
-		}
-	}
-	stream << v;
+	stream << val;
+	return true;
 }
 
-void* UInt64Type::createFromStream(const sl::OBStream& stream){
+bool UInt64Type::addScriptObject(IObject* object, const IProp* prop, void* value){
+	uint64 val = 0;
+	if(!addScriptObject(val, value))
+		return false;
+
+	return object->setPropUint64(prop, val);
+}
+
+bool UInt64Type::addScriptObject(IArray* array, const int32 index, void* value){
+	uint64 val = 0;
+	if(!addScriptObject(val, value))
+		return false;
+
+	return array->setPropUint64(index, val);
+}
+
+void* UInt64Type::createScriptObject(const sl::OBStream& stream){
 	uint64 val = 0;
 	if(!stream.readUint64(val)){
-		ECHO_ERROR("read UINT64 from stream failed");
+		PyErr_Format(PyExc_TypeError, "UInt64Type::createScriptObject: read data from stream failed!");
+		PyErr_PrintEx(0);
+
 		return nullptr;
 	}
+	return createScriptObject(val);
+}
 
+void* UInt64Type::createScriptObject(IObject* object, const IProp* prop){
+	uint64 val = object->getPropUint64(prop);
+	return createScriptObject(val);
+}
+
+void* UInt64Type::createScriptObject(IArray* array, const int32 index){
+	uint64 val = array->getPropUint64(index);
+	return createScriptObject(val);
+}
+
+void* UInt64Type::parseDefaultStr(const char* defaultVal){
+	uint64 val = sl::CStringUtils::StringAsUint64(defaultVal);
+	return createScriptObject(val);
+}
+
+bool UInt64Type::addScriptObject(uint64& val, void* value){
+	PyObject* pyValue = (PyObject*)value;
+	val = static_cast<uint64>(PyLong_AsUnsignedLongLong(pyValue));
+	if(PyErr_Occurred()){
+		PyErr_Clear();
+		PyErr_Format(PyExc_TypeError, "UInt64Type::addScriptObject: pyValue(%s) is wrong!",
+				(pyValue == NULL) ? "NULL": pyValue->ob_type->tp_name);
+		PyErr_PrintEx(0);
+
+		return false;
+	}
+
+	return true;
+}
+
+void* UInt64Type::createScriptObject(uint64 val){
 	PyObject* pyVal = PyLong_FromUnsignedLongLong(val);
 	if(PyErr_Occurred()){
-		PyErr_Format(PyExc_TypeError, "UInt64Type::createFromStream: errval=%lld", val);
+		PyErr_Clear();
+		PyErr_Format(PyExc_TypeError, "UInt64Type::createScriptObject: errval=%lld", val);
 		PyErr_PrintEx(0);
-		//SL_RELEASE(pyVal);
 		if(pyVal){
 			Py_DECREF(pyVal);
 			pyVal = NULL;
 		}
-		return PyLong_FromUnsignedLongLong(0);
+		return nullptr;
 	}
 
 	return pyVal;
 }
 
-void* UInt64Type::parseDefaultStr(const char* defaultVal){
-	uint64 val = sl::CStringUtils::StringAsUint64(defaultVal);
-	sl::OBStream stream((char*)&val, sizeof(uint64));
-	return createFromStream(stream);
+bool UInt32Type::addScriptObject(sl::IBStream& stream, void* value){
+	uint32 val = 0;
+	if(!addScriptObject(val, value))
+		return false;
+
+	stream << val;
+	return true;
 }
 
-void UInt32Type::addToStream(sl::IBStream& stream, void* value){
-	PyObject* pyValue = (PyObject*)value;
-	uint32 v = PyLong_AsUnsignedLong(pyValue);
-	if(PyErr_Occurred()){
-		PyErr_Clear();
-		v = (uint32)PyLong_AsLong(pyValue);
+bool UInt32Type::addScriptObject(IObject* object, const IProp* prop, void* value){
+	uint32 val = 0;
+	if(!addScriptObject(val, value))
+		return false;
 
-		if(PyErr_Occurred()){
-			PyErr_Print();
-			PyErr_Clear();
-
-			PyErr_Format(PyExc_TypeError, "UInt32Type::pyValueToUint32: pyValue(%s) is wrong!", 
-					(pyValue == NULL) ? "NULL" : pyValue->ob_type->tp_name);
-			PyErr_PrintEx(0);
-
-			v = 0;
-		}
-	}
-	stream << v;
+	return object->setPropUint32(prop, val);
 }
 
-void* UInt32Type::createFromStream(const sl::OBStream& stream){
+bool UInt32Type::addScriptObject(IArray* array, const int32 index, void* value){
+	uint32 val = 0;
+	if(!addScriptObject(val, value))
+		return false;
+
+	return array->setPropUint32(index, val);
+}
+
+void* UInt32Type::createScriptObject(const sl::OBStream& stream){
 	uint32 val = 0;
 	if(!stream.readUint32(val)){
-		ECHO_ERROR("read UINT32 from stream failed");
+		PyErr_Format(PyExc_TypeError, "UInt32Type::createScriptObject: read data from buffer failed!"); 
 		return nullptr;
 	}
 
+	return createScriptObject(val);
+}
+
+void* UInt32Type::createScriptObject(IObject* object, const IProp* prop){
+	uint32 val = object->getPropUint32(prop);
+	return createScriptObject(val);
+}
+
+void* UInt32Type::createScriptObject(IArray* array, const int32 index){
+	uint32 val = array->getPropUint32(index);
+	return createScriptObject(val);
+}
+
+bool UInt32Type::addScriptObject(uint32& val, void* value){
+	PyObject* pyValue = (PyObject*)value;
+	val = PyLong_AsUnsignedLong(pyValue);
+	if(PyErr_Occurred()){
+		PyErr_Clear();
+		PyErr_Format(PyExc_TypeError, "UInt32Type::addScriptObject: pyValue(%s) is wrong!", 
+				(pyValue == NULL) ? "NULL" : pyValue->ob_type->tp_name);
+		PyErr_PrintEx(0);
+
+		return false;
+	}
+
+	return true;
+}
+
+void* UInt32Type::createScriptObject(uint32 val){
 	PyObject* pyVal = PyLong_FromUnsignedLong(val);
 	if(PyErr_Occurred()){
-		PyErr_Format(PyExc_TypeError, "UInt32Type::createFromStream: errval=%u", val);
+		PyErr_Clear();
+		PyErr_Format(PyExc_TypeError, "UInt32Type::createScriptObject: errval=%u", val);
 		PyErr_PrintEx(0);
-		//SL_RELEASE(pyVal);
 		if(pyVal){
 			Py_DECREF(pyVal);
 			pyVal = NULL;
 		}
-		return PyLong_FromUnsignedLong(0);
+		return nullptr;
 	}
 	return pyVal;
 }
 
 void* UInt32Type::parseDefaultStr(const char* defaultValStr){
 	uint32 val = (uint32)sl::CStringUtils::StringAsInt64(defaultValStr);
-	sl::OBStream stream((char*)&val, sizeof(uint32));
-	return createFromStream(stream);
+	return createScriptObject(val);
 }
 
-void Int64Type::addToStream(sl::IBStream& stream, void* value){
-	PyObject* pyValue = (PyObject*)value;
-	int64 v = PyLong_AsLongLong(pyValue);
-	if(PyErr_Occurred()){
-		PyErr_Clear();
-		v = (uint32)PyLong_AsLong(pyValue);
+bool Int64Type::addScriptObject(sl::IBStream& stream, void* value){
+	int64 val = 0;
+	if(!addScriptObject(val, value))
+		return false;
 
-		if(PyErr_Occurred()){
-			PyErr_Clear();
-
-			PyErr_Format(PyExc_TypeError, "Int64Type::pyValueToInt64: pyValue(%s) is wrong!",
-					(pyValue == NULL) ? "NULL": pyValue->ob_type->tp_name);
-			PyErr_PrintEx(0);
-
-			v = 0;
-		}
-	}
-	stream << v;
+	stream << val;
+	return true;
 }
 
-void* Int64Type::createFromStream(const sl::OBStream& stream){
+bool Int64Type::addScriptObject(IObject* object, const IProp* prop, void* value){
+	int64 val = 0;
+	if(!addScriptObject(val, value))
+		return false;
+
+	return object->setPropInt64(prop, val);
+}
+
+bool Int64Type::addScriptObject(IArray* array, const int32 index, void* value){
+	int64 val = 0;
+	if(!addScriptObject(val, value))
+		return false;
+	
+	return array->setPropInt64(index, val);
+}
+
+void* Int64Type::createScriptObject(const sl::OBStream& stream){
 	int64 val = 0;
 	if(!stream.readInt64(val)){
-		ECHO_ERROR("read INT64 from stream failed");
+		PyErr_Format(PyExc_TypeError, "Int64Type::createScriptObject: read data from buffer failed!");
+		PyErr_PrintEx(0);
 		return nullptr;
 	}
+
+	return createScriptObject(val);
+}
+
+void* Int64Type::createScriptObject(IObject* object, const IProp* prop){
+	int64 val = object->getPropInt64(prop);
+	return createScriptObject(val);
+}
+
+void* Int64Type::createScriptObject(IArray* array, const int32 index){
+	int64 val = array->getPropInt64(index);
+	return createScriptObject(val);
+}
+
+bool Int64Type::addScriptObject(int64& val, void* value){
+	PyObject* pyValue = (PyObject*)value;
+	val = PyLong_AsLongLong(pyValue);
+	if(PyErr_Occurred()){
+		PyErr_Clear();
+		PyErr_Format(PyExc_TypeError, "Int64Type::addScriptObject: pyValue(%s) is wrong!",
+				(pyValue == NULL) ? "NULL": pyValue->ob_type->tp_name);
+		PyErr_PrintEx(0);
+
+		return false;
+	}
+
+	return true;
+}
+
+void* Int64Type::createScriptObject(int64 val){
 	PyObject* pyVal = PyLong_FromLongLong(val);
 	if(PyErr_Occurred()){
-		PyErr_Format(PyExc_TypeError, "Int64Type::createFromStream: errval=%lld", val);
+		PyErr_Clear();
+		PyErr_Format(PyExc_TypeError, "Int64Type::createScriptObject: errval=%lld", val);
 		PyErr_PrintEx(0);
 		if(pyVal){
 			Py_DECREF(pyVal);
 			pyVal = NULL;
 		}
 
-		return PyLong_FromLongLong(0);
+		return nullptr;
 	}
+
 	return pyVal;
 }
 
 void* Int64Type::parseDefaultStr(const char* defaultValStr){
 	int64 val = sl::CStringUtils::StringAsInt64(defaultValStr);
-	sl::OBStream stream((char*)&val, sizeof(int64));
-	return createFromStream(stream);
+	return createScriptObject(val);
 }
 
-void FloatType::addToStream(sl::IBStream& stream, void* value){
-	PyObject* pyValue = (PyObject*)value;
-	float val = 0.0;
-	if(!PyFloat_Check(pyValue)){
-		PyErr_Format(PyExc_TypeError, "FloatType::pyValueToFloat: pyValue(%s) is wrong!",
-				(pyValue == NULL) ? "NULL" : pyValue->ob_type->tp_name);
-		PyErr_PrintEx(0);
-	}
-	else{
-		val = (float)PyFloat_AsDouble(pyValue);
-	}
+bool FloatType::addScriptObject(sl::IBStream& stream, void* value){
+	float val = 0;
+	if(!addScriptObject(val, value))
+		return false;
+
 	stream << val;
+	return true;
 }
 
-void* FloatType::createFromStream(const sl::OBStream& stream){
+bool FloatType::addScriptObject(IObject* object, const IProp* prop, void* value){
+	float val = 0;
+	if(!addScriptObject(val, value))
+		return false;
+
+	return object->setPropFloat(prop, val);
+}
+
+bool FloatType::addScriptObject(IArray* array, const int32 index, void* value){
+	float val = 0;
+	if(!addScriptObject(val, value))
+		return false;
+
+	return array->setPropFloat(index, val);
+}
+
+void* FloatType::createScriptObject(const sl::OBStream& stream){
 	float val = 0;
 	if(!stream.readFloat(val)){
-		ECHO_ERROR("read FLOAT from stream failed");
+		PyErr_Format(PyExc_TypeError, "FloatType::createScriptObject: read data from stream failed!");
+		PyErr_PrintEx(0);
 		return nullptr;
 	}
 
+	return createScriptObject(val);
+}
+
+void* FloatType::createScriptObject(IObject* object, const IProp* prop){
+	float val = object->getPropFloat(prop);
+	return createScriptObject(val);
+}
+
+void* FloatType::createScriptObject(IArray* array, const int32 index){
+	float val = array->getPropFloat(index);
+	return createScriptObject(val);
+}
+
+bool FloatType::addScriptObject(float& val, void* value){
+	PyObject* pyValue = (PyObject*)value;
+	if(!PyFloat_Check(pyValue)){
+		PyErr_Format(PyExc_TypeError, "FloatType::addScriptObject: pyValue(%s) is wrong!",
+				(pyValue == NULL) ? "NULL" : pyValue->ob_type->tp_name);
+		PyErr_PrintEx(0);
+
+		return false;
+	}
+	
+	val = (float)PyFloat_AsDouble(pyValue);
+	return true;
+}
+
+void* FloatType::createScriptObject(float val){
 	PyObject* pyVal = PyFloat_FromDouble(val);
 	if(PyErr_Occurred()){
-		PyErr_Format(PyExc_TypeError, "FloatType::createFromStream: errorval=%f", val);
+		PyErr_Clear();
+		PyErr_Format(PyExc_TypeError, "FloatType::createScriptObject: errorval=%f", val);
 		PyErr_PrintEx(0);
 		if(pyVal){
 			Py_DECREF(pyVal);
 			pyVal = NULL;
 		}
-		return PyFloat_FromDouble(0);
+		return nullptr;
 	}
+
 	return pyVal;
 }
 
 void* FloatType::parseDefaultStr(const char* defaultStr){
 	float val = sl::CStringUtils::StringAsFloat(defaultStr);
-	sl::OBStream stream((char*)&val, sizeof(float));
-	return createFromStream(stream);
+	return createScriptObject(val);
 }
 
-void DoubleType::addToStream(sl::IBStream& stream, void* value){
-	PyObject* pyValue = (PyObject*)value;
-	double val = 0.0;
-	if(!PyFloat_Check(pyValue)){
-		PyErr_Format(PyExc_TypeError, "DoubleType::pyValueToDouble: pyValue(%s) is wrong!",
-				(pyValue == NULL) ? "NULL" : pyValue->ob_type->tp_name);
-		PyErr_PrintEx(0);
-	}
-	else{
-		val =  PyFloat_AsDouble(pyValue);
-	}
+bool DoubleType::addScriptObject(sl::IBStream& stream, void* value){
+	double val = 0;
+	if(!addScriptObject(val, value))
+		return false;
 
 	stream << val;
+	return true;
 }
 
-void* DoubleType::createFromStream(const sl::OBStream& stream){
+bool DoubleType::addScriptObject(IObject* object, const IProp* prop, void* value){
+	double val = 0;
+	if(!addScriptObject(val, value))
+		return false;
+
+	return object->setPropDouble(prop, val);
+}
+
+bool DoubleType::addScriptObject(IArray* array, const int32 index, void* value){
+	double val = 0;
+	if(!addScriptObject(val, value))
+		return false;
+
+	return array->setPropDouble(index, val);
+}
+
+void* DoubleType::createScriptObject(const sl::OBStream& stream){
 	double val = 0.0;
 	if(!stream.readDouble(val)){
 		ECHO_ERROR("read DOUBLE from stream failed");
 		return nullptr;
 	}
 
+	return createScriptObject(val);
+}
+
+void* DoubleType::createScriptObject(IObject* object, const IProp* prop){
+	double val = object->getPropDouble(prop);
+	return createScriptObject(val);
+}
+
+void* DoubleType::createScriptObject(IArray* array, const int32 index){
+	double val = array->getPropDouble(index);
+	return createScriptObject(val);
+}
+
+bool DoubleType::addScriptObject(double& val, void* value){
+	PyObject* pyValue = (PyObject*)value;
+	if(!PyFloat_Check(pyValue)){
+		PyErr_Format(PyExc_TypeError, "DoubleType::addScriptObject: pyValue(%s) is wrong!",
+				(pyValue == NULL) ? "NULL" : pyValue->ob_type->tp_name);
+		PyErr_PrintEx(0);
+		return false;
+	}
+	
+	val =  PyFloat_AsDouble(pyValue);
+	return true;
+}
+
+void* DoubleType::createScriptObject(double val){
 	PyObject* pyVal = PyFloat_FromDouble(val);
 	if(PyErr_Occurred()){
-		PyErr_Format(PyExc_TypeError, "DoubleType::createFromStream: errval=%f", val);
+		PyErr_Clear();
+		PyErr_Format(PyExc_TypeError, "DoubleType::createScriptObject: errval=%f", val);
 		PyErr_PrintEx(0);
 		if(pyVal){
 			Py_DECREF(pyVal);
 			pyVal = NULL;
 		}
-		return PyFloat_FromDouble(0);
+		return nullptr;;
 	}
 	return pyVal;
 }
 
 void* DoubleType::parseDefaultStr(const char* defaultValStr){
 	double val = sl::CStringUtils::StringAsDouble(defaultValStr);
-	sl::OBStream stream((char*)&val, sizeof(val));
-	return createFromStream(stream);
+	return createScriptObject(val);
 }
 
-void Vector2Type::addToStream(sl::IBStream& stream, void* value){
-	PyObject* pyValue = (PyObject*)value;
-	for(int32 index = 0; index < 2; index++){
-		PyObject* pyVal = PySequence_GetItem(pyValue, index);
-		float v = (float)PyFloat_AsDouble(pyVal);
-		stream << v;
-		Py_DECREF(pyVal);
-	}
+bool Vector2Type::addScriptObject(sl::IBStream& stream, void* value){
+	float val[2] = {0.0f, 0.0f};
+	if(!addScriptObject(val, value))
+		return false;
+
+	stream << val[0];
+	stream << val[1];
+	return true;
 }
 
+bool Vector2Type::addScriptObject(IObject* object, const IProp* prop, void* value){
+	float val[2] = {0.0f, 0.0f};
+	if(!addScriptObject(val, value))
+		return false;
 
-void* Vector2Type::createFromStream(const sl::OBStream& stream){
-	float x = 0.0, y = 0.0;
+	return object->setPropBlob(prop, (const void*)val, sizeof(float) * 2);
+}
+
+bool Vector2Type::addScriptObject(IArray* array, const int32 index, void* value){
+	float val[2] = {0.0f, 0.0f};
+	if(!addScriptObject(val, value))
+		return false;
+
+	return array->setPropBlob(index, (const void*)val, sizeof(float) * 2);
+}
+
+void* Vector2Type::createScriptObject(const sl::OBStream& stream){
+	float x =0.0f, y = 0.0f;
 	if(!stream.readFloat(x) || !stream.readFloat(y)){
-		ECHO_ERROR("read VECTOR2 from stream failed");
+		PyErr_Format(PyExc_TypeError, "Vector2Type::createScriptObject: read data from stream failed!");
+		PyErr_PrintEx(0);
 		return nullptr;
 	}
 
-	return (PyObject*)(NEW sl::pyscript::ScriptVector2(x, y));
+	float val[2] = {x, y};
+	return createScriptObject(val);
+}
+
+void* Vector2Type::createScriptObject(IObject* object, const IProp* prop){
+	int32 size = 0;
+	const void* val = object->getPropBlob(prop, size);
+	if(size != sizeof(float) * 2){
+		PyErr_Format(PyExc_TypeError, "Vector2Type::createScriptObject: read data from stream failed!");
+		PyErr_PrintEx(0);
+		return nullptr;
+	}
+
+	return createScriptObject((float*)val);
+	//return (PyObject*)(NEW sl::pyscript::ScriptVector2(ptr[0], ptr[1]));
+}
+
+void* Vector2Type::createScriptObject(IArray* array, const int32 index){
+	int32 size = 0;
+	const void* val = array->getPropBlob(index, size);
+	if(size != sizeof(float) * 2){
+		PyErr_Format(PyExc_TypeError, "Vector2Type::createScriptObject: read data from stream failed!");
+		PyErr_PrintEx(0);
+		return nullptr;
+	}
+
+	return createScriptObject((float*)val);
+}
+
+bool Vector2Type::addScriptObject(float* val, void* value){
+	PyObject* pyValue = (PyObject*)value;
+	for(int32 index = 0; index < 2; index++){
+		PyObject* pyVal = PySequence_GetItem(pyValue, index);
+		if(PyErr_Occurred()){
+			PyErr_Clear();
+			PyErr_Format(PyExc_TypeError, "Vector2Type::addScriptObject: add index %d failed", index);
+			PyErr_PrintEx(0);
+			if(pyVal){
+				Py_DECREF(pyVal);
+				pyVal = NULL;
+			}
+			return false;
+		}	
+
+		val[index] = (float)PyFloat_AsDouble(pyVal);
+		Py_DECREF(pyVal);
+	}
+	
+	return true;
+}
+
+void* Vector2Type::createScriptObject(float* val){
+	PyObject* pyObj = PyTuple_New(2);
+	for(int32 index = 0; index < 2; index++){
+		PyObject* pyVal = PyFloat_FromDouble(val[index]);
+		if(PyErr_Occurred()){
+			PyErr_Clear();
+			PyErr_Format(PyExc_TypeError, "DoubleType::createScriptObject: errval=%f", val[index]);
+			PyErr_PrintEx(0);
+			if(pyVal){
+				Py_DECREF(pyVal);
+				pyVal = NULL;
+			}
+
+			if(pyObj){
+				Py_DECREF(pyObj);
+				pyObj = NULL;
+			}
+			return nullptr;;
+		}
+
+		PyTuple_SetItem(pyObj, index, pyVal);
+	}
+
+	return pyObj;
 }
 
 void* Vector2Type::parseDefaultStr(const char* defaultValStr){
@@ -377,27 +628,119 @@ void* Vector2Type::parseDefaultStr(const char* defaultValStr){
 		sstream >> x >> y;
 	}
 
-	return (PyObject*)(NEW sl::pyscript::ScriptVector2(x, y));
+	float val[2] = {x, y};
+	return createScriptObject(val);
 }
 
-void Vector3Type::addToStream(sl::IBStream& stream, void* value){
-	PyObject* pyValue = (PyObject*)value;
-	for(int32 index = 0; index < 3; index++){
-		PyObject* pyVal = PySequence_GetItem(pyValue, index);
-		float v = (float)PyFloat_AsDouble(pyVal);
-		stream << v;
-		Py_DECREF(pyVal);
-	}
+bool Vector3Type::addScriptObject(sl::IBStream& stream, void* value){
+	float val[3] = {0.0f, 0.0f, 0.0f};
+	if(!addScriptObject(val, value))
+		return false;
+
+	stream << val[0];
+	stream << val[1];
+	stream << val[2];
+	return true;
 }
 
-void* Vector3Type::createFromStream(const sl::OBStream& stream){
-	float x = 0.0, y = 0.0, z = 0.0;
+bool Vector3Type::addScriptObject(IObject* object, const IProp* prop, void* value){
+	float val[3] = {0.0f, 0.0f, 0.0f};
+	if(!addScriptObject(val, value))
+		return false;
+
+	return object->setPropBlob(prop, (const void*)val, sizeof(float) * 3);
+}
+
+bool Vector3Type::addScriptObject(IArray* array, const int32 index, void* value){
+	float val[3] = {0.0f, 0.0f, 0.0f};
+	if(!addScriptObject(val, value))
+		return false;
+
+	return array->setPropBlob(index, (const void*)val, sizeof(float) * 3);
+}
+
+void* Vector3Type::createScriptObject(const sl::OBStream& stream){
+	float x = 0.0f, y = 0.0f, z = 0.0f;
 	if(!stream.readFloat(x) || !stream.readFloat(y) || !stream.readFloat(z)){
-		ECHO_ERROR("read VECTOR3 from stream failed");
+		PyErr_Format(PyExc_TypeError, "Vector3Type::addScriptObject: read data from stream failed!");
+		PyErr_PrintEx(0);
 		return nullptr;
 	}
 
-	return (PyObject*)(NEW sl::pyscript::ScriptVector3(x, y, z));
+	float val[3] = {x, y, z};
+	return createScriptObject(val);
+}
+
+void* Vector3Type::createScriptObject(IObject* object, const IProp* prop){
+	int32 size = 0;
+	const void* val = object->getPropBlob(prop, size);
+	if(size != sizeof(float) * 3){
+		PyErr_Format(PyExc_TypeError, "Vector3Type::createScriptObject: read data from stream failed!");
+		PyErr_PrintEx(0);
+		return nullptr;
+	}
+
+	return createScriptObject((float*)val);
+}
+
+void* Vector3Type::createScriptObject(IArray* array, const int32 index){
+	int32 size = 0;
+	const void* val = array->getPropBlob(index, size);
+	if(size != sizeof(float) * 3){
+		PyErr_Format(PyExc_TypeError, "Vector3Type::createScriptObject: read data from stream failed!");
+		PyErr_PrintEx(0);
+		return nullptr;
+	}
+
+	return createScriptObject((float*)val);
+}
+
+bool Vector3Type::addScriptObject(float* val, void* value){
+	PyObject* pyValue = (PyObject*)value;
+	for(int32 index = 0; index < 3; index++){
+		PyObject* pyVal = PySequence_GetItem(pyValue, index);
+		if(PyErr_Occurred()){
+			PyErr_Clear();
+			PyErr_Format(PyExc_TypeError, "Vector2Type::addScriptObject: add index %d failed", index);
+			PyErr_PrintEx(0);
+			if(pyVal){
+				Py_DECREF(pyVal);
+				pyVal = NULL;
+			}
+			return false;
+		}	
+
+		val[index] = (float)PyFloat_AsDouble(pyVal);
+		Py_DECREF(pyVal);
+	}
+	
+	return true;
+}
+
+void* Vector3Type::createScriptObject(float* val){
+	PyObject* pyObj = PyTuple_New(3);
+	for(int32 index = 0; index < 3; index++){
+		PyObject* pyVal = PyFloat_FromDouble(val[index]);
+		if(PyErr_Occurred()){
+			PyErr_Clear();
+			PyErr_Format(PyExc_TypeError, "DoubleType::createScriptObject: errval=%f", val[index]);
+			PyErr_PrintEx(0);
+			if(pyVal){
+				Py_DECREF(pyVal);
+				pyVal = NULL;
+			}
+
+			if(pyObj){
+				Py_DECREF(pyObj);
+				pyObj = NULL;
+			}
+			return nullptr;;
+		}
+
+		PyTuple_SetItem(pyObj, index, pyVal);
+	}
+
+	return pyObj;
 }
 
 void* Vector3Type::parseDefaultStr(const char* defaultValStr){
@@ -408,27 +751,122 @@ void* Vector3Type::parseDefaultStr(const char* defaultValStr){
 		sstream >> x >> y >> z;
 	}
 
-	return (PyObject*)(NEW sl::pyscript::ScriptVector3(x, y, z));
+	float val[3] = {x, y, z};
+	return createScriptObject((float*)val);
 }
 
-void Vector4Type::addToStream(sl::IBStream& stream, void* value){
-	PyObject* pyValue = (PyObject*)value;
-	for(int32 index = 0; index < 4; index++){
-		PyObject* pyVal = PySequence_GetItem(pyValue, index);
-		float v = (float)PyFloat_AsDouble(pyVal);
-		stream << v;
-		Py_DECREF(pyVal);
-	}
+bool Vector4Type::addScriptObject(sl::IBStream& stream, void* value){
+	float val[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+	if(!addScriptObject(val, value))
+		return false;
+
+	stream << val[0];
+	stream << val[1];
+	stream << val[2];
+	stream << val[3];
+	return true;
+
 }
 
-void* Vector4Type::createFromStream(const sl::OBStream& stream){
-	float x = 0.0, y = 0.0, z = 0.0, t = 0.0;
+bool Vector4Type::addScriptObject(IObject* object, const IProp* prop, void* value){
+	float val[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+	if(!addScriptObject(val, value))
+		return false;
+
+	return object->setPropBlob(prop, (const void*)val, sizeof(float) * 4);
+}
+
+bool Vector4Type::addScriptObject(IArray* array, const int32 index, void* value){
+	float val[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+	if(!addScriptObject(val, value))
+		return false;
+
+	return array->setPropBlob(index, (const void*)val, sizeof(float) * 4);
+}
+
+void* Vector4Type::createScriptObject(const sl::OBStream& stream){
+	float x = 0.0f, y = 0.0f, z = 0.0f, t = 0.0f;
 	if(!stream.readFloat(x) || !stream.readFloat(y) || !stream.readFloat(z) || !stream.readFloat(t)){
-		ECHO_ERROR("read VECTOR4 from stream failed");
+		PyErr_Format(PyExc_TypeError, "Vector4Type::addScriptObject: read data from stream failed!");
+		PyErr_PrintEx(0);
+
 		return nullptr;
 	}
 
-	return (PyObject*)(NEW sl::pyscript::ScriptVector4(x, y, z, t));
+	float val[4] = {x, y, z, t};
+	return createScriptObject(val);
+}
+
+void* Vector4Type::createScriptObject(IObject* object, const IProp* prop){
+	int32 size = 0;
+	const void* val = object->getPropBlob(prop, size);
+	if(size != sizeof(float) * 4){
+		PyErr_Format(PyExc_TypeError, "Vector4Type::createScriptObject: read data from stream failed!");
+		PyErr_PrintEx(0);
+		return nullptr;
+	}
+
+	return createScriptObject((float*)val);
+}
+
+void* Vector4Type::createScriptObject(IArray* array, const int32 index){
+	int32 size = 0;
+	const void* val = array->getPropBlob(index, size);
+	if(size != sizeof(float) * 4){
+		PyErr_Format(PyExc_TypeError, "Vector4Type::createScriptObject: read data from stream failed!");
+		PyErr_PrintEx(0);
+		return nullptr;
+	}
+
+	return createScriptObject((float*)val);
+}
+
+bool Vector4Type::addScriptObject(float* val, void* value){
+	PyObject* pyValue = (PyObject*)value;
+	for(int32 index = 0; index < 4; index++){
+		PyObject* pyVal = PySequence_GetItem(pyValue, index);
+		if(PyErr_Occurred()){
+			PyErr_Clear();
+			PyErr_Format(PyExc_TypeError, "Vector2Type::addScriptObject: add index %d failed", index);
+			PyErr_PrintEx(0);
+			if(pyVal){
+				Py_DECREF(pyVal);
+				pyVal = NULL;
+			}
+			return false;
+		}	
+
+		val[index] = (float)PyFloat_AsDouble(pyVal);
+		Py_DECREF(pyVal);
+	}
+	
+	return true;
+}
+
+void* Vector4Type::createScriptObject(float* val){
+	PyObject* pyObj = PyTuple_New(4);
+	for(int32 index = 0; index < 4; index++){
+		PyObject* pyVal = PyFloat_FromDouble(val[index]);
+		if(PyErr_Occurred()){
+			PyErr_Clear();
+			PyErr_Format(PyExc_TypeError, "DoubleType::createScriptObject: errval=%f", val[index]);
+			PyErr_PrintEx(0);
+			if(pyVal){
+				Py_DECREF(pyVal);
+				pyVal = NULL;
+			}
+
+			if(pyObj){
+				Py_DECREF(pyObj);
+				pyObj = NULL;
+			}
+			return nullptr;;
+		}
+
+		PyTuple_SetItem(pyObj, index, pyVal);
+	}
+
+	return pyObj;
 }
 
 void* Vector4Type::parseDefaultStr(const char* defaultValStr){
@@ -439,98 +877,194 @@ void* Vector4Type::parseDefaultStr(const char* defaultValStr){
 		sstream >> x >> y >> z >> t;
 	}
 
-	return (PyObject*)(NEW sl::pyscript::ScriptVector4(x, y, z, t));
+	float val[4] = {x, y, z, t};
+	return createScriptObject(val);
 }
 
-void StringType::addToStream(sl::IBStream& stream, void* value){
-	PyObject* pyValue = (PyObject*)value;
-	wchar_t* pyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(pyValue, NULL);
-	sl::CStringUtils::wchar2char(pyUnicode_AsWideCharStringRet0, stream);
-	PyMem_Free(pyUnicode_AsWideCharStringRet0);
+bool StringType::addScriptObject(sl::IBStream& stream, void* value){
+	char* val = addScriptObject(value);
+	if(!val){
+		return false;
+	}
+
+	stream << val;
+	free(val);
+	return true;
 }
 
-void* StringType::createFromStream(const sl::OBStream& stream){
+bool StringType::addScriptObject(IObject* object, const IProp* prop, void* value){
+	char* val = addScriptObject(value);
+	if(!val){
+		return false;
+	}
+
+	bool ret = object->setPropString(prop, val);
+	free(val);
+	return ret;
+}
+
+bool StringType::addScriptObject(IArray* array, const int32 index, void* value){
+	char* val = addScriptObject(value);
+	if(!val){
+		return false;
+	}
+
+	bool ret = array->setPropString(index, val);
+	free(val);
+	return ret;
+}
+
+void* StringType::createScriptObject(const sl::OBStream& stream){
 	const char* data = nullptr;
 	if(!stream.readString(data)){
-		ECHO_ERROR("read STRING from stream failed");
+		PyErr_Format(PyExc_TypeError, "StringType::createScriptObject: read data from stream failed!");
+		PyErr_PrintEx(0);
 		return nullptr;
 	}
 
-	PyObject* pyObj = PyUnicode_FromString((const char*)data);
-	if(pyObj && !PyErr_Occurred())
-		return pyObj;
+	return createScriptObject(data);
+}
 
-	PyErr_PrintEx(0);
-	if(pyObj){
-		Py_DECREF(pyObj);
-		pyObj = NULL;
+void* StringType::createScriptObject(IObject* object, const IProp* prop){
+	const char* data = object->getPropString(prop);
+	return createScriptObject(data);
+}
+
+void* StringType::createScriptObject(IArray* array, const int32 index){
+	const char* data = array->getPropString(index);
+	return createScriptObject(data);
+}
+
+char* StringType::addScriptObject(void* value){
+	PyObject* pyValue = (PyObject*)value;
+	wchar_t* pyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(pyValue, NULL);
+
+	size_t size = 0;
+	char* ret = sl::CStringUtils::wchar2char(pyUnicode_AsWideCharStringRet0, &size);
+	PyMem_Free(pyUnicode_AsWideCharStringRet0);
+
+	if(!ret){
+		PyErr_Format(PyExc_TypeError, "StringType::addScriptObject: stream buffer size is not enough!");
+		PyErr_PrintEx(0);
 	}
-	return NULL;
+	return ret;
+}
+
+void* StringType::createScriptObject(const char* data){
+	PyObject* pyObj = PyUnicode_FromString((const char*)data);
+	if(PyErr_Occurred()){
+		PyErr_Clear();
+		PyErr_Format(PyExc_TypeError, "StringType::createScriptObject: error value = %s!", data);
+		PyErr_PrintEx(0);
+
+		if(pyObj){
+			Py_DECREF(pyObj);
+			pyObj = NULL;
+		}
+		return nullptr;
+	}
+
+	return pyObj;
 }
 
 void* StringType::parseDefaultStr(const char* defaultValStr){
-	PyObject* pyObj = PyUnicode_FromString(defaultValStr);
-	if(pyObj && !PyErr_Occurred())
-		return pyObj;
-
-	PyErr_PrintEx(0);
-	if(pyObj){
-		Py_DECREF(pyObj);
-		pyObj = NULL;
+	if(!defaultValStr){
+		defaultValStr = "";
 	}
-	return NULL;
+
+	return createScriptObject(defaultValStr);
 }
 
-void UnicodeType::addToStream(sl::IBStream& stream, void* value){
+bool UnicodeType::addScriptObject(sl::IBStream& stream, void* value){
 	PyObject* pyObj = PyUnicode_AsUTF8String((PyObject*)value);
 	if(pyObj == NULL){
-		return;
+		PyErr_Format(PyExc_TypeError, "UnicodeType::addScriptObject: PyUniocde_AsUTF8String failed!");
+		PyErr_PrintEx(0);
+
+		return false;
 	}
+
 	stream.addBlob(PyBytes_AS_STRING(pyObj), (int32)PyBytes_GET_SIZE(pyObj));
 	Py_DECREF(pyObj);
+
+	return true;
 }
 
-void* UnicodeType::createFromStream(const sl::OBStream& stream){
+bool UnicodeType::addScriptObject(IObject* object, const IProp* prop, void* value){
+	PyObject* pyObj = PyUnicode_AsUTF8String((PyObject*)value);
+	if(pyObj == NULL){
+		PyErr_Format(PyExc_TypeError, "UnicodeType::addScriptObject: PyUniocde_AsUTF8String failed!");
+		PyErr_PrintEx(0);
+
+		return false;
+	}
+
+	return object->setPropBlob(prop, PyBytes_AS_STRING(pyObj), (int32)PyBytes_GET_SIZE(pyObj));
+}
+
+bool UnicodeType::addScriptObject(IArray* array, const int32 index, void* value){
+	PyObject* pyObj = PyUnicode_AsUTF8String((PyObject*)value);
+	if(pyObj == NULL){
+		PyErr_Format(PyExc_TypeError, "UnicodeType::addScriptObject: PyUniocde_AsUTF8String failed!");
+		PyErr_PrintEx(0);
+
+		return false;
+	}
+
+	return array->setPropBlob(index, PyBytes_AS_STRING(pyObj), (int32)PyBytes_GET_SIZE(pyObj));
+}
+
+void* UnicodeType::createScriptObject(const sl::OBStream& stream){
 	int32 size = 0;
 	const void* data = stream.readBlob(size);	
 	if(!data){
-		ECHO_ERROR("read UNICODE from stream failed");
+		PyErr_Format(PyExc_TypeError, "UnicodeType::createScriptObject: read data from stream failed!");
+		PyErr_PrintEx(0);
 		return nullptr;
 	}
 
+	return createScriptObject(data, size);
+}
+
+void* UnicodeType::createScriptObject(IObject* object, const IProp* prop){
+	int32 size = 0;
+	const void* data = object->getPropBlob(prop, size);
+	return createScriptObject(data, size);
+}
+
+void* UnicodeType::createScriptObject(IArray* array, const int32 index){
+	int32 size = 0;
+	const void* data = array->getPropBlob(index, size);
+	return createScriptObject(data, size);
+}
+
+void* UnicodeType::createScriptObject(const void* data, const int32 size){
 	PyObject* pyObj = PyUnicode_DecodeUTF8((const char*)data, size, "");
-	if(pyObj && !PyErr_Occurred()){
-		return pyObj;
-	}
+	if(PyErr_Occurred()){
+		PyErr_Clear();
+		PyErr_Format(PyExc_TypeError, "UnicodeType::createScriptObject: PyUnicode_DecodeUTF8 failed!");
+		PyErr_PrintEx(0);
 
-	if(pyObj){
-		Py_DECREF(pyObj);
-		pyObj = NULL;
-	}
-	PyErr_PrintEx(0);
+		if(pyObj){
+			Py_DECREF(pyObj);
+			pyObj = NULL;
+		}
 
-	return NULL;
+		return nullptr;
+	}
+	
+	return pyObj;
 }
 
 void* UnicodeType::parseDefaultStr(const char* defaultValStr){
-	if(!defaultValStr)
-		return PyUnicode_DecodeUTF8("", 0, "");
-	
-	PyObject* pyObj = PyUnicode_DecodeUTF8(defaultValStr, strlen(defaultValStr) + 1, "");
-	if(pyObj && !PyErr_Occurred())
-		return pyObj;
-
-	PyErr_Clear();
-	PyErr_Format(PyExc_TypeError, "UnicodeType::parseDefaultStr: defaultVal(%s) error! val=[%s]", pyObj != NULL ? pyObj->ob_type->tp_name : "NULL", defaultValStr);
-	PyErr_PrintEx(0);
-	if(pyObj){
-		Py_DECREF(pyObj);
-		pyObj = NULL;
+	if(!defaultValStr){
+		defaultValStr = "";
 	}
-	return PyUnicode_DecodeUTF8("", 0, "");
+
+	return createScriptObject(defaultValStr, strlen(defaultValStr) + 1);
 }
 
-void BlobType::addToStream(sl::IBStream& stream, void* value){
+bool BlobType::addScriptObject(sl::IBStream& stream, void* value){
 	PyObject* pyValue = (PyObject*)value;
 	if(!PyBytes_Check(pyValue)){
 		sl::pyscript::PyMemoryStream* pPyMemoryStream = static_cast<sl::pyscript::PyMemoryStream*>(pyValue);
@@ -542,34 +1076,139 @@ void BlobType::addToStream(sl::IBStream& stream, void* value){
 		char* datas = PyBytes_AsString(pyValue);
 		stream.addBlob(datas, (int32)dataSize);
 	}
+
+	return true;
 }
 
-void* BlobType::createFromStream(const sl::OBStream& stream){
+bool BlobType::addScriptObject(IObject* object, const IProp* prop, void* value){
+	PyObject* pyValue = (PyObject*)value;
+	if(!PyBytes_Check(pyValue)){
+		sl::pyscript::PyMemoryStream* pPyMemoryStream = static_cast<sl::pyscript::PyMemoryStream*>(pyValue);
+		sl::MemoryStream& m = pPyMemoryStream->stream();
+		object->setPropBlob(prop, (const char*)m.data() + m.rpos(), (int32)m.length());
+	}
+	else{
+		Py_ssize_t dataSize = PyBytes_GET_SIZE(pyValue);
+		char* datas = PyBytes_AsString(pyValue);
+		object->setPropBlob(prop, datas, (int32)dataSize);
+	}
+
+	return true;
+}
+
+bool BlobType::addScriptObject(IArray* array, const int32 index, void* value){
+	PyObject* pyValue = (PyObject*)value;
+	if(!PyBytes_Check(pyValue)){
+		sl::pyscript::PyMemoryStream* pPyMemoryStream = static_cast<sl::pyscript::PyMemoryStream*>(pyValue);
+		sl::MemoryStream& m = pPyMemoryStream->stream();
+		array->setPropBlob(index, (const char*)m.data() + m.rpos(), (int32)m.length());
+	}
+	else{
+		Py_ssize_t dataSize = PyBytes_GET_SIZE(pyValue);
+		char* datas = PyBytes_AsString(pyValue);
+		array->setPropBlob(index, datas, (int32)dataSize);
+	}
+
+	return true;
+}
+
+void* BlobType::createScriptObject(const sl::OBStream& stream){
 	int32 size = 0;
 	const char* data = (const char*)stream.readBlob(size);
-	return PyBytes_FromStringAndSize(const_cast<char*>(data), size);
+	if(!data){
+		PyErr_Format(PyExc_TypeError, "BlobType::createScriptObject: read data from stream failed!");
+		PyErr_PrintEx(0);
+		return nullptr;
+	}
+	
+	return createScriptObject(data, size);
+}
+
+void* BlobType::createScriptObject(IObject* object, const IProp* prop){
+	int32 size = 0;
+	const void* data = object->getPropBlob(prop, size);
+
+	return createScriptObject(data, size);
+}
+
+void* BlobType::createScriptObject(IArray* array, const int32 index){
+	int32 size = 0;
+	const void* data = array->getPropBlob(index, size);
+
+	return createScriptObject(data, size);
+}
+
+void* BlobType::createScriptObject(const void* data, const int32 size){
+	PyObject* pyObj = PyBytes_FromStringAndSize(const_cast<char*>((const char*)data), size);
+	if(PyErr_Occurred()){
+		PyErr_Clear();
+		PyErr_Format(PyExc_TypeError, "BlobType::createScriptObject: PyBytes_FromStringAndSize failed!");
+		PyErr_PrintEx(0);
+
+		if(pyObj){
+			Py_DECREF(pyObj);
+			pyObj = NULL;
+		}
+
+		return nullptr;
+	}
+
+	return pyObj;
 }
 
 void* BlobType::parseDefaultStr(const char* defaultValStr){
-	if(defaultValStr)
-		return PyBytes_FromStringAndSize(defaultValStr, strlen(defaultValStr) + 1);
-	std::string str = "";
-	return PyBytes_FromStringAndSize(str.data(), str.size());
+	if(defaultValStr){
+		defaultValStr = "";
+	}
+	return createScriptObject(defaultValStr, strlen(defaultValStr)); 
 }
 
-void PythonType::addToStream(sl::IBStream& stream, void* value){
+bool PythonType::addScriptObject(sl::IBStream& stream, void* value){
 	PyObject* pyValue = (PyObject*)value;
 	std::string datas = SLMODULE(PythonEngine)->pickle(pyValue);
 	stream.addBlob(datas.data(), datas.size());
+
+	return true;
 }
 
-void* PythonType::createFromStream(const sl::OBStream& stream){
+bool PythonType::addScriptObject(IObject* object, const IProp* prop, void* value){
+	PyObject* pyValue = (PyObject*)value;
+	std::string datas = SLMODULE(PythonEngine)->pickle(pyValue);
+
+	return object->setPropBlob(prop, datas.data(), datas.size());
+}
+
+bool PythonType::addScriptObject(IArray* array, const int32 index, void* value){
+	PyObject* pyValue = (PyObject*)value;
+	std::string datas = SLMODULE(PythonEngine)->pickle(pyValue);
+
+	return array->setPropBlob(index, datas.data(), datas.size());
+}
+
+void* PythonType::createScriptObject(const sl::OBStream& stream){
 	int32 size = 0;
 	const void* data = stream.readBlob(size);
 	if(!data){
-		ECHO_ERROR("read Python from stream failed");
+		PyErr_Format(PyExc_TypeError, "PythonType::createScriptObject: read data from stream failed!");
+		PyErr_PrintEx(0);
 		return nullptr;
 	}
+
+	std::string datas((const char*)data, size);
+	return SLMODULE(PythonEngine)->unpickle(datas);
+}
+
+void* PythonType::createScriptObject(IObject* object, const IProp* prop){
+	int32 size = 0;
+	const void* data = object->getPropBlob(prop, size);
+
+	std::string datas((const char*)data, size);
+	return SLMODULE(PythonEngine)->unpickle(datas);
+}
+
+void* PythonType::createScriptObject(IArray* array, const int32 index){
+	int32 size = 0;
+	const void* data = array->getPropBlob(index, size);
 
 	std::string datas((const char*)data, size);
 	return SLMODULE(PythonEngine)->unpickle(datas);
@@ -666,61 +1305,90 @@ void PyFixedArrayType::addDataTypeInfo(sl::IBStream& stream){
 	stream << _dataType->getUid();
 }
 
-void PyFixedArrayType::addToStream(sl::IBStream& stream, void* value){
+bool PyFixedArrayType::addScriptObject(sl::IBStream& stream, void* value){
 	uint32 size = (uint32)PySequence_Size((PyObject*)value);
 	stream << size;
 
 	for(uint32 i = 0; i < size; i++){
 		PyObject* pyVal = PySequence_GetItem((PyObject*)value, i);
-		_dataType->addToStream(stream, pyVal);
+		if(!_dataType->addScriptObject(stream, pyVal))
+			return false;
 	}
+
+	return true;
 }
 
-void* PyFixedArrayType::createFromStream(const sl::OBStream& stream){
+bool PyFixedArrayType::addScriptObject(IObject* object, const IProp* prop, void* value){
+	uint32 size = (uint32)PySequence_Size((PyObject*)value);
+	IArray* objArray = object->getPropArray(prop);
+
+	for(uint32 i = 0; i < size; i++){
+		PyObject* pyVal = PySequence_GetItem((PyObject*)value, i);
+		if(!_dataType->addScriptObject(objArray, i, pyVal))
+			return false;
+	}
+
+	return true;
+}
+
+bool PyFixedArrayType::addScriptObject(IArray* array, const int32 index, void* value){
+	uint32 size = (uint32)PySequence_Size((PyObject*)value);
+	IArray* objArray = array->getPropArray(index);
+
+	for(uint32 i = 0; i < size; i++){
+		PyObject* pyVal = PySequence_GetItem((PyObject*)value, i);
+		if(!_dataType->addScriptObject(objArray, i, pyVal))
+			return false;
+	}
+
+	return true;
+}
+
+void* PyFixedArrayType::createScriptObject(const sl::OBStream& stream){
 	uint32 size = 0;
-	FixedArray* pFixedArray = NEW FixedArray(this);
-	pFixedArray->initialize("");
-	
 	if(!stream.readUint32(size)){
-		ECHO_ERROR("read UINT32 from stream failed");
+		PyErr_SetString(PyExc_SystemError, "PyFixedArrayType::createScriptObject: read data from stream failed");
+		PyErr_PrintEx(0);
 		return nullptr;
 	}
 
-	std::vector<PyObject*>& vals = pFixedArray->getValues();
+	PyObject* pyObj = PyList_New(size);
 	for(int32 i = 0; i < size; i++){
-		PyObject* pyVal = (PyObject*)(_dataType->createFromStream(stream));
-		if(pyVal){
-			vals.push_back(pyVal);
-		}
-		else{
-			ECHO_ERROR("FixedArrayType::createFromStream: %s, pyVal is NULL", getAliasName());
-			break;
-		}
-	}
+		PyObject* pyVal = (PyObject*)(_dataType->createScriptObject(stream));
+		if(!pyVal){
+			PyErr_SetString(PyExc_SystemError, "PyFixedArrayType::createScriptObject: create array item from stream failed");
+			PyErr_PrintEx(0);
 
-	return (PyObject*)pFixedArray;
+			if(pyObj){
+				Py_DECREF(pyObj);
+				pyObj = NULL;
+			}
+
+			return nullptr;
+		}
+		
+		PyList_SetItem(pyObj, i, pyVal);
+	}
+	return pyObj;
 	
 }
 
+void* PyFixedArrayType::createScriptObject(IObject* object, const IProp* prop){
+	IArray* objArray = object->getPropArray(prop);
+	return NEW FixedArray(this, objArray);
+}
+
+void* PyFixedArrayType::createScriptObject(IArray* array, const int32 index){
+	IArray* objArray = array->getPropArray(index);
+	return NEW FixedArray(this, objArray);
+}
+
 void* PyFixedArrayType::parseDefaultStr(const char* defaultValStr){
-	FixedArray* pFixedArray = NEW FixedArray(this);
-	pFixedArray->initialize(defaultValStr);
-	return (PyObject*)pFixedArray;
+	return PyList_New(0);
 }
 
 PyObject* PyFixedArrayType::createNewItemFromObj(PyObject* pyobj){
 	return static_cast<PyDataType*>(_dataType)->createNewFromObj(pyobj);
-}
-
-PyObject* PyFixedArrayType::createNewFromObj(PyObject* pyobj){
-	if(PyObject_TypeCheck(pyobj, FixedArray::getScriptType())){
-		Py_INCREF(pyobj);
-		return pyobj;
-	}
-	
-	FixedArray* pFixedArray = NEW FixedArray(this);
-	pFixedArray->initialize(pyobj);
-	return pFixedArray;
 }
 
 bool PyFixedDictType::initType(const sl::ISLXmlNode* typeNode){
@@ -836,7 +1504,8 @@ void PyFixedDictType::addDataTypeInfo(sl::IBStream& stream){
 	}
 }
 
-void PyFixedDictType::addToStream(sl::IBStream& stream, void* value){
+bool PyFixedDictType::addScriptObject(sl::IBStream& stream, void* value){
+	/*
 	PyObject* pyValue = (PyObject*)value;
 	if(hasImpl()){
 		pyValue = implGetDictFromObj(pyValue);
@@ -863,10 +1532,12 @@ void PyFixedDictType::addToStream(sl::IBStream& stream, void* value){
 	if(hasImpl()){
 		Py_DECREF(pyValue);
 	}
-
+*/
+	return true;
 }
 
-void* PyFixedDictType::createFromStream(const sl::OBStream& stream){
+void* PyFixedDictType::createScriptObject(const sl::OBStream& stream){
+	/*
 	FixedDict* pyDict = NEW FixedDict(this, false);
 	pyDict->initialize(stream, false);
 	if(hasImpl()){
@@ -876,6 +1547,8 @@ void* PyFixedDictType::createFromStream(const sl::OBStream& stream){
 	}
 
 	return (PyObject*)pyDict;
+	*/
+	return nullptr;
 }
 
 PyObject* PyFixedDictType::implCreateObjFromDict(PyObject* dictData){
@@ -950,7 +1623,7 @@ PyObject* PyFixedDictType::createNewFromObj(PyObject* pyobj){
 	return pFixedDict;
 }
 
-void MailBoxType::addToStream(sl::IBStream& stream, void* value){
+bool MailBoxType::addScriptObject(sl::IBStream& stream, void* value){
 	PyObject* pyValue = (PyObject*)value;
 	const char types[2][10] = {
 			"Entity",
@@ -1009,7 +1682,7 @@ void MailBoxType::addToStream(sl::IBStream& stream, void* value){
 	stream << entityType;
 }
 
-void* MailBoxType::createFromStream(const sl::OBStream& stream){
+void* MailBoxType::createScriptObject(const sl::OBStream& stream){
 	uint64 entityId = 0;
 	int32 nodeId = 0;
 	int16 mType = 0;

@@ -105,6 +105,8 @@ bool PythonServer::launched(sl::api::IKernel * pKernel){
 
 	SLMODULE(Cluster)->addServerProcessHandler(this);
 	SLMODULE(TelnetServer)->rgsTelnetHandler("python", this);
+
+	START_TIMER(s_self, 0, 1, 10 * SECOND);
 	
     return true;
 }
@@ -824,7 +826,7 @@ ScriptDefModule* PythonServer::findScriptDefModule(const int32 entityType){
 void PythonServer::test(){
 //    printf("py test start++++++++++++++++++++++++++++++++++++++\n");
 //	PyRun_SimpleString("from ddddtest import test\ntest()\n");
-
+/*
 	uint64 val = 2220061311037865984;
 	PyObject* pyVal = PyLong_FromUnsignedLongLong(val);
 	if(PyErr_Occurred()){
@@ -838,6 +840,15 @@ void PythonServer::test(){
 		}
 	//	return PyLong_FromUnsignedLongLong(0);
 	}
+*/
+	if(PyObject_HasAttrString(_entryScript, "unitTest") <= 0)
+		return;
+
+	PyObject* pyResult = PyObject_CallMethod(_entryScript, const_cast<char*>("unitTest"), const_cast<char*>("O"), PyBool_FromLong(1));
+	if(pyResult != NULL)
+		Py_DECREF(pyResult);
+	else
+		SCRIPT_ERROR_CHECK();
 }
 
 bool PythonServer::onServerReady(sl::api::IKernel* pKernel){

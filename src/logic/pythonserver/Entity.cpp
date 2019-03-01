@@ -176,7 +176,7 @@ bool Entity::createCellDataFromStream(const void* cellData, const int32 cellData
         PyObject* propName = PyUnicode_FromString(prop->getNameString());
 
 		IDataType* dataType = (IDataType*)(prop->getExtra(getInnerObject()));
-		PyObject* pyValue = (PyObject*)(dataType->createFromStream(stream));
+		PyObject* pyValue = (PyObject*)(dataType->createScriptObject(stream));
 
 		onScriptSetAttribute(propName, pyValue);	
 	}

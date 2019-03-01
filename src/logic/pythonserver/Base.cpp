@@ -125,7 +125,7 @@ void Base::addCellDataToStream(sl::IBStream& cellDataStream){
 			IDataType* dataType = (IDataType*)(prop->getExtra(innerObject));
 			cellDataStream << prop->getIndex(innerObject);
 			PyObject* pyValue = PyDict_GetItem(_cellDataDict, key);
-			dataType->addToStream(cellDataStream, pyValue);
+			dataType->addScriptObject(cellDataStream, pyValue);
 			*propSize += 1; 
 		}
     }

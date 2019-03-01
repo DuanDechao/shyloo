@@ -102,7 +102,7 @@ PyObject* ScriptDefModule::scriptGetObjectAttribute(PyObject* object, PyObject* 
 
 	IObject* innerObject = scriptObject->getInnerObject();
 	IDataType* dataType = (IDataType*)prop->getExtra(innerObject);
-	return (PyObject*)dataType->createFromObject(innerObject, prop);
+	return (PyObject*)dataType->createScriptObject(innerObject, prop);
 }
 
 int32 ScriptDefModule::scriptSetObjectAttribute(PyObject* object, PyObject* attr, PyObject* value){
@@ -114,7 +114,7 @@ int32 ScriptDefModule::scriptSetObjectAttribute(PyObject* object, PyObject* attr
 	
 	IObject* innerObject = scriptObject->getInnerObject();
 	IDataType* dataType = (IDataType*)prop->getExtra(innerObject);
-	dataType->addToObject(innerObject, prop, value);
+	dataType->addScriptObject(innerObject, prop, value);
 	return 0;
 }
 
@@ -184,7 +184,7 @@ void ScriptDefModule::initPropDefaultValue(PyObject* object){
 		IDataType* dataType = (IDataType*)(prop->getExtra(innerObject));
 		const char* defaultVal = prop->getDefaultVal(innerObject);
 		PyObject* pyDefaultVal = (PyObject*)(dataType->parseDefaultStr(defaultVal));
-		dataType->addToObject(innerObject, prop, pyDefaultVal);
+		dataType->addScriptObject(innerObject, prop, pyDefaultVal);
 	}
 }
 

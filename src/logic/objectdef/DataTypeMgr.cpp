@@ -2,6 +2,7 @@
 #include <algorithm>
 #include "IPythonServer.h"
 #include "IIdMgr.h"
+#include "IDebugHelper.h"
 DataTypeMgr::TYPE_MAP DataTypeMgr::_typeMap;
 DataTypeMgr::DATATYPE_MAP DataTypeMgr::_dataTypes;
 DataTypeMgr::UID_TYPE_MAP DataTypeMgr::_uidTypeMap;
@@ -10,18 +11,6 @@ std::set<IDataType*> DataTypeMgr::_allDataTypes;
 uint32 DataTypeMgr::_dataTypeUID = 0;
 bool DataTypeMgr::initialize(const char* aliasFile){
 	//初始化一些基本类别
-	_typeMap["UINT8"] = DTYPE_UINT8;
-	_typeMap["UINT16"] = DTYPE_UINT16;
-	_typeMap["UINT32"] = DTYPE_UINT32;
-	_typeMap["UINT64"] = DTYPE_UINT64;
-	_typeMap["INT8"] = DTYPE_INT8;
-	_typeMap["INT16"] = DTYPE_INT16;
-	_typeMap["INT32"] = DTYPE_INT32;
-	_typeMap["INT64"] = DTYPE_INT64;
-	_typeMap["FLOAT"] = DTYPE_FLOAT;
-	_typeMap["STRING"] = DTYPE_STRING;
-	_typeMap["BLOB"] = DTYPE_BLOB;
-	
 	if(!loadAlias(aliasFile))
 		return false;
 
@@ -104,16 +93,19 @@ IDataType* DataTypeMgr::getDataType(const uint32 uid){
 }
 
 void DataTypeMgr::addDataType(const char* name, IDataType* dataType){
+	if(_typeMap.find(name) != _typeMap.end()){
+		ERROR_LOG("duplicate dataType %s", name);
+		return;
+	}
+
 	_dataTypeUID++;
 	dataType->setAliasName(name);
-	if(_typeMap.find(name) == _typeMap.end())
-		_typeMap[name] = DTYPE_BLOB;
+	_typeMap[name] = dataType->getType();
 
 	_dataTypes[name] = dataType;
 	_uidTypeMap[_dataTypeUID] = _typeMap[name];
 	_uidDataTypeMap[_dataTypeUID] = dataType;
 	dataType->setUid(_dataTypeUID);
-	dataType->setType(_typeMap[name]);
 	_allDataTypes.insert(dataType);
 }
 
