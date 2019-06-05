@@ -4,7 +4,7 @@
 #include "PyDataType.h"
 #include "pyscript/sequence.h"
 #include "pyscript/pickler.h"
-class FixedArray : public sl::pyscript::ScriptObject{		
+class FixedArray: public sl::pyscript::ScriptObject{		
 	/** 子类化 将一些py操作填充进派生类 */
 	INSTANCE_SCRIPT_HREADER(FixedArray, ScriptObject)
 public:	
@@ -15,9 +15,14 @@ public:
 
 	inline PyDataType* getDataType(void){ return _dataType; }
 	inline IDataType* getSubDataType() {return _dataType->arrayDataType();}
-	inline int length(void) const{ return _objArray ? (int)_objArray->size() : 0; } 
-	inline PyObject* getDataByIndex(const int32 index);
+	inline int length(void) const{ return _objArray ? (int)_objArray->length() : 0; } 
 	inline IArray* objArray() {return _objArray;}
+	PyObject* getDataByIndex(const int32 index);
+	void setDataByIndex(const int32 index, PyObject* pyobj);
+	bool removeDataByIndex(const int32 start, const int32 end);
+	bool extendByIndex(const int32 index, const int32 count);
+	bool repeat(const int32 n);
+	bool clear();
 	
 	/** 
 		初始化固定数组
@@ -61,8 +66,8 @@ public:
 	static int seq_ass_item(PyObject* self, Py_ssize_t index, PyObject* value);
 	static int seq_ass_slice(PyObject* self, Py_ssize_t index1, Py_ssize_t index2, PyObject* oterSeq);
 	static int seq_contains(PyObject* self, PyObject* value);
-	//static PyObject* seq_inplace_concat(PyObject* self, PyObject* oterSeq);
-	//static PyObject* seq_inplace_repeat(PyObject * self, Py_ssize_t n);
+	static PyObject* seq_inplace_concat(PyObject* self, PyObject* oterSeq);
+	static PyObject* seq_inplace_repeat(PyObject * self, Py_ssize_t n);
 	
 	bool isSameType(PyObject* pyValue);
 	bool isSameItemType(PyObject* pyValue);

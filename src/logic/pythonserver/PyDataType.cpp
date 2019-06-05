@@ -1420,6 +1420,7 @@ bool PyFixedDictType::initType(const sl::ISLXmlNode* typeNode){
 			_dictItems.push_back(std::pair<std::string, IDataType*>(typeName, dataType));
 			std::string dataTypeName = std::string("_") + sl::CStringUtils::Int64AsString(SLMODULE(IdMgr)->generateLocalId()) + dataType->getName();
 			SLMODULE(ObjectDef)->addExtraDataType(dataTypeName.c_str(), dataType);
+			_typeSize += dataType->getSize();
 		}
 		else{
 			IDataType* dataType = SLMODULE(ObjectDef)->getDataType(strType.c_str());
@@ -1429,6 +1430,7 @@ bool PyFixedDictType::initType(const sl::ISLXmlNode* typeNode){
 			}
 
 			_dictItems.push_back(std::pair<std::string, IDataType*>(typeName, dataType));
+			_typeSize += dataType->getSize();
 		}
 
 	}

@@ -42,24 +42,24 @@ PyObject* EntityScriptObject::delTimer(int32 timerId){
 
 
 PyObject* EntityScriptObject::onScriptGetAttribute(PyObject* attr){
-//	PyObject* pyValue = ScriptObject::onScriptGetAttribute(attr);
-//	if(PyErr_Occurred() && !pyValue){
-//		PyErr_Clear();
-//	}
-//	if(!pyValue){
-	wchar_t* pyUnicodeWideString = PyUnicode_AsWideCharString(attr, NULL);
-	char* keyStr = sl::CStringUtils::wchar2char(pyUnicodeWideString);
-	PyMem_Free(pyUnicodeWideString);
-	PyObject* ret = _pScriptModule->scriptGetObjectAttribute(this, attr);
-	return ret;
-//		ScriptObject::onScriptSetAttribute(attr, pyValue);
-//	}
-//	return pyValue;
+	PyObject* pyValue = ScriptObject::onScriptGetAttribute(attr);
+	if(PyErr_Occurred() && !pyValue){
+		PyErr_Clear();
+	}
+	if(!pyValue){
+		wchar_t* pyUnicodeWideString = PyUnicode_AsWideCharString(attr, NULL);
+		char* keyStr = sl::CStringUtils::wchar2char(pyUnicodeWideString);
+		PyMem_Free(pyUnicodeWideString);
+		pyValue = _pScriptModule->scriptGetObjectAttribute(this, attr);
+		ScriptObject::onScriptSetAttribute(attr, pyValue);
+	}
+	return pyValue;
 }
 
 int EntityScriptObject::onScriptSetAttribute(PyObject* attr, PyObject* value){
-	//int32 ret = ScriptObject::onScriptSetAttribute(attr, value);
-	return _pScriptModule->scriptSetObjectAttribute(this, attr, value);
+	int32 ret = ScriptObject::onScriptSetAttribute(attr, value);
+	return ret;
+	//return _pScriptModule->scriptSetObjectAttribute(this, attr, value);
 }
 
 

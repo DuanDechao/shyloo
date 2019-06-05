@@ -574,6 +574,7 @@ public:
 	virtual void* createScriptObject(IArray* array, const int32 index);
 	virtual const char* getName() const {return "BLOB";}
 	virtual const int8 getType() const {return DTYPE_BLOB;}
+	virtual const int32 getSize() const {return 512;} 
 	virtual void* parseDefaultStr(const char* defaultValStr);
 
 protected:
@@ -591,6 +592,7 @@ public:
 	virtual void* createScriptObject(IArray* array, const int32 index);
 	virtual const char* getName() const {return "PYTHON";}
 	virtual const int8 getType() const {return DTYPE_BLOB;}
+	virtual const int32 getSize() const {return 512;} 
 	virtual void* parseDefaultStr(const char* defaultValStr);
 };
 
@@ -626,6 +628,7 @@ public:
 	virtual void* createScriptObject(IObject* object, const IProp* prop);
 	virtual void* createScriptObject(IArray* array, const int32 index);
 	virtual const char* getName() const {return "ARRAY";}
+	virtual const int32 getSize() const {return sizeof(int32);}
 	virtual const int8 getType() const {return DTYPE_ARRAY;}
 	virtual bool initType(const sl::ISLXmlNode* typeNode);
 	virtual void addDataTypeInfo(sl::IBStream& stream);
@@ -641,10 +644,11 @@ protected:
 class PyFixedDictType: public PythonType{
 public:
 	typedef std::vector<std::pair<string, IDataType*>> FIXEDDICT_KEYTYPE_MAP;
-	PyFixedDictType():_pyImplObj(NULL), _pyCreateObjFromDict(NULL), _pyGetDictFromObj(NULL), _pyIsSameType(NULL){}
+	PyFixedDictType():_pyImplObj(NULL), _pyCreateObjFromDict(NULL), _pyGetDictFromObj(NULL), _pyIsSameType(NULL), _typeSize(0){}
 	virtual ~PyFixedDictType() {}
 	const char* getName() const {return "FIXED_DICT";}
 	virtual const int8 getType() const {return DTYPE_DICT;}
+	virtual const int32 getSize() const {return _typeSize;}
 	virtual bool initType(const sl::ISLXmlNode* typeNode);
 	bool loadImplModule(std::string moduleName);
 	void addDataTypeInfo(sl::IBStream& stream);
@@ -673,6 +677,7 @@ protected:
 	PyObject* _pyGetDictFromObj;
 	PyObject* _pyIsSameType;
 	std::string _moduleName;
+	int32	  _typeSize;
 };
 
 class MailBoxType: public PyDataType{

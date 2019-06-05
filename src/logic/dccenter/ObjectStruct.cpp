@@ -98,7 +98,17 @@ bool ObjectPropInfo::loadProps(const sl::ISLXmlNode& props, PROP_DEFDINE_MAP& de
 }
 
 const IProp* ObjectPropInfo::loadProp(const char* name, const int8 type, const int32 size, const int32 setting, const int32 index, const void* extra, const char* defaultVal, bool isTemp){
-	PropLayout* layout = NEW PropLayout();
+	PropLayout* layout = nullptr;
+	if(type == DTYPE_DICT){
+		layout = NEW DictLayout(); 
+	}
+	else if(type == DTYPE_ARRAY){
+		layout = NEW ArrayLayout();
+	}
+	else{
+		layout = NEW PropLayout();
+	}
+	
 	layout->_name = name;
 	layout->_offset = _size;
 	layout->_type = type;

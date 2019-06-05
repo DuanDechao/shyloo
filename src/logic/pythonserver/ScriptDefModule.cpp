@@ -2,7 +2,6 @@
 #include "slxml_reader.h"
 #include "slfile_utils.h"
 #include "IDCCenter.h"
-#include "DataTypeMgr.h"
 #include "NodeDefine.h"
 #include "slstring_utils.h"
 #include "NodeProtocol.h"

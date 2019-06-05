@@ -11,7 +11,7 @@ class OMemory{
 public:
 	OMemory(int32 size) : m_pszBuf(NULL), m_size(size), m_needFree(true){
 		SLASSERT(m_size > 0, "invalid params");
-		m_pszBuf = NEW char[m_size];
+		m_pszBuf = (char*)malloc(sizeof(char) * m_size);
 		sl::SafeMemset(m_pszBuf, m_size, 0, size);
 	}
 
@@ -19,7 +19,7 @@ public:
 
 	~OMemory(){
 		if(m_needFree){
-			DEL[] m_pszBuf;
+			free(m_pszBuf);
 		}
 
 		m_pszBuf = NULL;
@@ -54,9 +54,18 @@ public:
 		sl::SafeMemset(m_pszBuf, m_size, 0, m_size);
 	}
 
+	inline void resize(int32 size){
+		if(size <= m_size || !m_needFree)
+			return;
+
+		int32 newSize = (m_size * 2) > size ? (m_size * 2) : size;
+		m_pszBuf = (char*)realloc(m_pszBuf, newSize);
+		m_size = newSize;
+	}
+
 private:
 	char* m_pszBuf;
-	const int32 m_size;
+	int32 m_size;
 	bool m_needFree;
 };
 #endif

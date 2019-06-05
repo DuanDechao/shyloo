@@ -142,8 +142,7 @@ ISubProp* ObjectProp::addDictProp(const int32 objTypeId, const char* elePropName
 
 	layout->_offset = dictLayout->_innerOffset;
 	dictLayout->_innerOffset += size;
-	string propKey = elePropName;
-	dictLayout->_dictEles[propKey] = layout;
+	dictLayout->_dictEles[elePropName] = layout;
 
 	return NEW ObjectSubProp(layout); 
 }

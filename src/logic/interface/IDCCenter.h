@@ -173,8 +173,11 @@ class IArray{
 public:
 	virtual ~IArray() {}
 
-	virtual int32 size() = 0;
-	virtual void remove(const int32 index) = 0;
+	virtual int32 length() = 0;
+	virtual bool clear() = 0;
+	virtual bool repeat(const int32 n) = 0;
+	virtual bool remove(const int32 start, const int32 end) = 0;
+	virtual bool extend(const int32 index, const int32 count) = 0;
 	virtual bool setPropInt8(const int32 index, const int8 data) = 0;
 	virtual bool setPropInt16(const int32 index, const int16 data) = 0;
 	virtual bool setPropInt32(const int32 index, const int32 data) = 0;

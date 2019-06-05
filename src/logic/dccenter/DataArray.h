@@ -11,8 +11,12 @@ public:
 
 	virtual ~DataArray(){}
 
-	virtual int32 size() { return *(int32*)(_memory->buf());}
-	virtual void remove(const int32 index) {}
+	virtual int32 length() { return *(int32*)(_memory->buf());}
+	void setLength(const int32 length) { *(int32*)(_memory->buf()) = length; }
+	virtual bool remove(const int32 start, const int32 end);
+	virtual bool extend(const int32 index, const int32 count);
+	virtual bool repeat(const int32 n);
+	virtual bool clear() {setLength(0); return true;}
 	virtual bool setPropInt8(const int32 index, const int8 data){ return setData(index, DTYPE_INT8, &data, sizeof(int8)); }
 	virtual bool setPropInt16(const int32 index, const int16 data){ return setData(index, DTYPE_INT16, &data, sizeof(int16)); }
 	virtual bool setPropInt32(const int32 index, const int32 data){ return setData(index, DTYPE_INT32, &data, sizeof(int32)); }
