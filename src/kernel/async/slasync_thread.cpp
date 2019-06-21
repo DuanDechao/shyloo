@@ -7,10 +7,9 @@ namespace core
 {
 #define ASYNC_QUEUE_SIZE 8196
 
-AsyncThread::AsyncThread()
-	:_runningQueue(ASYNC_QUEUE_SIZE),
-	_completeQueue(ASYNC_QUEUE_SIZE),
-	_terminate(false)
+AsyncThread::AsyncThread(SLStrandWorkQueue* workQueue)
+	:_terminate(false),
+	_workQueue(workQueue)
 {}
 
 void AsyncThread::start(){

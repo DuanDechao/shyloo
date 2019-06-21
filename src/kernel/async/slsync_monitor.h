@@ -15,45 +15,45 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * 
  */
-
 /**
- * @file slasync_engine.h
- * @brief  
+ * @file slsync_monitor.h
+ * @brief 监控对数据T的同步操作 
  * @author duandechao
  * @version 1.0
  * @date 2019-06-21
  */
 
+#ifndef __SL_SYNC_MONITOR_H__
+#define __SL_SYNC_MONITOR_H__
 
-#ifndef __SL_ASYNC_ENGINE_H__
-#define __SL_ASYNC_ENGINE_H__
-#include "slikernel.h"
-#include <vector>
-#include "slsingleton.h"
-namespace sl
-{
-namespace core
-{
-
-class AsyncThread;
-class AsyncEngine: public SLSingleton<AsyncEngine>{
-	friend class SLSingleton<AsyncEngine>;
-public:
-	virtual bool ready();
-	virtual bool initialize();
-	virtual bool destory();
-
-	int64 loop(int64 overTime);
-
-	void start(const int64 threadId, api::IAsyncHandler* handler, const char* debug);
-	void stop(api::IAsyncHandler* handler);
-
+#include <mutex>
+template <class T>
+class SLSyncMonitor{
 private:
-	std::vector<std::thread>	_ths;
-	SLStrandWorkQueue			_workQueue;
+	mutable T			_data;
+	mutable	std::mutex	_mtx;
+
+public:
+	SLSyncMonitor(){}
+	SLSyncMonitor(T _t): _data(std::move(_t)) {}
+
+
+	/**
+	 * @brief  多线程同步对_data的f操作
+	 *
+	 * @tparam FUNC
+	 * @param  f(_data)
+	 *
+	 * @return  
+	 */
+	template <typename FUNC>
+	auto operator()(FUNC f) const -> decltype(f(_data)){
+		std::lock_guard<std::mutex> lock(_mtx);
+		return f(_data);
+	}
+
 };
 
-
-}
-}
 #endif
+
+

@@ -14,22 +14,19 @@ bool AsyncEngine::ready(){
 bool AsyncEngine::initialize(){
 	const sCoreConfig* conf = ConfigEngine::getInstance()->getCoreConfig();
 	int32 threadCount = conf->maxAsyncThreadNum;
-	if (threadCount > 0){
-		for (int32 i = 0; i < threadCount; i++){
-			AsyncThread* t = NEW AsyncThread;
-			t->start();
-			_threads.push_back(t);
-		}
+	_ths.resize(threadCount);
+	for (int i = 0; i < threadCount; i++){
+		_ths[i] = std::thread([&_workQueue]{
+			_workQueue.run();
+		});
 	}
 
 	return true;
 }
 
 bool AsyncEngine::destory(){
-	for (AsyncThread *t : _threads){
-		t->terminate();
-		DEL t;
-	}
+	_workQueue.stop();
+
 	_threads.clear();
 
 	DEL this;

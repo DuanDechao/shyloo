@@ -11,7 +11,7 @@ namespace core{
 class AsyncBase;
 class AsyncThread{
 public:
-	AsyncThread();
+	AsyncThread(SLStrandWorkQueue* workQueue);
 	~AsyncThread(){}
 
 	AsyncThread(const AsyncThread&) = delete;
@@ -19,17 +19,15 @@ public:
 	void start();
 	void terminate();
 
-	void add(AsyncBase* base);
+	//void add(AsyncBase* base);
 
-	void loop(int64 overTime);
+//	void loop(int64 overTime);
 	void threadProc();
 
 private:
-	sl::CycleQueue<AsyncBase*> _runningQueue;
-	sl::CycleQueue<AsyncBase*> _completeQueue;
-
-	bool  _terminate;
-	std::thread _thread;
+	bool				_terminate;
+	std::thread			_thread;
+	SLStrandWorkQueue*	_workQueue;
 };
 
 }
